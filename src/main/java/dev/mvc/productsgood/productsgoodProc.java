@@ -6,7 +6,7 @@ import java.util.HashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component("dev.mvc.productsgood.productsgoodProc")
+@Component("dev.mvc.productsgood.ProductsgoodProc")
 public class ProductsgoodProc implements ProductsgoodProcInter {
   @Autowired
   ProductsgoodDAOInter productsgoodDAO;
@@ -48,8 +48,8 @@ public class ProductsgoodProc implements ProductsgoodProcInter {
   }
 
   @Override
-  public ArrayList<productsproductsgoodMemberVO> list_all_join() {
-    ArrayList<productsproductsgoodMemberVO> list = this.productsgoodDAO.list_all_join();
+  public ArrayList<ProductsproductsgoodMemberVO> list_all_join() {
+    ArrayList<ProductsproductsgoodMemberVO> list = this.productsgoodDAO.list_all_join();
     return list;
   }
 

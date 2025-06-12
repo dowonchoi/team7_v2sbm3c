@@ -10,7 +10,7 @@ import java.util.List;
 // Payend pay = new Payend2023();
 // Payend pay = new Payend2024();
 // pay.calc();
-import java.util.Map;         
+import java.util.Map;   
 
 public interface MemberDAOInter {
   /**

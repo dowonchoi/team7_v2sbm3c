@@ -33,7 +33,7 @@ public class ProductsgoodCont {
   private CateProcInter cateProc;
   
   @Autowired
-  @Qualifier("dev.mvc.productsgood.productsgoodProc") 
+  @Qualifier("dev.mvc.productsgood.ProductsgoodProc") 
   ProductsgoodProcInter productsgoodProc;
   
   public ProductsgoodCont() {
@@ -99,7 +99,7 @@ public class ProductsgoodCont {
   // http://localhost:9091/productsgood/list_all
   @GetMapping(value = "/list_all")
   public String list_all(Model model) {
-    ArrayList<productsproductsgoodMemberVO> list = this.productsgoodProc.list_all_join();
+    ArrayList<ProductsproductsgoodMemberVO> list = this.productsgoodProc.list_all_join();
     model.addAttribute("list", list);
 
     ArrayList<CateVOMenu> menu = this.cateProc.menu();

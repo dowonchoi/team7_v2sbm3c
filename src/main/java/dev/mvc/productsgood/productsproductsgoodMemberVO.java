@@ -11,7 +11,7 @@ import lombok.ToString;
 //ORDER BY productsgoodno DESC;
 
 @Getter @Setter @ToString
-public class productsproductsgoodMemberVO {
+public class ProductsproductsgoodMemberVO {
   /** 컨텐츠 추천 번호 */
   private int productsgoodno;
   
