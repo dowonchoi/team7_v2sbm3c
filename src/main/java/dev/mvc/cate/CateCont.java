@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import dev.mvc.contents.ContentsProcInter;
+import dev.mvc.products.ProductsProcInter;
 import dev.mvc.member.MemberProc;
 import dev.mvc.tool.Tool;
 import jakarta.servlet.http.HttpSession;
@@ -38,8 +38,8 @@ public class CateCont {
   private MemberProc memberProc;
   
   @Autowired
-  @Qualifier("dev.mvc.contents.ContentsProc") // @Component("dev.mvc.contents.ContentsProc")
-  private ContentsProcInter contentsProc;  
+  @Qualifier("dev.mvc.products.ProductsProc")
+  private ProductsProcInter poductsProc;  
   
   /** 페이지당 출력할 레코드 갯수, nowPage는 1부터 시작 */
   public int record_per_page = 7;
@@ -431,8 +431,8 @@ public class CateCont {
     // System.out.println("-> no: " + no);        
     // --------------------------------------------------------------------------------------    
     
-    // 특정 cateno에 해당하는 contents 레코드 수
-    int count_by_cateno = this.contentsProc.count_by_cateno(cateno);
+    // 특정 cateno에 해당하는 products 레코드 수
+    int count_by_cateno = this.productsProc.count_by_cateno(cateno);
     model.addAttribute("count_by_cateno", count_by_cateno);
     // System.out.println("-> count_by_cateno: " + count_by_cateno);
     
@@ -485,7 +485,7 @@ public class CateCont {
   }  
 
   /**
-   * 특정 cateno에 해당하는 contents 삭제 후 cate 삭제 처리
+   * 특정 cateno에 해당하는 products 삭제 후 cate 삭제 처리
    * @param model
    * @return
    */
@@ -498,10 +498,10 @@ public class CateCont {
     CateVO cateVO = this.cateProc.read(cateno); // 삭제 정보 출력용으로 사전에 읽음
     model.addAttribute("cateVO", cateVO);
     
-    // int count_by_cateno = this.contentsProc.count_by_cateno(now_page);
+    // int count_by_cateno = this.productsProc.count_by_cateno(now_page);
     
     // 자식 테이블 삭제
-    int count_by_cateno = this.contentsProc.delete_by_cateno(cateno);
+    int count_by_cateno = this.productsProc.delete_by_cateno(cateno);
     System.out.println("-> count_by_cateno 삭제된 레코드 수: " + count_by_cateno);
     
     // 카테고리 그룹에 등록된 글수 변경
