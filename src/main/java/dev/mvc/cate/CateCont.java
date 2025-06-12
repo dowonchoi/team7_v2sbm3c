@@ -39,7 +39,7 @@ public class CateCont {
   
   @Autowired
   @Qualifier("dev.mvc.products.ProductsProc")
-  private ProductsProcInter poductsProc;  
+  private ProductsProcInter productsProc;  
   
   /** 페이지당 출력할 레코드 갯수, nowPage는 1부터 시작 */
   public int record_per_page = 7;
