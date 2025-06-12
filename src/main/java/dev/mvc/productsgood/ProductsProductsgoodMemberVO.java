@@ -11,7 +11,11 @@ import lombok.ToString;
 //ORDER BY productsgoodno DESC;
 
 @Getter @Setter @ToString
+<<<<<<< HEAD:src/main/java/dev/mvc/productsgood/productsproductsgoodMemberVO.java
 public class ProductsproductsgoodMemberVO {
+=======
+public class ProductsProductsgoodMemberVO {
+>>>>>>> a472891820da2bc4e8bac7038ec34aacee820cd5:src/main/java/dev/mvc/productsgood/ProductsProductsgoodMemberVO.java
   /** 컨텐츠 추천 번호 */
   private int productsgoodno;
   
