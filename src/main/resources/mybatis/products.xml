@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="dev.mvc.products.ProductsDAOInter">
+  <!-- 등록한 레코드 갯수 1 리턴, #{memberno}: public int getAdminno() 호출됨 -->
+  <insert id="create" parameterType="dev.mvc.products.ProductsVO">
+    INSERT INTO products(productsno, memberno, cateno, title, content, passwd, word,
+                                     file1, file1saved, thumb1, size1, rdate)
+    VALUES(products_seq.nextval, #{memberno}, #{cateno}, #{title}, #{content}, #{passwd}, #{word},
+                #{file1}, #{file1saved}, #{thumb1}, #{size1}, sysdate)
+  </insert>
+
+  <!-- 모든 카테고리의 등록된 글목록 -->
+  <select id="list_all" resultType="dev.mvc.products.ProductsVO">
+    SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, passwd, word, rdate,
+               file1, file1saved, thumb1, size1, mp4
+    FROM products
+    ORDER BY productsno DESC
+  </select>
+  
+  <!-- 특정 카테고리의 등록된 글목록 -->
+  <select id="list_by_cateno" resultType="dev.mvc.products.ProductsVO" parameterType="int">
+    SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate,
+              LOWER(file1) as file1, file1saved, thumb1, size1, mp4
+    FROM products 
+    WHERE cateno = #{cateno}
+    ORDER BY productsno DESC
+  </select> 
+  
+  <!-- 일반적인 조회 -->
+  <select id="read" resultType="dev.mvc.products.ProductsVO" parameterType="int">
+    SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, passwd, word, rdate,
+              file1, file1saved, thumb1, size1, map, youtube
+    FROM products
+    WHERE productsno = #{productsno}
+  </select>
+  
+  <!-- map 등록, 수정, 삭제, 
+         HashMap: VO 클래스는 변수가 너무 많아서 메모리 낭비가 발생함으로,
+                       보통 3개 이하의 적은 변수만 전달하는 경우 HashMap 사용 권장 -->
+  <update id="map" parameterType="HashMap">
+    UPDATE products SET map=#{map} WHERE productsno=#{productsno}
+  </update>
+
+  <!-- Youtube 등록, 수정, 삭제, 
+         HashMap: VO 클래스는 변수가 너무 많아서 메모리 낭비가 발생함으로,
+                       보통 3개 이하의 적은 변수만 전달하는 경우 HashMap 사용 권장 -->
+  <update id="youtube" parameterType="HashMap">
+    UPDATE products SET youtube=#{youtube} WHERE productsno=#{productsno}
+  </update>
+
+  <!-- 카테고리별 검색 목록 -->
+  <select id="list_by_cateno_search" resultType="dev.mvc.products.ProductsVO" parameterType="HashMap">
+    SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, word, rdate,
+            file1, file1saved, thumb1, size1, map, youtube
+    FROM products
+    <choose>
+      <when test="word == null or word == ''"> <!-- 검색하지 않는 경우 -->
+        WHERE cateno=#{cateno}
+      </when>
+      <otherwise> <!-- 검색하는 경우 -->
+        WHERE cateno=#{cateno} AND (UPPER(title) LIKE '%' || UPPER(#{word}) || '%' 
+                                                  OR UPPER(content) LIKE '%' || UPPER(#{word}) || '%' 
+                                                  OR UPPER(word) LIKE '%' || UPPER(#{word}) || '%')
+      </otherwise>
+    </choose>
+    ORDER BY productsno DESC   
+  </select>
+   
+  <!-- 카테고리별 검색 레코드 갯수 -->
+  <select id="list_by_cateno_search_count" resultType="int" parameterType="HashMap">
+    SELECT COUNT(*) as cnt
+    FROM products
+    <choose>
+      <when test="word == null or word == ''"> <!-- 검색하지 않는 경우의 레코드 갯수 -->
+        WHERE cateno=#{cateno}
+      </when>
+      <otherwise> <!-- 검색하는 경우의 레코드 갯수 -->
+        WHERE cateno=#{cateno} AND (UPPER(title) LIKE '%' || UPPER(#{word}) || '%' 
+                                                  OR UPPER(content) LIKE '%' || UPPER(#{word}) || '%' 
+                                                  OR UPPER(word) LIKE '%' || UPPER(#{word}) || '%')
+      </otherwise>
+    </choose>
+  </select>   
+
+  <!-- 카테고리별 검색 + 페이징 목록 -->
+  <select id="list_by_cateno_search_paging" resultType="dev.mvc.products.ProductsVO" parameterType="HashMap">
+   SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate, file1, file1saved, thumb1, size1, map, youtube, r
+   FROM (
+              SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate, file1, file1saved, thumb1, size1, map, youtube, rownum as r
+              FROM (
+                        SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate, file1, file1saved, thumb1, size1, map, youtube
+                        FROM products
+                        <choose>
+                          <when test="word == null or word == ''"> <!-- 검색하지 않는 경우 -->
+                            WHERE cateno=#{cateno}
+                          </when>
+                          <otherwise>
+                            WHERE cateno=#{cateno} AND (UPPER(title) LIKE '%' || UPPER(#{word}) || '%' 
+                                                              OR UPPER(content) LIKE '%' || UPPER(#{word}) || '%' 
+                                                              OR UPPER(word) LIKE '%' || UPPER(#{word}) || '%')
+                          </otherwise>
+                        </choose>
+                        ORDER BY productsno DESC
+               )
+    )
+    WHERE <![CDATA[ r >= #{start_num} AND r <= #{end_num} ]]>
+     
+    <!-- 1 page: WHERE r >= 1 AND r <= 10; 
+          2 page: WHERE r >= 11 AND r <= 20;
+          3 page: WHERE r >= 21 AND r <= 30; -->
+  </select>
+  
+  <!-- 패스워드 검사 -->
+  <select id="password_check" resultType="int" parameterType="HashMap">
+    SELECT COUNT(*) as cnt 
+    FROM products
+    WHERE productsno = #{productsno} AND passwd=#{passwd}
+  </select>
+  
+  <!-- 글 수정 -->
+  <update id="update_text" parameterType="dev.mvc.products.ProductsVO">
+    UPDATE products
+    SET title=#{title}, content=#{content},  word=#{word}
+    WHERE productsno = #{productsno}
+  </update>
+
+
+  <!-- 파일 수정 -->
+  <update id="update_file" parameterType="dev.mvc.products.ProductsVO">
+    UPDATE products
+    SET file1=#{file1}, file1saved=#{file1saved}, thumb1=#{thumb1}, size1=#{size1}
+    WHERE productsno = #{productsno}
+  </update>  
+
+  <!-- 글 삭제 -->
+  <delete id="delete" parameterType="int">
+    DELETE FROM products
+    WHERE productsno=#{productsno}
+  </delete>
+  
+  <!-- FK cateno 컬럼에 대응하는 필수 SQL -->
+  <!-- 특정 카테고리에 속한 레코드 갯수를 리턴 -->
+  <select id="count_by_cateno" resultType="int" parameterType="int">
+    SELECT COUNT(*) as cnt 
+    FROM products 
+    WHERE cateno=#{cateno}
+  </select>
+  
+  <!-- 특정 카테고리에 속한 모든 레코드 삭제 -->
+  <delete id="delete_by_cateno" parameterType="int">
+    DELETE FROM products
+    WHERE cateno=#{cateno}
+  </delete>
+  
+  <!-- 추천 수 증가 -->
+  <update id="increaseRecom" parameterType="int">
+    UPDATE products
+    SET recom = recom + 1
+    WHERE productsno = #{productsno}
+  </update>
+      
+  <!-- 추천 수 감소 -->
+  <update id="decreaseRecom" parameterType="int">
+    UPDATE products
+    SET recom = recom - 1
+    WHERE productsno = #{productsno}
+  </update>   
+
+  <!-- FK memberno 컬럼에 대응하는 필수 SQL -->
+  <!-- 특정 카테고리에 속한 레코드 갯수를 리턴 -->
+  <select id="count_by_memberno" resultType="int" parameterType="int">
+    SELECT COUNT(*) as cnt 
+    FROM products 
+    WHERE memberno=#{memberno}
+  </select>
+  
+  <!-- 특정 카테고리에 속한 모든 레코드 삭제 -->
+  <delete id="delete_by_memberno" parameterType="int">
+    DELETE FROM products
+    WHERE memberno=#{memberno}
+  </delete>
+
+   <!-- 댓글 수 증가 -->
+   <update id="increaseReplycnt" parameterType="int">
+     UPDATE products
+     SET replycnt = replycnt + 1
+     WHERE productsno = #{productsno}
+   </update>
+
+   <!-- 댓글 수 감소 -->
+   <update id="decreaseReplycnt" parameterType="int">
+     UPDATE products
+     SET replycnt = replycnt - 1
+     WHERE productsno = #{productsno}
+   </update>
+               
+</mapper> 
+
