@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dev.mvc.cate.CateDAOInter"> <!-- SB가 자동으로 구현하여 연동하는 interface -->
+  <insert id="create" parameterType="dev.mvc.cate.CateVO">
+    INSERT INTO cate(cateno, grp, name, cnt, seqno, visible, rdate)
+    VALUES(CATE_SEQ.nextval, #{grp}, #{name}, 0, #{seqno}, #{visible}, SYSDATE)
+  </insert>
+
+  <!-- 레코드 갯수만큼 CateVO class 객체가 생성됨 -> ArrayList<CateVO> 생성됨 -->
+  <select id="list_all" resultType="dev.mvc.cate.CateVO">
+    SELECT cateno, grp, name, cnt, seqno, visible, rdate
+    FROM cate
+    ORDER BY seqno ASC
+  </select>
+  
+  <!-- 하나의 CateVO class 객체가 생성됨 -->
+  <select id="read" resultType="dev.mvc.cate.CateVO" parameterType="Integer">
+    SELECT cateno, grp, name, cnt, seqno, visible, rdate
+    FROM cate
+    WHERE cateno=#{cateno}
+  </select>
+  
+  <update id="update" parameterType="dev.mvc.cate.CateVO">
+    UPDATE cate 
+    SET grp=#{grp}, name=#{name}, cnt=#{cnt}, seqno=#{seqno}, visible=#{visible}, rdate=SYSDATE 
+    WHERE cateno=#{cateno}
+  </update>
+  
+  <delete id="delete" parameterType="Integer">
+    DELETE FROM cate WHERE cateno=#{cateno}
+  </delete>
+  
+  <!-- 우선 순위 높임, 10 등 -> 1 등 -->
+  <update id="update_seqno_forward" parameterType="Integer">
+    UPDATE cate SET seqno=seqno-1 WHERE cateno=#{cateno}
+  </update>
+
+  <!-- 우선 순위 낮춤, 1 등 -> 10 등 -->
+  <update id="update_seqno_backward" parameterType="Integer">
+    UPDATE cate SET seqno=seqno+1 WHERE cateno=#{cateno}
+  </update>
+
+  <!-- 카테고리 공개 설정 -->
+  <update id="update_visible_y" parameterType="Integer">
+    UPDATE cate SET visible='Y' WHERE cateno=#{cateno}
+  </update>
+  
+  <!-- 카테고리 비공개 설정 -->
+  <update id="update_visible_n" parameterType="Integer">
+    UPDATE cate SET visible='N' WHERE cateno=#{cateno}
+  </update>
+  
+  <!-- 공개된 대분류만 출력 -->
+  <select id="list_all_grp_y" resultType="dev.mvc.cate.CateVO">
+    SELECT cateno, grp, name, cnt, seqno, visible, rdate 
+    FROM cate 
+    WHERE name='--' AND visible='Y' 
+    ORDER BY seqno ASC
+  </select>
+  
+  <!-- 특정 그룹의 중분류 출력 -->
+  <select id="list_all_name_y" resultType="dev.mvc.cate.CateVO" parameterType="String">
+    SELECT cateno, grp, name, cnt, seqno, visible, rdate
+    FROM cate 
+    WHERE grp=#{grp} AND name != '--' AND visible = 'Y' 
+    ORDER BY seqno ASC
+  </select>
+  
+  <!-- 카테고리 그룹 목록 -->
+  <select id="grpset" resultType="String">
+    SELECT grp 
+    FROM cate 
+    WHERE name = '--'
+    ORDER BY seqno ASC
+  </select>
+
+  <!-- 검색
+        SQL -> CateVO 객체 레코드 수 만큼 생성 -> ArrayList<cateVO> 객체가 생성되어 CateDAOInter로 리턴  -->
+  <select id="list_search" resultType="dev.mvc.cate.CateVO" parameterType="String">
+    SELECT cateno, grp, name, cnt, seqno, visible, rdate
+    FROM cate
+    <if test="word != null and word != ''"> <!-- 검색 상태라면 WHERE 생성 -->
+      WHERE (UPPER(grp) LIKE '%' || UPPER(#{word}) || '%') OR (UPPER(name) LIKE '%' || UPPER(#{word}) || '%')
+    </if> 
+    ORDER BY seqno ASC
+  </select>
+
+  <!-- 검색 갯수 -->
+  <select id="list_search_count" resultType="Integer" parameterType="String">
+    SELECT COUNT(*) as cnt
+    FROM cate
+    <if test="word != null and word != ''"> <!-- 검색 상태라면 WHERE 생성 -->
+      WHERE (UPPER(grp) LIKE '%' || UPPER(#{word}) || '%') OR (UPPER(name) LIKE '%' || UPPER(#{word}) || '%')
+    </if> 
+    ORDER BY seqno ASC
+  </select>
+
+  <!-- 검색
+        SQL -> CateVO 객체 레코드 수 만큼 생성 -> ArrayList<cateVO> 객체가 생성되어 CateDAOInter로 리턴  -->
+  <select id="list_search_paging" resultType="dev.mvc.cate.CateVO" parameterType="Map">
+    SELECT cateno, grp, name, cnt, seqno, visible, rdate, r
+    FROM (
+        SELECT cateno, grp, name, cnt, seqno, visible, rdate, rownum as r
+        FROM (
+            SELECT cateno, grp, name, cnt, seqno, visible, rdate
+            FROM cate
+            <if test="word != null and word != ''"> <!-- 검색 상태라면 WHERE 생성 -->
+              WHERE (UPPER(grp) LIKE '%' || UPPER(#{word}) || '%') OR (UPPER(name) LIKE '%' || UPPER(#{word}) || '%')
+            </if> 
+            ORDER BY seqno ASC
+        )
+    )
+    WHERE r &gt;= #{start_num} AND r &lt;= #{end_num}  <!-- WHERE r >= 7 AND r <= 9 -->
+  </select>
+  
+  <!-- 우선 순위 높임, 10 등 -> 1 등 -->
+  <update id="update_cnt_by_cateno" parameterType="Map">
+    UPDATE cate SET cnt = cnt - #{cnt} WHERE grp=#{grp} and name='--'
+  </update>
+  
+      
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
