@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+
+<html layout:decorate="~{layout}"> <!-- layout.html 상속-->
+<div layout:fragment="content">
+
+  <script>
+    window.onload = () => {
+        let content_tag = document.getElementById('content');
+        let emotion_tag = document.getElementById('emotion');
+        let summary_tag = document.getElementById('summary');
+        let send_tag = document.getElementById('send');
+        let result_animation_tag = document.getElementById('result_animation');
+  
+        // emotion, summary 변수의 값이 필요함으로 동기 통신 해야함. 
+        send_tag.addEventListener("click", function() {
+          let content = content_tag.value; // 작성된 글 내용
+
+          // 감정 분석 비동기 처리
+          fetch("/contents/emotion", {
+            "method": "post", 
+            "headers": {"Content-Type": "application/json"},
+            body: JSON.stringify({content}) // {"content": content}
+          })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log('-> data:' + data);
+            console.log("-> data['res']:" + data['res']);
+            emotion_tag.value = data['res'];
+
+            // 요약처리 비동기 처리
+            fetch("/contents/summary", {
+              "method": "post", 
+              "headers": {"Content-Type": "application/json"},
+              body: JSON.stringify({content}) // {"content": content}
+            })
+            .then((response) => response.json())
+            .then((data) => {
+              console.log('-> data:' + data);
+              console.log("-> data['res']:" + data['res']);
+              summary_tag.value = data['res'];
+
+              result_animation_tag.style.display = 'none'; // 최종 답변이 왔음으로 animation 종료
+              frm.submit();
+            });
+          });
+
+          result_animation_tag.innerHTML = '<img src="/images/progress.gif" style="width: 24px; margin-top: 0px;">';
+          result_animation_tag.style.display='';
+        });
+    } 
+  </script>
+  <div class='title_line'>
+    <span th:text="${cateVO.grp}" class="title_line_text"></span > 
+    > <span th:text="${cateVO.name}" class="title_line_text"></span > 
+    > 글 등록
+  </div>
+  
+  <aside class="aside_right">
+    <a th:href="@{|./create?cateno=${cateVO.cateno }|}">등록</a>
+    <span class='menu_divide' >│</span>
+    <a href="javascript:location.reload();">새로고침</a>
+    <span class='menu_divide' >│</span>
+    <a th:href="@{|./list_by_cateno_search_paging?cateno=${cateVO.cateno }|}">기본 목록형</a>    
+    <span class='menu_divide' >│</span>
+    <a th:href="@{|./list_by_cateno_grid?cateno=${cateVO.cateno }|}">갤러리형</a>
+  </aside>
+  
+  <div class='menu_line'></div>
+  
+  <form name='frm' method='post' th:object="${contentsVO}" action='./create' enctype="multipart/form-data">
+    <input type="hidden" name="cateno" th:value="${cateVO.cateno }">
+    <input type="hidden" id="emotion" name="emotion" value="">
+    <input type="hidden" id="summary" name="summary" value="">
+
+    <div>
+       <label>제목</label>
+       <input type='text' name='title' value='주말 오지 탐험' required="required" 
+                 autofocus="autofocus" class="form-control" style='width: 100%;'>
+    </div>
+    <div>
+       <label>내용</label>
+       <textarea id='content' name='content' required="required" class="form-control" rows="12" style='width: 100%;'>오지 탐험은 언제나 즐거운 시간이었어요! </textarea>
+    </div>
+    <div>
+       <label>검색어</label>
+       <input type='text' name='word' value='오버랜딩,오지,탐험,일상탈피,힐링,내공,추진력,문제해결' required="required" 
+              class="form-control" style='width: 100%;'>
+    </div>   
+    <div>
+       <label>이미지</label>
+       <input type='file' class="form-control" name='file1MF' id='file1MF' value='' placeholder="파일 선택">
+    </div>   
+    <div>
+       <label>패스워드</label>
+       <input type='password' name='passwd' value='1234' required="required" 
+                 class="form-control" style='width: 50%;'>
+    </div>   
+    <div class="content_body_bottom">
+      <button type="button" id='send' class="btn btn-secondary btn-sm">등록</button>
+      <button type="button" th:attr="onclick=|location.href='./list_by_cateno?cateno=${cateVO.cateno}'|" class="btn btn-secondary btn-sm">목록</button>
+      <span id="result_animation" style="display: none;"></span>
+    </div>
+  
+  </form>
+
+</div>
+

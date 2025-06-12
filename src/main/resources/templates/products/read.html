@@ -1,0 +1,144 @@
+<!DOCTYPE html> 
+
+<html layout:decorate="~{layout}"> <!-- layout.html 상속-->
+<div layout:fragment="content">
+  <script>
+    window.onload = function() {
+      // <img src="/contents/images/hart_off_50.png" style="width: 22px" title="추천">          
+      // <img src="/contents/images/hart_on_50.png" style="width: 22px" title="비추천">   
+      // 현재 로그인한 사용자의 추천 여부 반영
+
+      let hartCnt = '[[${hartCnt}]]'; //  javascript -> Thymeleaf
+      let tag='';
+      
+      if (hartCnt == 1) { // 현재 로그인한 회원이 추천한 경우
+        tag = '<a href="javascript:good([[${contentsVO.contentsno}]])"><img src="/contents/images/hart_on_50.png" style="width: 22px" title="추천"></a>';
+        document.querySelector('#hart_panel').innerHTML = tag; 
+      } else { // 현재 로그인한 회원이 추천하지 않은 경우, guest
+        tag = '<a href="javascript:good([[${contentsVO.contentsno}]])"><img src="/contents/images/hart_off_50.png" style="width: 22px" title="추천"></a>';
+        document.querySelector('#hart_panel').innerHTML = tag; 
+      }    
+      
+      document.querySelector('#recom_panel').innerHTML = '([[${contentsVO.recom}]])';
+    }
+
+    function good(contentsno) {
+      console.log('-> contentsno: ' + contentsno);
+
+      fetch("/contents/good", {
+          "method": "post",
+          "headers": {
+              "Content-Type": "application/json"
+          },
+          body: JSON.stringify({contentsno}) // {"contentsno":contentsno}, JSON 형식으로 전송
+        })
+        .then((response) => response.json()) // 응답 문자열 추출
+        .then((data) => {
+          console.log('-> data.isMember: ' + data.isMember);
+
+          if (data.isMember == 1) { // 회원
+            let hartCnt =data.hartCnt; //  javascript -> Thymeleaf -> session
+            let tag='';
+            
+            if (hartCnt == 1) {
+              tag = '<a href="javascript:good([[${contentsVO.contentsno}]])"><img src="/contents/images/hart_on_50.png" style="width: 22px" title="추천"></a>';
+              document.querySelector('#hart_panel').innerHTML = tag; 
+            } else {
+              tag = '<a href="javascript:good([[${contentsVO.contentsno}]])"><img src="/contents/images/hart_off_50.png" style="width: 22px" title="추천"></a>';
+              document.querySelector('#hart_panel').innerHTML = tag; 
+            }    
+            
+            document.querySelector('#recom_panel').innerHTML = '(' + data.recom + ')';
+          
+          } else { // 비회원
+            alert("로그인해야 추천 할 수 있습니다.");
+            location.href='/member/login_cookie_need';  
+
+          }
+        }
+      );
+    }
+  </script>
+  <div class='title_line'>
+    <span th:text="${cateVO.grp }" class="title_line_text"></span > 
+    > <span th:text="${cateVO.name}" class="title_line_text"></span > 
+    > 글 조회
+  </div>
+  
+  <aside class="aside_right" th:if="${session.grade == 'admin'}">
+    <a href="javascript:location.reload();">새로고침</a>
+    <span class='menu_divide' >│</span>    
+    <a th:href="@{|./list_by_cateno?cateno=${cateVO.cateno }&word=${word }&now_page=${now_page}|}">목록형</a>    
+    <span class='menu_divide' >│</span>
+    <a th:href="@{|./list_by_cateno_grid?cateno=${cateVO.cateno }&word=${word }&now_page=${now_page}|}">갤러리형</a>
+    <span class='menu_divide' >│</span>
+    <a href="./create?cateno=${cateno }">등록</a>
+    <span class='menu_divide' >│</span>
+    <a th:href="@{|/contents/update_text?contentsno=${contentsVO.contentsno}&now_page=${now_page}&word=${word }|}">글 수정</a>
+    <span class='menu_divide' >│</span>
+    <a th:href="@{|./update_file?contentsno=${contentsVO.contentsno}&word=${word}&now_page=${now_page}|}">파일 수정</a>  
+    <span class='menu_divide' >│</span>
+    <a th:href="@{|/contents/map?cateno=${contentsVO.cateno }&contentsno=${contentsVO.contentsno}|}">지도</a>
+    <span class='menu_divide' >│</span>
+    <a th:href="@{|/contents/youtube?cateno=${contentsVO.cateno }&contentsno=${contentsVO.contentsno}&word=${word}&now_page=${now_page}|}">Youtube</a>
+    <span class='menu_divide' >│</span>
+    <a th:href="@{|./delete?contentsno=${contentsVO.contentsno}&word=${word}&now_page=${now_page}&cateno=${contentsVO.cateno}|}">삭제</a>  
+ </aside> 
+
+  <aside class="aside_right" th:if="${session.grade != 'admin'}">
+     <a href="javascript:location.reload();">새로고침</a>
+    <span class='menu_divide' >│</span>    
+    <a th:href="@{|./list_by_cateno?cateno=${cateVO.cateno }&word=${word }&now_page=${now_page}|}">목록형</a>    
+    <span class='menu_divide' >│</span>
+    <a th:href="@{|./list_by_cateno_grid?cateno=${cateVO.cateno }&word=${word }&now_page=${now_page}|}">갤러리형</a>
+  </aside> 
+ 
+  <div class='menu_line'></div>
+
+  <fieldset class="fieldset_basic">
+    <ul>
+      <li class="li_none">
+        <div style="width: 100%; word-break: break-all;">
+        
+          <div th:if="${contentsVO.file1.endsWith('jpg') or contentsVO.file1.endsWith('png')  or contentsVO.file1.endsWith('gif') or contentsVO.file1.endsWith('jpeg')}">
+            <img th:src="@{|/contents/storage/${contentsVO.file1saved}|}" style='width: 50%; float: left; margin-top: 0.5%; margin-right: 1%;'>
+          </div>
+
+          <span style="font-size: 1.5em; font-weight: bold;" th:text="${contentsVO.title}"></span>
+          <span style="font-size: 1em;" th:text="${contentsVO.rdate }"></span><br><br>
+          <div style="white-space: pre-wrap;"><span th:text="${contentsVO.content}"></span></div>
+        </div>
+      </li>
+
+      <li class="li_none" style="clear: both; padding-top: 10px; padding-bottom: 25px;" 
+           th:if="${contentsVO.map.length() > 0}">
+        <div style='text-align: center; width:640px; margin: 0px auto;'
+                th:utext = "${contentsVO.map }">
+        </div>
+      </li>
+
+      <li class="li_none" style="clear: both; padding-top: 10px; padding-bottom: 25px;" 
+          th:if="${contentsVO.youtube.length() > 0}">
+        <div style='text-align: center; width:640px; margin: 0px auto;'
+           th:utext = "${contentsVO.youtube }">
+        </div>
+      </li>
+
+      <li class="li_none" th:text="|검색어(키워드): ${contentsVO.word }|">
+      </li>
+      
+      <li class="li_none" th:if="${contentsVO.size1 > 0}">
+        <div >
+          첨부 파일: <a th:href='@{|/download?dir=contents/storage&filename=${contentsVO.file1saved}&downname=${contentsVO.file1}|}'
+                       th:text='|${contentsVO.file1}|'></a> <span th:text="|(${contentsVO.size1_label})|"></span>  
+                    <a th:href='@{|/download?dir=contents/storage&filename=${contentsVO.file1saved}&downname=${contentsVO.file1}|}'><img src="/contents/images/download.png"></a>
+          <span id="hart_panel"></span><span id="recom_panel"></span>          
+        </div>
+      </li>   
+    </ul>
+  </fieldset>
+
+</div>
+
+</html>
+
