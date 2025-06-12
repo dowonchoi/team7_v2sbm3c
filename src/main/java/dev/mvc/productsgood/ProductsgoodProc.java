@@ -6,7 +6,7 @@ import java.util.HashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component("dev.mvc.productsgood.productsgoodProc")
+@Component("dev.mvc.productsgood.ProductsgoodProc")
 public class ProductsgoodProc implements ProductsgoodProcInter {
   @Autowired
   ProductsgoodDAOInter productsgoodDAO;

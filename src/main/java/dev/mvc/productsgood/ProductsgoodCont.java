@@ -33,7 +33,7 @@ public class ProductsgoodCont {
   private CateProcInter cateProc;
   
   @Autowired
-  @Qualifier("dev.mvc.productsgood.productsgoodProc") 
+  @Qualifier("dev.mvc.productsgood.ProductsgoodProc") 
   ProductsgoodProcInter productsgoodProc;
   
   public ProductsgoodCont() {
