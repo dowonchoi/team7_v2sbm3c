@@ -48,8 +48,8 @@ public class ProductsgoodProc implements ProductsgoodProcInter {
   }
 
   @Override
-  public ArrayList<ProductsProductsgoodMemberVO> list_all_join() {
-    ArrayList<ProductsProductsgoodMemberVO> list = this.productsgoodDAO.list_all_join();
+  public ArrayList<ProductsproductsgoodMemberVO> list_all_join() {
+    ArrayList<ProductsproductsgoodMemberVO> list = this.productsgoodDAO.list_all_join();
     return list;
   }
 

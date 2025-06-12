@@ -2,22 +2,22 @@
  
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
  
-<mapper namespace="dev.mvc.productsgood.productsgoodDAOInter">
+<mapper namespace="dev.mvc.productsgood.ProductsgoodDAOInter">
   <!-- 등록 -->
-  <insert id="create" parameterType="dev.mvc.productsgood.productsgoodVO">
+  <insert id="create" parameterType="dev.mvc.productsgood.ProductsgoodVO">
     INSERT INTO productsgood(productsgoodno, rdate, productsno, memberno)
     VALUES (productsgood_seq.nextval, sysdate, #{productsno}, #{memberno})
   </insert>
   
   <!-- 전체 목록 -->
-  <select id="list_all" resultType="dev.mvc.productsgood.productsgoodVO">
+  <select id="list_all" resultType="dev.mvc.productsgood.ProductsgoodVO">
     SELECT productsgoodno, rdate, productsno, memberno
     FROM productsgood
     ORDER BY productsgoodno DESC
   </select>
 
   <!-- 일반적인 조회 -->
-  <select id="read" resultType="dev.mvc.productsgood.productsgoodVO" parameterType="int">
+  <select id="read" resultType="dev.mvc.productsgood.ProductsgoodVO" parameterType="int">
     SELECT productsgoodno, rdate, productsno, memberno
     FROM productsgood
     WHERE productsgoodno = #{productsgoodno}
@@ -37,14 +37,14 @@
   </select>
   
   <!-- productsno, memberno로 조회 -->
-  <select id="readByproductsnoMemberno" resultType="dev.mvc.productsgood.productsgoodVO" parameterType="HashMap">
+  <select id="readByProductsnoMemberno" resultType="dev.mvc.productsgood.ProductsgoodVO" parameterType="HashMap">
     SELECT productsgoodno, rdate, productsno, memberno
     FROM productsgood
     WHERE productsno=#{productsno} AND memberno=#{memberno}
   </select>  
 
   <!-- 전체 목록, 테이블 3개 join -->
-  <select id="list_all_join" resultType="dev.mvc.productsgood.productsproductsgoodMemberVO">
+  <select id="list_all_join" resultType="dev.mvc.productsgood.ProductsproductsgoodMemberVO">
     SELECT r.productsgoodno, r.rdate, r.productsno, c.title as c_title, r.memberno, m.id, m.mname
     FROM products c, productsgood r, member m
     WHERE c.productsno = r.productsno AND r.memberno = m.memberno
