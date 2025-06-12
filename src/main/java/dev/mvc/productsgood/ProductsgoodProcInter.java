@@ -49,7 +49,7 @@ public interface ProductsgoodProcInter {
    * 모든 목록, 테이블 3개 join
    * @return
    */
-  public ArrayList<productsproductsgoodMemberVO> list_all_join();
+  public ArrayList<ProductsProductsgoodMemberVO> list_all_join();
   
 }
 
