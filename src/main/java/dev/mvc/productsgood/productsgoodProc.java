@@ -7,9 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component("dev.mvc.productsgood.productsgoodProc")
-public class productsgoodProc implements productsgoodProcInter {
+public class ProductsgoodProc implements ProductsgoodProcInter {
   @Autowired
-  productsgoodDAOInter productsgoodDAO;
+  ProductsgoodDAOInter productsgoodDAO;
   
   @Override
   public int create(ProductsgoodVO productsgoodVO) {
@@ -42,7 +42,7 @@ public class productsgoodProc implements productsgoodProcInter {
   }
 
   @Override
-  public ProductsgoodVO readByproductsnoMemberno(HashMap<String, Object> map) {
+  public ProductsgoodVO readByProductsnoMemberno(HashMap<String, Object> map) {
     ProductsgoodVO productsgoodVO = this.productsgoodDAO.readByproductsnoMemberno(map);
     return productsgoodVO;
   }

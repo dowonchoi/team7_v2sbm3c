@@ -3,7 +3,7 @@ package dev.mvc.productsgood;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public interface productsgoodProcInter {
+public interface ProductsgoodProcInter {
   /**
    * 등록, 추상 메소드
    * @param productsgoodVO
@@ -43,7 +43,7 @@ public interface productsgoodProcInter {
    * @param map
    * @return
    */
-  public ProductsgoodVO readByproductsnoMemberno(HashMap<String, Object> map);
+  public ProductsgoodVO readByProductsnoMemberno(HashMap<String, Object> map);
   
   /**
    * 모든 목록, 테이블 3개 join

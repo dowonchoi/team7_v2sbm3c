@@ -23,7 +23,7 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping(value = "/productsgood")
-public class productsgoodCont {
+public class ProductsgoodCont {
   @Autowired
   @Qualifier("dev.mvc.member.MemberProc") // @Service("dev.mvc.member.MemberProc")
   private MemberProcInter memberProc;
@@ -34,9 +34,9 @@ public class productsgoodCont {
   
   @Autowired
   @Qualifier("dev.mvc.productsgood.productsgoodProc") 
-  productsgoodProcInter productsgoodProc;
+  ProductsgoodProcInter productsgoodProc;
   
-  public productsgoodCont() {
+  public ProductsgoodCont() {
     System.out.println("-> productsgoodCont created.");
   }
   

@@ -3,7 +3,7 @@ package dev.mvc.productsgood;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public interface productsgoodDAOInter {
+public interface ProductsgoodDAOInter {
   /**
    * 등록, 추상 메소드
    * @param productsgoodVO

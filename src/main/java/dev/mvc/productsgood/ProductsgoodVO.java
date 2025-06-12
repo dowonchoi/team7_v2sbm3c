@@ -17,7 +17,7 @@ import lombok.ToString;
 @Getter @Setter @ToString
 public class ProductsgoodVO {
   /** 컨텐츠 추천 번호 */
-  private int productsgoodgoodno;
+  private int productsno;
   
   /** 등록일 */
   private String rdate;
