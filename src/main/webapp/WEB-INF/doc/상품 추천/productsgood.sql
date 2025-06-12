@@ -81,7 +81,7 @@ WHERE productsno=5 AND memberno=1;
 ----------
          0 <-- 추천 안됨
          
--- JOIN, 어느 배우를 누가 추천 했는가?
+-- JOIN, 어느 상품을 누가 추천 했는가?
 SELECT productsgoodno, rdate, productsno, memberno
 FROM productsgood
 ORDER BY productsgoodno DESC;
