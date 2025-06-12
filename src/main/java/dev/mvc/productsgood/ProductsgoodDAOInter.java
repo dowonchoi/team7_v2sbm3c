@@ -49,11 +49,7 @@ public interface ProductsgoodDAOInter {
    * 모든 목록, 테이블 3개 join
    * @return
    */
-<<<<<<< HEAD:src/main/java/dev/mvc/productsgood/productsgoodDAOInter.java
   public ArrayList<ProductsproductsgoodMemberVO> list_all_join();
-=======
-  public ArrayList<ProductsProductsgoodMemberVO> list_all_join();
->>>>>>> a472891820da2bc4e8bac7038ec34aacee820cd5:src/main/java/dev/mvc/productsgood/ProductsgoodDAOInter.java
   
 }
 

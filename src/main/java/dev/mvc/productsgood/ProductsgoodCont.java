@@ -19,6 +19,7 @@ import dev.mvc.calendar.CalendarVO;
 import dev.mvc.cate.CateProcInter;
 import dev.mvc.cate.CateVOMenu;
 import dev.mvc.member.MemberProcInter;
+import dev.mvc.productsgood.ProductsproductsgoodMemberVO;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -99,11 +100,7 @@ public class ProductsgoodCont {
   // http://localhost:9091/productsgood/list_all
   @GetMapping(value = "/list_all")
   public String list_all(Model model) {
-<<<<<<< HEAD:src/main/java/dev/mvc/productsgood/productsgoodCont.java
     ArrayList<ProductsproductsgoodMemberVO> list = this.productsgoodProc.list_all_join();
-=======
-    ArrayList<ProductsProductsgoodMemberVO> list = this.productsgoodProc.list_all_join();
->>>>>>> a472891820da2bc4e8bac7038ec34aacee820cd5:src/main/java/dev/mvc/productsgood/ProductsgoodCont.java
     model.addAttribute("list", list);
 
     ArrayList<CateVOMenu> menu = this.cateProc.menu();

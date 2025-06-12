@@ -3,6 +3,8 @@ package dev.mvc.productsgood;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import dev.mvc.productsgood.ProductsproductsgoodMemberVO;
+
 public interface ProductsgoodProcInter {
   /**
    * 등록, 추상 메소드
@@ -49,11 +51,7 @@ public interface ProductsgoodProcInter {
    * 모든 목록, 테이블 3개 join
    * @return
    */
-<<<<<<< HEAD:src/main/java/dev/mvc/productsgood/productsgoodProcInter.java
   public ArrayList<ProductsproductsgoodMemberVO> list_all_join();
-=======
-  public ArrayList<ProductsProductsgoodMemberVO> list_all_join();
->>>>>>> a472891820da2bc4e8bac7038ec34aacee820cd5:src/main/java/dev/mvc/productsgood/ProductsgoodProcInter.java
   
 }
 
