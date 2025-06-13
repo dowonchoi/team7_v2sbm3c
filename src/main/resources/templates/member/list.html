@@ -39,8 +39,8 @@
       <td class='td_basic'>
         <div>
           <div th:if="${memberVO.grade >= 1 and memberVO.grade <= 10}"><img src='/member/images/admin.png' title="관리자" class="icon"></div>
-          <div th:if="${memberVO.grade >= 11 and memberVO.grade <= 20}"><img src='/member/images/user.png' title="회원" class="icon"></div>
-          <div th:if="${memberVO.grade >= 30 and memberVO.grade <= 39}"><img src='/member/images/pause.png' title="정지 회원" class="icon"></div>
+          <div th:if="${memberVO.grade >= 11 and memberVO.grade <= 20}"><img src='/member/images/member.jpg' title="공급자" class="icon"></div>
+          <div th:if="${memberVO.grade >= 21 and memberVO.grade <= 30}"><img src='/member/images/user.png' title="소비자" class="icon"></div>
           <div th:if="${memberVO.grade >= 40 and memberVO.grade <= 49}"><img src='/member/images/x.png' title="탈퇴 회원" class="icon"></div>
         </div>
       </td>

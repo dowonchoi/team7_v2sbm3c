@@ -144,6 +144,16 @@ UPDATE member
 SET passwd='0000'
 WHERE memberno=1;
 
+UPDATE member
+SET passwd='fS/kjO+fuEKk06Zl7VYMhg=='
+WHERE memberno=1;
+
+UPDATE member
+SET passwd = 'fS/kjO+fuEKk06Zl7VYMhg=='  -- 즉, Security.aesEncode("123") 결과
+WHERE passwd = '1234';
+
+SELECT * FROM member WHERE memberno = 1 AND passwd = '1234';
+
 COMMIT;
 
 
@@ -162,8 +172,12 @@ commit;
 
 INSERT INTO member(memberno, id, passwd, mname, tel, zipcode,
                                 address1, address2, mdate, grade)
-VALUES (member_seq.nextval, 'admin', 'fS/kjO+fuEKk06Zl7VYMhg==', '통합 관리자', '000-0000-0000', '12345',
-             '서울시 종로구', '관철동', sysdate, 1);
+VALUES (member_seq.nextval, 'buyer1@naver.com', 'fS/kjO+fuEKk06Zl7VYMhg==', '김소비', '000-0000-0000', '1234',
+             '서울특별시 강남구', '역삼동', sysdate, 1);
+             
+UPDATE member
+SET passwd = 'fS/kjO+fuEKk06Zl7VYMhg=='
+WHERE id = 'buyer1@naver.com';
 
 COMMIT;
 
