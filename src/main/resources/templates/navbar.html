@@ -44,11 +44,11 @@
               </ul>
           </li>
 
-          <li class="nav-item dropdown" th:if="${session.grade=='admin'}">
+          <!-- <li class="nav-item dropdown" th:if="${session.grade=='admin'}">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" 
-                      role="button" data-bs-toggle="dropdown" aria-expanded="false" th:text="OpenAI">                                                            
+                      role="button" data-bs-toggle="dropdown" aria-expanded="false" th:text="공급자 AI 서비스">                                                            
               </a>
-              <!-- <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                   <li class="nav-item"><a class="nav-link" th:href="@{|/openai/translator|}">번역 서비스</a></li>
                   <li class="nav-item"><a class="nav-link" th:href="@{|/openai/movie|}">영화 추천</a></li>
                   <li class="nav-item"><a class="nav-link" th:href="@{|/openai/genre|}">나의 관심 분야 알기</a></li>
@@ -60,9 +60,9 @@
                   <li class="nav-item"><a class="nav-link" th:href="@{|/mail/form|}">메일 쓰기</a></li>
                   <li class="nav-item"><a class="nav-link" th:href="@{|/mail/form_file|}">첨부 파일메일 쓰기</a></li>
                   <li class="nav-item"><a class="nav-link" th:href="@{|/mail/form_openai|}">번역 기능 지원 메일 쓰기</a></li>
-              </ul> -->
-          </li>
-          
+              </ul>
+         </li>
+           -->
           <li class="nav-item dropdown" th:if="${session.grade=='admin'}">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" 
                       role="button" data-bs-toggle="dropdown" aria-expanded="false" th:text="관리자">                                                            
