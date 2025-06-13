@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+
+<html layout:decorate="~{layout}"> <!-- layout.html 상속-->
+<div layout:fragment="content">
+  <div class="title_line">카테고리 조회</div>
+  <aside class="aside_right">
+    <a href="javascript: location.reload();">새로 고침</a>
+    <span class="menu_divide">|</span>
+    <a th:href="@{|/cate/list_all|}">목록</a>
+    <span class="menu_divide">|</span>
+    <a th:href="@{|/cate/update/${cateVO.cateno}|}">수정</a>
+    <span class="menu_divide">|</span>
+    <a th:href="@{|/cate/delete/${cateVO.cateno}|}">삭제</a>
+    <span class="menu_divide">|</span>
+    <a th:href="@{|/cate/create|}">등록</a>
+  </aside>
+
+  <!--/* /cate/list_search_com.html의 list_search_fragment를 include */-->
+  <div th:replace="~{cate/list_search_com::list_search_fragment}"></div>
+
+  <div class="menu_line"></div>
+
+  <div class="container mt-3" style="width: 70%; margin: 5px auto;"> <!--/* mt-3: margin top 16px */-->
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item">
+        카테고리 그룹: <span th:text="${cateVO.grp}" style="margin-right: 20px;"></span>
+        카테고리: <span th:text="${cateVO.name}"></span>
+      </li>
+      <li class="list-group-item">
+        관련 자료수: <span th:text="${cateVO.cnt}" style="margin-right: 20px;"></span>
+        출력 순서: <span th:text="${cateVO.seqno}" style="margin-right: 20px;"></span>
+        출력 모드: <span th:text="${cateVO.visible}" style="margin-right: 20px;"></span>
+        등록일: <span th:text="${cateVO.rdate}"></span>
+      </li>
+    </ul>  
+  </div>
+
+  <!--/* list_all_com.html의 list_all_fragment를 include */-->
+  <div th:replace="~{cate/list_all_com::list_all_fragment}"></div>
+
+</div>
+</html>
+

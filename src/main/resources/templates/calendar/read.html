@@ -1,0 +1,48 @@
+<html layout:decorate="~{layout}"> <!-- layout.html 상속-->
+<div layout:fragment="content">
+  <div class='title_line'>
+    <div th:text="${calendarVO.title}"></div>
+  </div>
+  
+  <aside class="aside_right" th:if="${session.grade == 'admin'}">
+    <a th:href="|javascript:location.reload();|">새로고침</a>
+    <span class='menu_divide' >│</span>    
+    <a th:href="@{|/calendar/list_calendar|}">일정</a>        
+    <span class='menu_divide' >│</span>    
+    <a th:href="@{|/calendar/list_all|}">목록</a>    
+    <span class='menu_divide' >│</span>
+    <a th:href="@{|/calendar/create|}">등록</a>
+    <span class='menu_divide' >│</span>
+    <a th:href="@{|/calendar/update?calendarno=${calendarVO.calendarno}|}">수정</a>
+    <span class='menu_divide' >│</span>
+    <a th:href="@{|/calendar/delete|}">삭제</a>  
+ </aside> 
+
+  <aside class="aside_right" th:if="${session.grade != 'admin'}">
+    <a th:href="|javascript:location.reload();|">새로고침</a>
+    <span class='menu_divide' >│</span>    
+    <a th:href="@{|/calendar/list_calendar|}">일정</a>    
+  </aside> 
+ 
+  <div class='menu_line'></div>
+
+  <fieldset class="fieldset_basic">
+    <ul>
+      <li class="li_none">
+        <div style="width: 100%; word-break: break-all;">
+          <span style="font-size: 1.5em; font-weight: bold;" th:text="${calendarVO.title}"></span>
+          <span style="font-size: 1em;" th:text="${calendarVO.regdate }"></span><br><br>
+          <div style="white-space: pre-wrap;"><span th:text="${calendarVO.content}"></span></div>
+        </div>
+      </li>
+
+      <li class="li_none" th:text="|등록일: ${calendarVO.regdate }(calendarVO.cnt)|">
+      </li>
+      
+    </ul>
+  </fieldset>
+
+</div>
+
+</html>
+

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+
+<html layout:decorate="~{layout}"> <!-- layout.html 상속-->
+<div layout:fragment="content">
+  <div class="title_line">일정</div>
+  <aside class="aside_right">
+    <a th:href="@{|/calendar/create|}">등록</a>    
+    <span class="menu_divide">|</span>
+    <a href="javascript: location.reload();">새로 고침</a>
+  </aside>
+  <div class="menu_line"></div>
+  
+  <!--/* '/calendar/list_all_com.html' 파일의 list_all_fragment를 가져다 사용 */--> 
+  <div th:replace="~{calendar/list_all_com::list_all_fragment}"></div> 
+  
+</div>
+</html>
+
