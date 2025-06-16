@@ -428,11 +428,11 @@ public class MemberCont {
       // -------------------------------------------------------------------
       // 회원 등급 처리
       // -------------------------------------------------------------------
-      if (memverVO.getGrade() >= 1 && memverVO.getGrade() <= 10) {
+      if (memverVO.getGrade() >= 1 && memverVO.getGrade() <= 4) {
         session.setAttribute("grade", "admin");
-      } else if (memverVO.getGrade() >= 11 && memverVO.getGrade() <= 20) {
+      } else if (memverVO.getGrade() >= 5 && memverVO.getGrade() <= 15) {
         session.setAttribute("grade", "member");
-      } else if (memverVO.getGrade() >= 21) {
+      } else if (memverVO.getGrade() >= 16) {
         session.setAttribute("grade", "guest");
       }
       

@@ -59,7 +59,6 @@ COMMENT ON COLUMN products.youtube is 'Youtube 영상';
 COMMENT ON COLUMN products.mp4 is '영상';
 COMMENT ON COLUMN products.visible is '출력 모드';
 
-
 DROP SEQUENCE products_seq;
 
 CREATE SEQUENCE products_seq
