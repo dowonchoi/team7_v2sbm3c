@@ -2,6 +2,7 @@
 DROP TABLE products;
 
 DROP TABLE products CASCADE PRODUCTS; -- 자식 무시하고 삭제 가능
+SELECT MAX(productsno) FROM products;
 
 CREATE TABLE products(
         productsno                            NUMBER(10)         NOT NULL,
@@ -62,7 +63,7 @@ COMMENT ON COLUMN products.visible is '출력 모드';
 DROP SEQUENCE products_seq;
 
 CREATE SEQUENCE products_seq
-  START WITH 1                -- 시작 번호
+  START WITH 10                -- 시작 번호 원래는 1이었는데....
   INCREMENT BY 1            -- 증가값
   MAXVALUE 9999999999  -- 최대값: 9999999999 --> NUMBER(10) 대응
   CACHE 2                        -- 2번은 메모리에서만 계산
