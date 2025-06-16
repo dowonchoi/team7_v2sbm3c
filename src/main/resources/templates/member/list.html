@@ -24,6 +24,7 @@
       <col style='width: 30%;'/>
       <col style='width: 15%;'/>
       <col style='width: 10%;'/>
+      <col style='width: 10%;'/> 
     </colgroup>
     <tr>
       <th class='th_bs'> </TH>
@@ -33,14 +34,15 @@
       <th class='th_bs'>주소</th>
       <th class='th_bs'>등록일</th>
       <th class='th_bs'> </th>
+      <th class='th_bs'>등급</th>
     </tr>
    
     <tr th:each="memberVO, status:${list}">
       <td class='td_basic'>
         <div>
-          <div th:if="${memberVO.grade >= 1 and memberVO.grade <= 10}"><img src='/member/images/admin.png' title="관리자" class="icon"></div>
-          <div th:if="${memberVO.grade >= 11 and memberVO.grade <= 20}"><img src='/member/images/member.jpg' title="공급자" class="icon"></div>
-          <div th:if="${memberVO.grade >= 21 and memberVO.grade <= 30}"><img src='/member/images/user.png' title="소비자" class="icon"></div>
+          <div th:if="${memberVO.grade >= 1 and memberVO.grade <= 4}"><img src='/member/images/admin.png' title="관리자" class="icon"></div>
+          <div th:if="${memberVO.grade >= 5 and memberVO.grade <= 15}"><img src='/member/images/member.jpg' title="공급자" class="icon"></div>
+          <div th:if="${memberVO.grade >= 16 and memberVO.grade <= 25}"><img src='/member/images/user.png' title="소비자" class="icon"></div>
           <div th:if="${memberVO.grade >= 40 and memberVO.grade <= 49}"><img src='/member/images/x.png' title="탈퇴 회원" class="icon"></div>
         </div>
       </td>
@@ -56,7 +58,7 @@
         <a th:href="@{|./read?memberno=${memberVO.memberno}|}"><img src='/member/images/update.png' title='수정' class="icon"></a>
         <a th:href="@{|./delete?memberno=${memberVO.memberno}|}"><img src='/member/images/delete.png' title='삭제' class="icon"></a>
       </td>
-      
+      <td class='td_basic' th:text="${memberVO.grade}"></td>
     </tr>
   </table>
    

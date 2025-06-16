@@ -80,4 +80,11 @@ public interface MemberDAOInter {
    */
   public int login(HashMap<String, Object> map);
   
+  /**
+   * 특정 범위 내 사용 중인 grade 번호 목록
+   * @param map {gradeStart, gradeEnd}
+   * @return 사용 중인 grade 리스트
+   */
+  public List<Integer> getUsedGradesInRange(Map<String, Integer> map);
+
 }

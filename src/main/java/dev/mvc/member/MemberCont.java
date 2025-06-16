@@ -2,6 +2,7 @@ package dev.mvc.member;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,29 +71,68 @@ public class MemberCont {
   
   @PostMapping(value="/create")
   public String create_proc(Model model,
-                                     @ModelAttribute("memberVO") MemberVO memberVO) {
-    int checkID_cnt = this.memberProc.checkID(memberVO.getId());
-    
-    if (checkID_cnt == 0) {
-      memberVO.setGrade(15); // 기본 회원 15
-      int cnt = this.memberProc.create(memberVO);
-      
-      if (cnt == 1) {
-        model.addAttribute("code", "create_success");
-        model.addAttribute("mname", memberVO.getMname());
-        model.addAttribute("id", memberVO.getId());
-      } else {
-        model.addAttribute("code", "create_fail");
+                            @ModelAttribute("memberVO") MemberVO memberVO,
+                            @RequestParam(name="memberType", required = true) String memberType) {
+      // 아이디 중복 체크
+      int checkID_cnt = this.memberProc.checkID(memberVO.getId());
+
+      if (checkID_cnt > 0) {
+          model.addAttribute("code", "duplicate_fail");
+          model.addAttribute("cnt", 0);
+          return "member/msg";
       }
-      
+
+      // 회원 등급 부여 범위 설정
+      int gradeStart, gradeEnd;
+      if ("supplier".equals(memberType)) { // 공급자 등록
+          gradeStart = 5; // 등급 시작
+          gradeEnd = 15; // 등급 종료
+      } else {
+          gradeStart = 16;
+          gradeEnd = 29;
+      }
+
+      // 사용 중인 등급 목록 조회 (ex: 5~15 범위 중 이미 사용 중인 등급 리스트)
+      List<Integer> usedGrades = this.memberProc.getUsedGradesInRange(gradeStart, gradeEnd);
+
+      // 빈 등급 찾기
+      Integer assignedGrade = null;
+      for (int g = gradeStart; g <= gradeEnd; g++) {
+          if (!usedGrades.contains(g)) {
+              assignedGrade = g;
+              break;
+          }
+      }
+
+      // 빈 등급 없으면 회원가입 불가 처리
+      if (assignedGrade == null) {
+          model.addAttribute("code", "grade_full_fail");
+          model.addAttribute("message", "해당 회원 유형의 회원 등급이 모두 채워져 회원가입이 불가능합니다.");
+          return "member/msg";
+      }
+
+      // 빈 등급 할당
+      memberVO.setGrade(assignedGrade);
+
+      // 회원 가입 처리
+      int cnt = this.memberProc.create(memberVO);
+
+      if (cnt == 1) {
+          model.addAttribute("code", "create_success");
+          model.addAttribute("mname", memberVO.getMname());
+          model.addAttribute("id", memberVO.getId());
+      } else {
+          model.addAttribute("code", "create_fail");
+      }
       model.addAttribute("cnt", cnt);
-    } else { // id 중복
-      model.addAttribute("code", "duplicte_fail");
-      model.addAttribute("cnt", 0);
-    }
-    
-    return "member/msg"; // /templates/member/msg.html
+      
+      System.out.println("memberType: " + memberType);
+      System.out.println("부여된 등급: " + assignedGrade);
+
+
+      return "member/msg";
   }
+
   
   @GetMapping(value="/list")
   public String list(HttpSession session, Model model) {

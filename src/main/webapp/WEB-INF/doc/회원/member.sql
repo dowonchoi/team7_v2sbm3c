@@ -60,26 +60,26 @@ WHERE id='user1';
 2) 등록
 INSERT INTO member(memberno, id, passwd, mname, tel, zipcode,
                    address1, address2, mdate, grade)
-VALUES (member_seq.nextval, 'admin@tteolimall.com', 'admin1234', '떨이몰 관리자', 
+VALUES (member_seq.nextval, 'admin@tteolimall.com', '1234', '떨이몰 관리자', 
         '010-0000-0000', '00000', '서울특별시 종로구', '청운동', sysdate, 1);
         
 -- 공급자 회원 예시
 INSERT INTO member(memberno, id, passwd, mname, tel, zipcode, address1, address2, mdate, grade)
-VALUES (member_seq.nextval, 'seller1@mall.com', '1234', '떨이상점1', '010-1234-1111', '12345', '부산시 해운대구', '우동', sysdate, 11);
+VALUES (member_seq.nextval, 'seller1@mall.com', '1234', '떨이상점1', '010-1234-1111', '12345', '부산시 해운대구', '우동', sysdate, 5);
 
 INSERT INTO member(memberno, id, passwd, mname, tel, zipcode, address1, address2, mdate, grade)
-VALUES (member_seq.nextval, 'seller2@mall.com', '1234', '남는재고마트', '010-1234-2222', '12345', '인천시 계양구', '계산동', sysdate, 12);
+VALUES (member_seq.nextval, 'seller2@mall.com', '1234', '남는재고마트', '010-1234-2222', '12345', '인천시 계양구', '계산동', sysdate, 6);
 
  
 -- 소비자 회원 예시
 INSERT INTO member(memberno, id, passwd, mname, tel, zipcode, address1, address2, mdate, grade)
-VALUES (member_seq.nextval, 'buyer1@naver.com', 'pass1234', '김소비', '010-2345-6789', '04567', '서울특별시 강남구', '역삼동', sysdate, 21);
+VALUES (member_seq.nextval, 'buyer1@naver.com', '1234', '김소비', '010-2345-6789', '04567', '서울특별시 강남구', '역삼동', sysdate, 16);
 
 INSERT INTO member(memberno, id, passwd, mname, tel, zipcode, address1, address2, mdate, grade)
-VALUES (member_seq.nextval, 'buyer2@daum.net', 'pass5678', '박떨이', '010-9876-5432', '12345', '대구광역시 수성구', '범어동', sysdate, 22);
+VALUES (member_seq.nextval, 'buyer2@daum.net', '1234', '박떨이', '010-9876-5432', '12345', '대구광역시 수성구', '범어동', sysdate, 17);
 
 INSERT INTO member(memberno, id, passwd, mname, tel, zipcode, address1, address2, mdate, grade)
-VALUES (member_seq.nextval, 'buyer3@gmail.com', 'pass9012', '최할인', '010-1122-3344', '67890', '부산광역시 진구', '전포동', sysdate, 23);
+VALUES (member_seq.nextval, 'buyer3@gmail.com', '1234', '최할인', '010-1122-3344', '67890', '부산광역시 진구', '전포동', sysdate, 18);
 
 COMMIT;
 
@@ -184,3 +184,5 @@ COMMIT;
 SELECT memberno, id, passwd, mname, tel, zipcode, address1, address2, mdate, grade
 FROM member
 ORDER BY grade ASC, id ASC;
+
+ALTER TABLE member MODIFY zipcode VARCHAR2(10);

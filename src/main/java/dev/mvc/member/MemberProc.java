@@ -130,6 +130,15 @@ public class MemberProc implements MemberProcInter {
     return cnt;
   }
   
+  @Override
+  public List<Integer> getUsedGradesInRange(int gradeStart, int gradeEnd) {
+      Map<String, Integer> map = new HashMap<>();
+      map.put("gradeStart", gradeStart);
+      map.put("gradeEnd", gradeEnd);
+      return this.memberDAO.getUsedGradesInRange(map);
+  }
+
+  
 }
 
 

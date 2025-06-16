@@ -90,6 +90,15 @@ public interface MemberProcInter {
    */
   public boolean isAdmin(HttpSession session);
   
+  /**
+   * 특정 범위 내 사용 중인 grade 목록 조회
+   * @param gradeStart 시작 grade 번호
+   * @param gradeEnd 종료 grade 번호
+   * @return 사용 중인 grade 번호 리스트
+   */
+  public List<Integer> getUsedGradesInRange(int gradeStart, int gradeEnd);
+
+  
 }
 
 
