@@ -96,8 +96,8 @@ public class ProductsCont {
     CateVO cateVO = this.cateProc.read(cateno); // 카테고리 정보를 출력하기위한 목적
     model.addAttribute("cateVO", cateVO);
 
-    // return "products/create"; // /templates/products/create.html
-    return "products/create_ai"; // /templates/products/create_ai.html
+    return "products/create"; // /templates/products/create.html
+    //return "products/create_ai"; // /templates/products/create_ai.html
   }
 
   /**
@@ -516,8 +516,8 @@ public class ProductsCont {
     model.addAttribute("hartCnt", hartCnt);
     // -------------------------------------------------------------------------------------------
     
-    // return "products/read";
-    return "products/read_ai";
+    return "products/read";
+    // return "products/read_ai";
   }
   
   /**
@@ -642,8 +642,8 @@ public class ProductsCont {
       CateVO cateVO = this.cateProc.read(productsVO.getCateno());
       model.addAttribute("cateVO", cateVO);
 
-      // return "products/update_text"; // /templates/products/update_text.html
-      return "products/update_text_ai"; // /templates/products/update_text_ai.html
+      return "products/update_text"; // /templates/products/update_text.html
+      // return "products/update_text_ai"; // /templates/products/update_text_ai.html
       // String content = "장소:\n인원:\n준비물:\n비용:\n기타:\n";
       // model.addAttribute("content", content);
 
@@ -673,6 +673,8 @@ public class ProductsCont {
       map.put("productsno", productsVO.getProductsno());
       map.put("passwd", productsVO.getPasswd());
 
+      System.out.println("→ 입력된 passwd: " + productsVO.getPasswd());
+      System.out.println("→ DB 일치 여부: " + this.productsProc.password_check(map));
       if (this.productsProc.password_check(map) == 1) { // 패스워드 일치
         this.productsProc.update_text(productsVO); // 글수정
 
@@ -691,7 +693,8 @@ public class ProductsCont {
         model.addAttribute("word", search_word);
         model.addAttribute("error_msg", "패스워드가 일치하지 않습니다.");
 
-        return "products/update_text_ai"; // View 직접 렌더링
+        return "products/update_text"; // View 직접 렌더링
+        // return "products/update_text_ai"; // View 직접 렌더링
       }
     } else { // 정상적인 로그인이 아닌 경우 로그인 유도
       // 로그인 안함 -> http://localhost:9091/products/update_text?productsno=32&now_page=1&word=

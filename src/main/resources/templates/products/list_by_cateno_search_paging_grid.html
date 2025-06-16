@@ -11,51 +11,52 @@
 
   <aside class="aside_right">
     <span th:if="${session.grade == 'admin'}">
-      <a th:href="@{|/contents/create?cateno=${cateVO.cateno}|}">등록</a>
+      <a th:href="@{|/products/create?cateno=${cateVO.cateno}|}">등록</a>
       <span class="menu_devide">│</span>    
     </span>
     
     <a href="javascript:location.reload();">새로고침</a>
     <span class='menu_divide' >│</span>    
-    <a th:href="@{|./list_by_cateno?cateno=${cateVO.cateno }&word=${word }&now_page=${now_page}|}">목록형</a>    
-    <span class='menu_divide' >│</span>
+    <!-- <a th:href="@{|./list_by_cateno?cateno=${cateVO.cateno }&word=${word }&now_page=${now_page}|}">목록형</a>    
+    <span class='menu_divide' >│</span> -->
+    <!-- 쇼핑몰을 갤러리 형으로만 유지 결정. 목록형은 지움. -->
     <a th:href="@{|./list_by_cateno_grid?cateno=${cateVO.cateno }&word=${word }&now_page=${now_page}|}">갤러리형</a>    
   </aside> 
 
-  <!-- /contents/list_search_com.html 파일의 list_search_fragment import -->
-  <div th:replace="~{contents/list_search_com::list_search_fragment}"></div>
+  <!-- /products/list_search_com.html 파일의 list_search_fragment import -->
+  <div th:replace="~{products/list_search_com::list_search_fragment}"></div>
      
   <div class='menu_line'></div>
        
   <div style='width: 100%;'> <!-- 갤러리 Layout  시작 -->
-    <div th:if="${list.size() > 0}" th:each="contentsVO, status:${list}" 
-         th:attr="onclick=|location.href='/contents/read?contentsno=${contentsVO.contentsno}&word=${word}&now_page=${now_page}'|"
+    <div th:if="${list.size() > 0}" th:each="productsVO, status:${list}" 
+         th:attr="onclick=|location.href='/products/read?productsno=${productsVO.productsno}&word=${word}&now_page=${now_page}'|"
          style='width: 24%; height: 200px; float: left; margin: 0.5%; padding: 0.5%; background-color: #EEEFFF; text-align: left; cursor: pointer;'>
 
-      <div th:if="${contentsVO.file1.endsWith('jpg') or contentsVO.file1.endsWith('png') or contentsVO.file1.endsWith('gif') or contentsVO.file1.endsWith('jpeg')}"
+      <div th:if="${productsVO.file1.endsWith('jpg') or productsVO.file1.endsWith('png') or productsVO.file1.endsWith('gif') or productsVO.file1.endsWith('jpeg')}"
              style="width: 100%; height: 100px;">
-        <img th:src="@{|/contents/storage/${contentsVO.thumb1}|}" style="width: 100%; height: 100%;">
+        <img th:src="@{|/products/storage/${productsVO.thumb1}|}" style="width: 100%; height: 100%;">
       </div>
 
-      <div th:if="${((contentsVO.file1.endsWith('jpg') or contentsVO.file1.endsWith('png')  or contentsVO.file1.endsWith('gif') or contentsVO.file1.endsWith('jpeg')) == false) and (contentsVO.size1 > 0)}"
+      <div th:if="${((productsVO.file1.endsWith('jpg') or productsVO.file1.endsWith('png')  or productsVO.file1.endsWith('gif') or productsVO.file1.endsWith('jpeg')) == false) and (productsVO.size1 > 0)}"
              style="width: 100%; height: 100px;">
-        <span th:text="${contentsVO.file1}"></span>
+        <span th:text="${productsVO.file1}"></span>
       </div>
 
-      <div th:if="${contentsVO.size1 == 0}" style="width: 100%; height: 100px;">
-        <img src="/contents/images/none1.png" style="width: 100%; height: 100%;">
+      <div th:if="${productsVO.size1 == 0}" style="width: 100%; height: 100px;">
+        <img src="/products/images/none1.png" style="width: 100%; height: 100%;">
       </div>
       <div>
-        <span th:if="${contentsVO.title.length() > 16 }" 
-                  th:text="|${contentsVO.title.substring(0, 16) }...|" style="font-weight: bold;"></span>
-        <span th:if="${contentsVO.title.length() <= 16 }" 
-                  th:text="|${contentsVO.title}|" style="font-weight: bold;"></span>
+        <span th:if="${productsVO.title.length() > 16 }" 
+                  th:text="|${productsVO.title.substring(0, 16) }...|" style="font-weight: bold;"></span>
+        <span th:if="${productsVO.title.length() <= 16 }" 
+                  th:text="|${productsVO.title}|" style="font-weight: bold;"></span>
         <br>
         
-        <span th:if="${contentsVO.content.length() > 36 }" 
-                  th:text="|${contentsVO.content.substring(0, 36) }...|"></span>
-        <span th:if="${contentsVO.content.length() <= 36 }" 
-                  th:text="|${contentsVO.content}|"></span>
+        <span th:if="${productsVO.content.length() > 36 }" 
+                  th:text="|${productsVO.content.substring(0, 36) }...|"></span>
+        <span th:if="${productsVO.content.length() <= 36 }" 
+                  th:text="|${productsVO.content}|"></span>
       </div>
       
       <div style="width: 100%; text-align: right;">♡</div>

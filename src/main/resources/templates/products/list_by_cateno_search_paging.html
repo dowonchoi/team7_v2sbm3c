@@ -11,20 +11,21 @@
 
   <aside class="aside_right">
     <span th:if="${session.grade == 'admin'}">
-      <a th:href="@{|/contents/create?cateno=${cateVO.cateno}|}">등록</a>
+      <a th:href="@{|/products/create?cateno=${cateVO.cateno}|}">등록</a>
       <span class="menu_devide">│</span>    
     </span>
     
     <a href="javascript:location.reload();">새로고침</a>
     <span class='menu_divide' >│</span>    
-    <a th:href="@{|./list_by_cateno?cateno=${cateVO.cateno }&word=${word }&now_page=${now_page}|}">목록형</a>    
-    <span class='menu_divide' >│</span>
+    <!-- <a th:href="@{|./list_by_cateno?cateno=${cateVO.cateno }&word=${word }&now_page=${now_page}|}">목록형</a>    
+    <span class='menu_divide' >│</span> -->
+    <!-- 쇼핑몰을 갤러리 형으로만 유지 결정. 목록형은 지움. -->
     <a th:href="@{|./list_by_cateno_grid?cateno=${cateVO.cateno }&word=${word }&now_page=${now_page}|}">갤러리형</a>
     
   </aside> 
 
-  <!-- /contents/list_search_com.html 파일의 list_search_fragment import -->
-  <div th:replace="~{contents/list_search_com::list_search_fragment}"></div>
+  <!-- /products/list_search_com.html 파일의 list_search_fragment import -->
+  <div th:replace="~{products/list_search_com::list_search_fragment}"></div>
      
   <div class='menu_line'></div>
        
@@ -38,32 +39,32 @@
       <th class='th_bs'>제목</th>
     </tr>
    
-    <tr th:if="${list.size() > 0}" th:each="contentsVO, status:${list}" 
-         th:attr="onclick=|location.href='/contents/read?contentsno=${contentsVO.contentsno}&word=${word}&now_page=${now_page}'|"
+    <tr th:if="${list.size() > 0}" th:each="productsVO, status:${list}" 
+         th:attr="onclick=|location.href='/products/read?productsno=${productsVO.productsno}&word=${word}&now_page=${now_page}'|"
          style="cursor: pointer; height: 90px;">
       <td class='td_basic' style="vertical-align: middle; text-align: center;">
-        <div th:if="${contentsVO.file1.endsWith('jpg') or contentsVO.file1.endsWith('png') or contentsVO.file1.endsWith('gif') or contentsVO.file1.endsWith('jpeg')}">
-          <img th:src="@{|/contents/storage/${contentsVO.thumb1}|}" style="width: 120px; height: 90px;">
+        <div th:if="${productsVO.file1.endsWith('jpg') or productsVO.file1.endsWith('png') or productsVO.file1.endsWith('gif') or productsVO.file1.endsWith('jpeg')}">
+          <img th:src="@{|/products/storage/${productsVO.thumb1}|}" style="width: 120px; height: 90px;">
         </div>
 
-        <div th:if="${((contentsVO.file1.endsWith('jpg') or contentsVO.file1.endsWith('png')  or contentsVO.file1.endsWith('gif') or contentsVO.file1.endsWith('jpeg')) == false) and (contentsVO.size1 > 0)}">
-          <span th:text="${contentsVO.file1}"></span>
+        <div th:if="${((productsVO.file1.endsWith('jpg') or productsVO.file1.endsWith('png')  or productsVO.file1.endsWith('gif') or productsVO.file1.endsWith('jpeg')) == false) and (productsVO.size1 > 0)}">
+          <span th:text="${productsVO.file1}"></span>
         </div>
 
-        <div th:if="${contentsVO.size1 == 0}">
-          <img src="/contents/images/none1.png" style="width: 120px; height: 90px;">
+        <div th:if="${productsVO.size1 == 0}">
+          <img src="/products/images/none1.png" style="width: 120px; height: 90px;">
         </div>
                 
       </td>
       </td>
       <td class='td_left'>
-        <span th:text="${contentsVO.title}" style="font-weight: bold;"></span>
-        <span th:text="| ${contentsVO.rdate.substring(0, 10)}|"></span><br>
+        <span th:text="${productsVO.title}" style="font-weight: bold;"></span>
+        <span th:text="| ${productsVO.rdate.substring(0, 10)}|"></span><br>
 
-        <span th:if="${contentsVO.summary.length() > 160 }" 
-                  th:text="|${contentsVO.summary.substring(0, 160) }...|"></span>
-        <span th:if="${contentsVO.summary.length() <= 160 }" 
-                  th:text="|${contentsVO.summary}|"></span>
+        <span th:if="${productsVO.summary.length() > 160 }" 
+                  th:text="|${productsVO.summary.substring(0, 160) }...|"></span>
+        <span th:if="${productsVO.summary.length() <= 160 }" 
+                  th:text="|${productsVO.summary}|"></span>
         
       </td>
     </tr>
@@ -80,3 +81,4 @@
 
 </div>
 </html>
+ 

@@ -13,32 +13,33 @@
     <span class='menu_divide' >│</span>
     <a href="javascript:location.reload();">새로고침</a>
     <span class='menu_divide' >│</span>
-    <a th:href="@{|./list_by_cateno_search_paging?cateno=${cateVO.cateno }|}">기본 목록형</a>    
-    <span class='menu_divide' >│</span>
+    <!-- <a th:href="@{|./list_by_cateno_search_paging?cateno=${cateVO.cateno }|}">기본 목록형</a>    
+    <span class='menu_divide' >│</span> -->
+    <!-- 쇼핑몰을 갤러리 형으로만 유지 결정. 목록형은 지움. -->
     <a th:href="@{|./list_by_cateno_grid?cateno=${cateVO.cateno }|}">갤러리형</a>
   </aside>
   
   <div class='menu_line'></div>
   
-  <form name='frm' method='post' th:object="${contentsVO}" action='./update_text'>
+  <form name='frm' method='post' th:object="${productsVO}" action='./update_text'>
     <input type="hidden" name="cateno" th:value="${cateVO.cateno }">
-    <input type="hidden" name="contentsno" th:value="${contentsVO.contentsno }">
+    <input type="hidden" name="productsno" th:value="${productsVO.productsno }">
     <input type="hidden" name="now_page" th:value="${now_page}">
     <input type="hidden" name="search_word" th:value="${word}">
     
     <div>
        <label>제목</label>
-       <input type='text' name='title' th:value='${contentsVO.title}' required="required" 
+       <input type='text' name='title' th:value='${productsVO.title}' required="required" 
                  autofocus="autofocus" class="form-control" style='width: 100%;'>
     </div>
     <div>
        <label>내용</label>
        <textarea name='content' required="required" class="form-control" rows="12" style='width: 100%;' 
-                      th:text='${contentsVO.content}'></textarea>
+                      th:text='${productsVO.content}'></textarea>
     </div>
     <div>
        <label>검색어</label>
-       <input type='text' name='word' th:value='${contentsVO.word}' required="required" 
+       <input type='text' name='word' th:value='${productsVO.word}' required="required" 
                  class="form-control" style='width: 100%;'>
     </div>   
     <div>

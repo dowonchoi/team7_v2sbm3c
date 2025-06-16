@@ -14,28 +14,29 @@
     <span class='menu_divide' >│</span>
     <a href="javascript:location.reload();">새로고침</a>
     <span class='menu_divide' >│</span>
-    <a th:href="@{|./list_by_cateno_search_paging?cateno=${cateVO.cateno }|}">기본 목록형</a>    
-    <span class='menu_divide' >│</span>
+    <!-- <a th:href="@{|./list_by_cateno_search_paging?cateno=${cateVO.cateno }|}">기본 목록형</a>    
+    <span class='menu_divide' >│</span> -->
+    <!-- 쇼핑몰을 갤러리 형으로만 유지 결정. 목록형은 지움. -->
     <a th:href="@{|./list_by_cateno_grid?cateno=${cateVO.cateno }|}">갤러리형</a>
   </aside>
   
   <div class='menu_line'></div>
   
-  <form name='frm' method='post' th:object="${contentsVO}" action='./create' enctype="multipart/form-data">
+  <form name='frm' method='post' th:object="${productsVO}" action='./create' enctype="multipart/form-data">
     <input type="hidden" name="cateno" th:value="${cateVO.cateno }">
     
     <div>
        <label>제목</label>
-       <input type='text' name='title' value='주말 오지 탐험' required="required" 
+       <input type='text' name='title' value='상품 제목을 등록해 주세요.' required="required" 
                  autofocus="autofocus" class="form-control" style='width: 100%;'>
     </div>
     <div>
        <label>내용</label>
-       <textarea name='content' required="required" class="form-control" rows="12" style='width: 100%;'>오지 탐험은 언제나 즐거운 시간이었어요! </textarea>
+       <textarea name='content' required="required" class="form-control" rows="12" style='width: 100%;'>상품 설명을 등록해 주세요 </textarea>
     </div>
     <div>
        <label>검색어</label>
-       <input type='text' name='word' value='오버랜딩,오지,탐험,일상탈피,힐링,내공,추진력,문제해결' required="required" 
+       <input type='text' name='word' value='못난이 채소, 유기농, 농장, 건강, 세일, 할인' required="required" 
               class="form-control" style='width: 100%;'>
     </div>   
     <div>
