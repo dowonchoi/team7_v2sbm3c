@@ -65,24 +65,38 @@
     > 글 조회
   </div>
   
-  <aside class="aside_right" th:if="${session.grade == 'admin'}">
+  <aside class="aside_right" th:if="${session.grade == 'admin' or (session.grade == 'member' and session.memberno == productsVO.memberno)}">
+    
     <a href="javascript:location.reload();">새로고침</a>
-    <span class='menu_divide' >│</span>    
+    <span class='menu_divide' >│</span>
+
     <!-- <a th:href="@{|./list_by_cateno?cateno=${cateVO.cateno }&word=${word }&now_page=${now_page}|}">목록형</a>    
     <span class='menu_divide' >│</span> -->
     <!-- 쇼핑몰을 갤러리 형으로만 유지 결정. 목록형은 지움. -->
+
     <a th:href="@{|./list_by_cateno_grid?cateno=${cateVO.cateno }&word=${word }&now_page=${now_page}|}">갤러리형</a>
     <span class='menu_divide' >│</span>
-    <a href="./create?cateno=${cateno }">등록</a>
-    <span class='menu_divide' >│</span>
+    
+    <!-- 등록: Admin 전용 -->
+    <!-- <a href="./create?cateno=${cateno }">등록</a>--> <!--기존 것-->
+    <!-- <span class='menu_divide' >│</span>--> <!--기존 것-->
+    <a th:if="${session.grade == 'admin'}"
+     th:href="@{|./create?cateno=${cateno}|}">등록</a>
+    <span class='menu_divide' th:if="${session.grade == 'admin'}">│</span>
+
+    <!-- 수정/삭제: Admin or 자기 글 쓴 공급자만 -->
     <a th:href="@{|/products/update_text?productsno=${productsVO.productsno}&now_page=${now_page}&word=${word }|}">글 수정</a>
     <span class='menu_divide' >│</span>
+    
     <a th:href="@{|./update_file?productsno=${productsVO.productsno}&word=${word}&now_page=${now_page}|}">파일 수정</a>  
     <span class='menu_divide' >│</span>
+
     <a th:href="@{|/products/map?cateno=${productsVO.cateno }&productsno=${productsVO.productsno}|}">지도</a>
     <span class='menu_divide' >│</span>
+
     <a th:href="@{|/products/youtube?cateno=${productsVO.cateno }&productsno=${productsVO.productsno}&word=${word}&now_page=${now_page}|}">Youtube</a>
     <span class='menu_divide' >│</span>
+    
     <a th:href="@{|./delete?productsno=${productsVO.productsno}&word=${word}&now_page=${now_page}&cateno=${productsVO.cateno}|}">삭제</a>  
  </aside> 
 

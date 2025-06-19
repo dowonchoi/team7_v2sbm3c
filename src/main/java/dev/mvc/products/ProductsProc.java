@@ -41,6 +41,12 @@ public class ProductsProc implements ProductsProcInter {
     ArrayList<ProductsVO> list = this.productsDAO.list_by_cateno(cateno);
     return list;
   }
+  
+  @Override
+  public ArrayList<ProductsVO> list_by_memberno(int memberno) {
+    return this.productsDAO.list_by_memberno(memberno);  // DAO 호출
+  }
+
 
   /**
    * 조회
@@ -191,20 +197,26 @@ public class ProductsProc implements ProductsProcInter {
 
   @Override
   public int password_check(HashMap<String, Object> map) {
-    String passwd = (String)map.get("passwd");
-    System.out.println("입력 비밀번호(암호화 전): " + passwd);  // ✅ 여기에 추가
+    String plainPasswd = (String)map.get("passwd");
+    System.out.println(">>> 전달된 평문 비밀번호: " + plainPasswd);
 
-    passwd = this.security.aesEncode(passwd);
-    System.out.println("암호화된 비밀번호: " + passwd);         // ✅ 여기에 추가
-    map.put("passwd", passwd);
-    
+    String encryptedPasswd = this.security.aesEncode(plainPasswd);
+    System.out.println(">>> 암호화된 비밀번호: " + encryptedPasswd);
+
+    map.put("passwd", encryptedPasswd);  // DB 비교용
+
     int cnt = this.productsDAO.password_check(map);
+    System.out.println(">>> DB 비교 결과 cnt: " + cnt);
+
     return cnt;
   }
 
+
   @Override
   public int update_text(ProductsVO productsVO) {
+    System.out.println("→ update_text 요청: " + productsVO.toString());  // ★ 확인용
     int cnt = this.productsDAO.update_text(productsVO);
+    System.out.println("→ DB 수정 결과: " + cnt);  // ★ 반드시 찍기
     return cnt;
   }
 

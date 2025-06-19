@@ -29,6 +29,13 @@ public interface ProductsProcInter {
    * @return
    */
   public ArrayList<ProductsVO> list_by_cateno(int cateno);
+ 
+  /**
+   * 카테고리별 등록된 글 목록
+   * @param memberno
+   * @return
+   */
+  public ArrayList<ProductsVO> list_by_memberno(int memberno);
   
   /**
    * 조회

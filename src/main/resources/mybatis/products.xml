@@ -19,12 +19,21 @@
     ORDER BY productsno DESC
   </select>
   
-  <!-- 특정 카테고리의 등록된 글목록 -->
+  <!-- 특정 카테고리의 등록된 글목록 (Admin 과 일반 회원(소비자))-->
   <select id="list_by_cateno" resultType="dev.mvc.products.ProductsVO" parameterType="int">
     SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate,
               LOWER(file1) as file1, file1saved, thumb1, size1, mp4
     FROM products 
     WHERE cateno = #{cateno}
+    ORDER BY productsno DESC
+  </select> 
+  
+  <!-- 특정 카테고리의 등록된 글목록 (공급자(member))-->
+  <select id="list_by_memberno" resultType="dev.mvc.products.ProductsVO" parameterType="int">
+    SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate,
+              LOWER(file1) as file1, file1saved, thumb1, size1, mp4
+    FROM products 
+    WHERE memberno = #{memberno}
     ORDER BY productsno DESC
   </select> 
   

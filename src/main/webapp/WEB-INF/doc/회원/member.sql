@@ -16,7 +16,7 @@ CREATE TABLE member (
   address1    VARCHAR(80)       NULL, -- 주소 1
   address2    VARCHAR(50)       NULL, -- 주소 2
   mdate       DATE             NOT NULL, -- 가입일    
-  grade        NUMBER(2)     NOT NULL, -- 등급(1~10: 관리자, 11~20: 회원, 40~49: 정지 회원, 99: 탈퇴 회원)
+  grade        NUMBER(2)     NOT NULL, -- 등급(1~4: 관리자, 5~15: member, 16~ guest)
   PRIMARY KEY (memberno)               -- 한번 등록된 값은 중복 안됨
 );
  

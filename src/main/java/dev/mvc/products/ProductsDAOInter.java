@@ -26,11 +26,18 @@ public interface ProductsDAOInter {
   public ArrayList<ProductsVO> list_all();
   
   /**
-   * 카테고리별 등록된 글 목록
+   * 카테고리별 등록된 글 목록 (관리자, 일반 회원)
    * @param cateno
    * @return
    */
   public ArrayList<ProductsVO> list_by_cateno(int cateno);
+  
+  /**
+   * 카테고리별 등록된 글 목록 (공급자(member)
+   * @param memberno
+   * @return
+   */
+  public ArrayList<ProductsVO> list_by_memberno(int memberno);
   
   /**
    * 조회

@@ -60,11 +60,6 @@
       <td class='td_left'>
         <span th:text="${productsVO.title}" style="font-weight: bold;"></span>
         <span th:text="| ${productsVO.rdate.substring(0, 10)}|"></span><br>
-
-        <span th:if="${productsVO.summary.length() > 160 }" 
-                  th:text="|${productsVO.summary.substring(0, 160) }...|"></span>
-        <span th:if="${productsVO.summary.length() <= 160 }" 
-                  th:text="|${productsVO.summary}|"></span>
         
       </td>
     </tr>
