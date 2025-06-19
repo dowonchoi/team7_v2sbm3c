@@ -1,5 +1,7 @@
 package dev.mvc.member;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -48,5 +50,13 @@ public class MemberVO {
     /** 이동할 주소 저장 */
     private String url_address = "";
     
+    /** 공급자 승인 여부: 'Y' 또는 'N' */
+    private String supplier_approved;
+
+    /** 사업자 인증 파일 경로 */
+    private MultipartFile business_file;
+    
+    // 업로드용 필드, Controller에서 파일 받을 때 사용
+    private String business_file_name;
     
 }

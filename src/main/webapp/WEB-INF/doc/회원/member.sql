@@ -57,10 +57,26 @@ WHERE id='user1';
  ---
    0   ← 중복 되지 않음.
    
+---
+
+-- 잘못된 문자형 컬럼 삭제 (만약 추가했었다면)
+ALTER TABLE member DROP COLUMN supplier_approved;
+
+-- 숫자형 컬럼 재추가: 0(미승인), 1(승인)
+ALTER TABLE member ADD supplier_approved NUMBER(1) DEFAULT 0;
+
+ALTER TABLE member ADD business_file VARCHAR2(200);
+
+ALTER TABLE member RENAME COLUMN supplier_approved TO supplier_approved_old;
+
+ALTER TABLE member ADD supplier_approved CHAR(1) DEFAULT 'N';
+
+ALTER TABLE member DROP COLUMN supplier_approved_old;
+   
 2) 등록
 INSERT INTO member(memberno, id, passwd, mname, tel, zipcode,
                    address1, address2, mdate, grade)
-VALUES (member_seq.nextval, 'admin@tteolimall.com', '1234', '떨이몰 관리자', 
+VALUES (member_seq.nextval, 'admin', '1234', '떨이몰 관리자', 
         '010-0000-0000', '00000', '서울특별시 종로구', '청운동', sysdate, 1);
         
 -- 공급자 회원 예시
@@ -91,6 +107,23 @@ SELECT memberno, id, passwd, mname, tel, zipcode, address1, address2, mdate, gra
 FROM member
 ORDER BY grade ASC, id ASC;
      
+-- 승인 대기 중인 공급자 조회
+SELECT memberno, id, passwd, mname, tel, zipcode, address1, address2, mdate, grade, supplier_approved
+FROM member
+ORDER BY grade ASC, id ASC;
+
+SELECT memberno, id, mname, tel, grade, supplier_approved, business_file
+FROM member
+WHERE grade BETWEEN 5 AND 15
+  AND supplier_approved = 0; -- 숫자로 비교
+  
+UPDATE member 
+SET supplier_approved = 
+    CASE supplier_approved_old 
+        WHEN 1 THEN 'Y' 
+        WHEN 0 THEN 'N' 
+        ELSE 'N' 
+    END;
      
 3. 조회
  

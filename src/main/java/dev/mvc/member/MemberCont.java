@@ -1,8 +1,10 @@
 package dev.mvc.member;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import dev.mvc.cate.CateProcInter;
 import dev.mvc.cate.CateVOMenu;
@@ -34,6 +37,9 @@ public class MemberCont {
   @Autowired
   @Qualifier("dev.mvc.cate.CateProc")
   private CateProcInter cateProc;
+  
+  @Autowired  // 자동 주입 어노테이션 꼭 붙이기
+  private MemberService memberService;
   
   public MemberCont() {
     System.out.println("-> MemberCont created.");  
@@ -54,83 +60,134 @@ public class MemberCont {
     return obj.toString();
   }
   
-  /**
-   * 회원 가입 폼
-   * @param model
-   * @param memberVO
-   * @return
-   */
-  @GetMapping(value="/create") // http://localhost:9091/member/create
-  public String create_form(Model model, 
-                                      @ModelAttribute("memberVO") MemberVO memberVO) {
+  /** 회원 가입 폼 */
+  @GetMapping(value="/create")
+  public String create_form(Model model, @ModelAttribute("memberVO") MemberVO memberVO) {
     ArrayList<CateVOMenu> menu = this.cateProc.menu();
     model.addAttribute("menu", menu);
     
-    return "member/create";    // /template/member/create.html
+    return "member/create";    // /templates/member/create.html
   }
   
-  @PostMapping(value="/create")
+  /** 회원 가입 처리 */
+  @PostMapping("/create")
   public String create_proc(Model model,
-                            @ModelAttribute("memberVO") MemberVO memberVO,
-                            @RequestParam(name="memberType", required = true) String memberType) {
-      // 아이디 중복 체크
-      int checkID_cnt = this.memberProc.checkID(memberVO.getId());
+                            @ModelAttribute MemberVO memberVO,
+                            @RequestParam(name = "userType", defaultValue = "user") String userType,
+                            HttpServletRequest request) throws Exception {
 
-      if (checkID_cnt > 0) {
-          model.addAttribute("code", "duplicate_fail");
-          model.addAttribute("cnt", 0);
-          return "member/msg";
-      }
-
-      // 회원 등급 부여 범위 설정
       int gradeStart, gradeEnd;
-      if ("supplier".equals(memberType)) { // 공급자 등록
-          gradeStart = 5; // 등급 시작
-          gradeEnd = 15; // 등급 종료
+      if ("supplier".equals(userType)) {
+          gradeStart = 5;
+          gradeEnd = 15;
       } else {
           gradeStart = 16;
-          gradeEnd = 29;
+          gradeEnd = 39;
       }
 
-      // 사용 중인 등급 목록 조회 (ex: 5~15 범위 중 이미 사용 중인 등급 리스트)
-      List<Integer> usedGrades = this.memberProc.getUsedGradesInRange(gradeStart, gradeEnd);
+      // 사용 중인 등급 목록 조회
+      List<Integer> usedGrades = memberProc.getUsedGradesInRange(gradeStart, gradeEnd);
 
-      // 빈 등급 찾기
-      Integer assignedGrade = null;
-      for (int g = gradeStart; g <= gradeEnd; g++) {
-          if (!usedGrades.contains(g)) {
-              assignedGrade = g;
+      // 가능한 미사용 등급 찾기
+      int assignedGrade = -1;
+      for (int i = gradeStart; i <= gradeEnd; i++) {
+          if (!usedGrades.contains(i)) {
+              assignedGrade = i;
               break;
           }
       }
 
-      // 빈 등급 없으면 회원가입 불가 처리
-      if (assignedGrade == null) {
-          model.addAttribute("code", "grade_full_fail");
-          model.addAttribute("message", "해당 회원 유형의 회원 등급이 모두 채워져 회원가입이 불가능합니다.");
+      if (assignedGrade == -1) {
+          // 가입 가능한 등급 없음 → 가입 실패 메시지 처리
+          model.addAttribute("code", "grade_limit_reached");
+          model.addAttribute("msg", "해당 유형의 회원 수가 최대치에 도달했습니다. 가입이 불가합니다.");
           return "member/msg";
       }
 
-      // 빈 등급 할당
-      memberVO.setGrade(assignedGrade);
+      // 공급자일 경우 사업자 인증 처리
+      if ("supplier".equals(userType)) {
+          memberVO.setGrade(assignedGrade);
+          memberVO.setSupplier_approved("N"); // 기본은 미승인
 
-      // 회원 가입 처리
-      int cnt = this.memberProc.create(memberVO);
+          MultipartFile businessFile = memberVO.getBusiness_file();
+          if (businessFile != null && !businessFile.isEmpty()) {
+              String uploadDir = "C:\\kd\\deploy\\resort\\member\\storage";
+              File uploadDirFile = new File(uploadDir);
+              if (!uploadDirFile.exists()) uploadDirFile.mkdirs();
 
-      if (cnt == 1) {
-          model.addAttribute("code", "create_success");
-          model.addAttribute("mname", memberVO.getMname());
-          model.addAttribute("id", memberVO.getId());
+              String originalFilename = businessFile.getOriginalFilename();
+              String ext = originalFilename.substring(originalFilename.lastIndexOf("."));
+              String saveFilename = java.util.UUID.randomUUID().toString() + ext;
+
+              File saveFile = new File(uploadDirFile, saveFilename);
+              businessFile.transferTo(saveFile);
+
+              memberVO.setBusiness_file_name(saveFilename); // DB에 저장
+          }
+
       } else {
-          model.addAttribute("code", "create_fail");
+          // 일반 소비자
+          memberVO.setGrade(assignedGrade);
       }
-      model.addAttribute("cnt", cnt);
-      
-      System.out.println("memberType: " + memberType);
-      System.out.println("부여된 등급: " + assignedGrade);
 
+      int cnt = memberProc.create(memberVO);
+
+      model.addAttribute("code", (cnt == 1) ? "create_success" : "create_fail");
+      model.addAttribute("cnt", cnt);
+      model.addAttribute("mname", memberVO.getMname());
+      model.addAttribute("id", memberVO.getId());
 
       return "member/msg";
+  }
+
+  
+  @GetMapping("/admin/pending_suppliers")
+  public String pendingSuppliers(Model model) {
+      List<MemberVO> list = memberProc.selectPendingSuppliers();
+      model.addAttribute("supplierList", list); // 또는 "list"
+      return "admin/pending_suppliers"; // templates/admin/pending_suppliers.html 로 이동
+  }
+  
+  @PostMapping("/admin/approveSupplier")
+  @ResponseBody
+  public String approveSupplier(@RequestParam("memberno") int memberno) {
+      Map<String, Object> paramMap = new HashMap<>();
+      paramMap.put("memberno", memberno);
+      paramMap.put("supplier_approved", "Y");  // 승인됨
+
+      int result = memberProc.updateSupplierApproved(paramMap);
+      return result == 1 ? "success" : "fail";
+  }
+
+  @PostMapping("/admin/rejectSupplier")
+  @ResponseBody
+  public String rejectSupplier(@RequestParam("memberno") int memberno) {
+      Map<String, Object> paramMap = new HashMap<>();
+      paramMap.put("memberno", memberno);
+      paramMap.put("supplier_approved", "R");  // 거절
+
+      int result = memberProc.updateSupplierApproved(paramMap);
+      return result == 1 ? "success" : "fail";
+  }
+
+
+  @PostMapping("/admin/cancelApproval")
+  @ResponseBody
+  public String cancelApproval(@RequestParam("memberno") int memberno) {
+      Map<String, Object> paramMap = new HashMap<>();
+      paramMap.put("memberno", memberno);
+      paramMap.put("supplier_approved", "N");  // 대기중으로 되돌림
+
+      int result = memberProc.updateSupplierApproved(paramMap);
+      return result == 1 ? "success" : "fail";
+  }
+
+  
+  @PostMapping(value="/delete", produces = "text/plain; charset=UTF-8")
+  @ResponseBody
+  public String delete_ajax(@RequestParam("memberno") int memberno) {
+      int cnt = this.memberProc.delete(memberno);
+      return cnt == 1 ? "success" : "fail";
   }
 
   
@@ -141,15 +198,11 @@ public class MemberCont {
     
     if (this.memberProc.isAdmin(session)) {
       ArrayList<MemberVO> list = this.memberProc.list();
-      
       model.addAttribute("list", list);
-      
-      return "member/list";  // /templates/member/list.html
-
+      return "member/list";
     } else {
-      return "redirect:/member/login_cookie_need?url=/member/list"; // redirect
+      return "redirect:/member/login_cookie_need?url=/member/list";
     }
-    
   }
 
 //  /**
@@ -179,35 +232,25 @@ public class MemberCont {
    * @return 회원 정보
    */
   @GetMapping(value="/read")
-  public String read(HttpSession session, 
-                            Model model,
-                            @RequestParam(name="memberno", defaultValue = "") int memberno) {
-    // 회원은 회원 등급만 처리, 관리자: 1 ~ 10, 사용자: 11 ~ 20
-    // int gradeno = this.memberProc.read(memberno).getGrade(); // 등급 번호
-    String grade = (String)session.getAttribute("grade"); // 등급: admin, member, guest
+  public String read(HttpSession session, Model model,
+                     @RequestParam(name="memberno", defaultValue = "") int memberno) {
+    String grade = (String)session.getAttribute("grade"); // admin, member, guest
     
-    // 사용자: member && 11 ~ 20
-    // if (grade.equals("member") && (gradeno >= 11 && gradeno <= 20) && memberno == (int)session.getAttribute("memberno")) {
-    // if (grade.equals("member")) { // 로그인한 회원은 별다른 제약없이 다른 회원 정보 조회 가능
-    if (grade.equals("member") &&  memberno == (int)session.getAttribute("memberno")) { // 로그인 세션으로 memberno 검사
-      System.out.println("-> read memberno: " + memberno);
-      
-      MemberVO memberVO = this.memberProc.read(memberno);
-      model.addAttribute("memberVO", memberVO);
-      
-      return "member/read";  // templates/member/read.html
-      
-    } else if (grade.equals("admin")) {
-      System.out.println("-> read memberno: " + memberno);
-      
-      MemberVO memberVO = this.memberProc.read(memberno);
-      model.addAttribute("memberVO", memberVO);
-      
-      return "member/read";  // templates/member/read.html
-    } else {
-      return "redirect:/member/login_cookie_need";  // redirect
+    if (grade == null) {
+      return "redirect:/member/login_cookie_need";
     }
     
+    if (grade.equals("member") && memberno == (int)session.getAttribute("memberno")) {
+      MemberVO memberVO = this.memberProc.read(memberno);
+      model.addAttribute("memberVO", memberVO);
+      return "member/read";
+    } else if (grade.equals("admin")) {
+      MemberVO memberVO = this.memberProc.read(memberno);
+      model.addAttribute("memberVO", memberVO);
+      return "member/read";
+    } else {
+      return "redirect:/member/login_cookie_need";
+    }
   }
  
   
@@ -428,12 +471,12 @@ public class MemberCont {
       // -------------------------------------------------------------------
       // 회원 등급 처리
       // -------------------------------------------------------------------
-      if (memverVO.getGrade() >= 1 && memverVO.getGrade() <= 4) {
+      if (memverVO.getGrade() >= 1 && memverVO.getGrade() <=4) {
         session.setAttribute("grade", "admin");
       } else if (memverVO.getGrade() >= 5 && memverVO.getGrade() <= 15) {
-        session.setAttribute("grade", "member");
+        session.setAttribute("grade", "supplier");
       } else if (memverVO.getGrade() >= 16) {
-        session.setAttribute("grade", "guest");
+        session.setAttribute("grade", "user");
       }
       
       System.out.println("-> grade: " + session.getAttribute("grade"));
