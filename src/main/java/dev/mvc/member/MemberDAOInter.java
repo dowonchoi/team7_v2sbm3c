@@ -10,7 +10,7 @@ import java.util.List;
 // Payend pay = new Payend2023();
 // Payend pay = new Payend2024();
 // pay.calc();
-import java.util.Map;   
+import java.util.Map;         
 
 public interface MemberDAOInter {
   /**
@@ -81,10 +81,42 @@ public interface MemberDAOInter {
   public int login(HashMap<String, Object> map);
   
   /**
-   * 특정 범위 내 사용 중인 grade 번호 목록
-   * @param map {gradeStart, gradeEnd}
-   * @return 사용 중인 grade 리스트
+   * 공급자 회원 가입 (사업자 인증 파일 포함)
+   * @param memberVO
+   * @return 등록된 레코드 수
    */
-  public List<Integer> getUsedGradesInRange(Map<String, Integer> map);
+  public int insertMember(MemberVO memberVO);
+  
+  /**
+   * 공급자 등급
+   * @param paramMap
+   * @return
+   */
+  public List<Integer> getUsedGradesInRange(Map<String, Object> paramMap);
+
+  /**
+   * 공급자 승인 처리 (관리자 승인)
+   * @param paramMap
+   * @return 업데이트된 레코드 수
+   */
+  public int updateSupplierApproved(Map<String, Object> paramMap);
+
+  /**
+   * 승인 대기 중인 공급자 목록 조회
+   * @return 승인 대기 공급자 리스트
+   */
+  public List<MemberVO> selectPendingSuppliers();
+  
+  // 등급 변경
+  public int updateGrade(int memberno, int grade);
+  
+  /** ✅ 공급자 승인 거절 처리 */
+  public int updateSupplierRejected(int memberno);
+
+  /** ✅ 공급자 승인 취소 처리 (대기 상태로 복원) */
+  public int updateSupplierApprovalToPending(int memberno);
+  
+//  /** 모든 공급자 조회 (승인 여부 무관) */
+//  public List<MemberVO> selectAllSuppliers();
 
 }

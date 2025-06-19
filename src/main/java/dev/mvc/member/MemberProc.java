@@ -131,11 +131,55 @@ public class MemberProc implements MemberProcInter {
   }
   
   @Override
-  public List<Integer> getUsedGradesInRange(int gradeStart, int gradeEnd) {
-      Map<String, Integer> map = new HashMap<>();
-      map.put("gradeStart", gradeStart);
-      map.put("gradeEnd", gradeEnd);
-      return this.memberDAO.getUsedGradesInRange(map);
+  public int insertMember(MemberVO memberVO) {
+      // 회원 가입 처리, 사업자 인증 포함
+      String passwd = memberVO.getPasswd();
+      String passwd_encoded = this.security.aesEncode(passwd);
+      memberVO.setPasswd(passwd_encoded);
+      
+      int cnt = this.memberDAO.create(memberVO);
+      return cnt;
+  }
+  
+  // 공급자 등급 관리
+  @Override
+  public List<Integer> getUsedGradesInRange(int start, int end) {
+      Map<String, Object> map = new HashMap<>();
+      map.put("gradeStart", start);
+      map.put("gradeEnd", end);
+      return memberDAO.getUsedGradesInRange(map);
+  }
+  
+  @Override
+  public List<Integer> getUsedGradesInRange(Map<String, Object> paramMap) {
+      return memberDAO.getUsedGradesInRange(paramMap);
+  }
+
+  @Override
+  public int updateSupplierApproved(Map<String, Object> paramMap) {
+      int cnt = this.memberDAO.updateSupplierApproved(paramMap);
+      return cnt;
+  }
+
+  @Override
+  public List<MemberVO> selectPendingSuppliers() {
+      List<MemberVO> list = this.memberDAO.selectPendingSuppliers();
+      return list;
+  }
+  
+  @Override
+  public int updateSupplierRejected(int memberno) {
+      // 등급을 소비자(예: 16)로 변경하고 승인 상태를 'N'으로 유지
+      int cnt1 = this.memberDAO.updateGrade(memberno, 16);
+      int cnt2 = 1;  // supplier_approved = 'N'은 기본값이므로 별도 업데이트 생략 가능
+      return (cnt1 + cnt2) / 2;
+  }
+
+  @Override
+  public int updateSupplierApprovalToPending(int memberno) {
+      int cnt1 = this.memberDAO.updateGrade(memberno, 5);  // 대기용 공급자 등급 예: 5
+      int cnt2 = this.memberDAO.updateSupplierApprovalToPending(memberno); // 승인 상태 N
+      return (cnt1 + cnt2) / 2;
   }
 
   
