@@ -510,7 +510,6 @@ public class MemberCont {
 
       return "member/delete_msg";
   }
-
   
   @GetMapping("/delete_msg")
   public String deleteMsg() {
