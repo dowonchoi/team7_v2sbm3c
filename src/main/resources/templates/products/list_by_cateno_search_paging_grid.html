@@ -10,7 +10,8 @@
   </div>
 
   <aside class="aside_right">
-    <span th:if="${session.grade == 'admin'}">
+    <!-- <span th:if="${session.grade == 'admin'}"> -->
+    <span th:if="${session.grade == 'admin' or session.grade == 'supplier'}">
       <a th:href="@{|/products/create?cateno=${cateVO.cateno}|}">등록</a>
       <span class="menu_devide">│</span>    
     </span>
@@ -20,7 +21,8 @@
     <!-- <a th:href="@{|./list_by_cateno?cateno=${cateVO.cateno }&word=${word }&now_page=${now_page}|}">목록형</a>    
     <span class='menu_divide' >│</span> -->
     <!-- 쇼핑몰을 갤러리 형으로만 유지 결정. 목록형은 지움. -->
-    <a th:href="@{|./list_by_cateno_grid?cateno=${cateVO.cateno }&word=${word }&now_page=${now_page}|}">갤러리형</a>    
+    <!-- <a th:href="@{|./list_by_cateno_grid?cateno=${cateVO.cateno }&word=${word }&now_page=${now_page}|}">목록</a>     -->
+    <a th:href="@{|./list_by_cateno_grid?cateno=${cateVO.cateno }|}">목록</a>
   </aside> 
 
   <!-- /products/list_search_com.html 파일의 list_search_fragment import -->

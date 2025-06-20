@@ -7,6 +7,8 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jakarta.annotation.PostConstruct;
+
 // Service, Process, Manager: DAO 호출 및 알고리즘 구현
 @Service("dev.mvc.cate.CateProc")
 public class CateProc implements CateProcInter {
@@ -235,6 +237,24 @@ public class CateProc implements CateProcInter {
     return 0;
   }
 
+  /*20250619 추가*/
+  
+  @PostConstruct
+  public void autoUpdateCnt() {
+    this.updateMidCnt();   // products 기준 중분류 갱신
+    this.updateMainCnt();  // 중분류 기준 대분류 갱신
+    System.out.println(">>> cate.cnt 자동 갱신 완료");
+  }
+  
+  @Override
+  public int updateMidCnt() {
+    return this.cateDAO.updateMidCnt();
+  }
+
+  @Override
+  public int updateMainCnt() {
+    return this.cateDAO.updateMainCnt();
+  }
 
 }
 

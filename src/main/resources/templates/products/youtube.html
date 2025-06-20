@@ -14,7 +14,9 @@
     <!-- <a th:href="@{|./list_by_cateno?cateno=${cateno}&word=${word }&now_page=${now_page}|}">기본 목록형</a>    
     <span class='menu_divide' >│</span> -->
     <!-- 쇼핑몰을 갤러리 형으로만 유지 결정. 목록형은 지움. -->
-    <a th:href="@{|./list_by_cateno_grid?cateno=${cateno }&word=${word }&now_page=${now_page}|}">갤러리형</a>
+    <!-- <a th:href="@{|./list_by_cateno_grid?cateno=${cateno }&word=${word }&now_page=${now_page}|}">갤러리형</a> -->
+    <a th:if="${productsVO.cateno != null}"
+      th:href="@{|/products/list_by_cateno_grid?cateno=${productsVO.cateno}&word=${word}&now_page=${now_page}|}">갤러리형</a>
   </aside>
   
   <div class='menu_line'></div>

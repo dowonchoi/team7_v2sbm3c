@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
@@ -66,6 +67,16 @@ public class ProductsCont {
     System.out.println("-> ProductsCont created.");
   }
 
+  /*
+   * 20250619 추가 
+   */
+  @PostConstruct
+  public void autoCntUpdate() {
+    cateProc.updateMidCnt();   // 중분류 cnt 갱신
+    cateProc.updateMainCnt();  // 대분류 cnt 갱신
+    System.out.println("→ 자동 카테고리 cnt 동기화 완료");
+  }
+  
   /**
    *  POST 요청 후 새로고침 시 중복 등록 방지를 위한 GET 중간 경유지
    * POST 요청 처리 → redirect → url → GET → forward -> html 데이터
@@ -83,39 +94,153 @@ public class ProductsCont {
   }
 
 // =========================================================
-// member 수정 전
-//  // 등록 폼, products 테이블은 FK로 cateno를 사용함.
-//  // http://localhost:9093/products/create X
-//  // http://localhost:9093/products/create?cateno=1 // cateno 변수값을 보내는 목적
-//  // http://localhost:9093/products/create?cateno=2
-//  // http://localhost:9093/products/create?cateno=5
+// 0620 수정 전
 //  @GetMapping(value = "/create")
-//  public String create(HttpSession session,
-//                             Model model, 
-//                             @ModelAttribute("productsVO") ProductsVO productsVO, 
-//                             @RequestParam(name="cateno", defaultValue="0") int cateno,
-//                             RedirectAttributes ra) {
-//    // 로그인 및 등급 체크
-//    Integer memberno = (Integer) session.getAttribute("memberno");
-//    String grade = (String) session.getAttribute("grade");
-//    
-//    if (memberno == null || grade == null || 
-//        (!grade.equals("admin") && !grade.equals("member"))) {
-//      ra.addFlashAttribute("code", "no_permission");
-//      ra.addFlashAttribute("url", "/products/msg");
-//      return "redirect:/products/post2get";
-//    }
-//    
+//  public String create(Model model, 
+//      @ModelAttribute("productsVO") ProductsVO productsVO, 
+//      @RequestParam(name="cateno", defaultValue="0") int cateno) {
+//    // 상단 카테고리 메뉴 출력용 데이터
 //    ArrayList<CateVOMenu> menu = this.cateProc.menu();
 //    model.addAttribute("menu", menu);
 //
+//    // 현재 선택한 카테고리의 정보를 화면에 출력하기 위해 가져옴
 //    CateVO cateVO = this.cateProc.read(cateno); // 카테고리 정보를 출력하기위한 목적
 //    model.addAttribute("cateVO", cateVO);
 //
 //    return "products/create"; // /templates/products/create.html
 //    //return "products/create_ai"; // /templates/products/create_ai.html
 //  }
-//member 수정 전
+//
+//  /**
+//   * 등록 처리 http://localhost:9093/products/create
+//   * 
+//   * @return
+//   */
+//  @PostMapping(value = "/create")
+//  public String create_proc(HttpServletRequest request, 
+//      HttpSession session, 
+//      Model model, 
+//      @ModelAttribute("productsVO") ProductsVO productsVO,
+//      RedirectAttributes ra) {
+//
+//    // 현재: 관리자 권한이 있는 경우에만 상품 등록 가능
+//    // member(공급자)일 경우에도 (not guest(일반회원=소비자)) 있는 경우에만 상품 등록 가능
+//    if (memberProc.isAdmin(session)) { // 관리자로 로그인한경우
+//      // ------------------------------------------------------------------------------
+//      // 파일 전송 코드 시작
+//      // =============== (1) 파일 업로드 처리 시작 ===============
+//      // ------------------------------------------------------------------------------
+//      String file1 = ""; // 원본 파일명 image
+//      String file1saved = ""; // 저장된 파일명, image
+//      String thumb1 = ""; // preview image(썸네일 파일명)
+//
+//      // 파일이 저장될 서버 경로
+//      String upDir = Products.getUploadDir(); // 파일을 업로드할 폴더 준비
+//      // upDir = upDir + "/" + 한글을 제외한 카테고리 이름
+//      System.out.println("-> upDir: " + upDir);
+//
+//      // 전송 파일이 없어도 file1MF 객체가 생성됨.
+//      // <input type='file' class="form-control" name='file1MF' id='file1MF'
+//      // value='' placeholder="파일 선택">
+//      MultipartFile mf = productsVO.getFile1MF();// 업로드된 파일 받아오기
+//      file1 = mf.getOriginalFilename(); //  원본 파일명 확인, 01.jpg
+////      if (file1.toLowerCase().endsWith("jpeg")) {
+////        file1 = file1.substring(0, file1.indexOf(".")) + ".jpg";
+////      }
+//      System.out.println("-> 원본 파일명 산출 file1: " + file1);
+//
+//      long size1 = mf.getSize(); // 파일 크기
+//      
+//      if (size1 > 0) { //  *파일이 존재할 경우*, 파일 크기 체크, 파일을 올리는 경우
+//        if (Tool.checkUploadFile(file1) == true) { // 업로드 가능한 파일인지 검사
+//          // 파일 저장 후 업로드된 파일명이 리턴됨, spring.jsp, spring_1.jpg, spring_2.jpg...
+//          file1saved = Upload.saveFileSpring(mf, upDir);// 서버에 파일 저장
+//
+//          // 이미지일 경우 썸네일 이미지 생성
+//          if (Tool.isImage(file1saved)) { // 이미지인지 검사
+//            // thumb 이미지 생성후 파일명 리턴됨, width: 200, height: 150
+//            thumb1 = Tool.preview(upDir, file1saved, 200, 150); // 썸네일 크기
+//          }
+//
+//          // VO에 파일 관련 정보 저장
+//          productsVO.setFile1(file1); // 순수 원본 파일명
+//          productsVO.setFile1saved(file1saved); // 저장된 파일명(파일명 중복 처리)
+//          productsVO.setThumb1(thumb1); // 원본이미지 축소판
+//          productsVO.setSize1(size1); // 파일 크기
+//
+//        } else { // 전송 못하는 파일 형식
+//          // 업로드 허용되지 않는 파일일 경우 메시지 전달 후 중단
+//          ra.addFlashAttribute("code", Tool.UPLOAD_FILE_CHECK_FAIL); // 업로드 할 수 없는 파일
+//          ra.addFlashAttribute("cnt", 0); // 업로드 실패
+//          ra.addFlashAttribute("url", "/products/msg"); // msg.html, redirect parameter 적용
+//          return "redirect:/products/post2get"; // Post -> Get -> /products/msg.html
+//        }
+//      } else { // 글만 등록하는 경우
+//        System.out.println("-> 글만 등록");// 파일 없이 텍스트만 등록하는 경우
+//      }
+//      // ------------------------------------------------------------------------------
+//      // 파일 전송 코드 종료
+//      // ------------------------------------------------------------------------------
+//      
+//      // =============== (2) 상품 DB 등록 처리 ===============
+//      // 로그인한 사용자의 memberno를 설정 (작성자 정보)
+//      // Call By Reference: 메모리 공유, Hashcode 전달
+//      int memberno = (int) session.getAttribute("memberno"); // memberno FK
+//      productsVO.setMemberno(memberno);
+//      // DB에 상품 등록
+//      int cnt = this.productsProc.create(productsVO);
+//      
+//      // 20250619 cnt 갱신 추가
+//      this.cateProc.updateMidCnt();   // 중분류: products 기준
+//      this.cateProc.updateMainCnt();  // 대분류: 중분류 합산 기준
+//      // ------------------------------------------------------------------------------
+//      // PK의 return
+//      // ------------------------------------------------------------------------------
+//      // System.out.println("--> productsno: " + productsVO.getProductsno());
+//      // mav.addObject("productsno", productsVO.getProductsno()); // redirect
+//      // parameter 적용
+//      // ------------------------------------------------------------------------------
+//      // =============== (2) DB 등록 처리 종료 ===============
+//      
+//      // =============== (3) 결과 처리 ===============
+//      if (cnt == 1) { // 등록 성공
+//        // type 1, 재업로드 발생
+//        // return "<h1>파일 업로드 성공</h1>"; // 연속 파일 업로드 발생
+//
+//        // type 2, 재업로드 발생
+//        // model.addAttribute("cnt", cnt);
+//        // model.addAttribute("code", "create_success");
+//        // return "products/msg";
+//
+//        // type 3 권장
+//        // return "redirect:/products/list_all"; // /templates/products/list_all.html
+//
+//        // System.out.println("-> productsVO.getCateno(): " + productsVO.getCateno());
+//        // ra.addFlashAttribute("cateno", productsVO.getCateno()); // controller ->
+//        // controller: X
+//
+//        // return "redirect:/products/list_all"; // /templates/products/list_all.html
+//        
+//        // 등록한 카테고리로 다시 목록 페이지 이동
+//        ra.addAttribute("cateno", productsVO.getCateno()); // controller -> controller: O
+//        return "redirect:/products/list_by_cateno";
+//
+//        // return "redirect:/products/list_by_cateno?cateno=" + productsVO.getCateno();
+//        // // /templates/products/list_by_cateno.html
+//      } else { // 등록 실패
+//        ra.addFlashAttribute("code", Tool.CREATE_FAIL); // DBMS 등록 실패
+//        ra.addFlashAttribute("cnt", 0); // 업로드 실패
+//        ra.addFlashAttribute("url", "/products/msg"); // msg.html, redirect parameter 적용
+//        return "redirect:/products/msg"; // Post -> Get - param...
+//        // =============== (3) 결과 처리 종료 ===============
+//      }
+//    } else { // 로그인 실패 한 경우
+//      // /member/login_cookie_need.html
+//      // 로그인하지 않았거나 관리자가 아닌 경우 로그인 요청 페이지로 리다이렉트
+//      // 이부분 역시 수정해야 함.
+//      return "redirect:/member/login_cookie_need?url=/products/create?cateno=" + productsVO.getCateno(); 
+//    }
+//  }  
 //=========================================================
   
   // 등록 폼, products 테이블은 FK로 cateno를 사용함.
@@ -124,9 +249,18 @@ public class ProductsCont {
   // http://localhost:9093/products/create?cateno=2
   // http://localhost:9093/products/create?cateno=5
   @GetMapping(value = "/create")
-  public String create(Model model, 
-      @ModelAttribute("productsVO") ProductsVO productsVO, 
-      @RequestParam(name="cateno", defaultValue="0") int cateno) {
+  public String create(HttpSession session, Model model, 
+                            @ModelAttribute("productsVO") ProductsVO productsVO, 
+                            @RequestParam(name="cateno", defaultValue="0") int cateno,
+                            RedirectAttributes ra) {
+    // 등급 체크
+    String grade = (String) session.getAttribute("grade");
+    if (!"admin".equals(grade) && !"supplier".equals(grade)) {
+      ra.addFlashAttribute("code", "no_permission");
+      ra.addFlashAttribute("url", "/products/create?cateno=" + cateno);
+      return "redirect:/member/login_cookie_need"; // msg.html 또는 권한 요청 페이지로
+    }
+    
     // 상단 카테고리 메뉴 출력용 데이터
     ArrayList<CateVOMenu> menu = this.cateProc.menu();
     model.addAttribute("menu", menu);
@@ -146,14 +280,13 @@ public class ProductsCont {
    */
   @PostMapping(value = "/create")
   public String create_proc(HttpServletRequest request, 
-      HttpSession session, 
-      Model model, 
-      @ModelAttribute("productsVO") ProductsVO productsVO,
-      RedirectAttributes ra) {
+                                    HttpSession session, 
+                                    Model model, 
+                                    @ModelAttribute("productsVO") ProductsVO productsVO,
+                                    RedirectAttributes ra) {
 
-    // 현재: 관리자 권한이 있는 경우에만 상품 등록 가능
-    // member(공급자)일 경우에도 (not guest(일반회원=소비자)) 있는 경우에만 상품 등록 가능
-    if (memberProc.isAdmin(session)) { // 관리자로 로그인한경우
+    String grade = (String) session.getAttribute("grade");
+    if ("admin".equals(grade) || "supplier".equals(grade)) { // 관리자로 로그인한경우
       // ------------------------------------------------------------------------------
       // 파일 전송 코드 시작
       // =============== (1) 파일 업로드 처리 시작 ===============
@@ -217,6 +350,10 @@ public class ProductsCont {
       productsVO.setMemberno(memberno);
       // DB에 상품 등록
       int cnt = this.productsProc.create(productsVO);
+      
+      // 20250619 cnt 갱신 추가
+      this.cateProc.updateMidCnt();   // 중분류: products 기준
+      this.cateProc.updateMainCnt();  // 대분류: 중분류 합산 기준
       // ------------------------------------------------------------------------------
       // PK의 return
       // ------------------------------------------------------------------------------
@@ -247,7 +384,7 @@ public class ProductsCont {
         
         // 등록한 카테고리로 다시 목록 페이지 이동
         ra.addAttribute("cateno", productsVO.getCateno()); // controller -> controller: O
-        return "redirect:/products/list_by_cateno";
+        return "redirect:/products/list_by_cateno_grid";
 
         // return "redirect:/products/list_by_cateno?cateno=" + productsVO.getCateno();
         // // /templates/products/list_by_cateno.html
@@ -269,243 +406,79 @@ public class ProductsCont {
   
   
 // ===================================================
-// member 수정했던것  하지만 미완성
+//0620 수정전
 //  /**
-//   * 등록 처리 http://localhost:9093/products/create
+//   * 전체 목록, 관리자만 사용 가능 http://localhost:9093/products/list_all
 //   * 
 //   * @return
 //   */
-//  @PostMapping(value = "/create")
-//  public String create_proc(HttpServletRequest request, 
-//                                    HttpSession session, 
-//                                    Model model, 
-//                                    @ModelAttribute("productsVO") ProductsVO productsVO,
-//                                    RedirectAttributes ra) {
-//    // 로그인 및 권한 체크
-//    Integer memberno = (Integer) session.getAttribute("memberno");
-//    
-//    Integer grade = null;
-//    try {
-//      grade = Integer.valueOf(String.valueOf(session.getAttribute("grade")));
-//    } catch (NumberFormatException e) {
-//      grade = null;
+//  @GetMapping(value = "/list_all")
+//  public String list_all(HttpSession session, Model model) {
+//    // System.out.println("-> list_all");
+//    // 상단 메뉴(카테고리 목록) 불러오기 → 화면 상단의 메뉴바 등에서 사용됨
+//    ArrayList<CateVOMenu> menu = this.cateProc.menu();
+//    model.addAttribute("menu", menu);
+//
+//    // 관리자 권한이 있는 사용자인지 확인
+//    if (this.memberProc.isAdmin(session)) { // 관리자만 조회 가능
+//      // 모든 상품 목록을 가져옴
+//      ArrayList<ProductsVO> list = this.productsProc.list_all(); // 모든 목록
+//
+//      // Thymeleaf는 CSRF(크로스사이트) 스크립팅 해킹 방지 자동 지원
+//      // for문을 사용하여 객체를 추출, Call By Reference 기반의 원본 객체 값 변경
+////      for (ProductsVO productsVO : list) {
+////        String title = productsVO.getTitle();
+////        String content = productsVO.getContent();
+////        
+////        title = Tool.convertChar(title);  // 특수 문자 처리
+////        content = Tool.convertChar(content); 
+////        
+////        productsVO.setTitle(title);
+////        productsVO.setContent(content);  
+////
+////      }
+//      // 모델에 상품 목록 데이터를 담아서 View로 전달
+//      model.addAttribute("list", list);
+//      
+//      // /templates/products/list_all.html 파일로 포워딩
+//      return "products/list_all";
+//
+//    } else {
+//      // 관리자 로그인이 안 되어 있으면 로그인 안내 페이지로 이동
+//      return "redirect:/member/login_cookie_need";
+//
 //    }
 //
-//    if (memberno != null && grade != null && (grade >= 1 && grade <= 15)) { // admin(1~4), member(5~15)
-//      // ------------------------------------------------------------------------------
-//      // 파일 전송 코드 시작
-//      // ------------------------------------------------------------------------------
-//      String file1 = ""; // 원본 파일명 image
-//      String file1saved = ""; // 저장된 파일명, image
-//      String thumb1 = ""; // preview image
-//
-//      String upDir = Products.getUploadDir(); // 파일을 업로드할 폴더 준비
-//      // upDir = upDir + "/" + 한글을 제외한 카테고리 이름
-//      System.out.println("-> upDir: " + upDir);
-//
-//      // 전송 파일이 없어도 file1MF 객체가 생성됨.
-//      // <input type='file' class="form-control" name='file1MF' id='file1MF'
-//      // value='' placeholder="파일 선택">
-//      MultipartFile mf = productsVO.getFile1MF();
-//
-//      file1 = mf.getOriginalFilename(); // 원본 파일명 산출, 01.jpg
-//      
-////      if (file1.toLowerCase().endsWith("jpeg")) {
-////        file1 = file1.substring(0, file1.indexOf(".")) + ".jpg";
-////      }
-//      
-//      System.out.println("-> 원본 파일명 산출 file1: " + file1);
-//
-//      long size1 = mf.getSize(); // 파일 크기
-//      
-//      if (size1 > 0) { // 파일 크기 체크, 파일을 올리는 경우
-//        if (Tool.checkUploadFile(file1) == true) { // 업로드 가능한 파일인지 검사
-//          // 파일 저장 후 업로드된 파일명이 리턴됨, spring.jsp, spring_1.jpg, spring_2.jpg...
-//          file1saved = Upload.saveFileSpring(mf, upDir);
-//
-//          if (Tool.isImage(file1saved)) { // 이미지인지 검사
-//            // thumb 이미지 생성후 파일명 리턴됨, width: 200, height: 150
-//            thumb1 = Tool.preview(upDir, file1saved, 200, 150);
-//          }
-//
-//          productsVO.setFile1(file1); // 순수 원본 파일명
-//          productsVO.setFile1saved(file1saved); // 저장된 파일명(파일명 중복 처리)
-//          productsVO.setThumb1(thumb1); // 원본이미지 축소판
-//          productsVO.setSize1(size1); // 파일 크기
-//
-//        } else { // 전송 못하는 파일 형식
-//          ra.addFlashAttribute("code", Tool.UPLOAD_FILE_CHECK_FAIL); // 업로드 할 수 없는 파일
-//          ra.addFlashAttribute("cnt", 0); // 업로드 실패
-//          ra.addFlashAttribute("url", "/products/msg"); // msg.html, redirect parameter 적용
-//          
-//          return "redirect:/products/post2get"; // Post -> Get -> /products/msg.html
-//        }
-//      }
-//      
-//      
-//      
-////      } else { // 글만 등록하는 경우
-////        System.out.println("-> 글만 등록");
-////      }
-//
-//      // ------------------------------------------------------------------------------
-//      // 파일 전송 코드 종료
-//      // ------------------------------------------------------------------------------
-//
-//      // Call By Reference: 메모리 공유, Hashcode 전달
-//      //int memberno = (int) session.getAttribute("memberno"); // memberno FK
-//      productsVO.setMemberno(memberno);
-//      
-//      int cnt = this.productsProc.create(productsVO);
-//
-//      // ------------------------------------------------------------------------------
-//      // PK의 return
-//      // ------------------------------------------------------------------------------
-//      // System.out.println("--> productsno: " + productsVO.getProductsno());
-//      // mav.addObject("productsno", productsVO.getProductsno()); // redirect
-//      // parameter 적용
-//      // ------------------------------------------------------------------------------
-//
-//      if (cnt == 1) {
-//        // type 1, 재업로드 발생
-//        // return "<h1>파일 업로드 성공</h1>"; // 연속 파일 업로드 발생
-//
-//        // type 2, 재업로드 발생
-//        // model.addAttribute("cnt", cnt);
-//        // model.addAttribute("code", "create_success");
-//        // return "products/msg";
-//
-//        // type 3 권장
-//        // return "redirect:/products/list_all"; // /templates/products/list_all.html
-//
-//        // System.out.println("-> productsVO.getCateno(): " + productsVO.getCateno());
-//        // ra.addFlashAttribute("cateno", productsVO.getCateno()); // controller ->
-//        // controller: X
-//
-//        // return "redirect:/products/list_all"; // /templates/products/list_all.html
-//        
-//        ra.addAttribute("cateno", productsVO.getCateno()); // controller -> controller: O
-//        return "redirect:/products/list_by_cateno";
-//
-//        // return "redirect:/products/list_by_cateno?cateno=" + productsVO.getCateno();
-//        // // /templates/products/list_by_cateno.html
-//      } else {
-//        ra.addFlashAttribute("code", Tool.CREATE_FAIL); // DBMS 등록 실패
-//        ra.addFlashAttribute("cnt", 0); // 업로드 실패
-//        ra.addFlashAttribute("url", "/products/msg"); // msg.html, redirect parameter 적용
-//        return "redirect:/products/msg"; // Post -> Get - param...
-//      }
-//    } else { // 로그인 실패 한 경우
-//      // /member/login_cookie_need.html
-//      return "redirect:/member/login_cookie_need?url=/products/create?cateno=" + productsVO.getCateno(); 
-//    }
 //  }
+//===================================================
 
   /**
-   * 전체 목록, 관리자만 사용 가능 http://localhost:9093/products/list_all
-   * 
-   * @return
+   * 0620 수정 후
+   * 전체 목록, 관리자만 사용 가능 
+   * http://localhost:9093/products/list_all
    */
   @GetMapping(value = "/list_all")
   public String list_all(HttpSession session, Model model) {
-    // System.out.println("-> list_all");
-    // 상단 메뉴(카테고리 목록) 불러오기 → 화면 상단의 메뉴바 등에서 사용됨
+    // 상단 메뉴 구성
     ArrayList<CateVOMenu> menu = this.cateProc.menu();
     model.addAttribute("menu", menu);
 
-    // 관리자 권한이 있는 사용자인지 확인
-    if (this.memberProc.isAdmin(session)) { // 관리자만 조회 가능
-      // 모든 상품 목록을 가져옴
-      ArrayList<ProductsVO> list = this.productsProc.list_all(); // 모든 목록
+    // 세션에서 권한 확인
+    String grade = (String) session.getAttribute("grade");
 
-      // Thymeleaf는 CSRF(크로스사이트) 스크립팅 해킹 방지 자동 지원
-      // for문을 사용하여 객체를 추출, Call By Reference 기반의 원본 객체 값 변경
-//      for (ProductsVO productsVO : list) {
-//        String title = productsVO.getTitle();
-//        String content = productsVO.getContent();
-//        
-//        title = Tool.convertChar(title);  // 특수 문자 처리
-//        content = Tool.convertChar(content); 
-//        
-//        productsVO.setTitle(title);
-//        productsVO.setContent(content);  
-//
-//      }
-      // 모델에 상품 목록 데이터를 담아서 View로 전달
+    if ("admin".equals(grade)) {
+      ArrayList<ProductsVO> list = this.productsProc.list_all();
       model.addAttribute("list", list);
-      
-      // /templates/products/list_all.html 파일로 포워딩
-      return "products/list_all";
+      return "products/list_all"; // 관리자 전용 목록 페이지
 
     } else {
-      // 관리자 로그인이 안 되어 있으면 로그인 안내 페이지로 이동
-      return "redirect:/member/login_cookie_need";
-
+      // 접근 불가 → 로그인 안내
+      return "redirect:/member/login_cookie_need?url=/products/list_all";
     }
-
   }
 
-//  /**
-//   * 유형 1
-//   * 카테고리별 목록
-//   * http://localhost:9093/products/list_by_cateno?cateno=5
-//   * http://localhost:9093/products/list_by_cateno?cateno=6 
-//   * @return
-//   */
-//  @GetMapping(value="/list_by_cateno")
-//  public String list_by_cateno(HttpSession session, Model model, 
-//                                        @RequestParam(name="cateno", defaultValue = "" ) int cateno) {
-//    ArrayList<CateVOMenu> menu = this.cateProc.menu();
-//    model.addAttribute("menu", menu);
-//    
-//     CateVO cateVO = this.cateProc.read(cateno);
-//     model.addAttribute("cateVO", cateVO);
-//    
-//    ArrayList<ProductsVO> list = this.productsProc.list_by_cateno(cateno);
-//    model.addAttribute("list", list);
-//    
-//    // System.out.println("-> size: " + list.size());
-//
-//    return "products/list_by_cateno";
-//  }
-
-//  /**
-//   * 유형 2
-//   * 카테고리별 목록 + 검색
-//   * http://localhost:9093/products/list_by_cateno?cateno=5&word=까페
-//   * http://localhost:9093/products/list_by_cateno?cateno=6&word=까페 
-//   * @return
-//   */
-//  @GetMapping(value="/list_by_cateno")
-//  public String list_by_cateno_search(HttpSession session, Model model, 
-//                                                  @RequestParam(name="cateno", defaultValue = "0")  int cateno, 
-//                                                  @RequestParam(name="word", defaultValue = "") String word) {
-//    ArrayList<CateVOMenu> menu = this.cateProc.menu();
-//    model.addAttribute("menu", menu);
-//    
-//     CateVO cateVO = this.cateProc.read(cateno);
-//     model.addAttribute("cateVO", cateVO);
-//    
-//     word = Tool.checkNull(word).trim();
-//     
-//     HashMap<String, Object> map = new HashMap<>();
-//     map.put("cateno", cateno);
-//     map.put("word", word);
-//     
-//    ArrayList<ProductsVO> list = this.productsProc.list_by_cateno_search(map);
-//    model.addAttribute("list", list);
-//    
-//    // System.out.println("-> size: " + list.size());
-//    model.addAttribute("word", word);
-//    
-//    int search_count = list.size(); // 검색된 레코드 갯수
-//    model.addAttribute("search_count", search_count);
-//    
-//    return "products/list_by_cateno_search"; // /templates/products/list_by_cateno_search.html
-//  }
 
   /**
-   * 유형 3
    * 카테고리별 목록 + 검색 + 페이징 http://localhost:9093/products/list_by_cateno?cateno=5
    * http://localhost:9093/products/list_by_cateno?cateno=6
    * 
@@ -574,7 +547,7 @@ public class ProductsCont {
     // ----------------------------------------------
     // (7) 최종 view 파일 연결
     // ----------------------------------------------
-    return "products/list_by_cateno_search_paging"; // /templates/products/list_by_cateno_search_paging.html
+    return "products/list_by_cateno_search_paging_grid"; // /templates/products/list_by_cateno_search_paging.html
   }
   
 //  /*
@@ -796,7 +769,12 @@ public class ProductsCont {
    */
   @GetMapping(value = "/map")
   public String map(Model model, 
-                            @RequestParam(name="productsno", defaultValue = "0") int productsno) {
+                            @RequestParam(name="productsno", defaultValue = "0") int productsno,
+                            @RequestParam(name="now_page", required = false) Integer now_page,
+                            @RequestParam(name="word", required = false) String word) {
+    // 아래두 2줄 추가함
+    if (now_page == null) now_page = 1;
+    if (word == null) word = "";
     // 상단 카테고리 메뉴 구성 (네비게이션 바용)
     ArrayList<CateVOMenu> menu = this.cateProc.menu();
     model.addAttribute("menu", menu);
@@ -809,6 +787,10 @@ public class ProductsCont {
     // 해당 상품이 속한 카테고리 정보 조회
     CateVO cateVO = this.cateProc.read(productsVO.getCateno()); // 그룹 정보 읽기
     model.addAttribute("cateVO", cateVO);   // 카테고리 정보 View로 전달
+    
+    // 페이지 정보 및 검색어도 View에 넘김 (링크 유지용) 이것도 2줄 추가함
+    model.addAttribute("now_page", now_page);
+    model.addAttribute("word", word);
     
     // 지도 편집 화면으로 이동
     return "products/map";
@@ -823,8 +805,15 @@ public class ProductsCont {
   @PostMapping(value = "/map")
   public String map_update(Model model, 
                                       @RequestParam(name="productsno", defaultValue = "0") int productsno,
-                                      @RequestParam(name="map", defaultValue = "") String map) {
-    // 파라미터를 Map 형태로 포장
+                                      @RequestParam(name="map", defaultValue = "") String map,
+                                      @RequestParam(name="now_page", required = false) Integer now_page,
+                                      @RequestParam(name="word", required = false) String word,
+                                      RedirectAttributes ra) {
+    // 기본값 지정 2줄 추가
+    if (now_page == null) now_page = 1;
+    if (word == null) word = "";
+  
+    // 파라미터를 Map 형태로 포장 
     HashMap<String, Object> hashMap = new HashMap<String, Object>();
     hashMap.put("productsno", productsno); // 어떤 상품에 대해 적용할지
     hashMap.put("map", map);  // 입력된 지도 HTML 코드
@@ -832,6 +821,10 @@ public class ProductsCont {
     // DB에 map 컬럼 업데이트
     this.productsProc.map(hashMap); // 실제 등록/수정/삭제 처리 메서드 호출
 
+    // 리디렉션 시 페이지와 검색어 정보 유지 3줄 추가
+    ra.addAttribute("productsno", productsno);
+    ra.addAttribute("now_page", now_page);
+    ra.addAttribute("word", word);
     // 작업 완료 후 다시 상품 상세 페이지로 리디렉션
     return "redirect:/products/read?productsno=" + productsno;
   }
@@ -904,342 +897,603 @@ public class ProductsCont {
     // return "redirect:/products/read?productsno=" + productsno;
     return "redirect:/products/read";
   }
-
-  /**
-   * 텍스트 수정 폼 http:// localhost:9093/products/update_text?productsno=1
-   *@return /templates/products/update_text.html 또는 로그인 페이지로 리디렉션
-   */
+  
+//-------------------------------------------------------------------------------------------------
+// 0620 수정
+//  /**
+//   * 텍스트 수정 폼 http:// localhost:9093/products/update_text?productsno=1
+//   *@return /templates/products/update_text.html 또는 로그인 페이지로 리디렉션
+//   */
+//  @GetMapping(value = "/update_text")
+//  public String update_text(HttpSession session, Model model, 
+//      RedirectAttributes ra,
+//      @RequestParam(name="productsno", defaultValue = "0") int productsno, 
+//      @RequestParam(name="word", defaultValue = "") String word,
+//      @RequestParam(name="now_page", defaultValue = "1") int now_page
+//      ) {
+//    
+//    // 상단 카테고리 메뉴 전달
+//    ArrayList<CateVOMenu> menu = this.cateProc.menu();
+//    model.addAttribute("menu", menu);
+//
+//    // 검색어 및 현재 페이지 상태 유지
+//    model.addAttribute("word", word);
+//    model.addAttribute("now_page", now_page);
+//
+//    // 관리자 로그인 확인
+//    if (this.memberProc.isAdmin(session)) { // 관리자로 로그인한경우
+//      ProductsVO productsVO = this.productsProc.read(productsno);  // 상품 정보 조회
+//      model.addAttribute("productsVO", productsVO);
+//
+//      CateVO cateVO = this.cateProc.read(productsVO.getCateno()); // 카테고리 정보 조회
+//      model.addAttribute("cateVO", cateVO);
+//
+//      // 텍스트 수정 폼으로 이동
+//      return "products/update_text"; // /templates/products/update_text.html
+//      // return "products/update_text_ai"; // /templates/products/update_text_ai.html
+//      // String content = "장소:\n인원:\n준비물:\n비용:\n기타:\n";
+//      // model.addAttribute("content", content);
+//
+//    } else {
+//      // 로그인후 텍스트 수정폼이 자동으로 열림.
+//      return "redirect:/member/login_cookie_need?url=/products/update_text?productsno=" + productsno;
+//    }
+//
+//  }
+//
+//  /**
+//   * 텍스트 수정 처리 http://localhost:9093/products/update_text?productsno=1
+//   * 
+//   * @return
+//   */
+//  @PostMapping(value = "/update_text")
+//  public String update_text_proc(HttpSession session, Model model, ProductsVO productsVO, 
+//           RedirectAttributes ra,
+//           @RequestParam(name="search_word", defaultValue = "") String search_word, // productsVO.word와 구분 필요
+//           @RequestParam(name="now_page", defaultValue = "1") int now_page
+//           ) {
+//    
+//    System.out.println(">>> 사용자가 입력한 비밀번호 (암호화 전): " + productsVO.getPasswd()); // ✅ 여기 추가
+//    
+//    ra.addAttribute("word", search_word);  // productsVO.word와 구분 필요
+//    ra.addAttribute("now_page", now_page);
+//
+//    if (this.memberProc.isAdmin(session)) { // 관리자 로그인 확인
+//      HashMap<String, Object> map = new HashMap<String, Object>();
+//      map.put("productsno", productsVO.getProductsno());
+//      map.put("passwd", productsVO.getPasswd());
+//      
+//      if (this.productsProc.password_check(map) == 1) { // 패스워드 일치
+//        // this.productsProc.update_text(productsVO); // 글수정 // 아래 두개 추가하면서 잠시 위에 뺌
+//        int cnt = this.productsProc.update_text(productsVO);  // 🔹 추가
+//        System.out.println("→ DB 수정 결과: " + cnt);           // 🔹 추가
+//
+//        // mav 객체 이용
+//        ra.addAttribute("productsno", productsVO.getProductsno());
+//        ra.addAttribute("cateno", productsVO.getCateno()); 
+//        return "redirect:/products/read"; // @GetMapping(value = "/read")
+//
+//      } else { // 패스워드 불일치
+//        ra.addFlashAttribute("code", Tool.PASSWORD_FAIL); // redirect -> forward -> html template에 변수 전달
+//        ra.addFlashAttribute("cnt", 0);
+//        model.addAttribute("productsVO", productsVO);
+//        
+//        return "redirect:/products/post2get"; // Post -> Get -> /products/msg.html
+//      }
+//    } else { // 정상적인 로그인이 아닌 경우 로그인 유도
+//      // 로그인 안함 -> http://localhost:9093/products/update_text?productsno=32&now_page=1&word=
+//      return "redirect:/products/list_by_cateno_search_paging?cateno=" + productsVO.getCateno() + "&now_page=" + now_page + "&word=" + search_word;
+//    }
+//
+//  }
+//-------------------------------------------------------------------------------------------------
+  
   @GetMapping(value = "/update_text")
-  public String update_text(HttpSession session, Model model, 
-      RedirectAttributes ra,
-      @RequestParam(name="productsno", defaultValue = "0") int productsno, 
-      @RequestParam(name="word", defaultValue = "") String word,
-      @RequestParam(name="now_page", defaultValue = "1") int now_page
-      ) {
+  public String update_text(HttpSession session, Model model, RedirectAttributes ra,
+                                   @RequestParam(name="productsno", defaultValue = "0") int productsno, 
+                                   @RequestParam(name="word", defaultValue = "") String word,
+                                   @RequestParam(name="now_page", defaultValue = "1") int now_page) {
     
-    // 상단 카테고리 메뉴 전달
     ArrayList<CateVOMenu> menu = this.cateProc.menu();
     model.addAttribute("menu", menu);
 
-    // 검색어 및 현재 페이지 상태 유지
     model.addAttribute("word", word);
     model.addAttribute("now_page", now_page);
 
-    // 관리자 로그인 확인
-    if (this.memberProc.isAdmin(session)) { // 관리자로 로그인한경우
-      ProductsVO productsVO = this.productsProc.read(productsno);  // 상품 정보 조회
-      model.addAttribute("productsVO", productsVO);
+    String grade = (String) session.getAttribute("grade");
+    Integer memberno = (Integer) session.getAttribute("memberno");
 
-      CateVO cateVO = this.cateProc.read(productsVO.getCateno()); // 카테고리 정보 조회
-      model.addAttribute("cateVO", cateVO);
+    ProductsVO productsVO = this.productsProc.read(productsno);
+    model.addAttribute("productsVO", productsVO);
 
-      // 텍스트 수정 폼으로 이동
-      return "products/update_text"; // /templates/products/update_text.html
-      // return "products/update_text_ai"; // /templates/products/update_text_ai.html
-      // String content = "장소:\n인원:\n준비물:\n비용:\n기타:\n";
-      // model.addAttribute("content", content);
+    CateVO cateVO = this.cateProc.read(productsVO.getCateno());
+    model.addAttribute("cateVO", cateVO);
+
+    if ("admin".equals(grade)) {
+      return "products/update_text";
+
+    } else if ("supplier".equals(grade)) {
+      if (productsVO.getMemberno() == memberno) {
+        return "products/update_text";
+      } else {
+        // 다른 사람이 올린 상품은 수정 불가
+        return "redirect:/products/list_by_cateno?cateno=" + productsVO.getCateno();
+      }
 
     } else {
-      // 로그인후 텍스트 수정폼이 자동으로 열림.
+      // 게스트 또는 비로그인 사용자
       return "redirect:/member/login_cookie_need?url=/products/update_text?productsno=" + productsno;
     }
-
   }
-
-  /**
-   * 텍스트 수정 처리 http://localhost:9093/products/update_text?productsno=1
-   * 
-   * @return
-   */
+  
   @PostMapping(value = "/update_text")
-  public String update_text_proc(HttpSession session, Model model, ProductsVO productsVO, 
-           RedirectAttributes ra,
-           @RequestParam(name="search_word", defaultValue = "") String search_word, // productsVO.word와 구분 필요
-           @RequestParam(name="now_page", defaultValue = "1") int now_page
-           ) {
+  public String update_text_proc(HttpSession session, Model model, ProductsVO productsVO, RedirectAttributes ra,
+                                          @RequestParam(name="search_word", defaultValue = "") String search_word,
+                                          @RequestParam(name="now_page", defaultValue = "1") int now_page) {
     
-    System.out.println(">>> 사용자가 입력한 비밀번호 (암호화 전): " + productsVO.getPasswd()); // ✅ 여기 추가
-    
-    ra.addAttribute("word", search_word);  // productsVO.word와 구분 필요
+    ra.addAttribute("word", search_word);
     ra.addAttribute("now_page", now_page);
 
-    if (this.memberProc.isAdmin(session)) { // 관리자 로그인 확인
-      HashMap<String, Object> map = new HashMap<String, Object>();
-      map.put("productsno", productsVO.getProductsno());
-      map.put("passwd", productsVO.getPasswd());
-      
-      if (this.productsProc.password_check(map) == 1) { // 패스워드 일치
-        // this.productsProc.update_text(productsVO); // 글수정 // 아래 두개 추가하면서 잠시 위에 뺌
-        int cnt = this.productsProc.update_text(productsVO);  // 🔹 추가
-        System.out.println("→ DB 수정 결과: " + cnt);           // 🔹 추가
+    String grade = (String) session.getAttribute("grade");
+    Integer sessionMemberno = (Integer) session.getAttribute("memberno");
 
-        // mav 객체 이용
-        ra.addAttribute("productsno", productsVO.getProductsno());
-        ra.addAttribute("cateno", productsVO.getCateno()); 
-        return "redirect:/products/read"; // @GetMapping(value = "/read")
+    // 비밀번호 확인
+    HashMap<String, Object> map = new HashMap<>();
+    map.put("productsno", productsVO.getProductsno());
+    map.put("passwd", productsVO.getPasswd());
 
-      } else { // 패스워드 불일치
-        ra.addFlashAttribute("code", Tool.PASSWORD_FAIL); // redirect -> forward -> html template에 변수 전달
-        ra.addFlashAttribute("cnt", 0);
-        model.addAttribute("productsVO", productsVO);
-        
-        return "redirect:/products/post2get"; // Post -> Get -> /products/msg.html
-      }
-    } else { // 정상적인 로그인이 아닌 경우 로그인 유도
-      // 로그인 안함 -> http://localhost:9093/products/update_text?productsno=32&now_page=1&word=
-      return "redirect:/products/list_by_cateno_search_paging?cateno=" + productsVO.getCateno() + "&now_page=" + now_page + "&word=" + search_word;
+    if (this.productsProc.password_check(map) != 1) {
+      ra.addFlashAttribute("code", Tool.PASSWORD_FAIL);
+      ra.addFlashAttribute("cnt", 0);
+      model.addAttribute("productsVO", productsVO);
+      return "redirect:/products/post2get";
     }
 
+    // 권한 확인
+    ProductsVO dbVO = this.productsProc.read(productsVO.getProductsno());
+
+    if ("admin".equals(grade) || ("supplier".equals(grade) && dbVO.getMemberno() == sessionMemberno)) {
+      int cnt = this.productsProc.update_text(productsVO);
+      ra.addAttribute("productsno", productsVO.getProductsno());
+      ra.addAttribute("cateno", productsVO.getCateno());
+      return "redirect:/products/read";
+    }
+
+    // 그 외는 수정 불가
+    return "redirect:/products/list_by_cateno_search_paging?cateno=" + productsVO.getCateno() + "&now_page=" + now_page + "&word=" + search_word;
   }
 
-  /**
-   * 파일 수정 폼 http://localhost:9093/products/update_file?productsno=1
-   * @return templates/products/update_file.html
-   */
+//-------------------------------------------------------------------------------------------------
+// 0620 수정 전
+//  /**
+//   * 파일 수정 폼 http://localhost:9093/products/update_file?productsno=1
+//   * @return templates/products/update_file.html
+//   */
+//  @GetMapping(value = "/update_file")
+//  public String update_file(HttpSession session, Model model, 
+//                                   @RequestParam(name="productsno", defaultValue = "0") int productsno, 
+//                                   @RequestParam(name="word", defaultValue = "") String word,
+//                                   @RequestParam(name="now_page", defaultValue = "1") int now_page
+//                                      ) {
+//    // 관리자로 로그인한경우
+//    if (this.memberProc.isAdmin(session)) { // 관리자로 로그인한경우
+//      
+//      // 상단 메뉴 구성
+//      ArrayList<CateVOMenu> menu = this.cateProc.menu();
+//      model.addAttribute("menu", menu);
+//      
+//      // 검색어 및 페이지 상태 유지
+//      model.addAttribute("word", word);
+//      model.addAttribute("now_page", now_page);
+//      
+//      // 기존 상품 정보 불러오기 (기존 파일명 포함)
+//      ProductsVO productsVO = this.productsProc.read(productsno);
+//      model.addAttribute("productsVO", productsVO);
+//
+//      // 해당 상품의 카테고리 정보도 같이 전달
+//      CateVO cateVO = this.cateProc.read(productsVO.getCateno());
+//      model.addAttribute("cateVO", cateVO);
+//
+//      return "products/update_file";   // products/update_file.html  
+//    } else {
+//      // 로그인후 파일 수정폼이 자동으로 열림.
+//      return "redirect:/member/login_cookie_need?url=/products/update_file?productsno=" + productsno;
+//
+//    }
+//
+//  }
+//
+//  /**
+//   * 파일 수정 처리 http://localhost:9093/products/update_file
+//   * @return 수정 후 상세 페이지로 리디렉션
+//   */
+//  @PostMapping(value = "/update_file")
+//  public String update_file_proc(HttpSession session, Model model, RedirectAttributes ra,
+//                                      ProductsVO productsVO,
+//                                      @RequestParam(name="word", defaultValue = "") String word,
+//                                      @RequestParam(name="now_page", defaultValue = "1") int now_page
+//                                      ) {
+//    
+//    // 관리자 권한 확인
+//    if (this.memberProc.isAdmin(session)) {
+//      // 1. 기존 파일 정보 읽기 (삭제용), 기존에 등록된 레코드 저장용
+//      ProductsVO productsVO_old = productsProc.read(productsVO.getProductsno());
+//      
+//      // 디버깅용 로그
+//      System.out.println("== 기존 파일 정보 ==");
+//      System.out.println("file1saved: " + productsVO_old.getFile1saved());
+//      System.out.println("thumb1: " + productsVO_old.getThumb1());
+//      
+//      // -------------------------------------------------------------------
+//      // 파일 삭제 시작
+//      // -------------------------------------------------------------------
+//      String file1saved = productsVO_old.getFile1saved(); // 실제 저장된 파일명
+//      String thumb1 = productsVO_old.getThumb1(); // 실제 저장된 preview 이미지 파일명
+//      long size1 = 0;
+//
+//      // 2. 파일이 저장된 실제 디렉토리 경로
+//      String upDir = Products.getUploadDir(); // C:/kd/deploy/team/products/storage/
+//      System.out.println("== 업로드 디렉토리 ==");
+//      System.out.println("upDir: " + upDir);
+//      
+//      // 3. 기존 파일 삭제
+//      Tool.deleteFile(upDir, file1saved); // 실제 저장된 파일삭제
+//      Tool.deleteFile(upDir, thumb1); // preview 이미지 삭제
+//      // -------------------------------------------------------------------
+//      // 파일 삭제 종료
+//      // -------------------------------------------------------------------
+//
+//      // -------------------------------------------------------------------
+//      // 파일 전송 시작
+//      // -------------------------------------------------------------------
+//      // 4. 새 파일 업로드 처리
+//      String file1 = ""; // 원본 파일명 image
+//      
+//      // 전송 파일이 없어도 file1MF 객체가 생성됨.
+//      // <input type='file' class="form-control" name='file1MF' id='file1MF'
+//      // value='' placeholder="파일 선택">
+//      
+//      MultipartFile mf = productsVO.getFile1MF(); // 전송된 파일 객체
+//      file1 = mf.getOriginalFilename(); // 원본 파일명
+//      size1 = mf.getSize(); // 파일 크기
+//      
+//      // 디버깅용 로그
+//      System.out.println("== 업로드된 새 파일 정보 ==");
+//      System.out.println("원본 파일명 file1: " + file1);
+//      System.out.println("파일 크기 size1: " + size1);
+//
+//
+//      if (size1 > 0) { // 새 파일이 존재할 경우, 폼에서 새롭게 올리는 파일이 있는지 파일 크기로 체크 ★
+//        // 파일 저장 후 업로드된 파일명이 리턴됨, spring.jsp, spring_1.jpg...
+//        file1saved = Upload.saveFileSpring(mf, upDir); // 실제 서버에 저장
+//        System.out.println("저장된 파일명 file1saved: " + file1saved);
+//
+//        if (Tool.isImage(file1saved)) { // 이미지인지 검사
+//          // thumb 이미지 생성후 파일명 리턴됨, width: 250, height: 200
+//          thumb1 = Tool.preview(upDir, file1saved, 250, 200); // 썸네일 생성
+//          System.out.println("생성된 썸네일 thumb1: " + thumb1);
+//        }
+//
+//      } else { // 파일이 삭제만 되고 새로 올리지 않는 경우
+//        file1 = "";
+//        file1saved = "";
+//        thumb1 = "";
+//        size1 = 0;
+//        System.out.println("※ 새 파일 없음 또는 업로드 실패");
+//      }
+//
+//      productsVO.setFile1(file1); // 원본 파일명
+//      productsVO.setFile1saved(file1saved); // 서버에 저장된 파일명
+//      productsVO.setThumb1(thumb1); // 썸네일
+//      productsVO.setSize1(size1); // 파일 크기
+//      // -------------------------------------------------------------------
+//      // 파일 전송 코드 종료
+//      // -------------------------------------------------------------------
+//
+//      // 6. DB 정보 업데이트 실행
+//      this.productsProc.update_file(productsVO); // Oracle 처리
+//      
+//      // 7. 리디렉션 파라미터 전달
+//      ra.addAttribute ("productsno", productsVO.getProductsno());
+//      ra.addAttribute("cateno", productsVO.getCateno());
+//      ra.addAttribute("word", word);
+//      ra.addAttribute("now_page", now_page);
+//      
+//      return "redirect:/products/read";  // 상세 페이지로 이동
+//      
+//    } else {
+//      // 권한 없음 → 로그인 유도
+//      ra.addAttribute("url", "/member/login_cookie_need"); 
+//      return "redirect:/products/post2get"; // GET
+//    }
+//  }
+//-------------------------------------------------------------------------------------------------
+  
   @GetMapping(value = "/update_file")
   public String update_file(HttpSession session, Model model, 
-                                    @RequestParam(name="productsno", defaultValue = "0") int productsno, 
-                                    @RequestParam(name="word", defaultValue = "") String word,
-                                    @RequestParam(name="now_page", defaultValue = "1") int now_page
-                                      ) {
-    // 관리자로 로그인한경우
-    if (this.memberProc.isAdmin(session)) { // 관리자로 로그인한경우
-      
-      // 상단 메뉴 구성
-      ArrayList<CateVOMenu> menu = this.cateProc.menu();
-      model.addAttribute("menu", menu);
-      
-      // 검색어 및 페이지 상태 유지
-      model.addAttribute("word", word);
-      model.addAttribute("now_page", now_page);
-      
-      // 기존 상품 정보 불러오기 (기존 파일명 포함)
-      ProductsVO productsVO = this.productsProc.read(productsno);
-      model.addAttribute("productsVO", productsVO);
+                                  @RequestParam(name="productsno", defaultValue = "0") int productsno, 
+                                  @RequestParam(name="word", defaultValue = "") String word,
+                                  @RequestParam(name="now_page", defaultValue = "1") int now_page) {
+    
+    String grade = (String) session.getAttribute("grade");
+    Integer memberno = (Integer) session.getAttribute("memberno");
 
-      // 해당 상품의 카테고리 정보도 같이 전달
-      CateVO cateVO = this.cateProc.read(productsVO.getCateno());
-      model.addAttribute("cateVO", cateVO);
+    // 상단 메뉴
+    model.addAttribute("menu", this.cateProc.menu());
 
-      return "products/update_file";   // products/update_file.html  
+    model.addAttribute("word", word);
+    model.addAttribute("now_page", now_page);
+
+    ProductsVO productsVO = this.productsProc.read(productsno);
+    model.addAttribute("productsVO", productsVO);
+
+    CateVO cateVO = this.cateProc.read(productsVO.getCateno());
+    model.addAttribute("cateVO", cateVO);
+
+    if ("admin".equals(grade)) {
+      return "products/update_file";
+
+    } else if ("supplier".equals(grade) && memberno != null && memberno.equals(productsVO.getMemberno())) {
+      return "products/update_file";
+
     } else {
-      // 로그인후 파일 수정폼이 자동으로 열림.
       return "redirect:/member/login_cookie_need?url=/products/update_file?productsno=" + productsno;
-
     }
-
   }
 
-  /**
-   * 파일 수정 처리 http://localhost:9093/products/update_file
-   * @return 수정 후 상세 페이지로 리디렉션
-   */
   @PostMapping(value = "/update_file")
   public String update_file_proc(HttpSession session, Model model, RedirectAttributes ra,
-                                      ProductsVO productsVO,
-                                      @RequestParam(name="word", defaultValue = "") String word,
-                                      @RequestParam(name="now_page", defaultValue = "1") int now_page
-                                      ) {
-    
-    // 관리자 권한 확인
-    if (this.memberProc.isAdmin(session)) {
-      // 1. 기존 파일 정보 읽기 (삭제용), 기존에 등록된 레코드 저장용
-      ProductsVO productsVO_old = productsProc.read(productsVO.getProductsno());
-      
-      // 디버깅용 로그
-      System.out.println("== 기존 파일 정보 ==");
-      System.out.println("file1saved: " + productsVO_old.getFile1saved());
-      System.out.println("thumb1: " + productsVO_old.getThumb1());
-      
-      // -------------------------------------------------------------------
-      // 파일 삭제 시작
-      // -------------------------------------------------------------------
-      String file1saved = productsVO_old.getFile1saved(); // 실제 저장된 파일명
-      String thumb1 = productsVO_old.getThumb1(); // 실제 저장된 preview 이미지 파일명
-      long size1 = 0;
+      ProductsVO productsVO,
+      @RequestParam(name="word", defaultValue = "") String word,
+      @RequestParam(name="now_page", defaultValue = "1") int now_page
+  ) {
+    String grade = (String) session.getAttribute("grade");
+    Integer sessionMemberno = (Integer) session.getAttribute("memberno");
 
-      // 2. 파일이 저장된 실제 디렉토리 경로
-      String upDir = Products.getUploadDir(); // C:/kd/deploy/team/products/storage/
-      System.out.println("== 업로드 디렉토리 ==");
-      System.out.println("upDir: " + upDir);
-      
-      // 3. 기존 파일 삭제
-      Tool.deleteFile(upDir, file1saved); // 실제 저장된 파일삭제
-      Tool.deleteFile(upDir, thumb1); // preview 이미지 삭제
-      // -------------------------------------------------------------------
-      // 파일 삭제 종료
-      // -------------------------------------------------------------------
+    ProductsVO productsVO_old = this.productsProc.read(productsVO.getProductsno());
 
-      // -------------------------------------------------------------------
-      // 파일 전송 시작
-      // -------------------------------------------------------------------
-      // 4. 새 파일 업로드 처리
-      String file1 = ""; // 원본 파일명 image
-      
-      // 전송 파일이 없어도 file1MF 객체가 생성됨.
-      // <input type='file' class="form-control" name='file1MF' id='file1MF'
-      // value='' placeholder="파일 선택">
-      
-      MultipartFile mf = productsVO.getFile1MF(); // 전송된 파일 객체
-      file1 = mf.getOriginalFilename(); // 원본 파일명
-      size1 = mf.getSize(); // 파일 크기
-      
-      // 디버깅용 로그
-      System.out.println("== 업로드된 새 파일 정보 ==");
-      System.out.println("원본 파일명 file1: " + file1);
-      System.out.println("파일 크기 size1: " + size1);
+    boolean authorized = false;
 
-
-      if (size1 > 0) { // 새 파일이 존재할 경우, 폼에서 새롭게 올리는 파일이 있는지 파일 크기로 체크 ★
-        // 파일 저장 후 업로드된 파일명이 리턴됨, spring.jsp, spring_1.jpg...
-        file1saved = Upload.saveFileSpring(mf, upDir); // 실제 서버에 저장
-        System.out.println("저장된 파일명 file1saved: " + file1saved);
-
-        if (Tool.isImage(file1saved)) { // 이미지인지 검사
-          // thumb 이미지 생성후 파일명 리턴됨, width: 250, height: 200
-          thumb1 = Tool.preview(upDir, file1saved, 250, 200); // 썸네일 생성
-          System.out.println("생성된 썸네일 thumb1: " + thumb1);
-        }
-
-      } else { // 파일이 삭제만 되고 새로 올리지 않는 경우
-        file1 = "";
-        file1saved = "";
-        thumb1 = "";
-        size1 = 0;
-        System.out.println("※ 새 파일 없음 또는 업로드 실패");
-      }
-
-      productsVO.setFile1(file1); // 원본 파일명
-      productsVO.setFile1saved(file1saved); // 서버에 저장된 파일명
-      productsVO.setThumb1(thumb1); // 썸네일
-      productsVO.setSize1(size1); // 파일 크기
-      // -------------------------------------------------------------------
-      // 파일 전송 코드 종료
-      // -------------------------------------------------------------------
-
-      // 6. DB 정보 업데이트 실행
-      this.productsProc.update_file(productsVO); // Oracle 처리
-      
-      // 7. 리디렉션 파라미터 전달
-      ra.addAttribute ("productsno", productsVO.getProductsno());
-      ra.addAttribute("cateno", productsVO.getCateno());
-      ra.addAttribute("word", word);
-      ra.addAttribute("now_page", now_page);
-      
-      return "redirect:/products/read";  // 상세 페이지로 이동
-      
-    } else {
-      // 권한 없음 → 로그인 유도
-      ra.addAttribute("url", "/member/login_cookie_need"); 
-      return "redirect:/products/post2get"; // GET
+    if ("admin".equals(grade)) {
+      authorized = true;
+    } else if ("supplier".equals(grade) && sessionMemberno != null && sessionMemberno.equals(productsVO_old.getMemberno())) {
+      authorized = true;
     }
+
+    if (!authorized) {
+      ra.addAttribute("url", "/member/login_cookie_need");
+      return "redirect:/products/post2get";
+    }
+
+    // 기존 파일 삭제
+    String file1saved = productsVO_old.getFile1saved();
+    String thumb1 = productsVO_old.getThumb1();
+    String upDir = Products.getUploadDir();
+
+    Tool.deleteFile(upDir, file1saved);
+    Tool.deleteFile(upDir, thumb1);
+
+    // 새 파일 업로드
+    MultipartFile mf = productsVO.getFile1MF();
+    String file1 = mf.getOriginalFilename();
+    long size1 = mf.getSize();
+
+    if (size1 > 0) {
+      file1saved = Upload.saveFileSpring(mf, upDir);
+      if (Tool.isImage(file1saved)) {
+        thumb1 = Tool.preview(upDir, file1saved, 250, 200);
+      }
+    } else {
+      file1 = "";
+      file1saved = "";
+      thumb1 = "";
+      size1 = 0;
+    }
+
+    productsVO.setFile1(file1);
+    productsVO.setFile1saved(file1saved);
+    productsVO.setThumb1(thumb1);
+    productsVO.setSize1(size1);
+
+    this.productsProc.update_file(productsVO);
+
+    ra.addAttribute("productsno", productsVO.getProductsno());
+    ra.addAttribute("cateno", productsVO.getCateno());
+    ra.addAttribute("word", word);
+    ra.addAttribute("now_page", now_page);
+
+    return "redirect:/products/read";
   }
 
-  /**
-   * 파일 삭제 폼
-   * http://localhost:9093/products/delete?productsno=1
-   * @return /templates/products/delete.html
-   */
+//-------------------------------------------------------------------------------------------------
+// 0620 수정 전
+//  /**
+//   * 파일 삭제 폼
+//   * http://localhost:9093/products/delete?productsno=1
+//   * @return /templates/products/delete.html
+//   */
+//  @GetMapping(value = "/delete")
+//  public String delete(HttpSession session, Model model, RedirectAttributes ra,
+//                              @RequestParam(name="cateno", defaultValue = "0") int cateno, 
+//                              @RequestParam(name="productsno", defaultValue = "0") int productsno, 
+//                              @RequestParam(name="word", defaultValue = "") String word,
+//                              @RequestParam(name="now_page", defaultValue = "1") int now_page                               
+//                               ) {
+//    // 관리자만 삭제 가능
+//    if (this.memberProc.isAdmin(session)) { // 관리자로 로그인한경우
+//      
+//      model.addAttribute("cateno", cateno);
+//      model.addAttribute("word", word);
+//      model.addAttribute("now_page", now_page);
+//      
+//      // 상단 메뉴
+//      ArrayList<CateVOMenu> menu = this.cateProc.menu();
+//      model.addAttribute("menu", menu);
+//      
+//      // 삭제할 상품 정보
+//      ProductsVO productsVO = this.productsProc.read(productsno);
+//      model.addAttribute("productsVO", productsVO);
+//      
+//      // 해당 상품의 카테고리 정보
+//      CateVO cateVO = this.cateProc.read(productsVO.getCateno());
+//      model.addAttribute("cateVO", cateVO);
+//      
+//      return "products/delete"; // forward
+//      
+//    } else {
+//      // 로그인 안 한 경우, 로그인 후 폼으로 자동 이동
+//      // 로그인후 파일 수정폼이 자동으로 열림.
+//      // http://localhost:9093/products/delete?productsno=35&word=&now_page=1&cateno=4
+//      return "redirect:/member/login_cookie_need?url=/products/delete?productsno=" + productsno;
+//
+//    }
+//
+//  }
+//  
+//  /**
+//   * 삭제 처리 http://localhost:9093/products/delete
+//   * @return 삭제 후 목록 페이지로 리디렉션
+//   */
+//  @PostMapping(value = "/delete")
+//  public String delete_proc(RedirectAttributes ra,
+//                                    @RequestParam(name="cateno", defaultValue = "0") int cateno, 
+//                                    @RequestParam(name="productsno", defaultValue = "0") int productsno, 
+//                                    @RequestParam(name="word", defaultValue = "") String word,
+//                                    @RequestParam(name="now_page", defaultValue = "1") int now_page   
+//                                    ) {
+//    // -------------------------------------------------------------------
+//    // (1) 삭제할 파일 조회 및 물리적 삭제 시작
+//    // -------------------------------------------------------------------
+//    // 삭제할 파일 정보를 읽어옴.
+//    ProductsVO productsVO_read = productsProc.read(productsno); // DB에서 정보 조회
+//        
+//    String file1saved = productsVO_read.getFile1saved(); // 실제 파일명
+//    String thumb1 = productsVO_read.getThumb1(); // 썸네일 파일명
+//    
+//    String uploadDir = Products.getUploadDir(); // 업로드 디렉토리 경로
+//
+//    Tool.deleteFile(uploadDir, file1saved);  // 실제 저장된 파일삭제
+//    Tool.deleteFile(uploadDir, thumb1);     // preview 이미지 삭제
+//    // -------------------------------------------------------------------
+//    // 파일 삭제 종료
+//    // -------------------------------------------------------------------
+//        
+//    
+//    // ------------------------------------------------------------
+//    // (2) DB에서 상품 정보 삭제
+//    // ------------------------------------------------------------ 
+//    this.productsProc.delete(productsno); // DBMS 삭제
+//    this.cateProc.updateMidCnt();
+//    this.cateProc.updateMainCnt();
+//    
+//        
+//    // -------------------------------------------------------------------------------------
+//    // (3) 마지막 페이지의 마지막 레코드 삭제시의 페이지 번호 -1 처리
+//    // -------------------------------------------------------------------------------------    
+//    // 마지막 페이지의 마지막 10번째 레코드를 삭제후
+//    // 하나의 페이지가 3개의 레코드로 구성되는 경우 현재 9개의 레코드가 남아 있으면
+//    // 페이지수를 4 -> 3으로 감소 시켜야함, 마지막 페이지의 마지막 레코드 삭제시 나머지는 0 발생
+//    HashMap<String, Object> map = new HashMap<String, Object>();
+//    map.put("cateno", cateno);
+//    map.put("word", word);
+//    
+//    if (this.productsProc.list_by_cateno_search_count(map) % Products.RECORD_PER_PAGE == 0) { // (예: 10개 단위로 떨어짐)
+//      now_page = now_page - 1; // 삭제시 DBMS는 바로 적용되나 크롬은 새로고침등의 필요로 단계가 작동 해야함.
+//      if (now_page < 1) {
+//        now_page = 1; // 시작 페이지, 최소 페이지 보정
+//      }
+//    }
+//    // -------------------------------------------------------------------------------------
+//
+//    // ------------------------------------------------------------
+//    // (4) 목록 페이지로 리디렉션
+//    // ------------------------------------------------------------
+//    ra.addAttribute("cateno", cateno);
+//    ra.addAttribute("word", word);
+//    ra.addAttribute("now_page", now_page);
+//    
+//    return "redirect:/products/list_by_cateno";    
+//    
+//  }
+//-------------------------------------------------------------------------------------------------
+  
   @GetMapping(value = "/delete")
   public String delete(HttpSession session, Model model, RedirectAttributes ra,
-                              @RequestParam(name="cateno", defaultValue = "0") int cateno, 
-                              @RequestParam(name="productsno", defaultValue = "0") int productsno, 
-                              @RequestParam(name="word", defaultValue = "") String word,
-                              @RequestParam(name="now_page", defaultValue = "1") int now_page                               
-                               ) {
-    // 관리자만 삭제 가능
-    if (this.memberProc.isAdmin(session)) { // 관리자로 로그인한경우
-      
+      @RequestParam(name = "cateno", defaultValue = "0") int cateno, 
+      @RequestParam(name = "productsno", defaultValue = "0") int productsno, 
+      @RequestParam(name = "word", defaultValue = "") String word,
+      @RequestParam(name = "now_page", defaultValue = "1") int now_page) {
+
+    String grade = (String) session.getAttribute("grade");
+    Integer sessionMemberno = (Integer) session.getAttribute("memberno");
+
+    ProductsVO productsVO = this.productsProc.read(productsno);
+    int ownerMemberno = productsVO.getMemberno();
+
+    boolean authorized = "admin".equals(grade) || 
+                         ("supplier".equals(grade) && sessionMemberno != null && sessionMemberno == ownerMemberno);
+
+    if (authorized) {
       model.addAttribute("cateno", cateno);
       model.addAttribute("word", word);
       model.addAttribute("now_page", now_page);
-      
-      // 상단 메뉴
-      ArrayList<CateVOMenu> menu = this.cateProc.menu();
-      model.addAttribute("menu", menu);
-      
-      // 삭제할 상품 정보
-      ProductsVO productsVO = this.productsProc.read(productsno);
+      model.addAttribute("menu", this.cateProc.menu());
       model.addAttribute("productsVO", productsVO);
-      
-      // 해당 상품의 카테고리 정보
-      CateVO cateVO = this.cateProc.read(productsVO.getCateno());
-      model.addAttribute("cateVO", cateVO);
-      
-      return "products/delete"; // forward
-      
-    } else {
-      // 로그인 안 한 경우, 로그인 후 폼으로 자동 이동
-      // 로그인후 파일 수정폼이 자동으로 열림.
-      // http://localhost:9093/products/delete?productsno=35&word=&now_page=1&cateno=4
-      return "redirect:/member/login_cookie_need?url=/products/delete?productsno=" + productsno;
+      model.addAttribute("cateVO", this.cateProc.read(productsVO.getCateno()));
 
+      return "products/delete"; // forward
+    } else {
+      return "redirect:/member/login_cookie_need?url=/products/delete?productsno=" + productsno;
+    }
+  }
+
+  @PostMapping(value = "/delete")
+  public String delete_proc(HttpSession session, RedirectAttributes ra,
+      @RequestParam(name = "cateno", defaultValue = "0") int cateno, 
+      @RequestParam(name = "productsno", defaultValue = "0") int productsno, 
+      @RequestParam(name = "word", defaultValue = "") String word,
+      @RequestParam(name = "now_page", defaultValue = "1") int now_page) {
+
+    String grade = (String) session.getAttribute("grade");
+    Integer sessionMemberno = (Integer) session.getAttribute("memberno");
+
+    ProductsVO productsVO_read = this.productsProc.read(productsno);
+    int ownerMemberno = productsVO_read.getMemberno();
+
+    boolean authorized = "admin".equals(grade) || 
+                         ("supplier".equals(grade) && sessionMemberno != null && sessionMemberno == ownerMemberno);
+
+    if (!authorized) {
+      ra.addAttribute("url", "/member/login_cookie_need"); 
+      return "redirect:/products/post2get";
     }
 
-  }
-  
-  /**
-   * 삭제 처리 http://localhost:9093/products/delete
-   * @return 삭제 후 목록 페이지로 리디렉션
-   */
-  @PostMapping(value = "/delete")
-  public String delete_proc(RedirectAttributes ra,
-                                    @RequestParam(name="cateno", defaultValue = "0") int cateno, 
-                                    @RequestParam(name="productsno", defaultValue = "0") int productsno, 
-                                    @RequestParam(name="word", defaultValue = "") String word,
-                                    @RequestParam(name="now_page", defaultValue = "1") int now_page   
-                                    ) {
-    // -------------------------------------------------------------------
-    // (1) 삭제할 파일 조회 및 물리적 삭제 시작
-    // -------------------------------------------------------------------
-    // 삭제할 파일 정보를 읽어옴.
-    ProductsVO productsVO_read = productsProc.read(productsno); // DB에서 정보 조회
-        
-    String file1saved = productsVO_read.getFile1saved(); // 실제 파일명
-    String thumb1 = productsVO_read.getThumb1(); // 썸네일 파일명
-    
-    String uploadDir = Products.getUploadDir(); // 업로드 디렉토리 경로
+    // 1. 파일 삭제
+    Tool.deleteFile(Products.getUploadDir(), productsVO_read.getFile1saved());
+    Tool.deleteFile(Products.getUploadDir(), productsVO_read.getThumb1());
 
-    Tool.deleteFile(uploadDir, file1saved);  // 실제 저장된 파일삭제
-    Tool.deleteFile(uploadDir, thumb1);     // preview 이미지 삭제
-    // -------------------------------------------------------------------
-    // 파일 삭제 종료
-    // -------------------------------------------------------------------
-        
-    
-    // ------------------------------------------------------------
-    // (2) DB에서 상품 정보 삭제
-    // ------------------------------------------------------------ 
-    this.productsProc.delete(productsno); // DBMS 삭제
-        
-    // -------------------------------------------------------------------------------------
-    // (3) 마지막 페이지의 마지막 레코드 삭제시의 페이지 번호 -1 처리
-    // -------------------------------------------------------------------------------------    
-    // 마지막 페이지의 마지막 10번째 레코드를 삭제후
-    // 하나의 페이지가 3개의 레코드로 구성되는 경우 현재 9개의 레코드가 남아 있으면
-    // 페이지수를 4 -> 3으로 감소 시켜야함, 마지막 페이지의 마지막 레코드 삭제시 나머지는 0 발생
-    HashMap<String, Object> map = new HashMap<String, Object>();
+    // 2. DB 삭제
+    this.productsProc.delete(productsno);
+    this.cateProc.updateMidCnt();
+    this.cateProc.updateMainCnt();
+
+    // 3. 페이지 보정
+    HashMap<String, Object> map = new HashMap<>();
     map.put("cateno", cateno);
     map.put("word", word);
-    
-    if (this.productsProc.list_by_cateno_search_count(map) % Products.RECORD_PER_PAGE == 0) { // (예: 10개 단위로 떨어짐)
-      now_page = now_page - 1; // 삭제시 DBMS는 바로 적용되나 크롬은 새로고침등의 필요로 단계가 작동 해야함.
-      if (now_page < 1) {
-        now_page = 1; // 시작 페이지, 최소 페이지 보정
-      }
-    }
-    // -------------------------------------------------------------------------------------
 
-    // ------------------------------------------------------------
-    // (4) 목록 페이지로 리디렉션
-    // ------------------------------------------------------------
+    int count = this.productsProc.list_by_cateno_search_count(map);
+    if (count % Products.RECORD_PER_PAGE == 0) {
+      now_page = Math.max(1, now_page - 1);
+    }
+
+    // 4. 목록 페이지 리디렉션
     ra.addAttribute("cateno", cateno);
     ra.addAttribute("word", word);
     ra.addAttribute("now_page", now_page);
-    
-    return "redirect:/products/list_by_cateno";    
-    
-  }   
+
+    return "redirect:/products/list_by_cateno";
+  }
 
   /**
    * 추천 처리 http://localhost:9093/products/good
@@ -1323,7 +1577,16 @@ public class ProductsCont {
 
   }
 
-  
+  /*
+   * 20250619 추가 
+   */
+  @GetMapping("/update_cnt")
+  @ResponseBody
+  public String updateCnt() {
+    cateProc.updateMidCnt();
+    cateProc.updateMainCnt();
+    return "카테고리 cnt 동기화 완료";
+  }
   
 }
 

@@ -115,6 +115,22 @@ public interface CateDAOInter {
    */
   public int update_cnt_by_cateno(Map<String, Object> map);
   
+  
+  /*20250619 추가*/
+  /**
+   * 중분류 cnt 값 갱신 (products 테이블 기준)
+   * @return 처리된 행 수
+   */
+  public int updateMidCnt();
+
+  /**
+   * 대분류 cnt 값 갱신 (중분류 cnt 합산 기준)
+   * @return 처리된 행 수
+   */
+  public int updateMainCnt();
+
+  
+  
 }
 
 

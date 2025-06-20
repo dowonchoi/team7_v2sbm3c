@@ -479,6 +479,34 @@ rollback;
 
 
 
+--------------------------------------------------------------------
+-- 자료수 갱신 2025 - 06 -19
+--------------------------------------------------------------------
+-- 1. 모든 cate 테이블의 cnt 초기화
+UPDATE cate SET cnt = 0;
+
+-- 2. 중분류: products → cate 직접 매핑
+MERGE INTO cate c
+USING (
+  SELECT cateno, COUNT(*) AS cnt
+  FROM products
+  GROUP BY cateno
+) p
+ON (c.cateno = p.cateno)
+WHEN MATCHED THEN
+  UPDATE SET c.cnt = p.cnt;
+
+-- 3. 대분류: 중분류들의 CNT 합산하여 상위 GRP '--' 카테고리에 반영
+MERGE INTO cate parent
+USING (
+  SELECT grp AS grp_name, SUM(cnt) AS total_cnt
+  FROM cate
+  WHERE name != '--'  -- 중분류만 집계
+  GROUP BY grp
+) summary
+ON (parent.grp = summary.grp_name AND parent.name = '--') -- 대분류 조건
+WHEN MATCHED THEN
+  UPDATE SET parent.cnt = summary.total_cnt;
 
 
 

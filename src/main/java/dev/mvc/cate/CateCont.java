@@ -19,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import dev.mvc.products.ProductsProcInter;
 import dev.mvc.member.MemberProc;
 import dev.mvc.tool.Tool;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -40,7 +41,19 @@ public class CateCont {
   @Autowired
   @Qualifier("dev.mvc.products.ProductsProc")
   private ProductsProcInter productsProc;  
-  
+
+  public CateCont() {
+    System.out.println("-> CateCont created.");
+  }
+
+  @PostConstruct
+  public void init() {
+    System.out.println("-> CateCont created.");
+    cateProc.updateMidCnt();   // 중분류 cnt 갱신
+    cateProc.updateMainCnt();  // 대분류 cnt 갱신
+    System.out.println("→ 자동 카테고리 cnt 동기화 완료");
+  }
+
   /** 한 페이지당 표시할 카테고리 수 (페이징에 사용됨) */
   /** 페이지당 출력할 레코드 갯수, nowPage는 1부터 시작 */
   public int record_per_page = 7;
@@ -53,10 +66,6 @@ public class CateCont {
   /** 페이징 목록 주소, @GetMapping(value="/list_search") */
   private String list_url = "/cate/list_search";
   
-  public CateCont( ) {
-    System.out.println("-> CateCont created.");
-  }
-
 //  @GetMapping(value="/create")  // http://localhost:9091/cate/create
 //  @ResponseBody
 //  public String create() {
@@ -233,6 +242,7 @@ public class CateCont {
       // --------------------------------------------------------------------------------------
       int search_count = this.cateProc.list_search_count(word); // 전체 검색 결과 수
       // 페이징 HTML 코드 생성 ( 1 2 3 )
+      model.addAttribute("list_search_count", search_count);
       String paging = this.cateProc.pagingBox(now_page, word, this.list_url, search_count, this.record_per_page, this.page_per_block);
       model.addAttribute("paging", paging); // 템플릿에 전달
       model.addAttribute("now_page", now_page); // 현재 페이지 번호 유지
@@ -276,8 +286,8 @@ public class CateCont {
     model.addAttribute("menu", menu);
     
     // 카테고리 그룹 목록
-//    ArrayList<String> grpset = this.cateProc.grpset();
-//    cateVO.setGrp(String.join("/",  grpset));
+    ArrayList<String> grpset = this.cateProc.grpset();
+    cateVO.setGrp(String.join("/",  grpset));
 //    System.out.println("-> cateVO.getGrp(): " + cateVO.getGrp());
     
     // 3. 검색어 유지 처리 (null 방지)
@@ -600,11 +610,17 @@ public class CateCont {
    * http://localhost:9091/cate/update_seqno_forward/1
    */
   @GetMapping(value="/update_seqno_forward/{cateno}")
-  public String update_seqno_forward(Model model, @PathVariable("cateno") Integer cateno) {
+  public String update_seqno_forward(Model model, @PathVariable("cateno") Integer cateno,
+                                                  @RequestParam(name="word", defaultValue = "") String word,
+                                                  @RequestParam(name="now_page", defaultValue = "1") int now_page,
+                                                  RedirectAttributes ra) {
     
     this.cateProc.update_seqno_forward(cateno); // 서비스 로직에서 seqno 감소
     
-    return "redirect:/cate/list_all";  // @GetMapping(value="/list_all"), 전체 목록 새로고침
+    ra.addAttribute("word", word);
+    ra.addAttribute("now_page", now_page);
+    
+    return "redirect:/cate/list_search";  // @GetMapping
   }
 
   /**
@@ -613,11 +629,17 @@ public class CateCont {
    * http://localhost:9091/cate/update_seqno_forward/1
    */
   @GetMapping(value="/update_seqno_backward/{cateno}")
-  public String update_seqno_backward(Model model, @PathVariable("cateno") Integer cateno) {
+  public String update_seqno_backward(Model model, @PathVariable("cateno") Integer cateno,
+                                                    @RequestParam(name="word", defaultValue = "") String word,
+                                                    @RequestParam(name="now_page", defaultValue = "1") int now_page,
+                                                    RedirectAttributes ra) {
     
     this.cateProc.update_seqno_backward(cateno); // 서비스 로직에서 seqno 증가
     
-    return "redirect:/cate/list_all";  // @GetMapping(value="/list_all"), 전체 목록 새로고침
+    ra.addAttribute("word", word);
+    ra.addAttribute("now_page", now_page);
+    
+    return "redirect:/cate/list_search";  // @GetMapping
   }
   
   /**
@@ -666,6 +688,17 @@ public class CateCont {
     
     return "redirect:/cate/list_search";  // @GetMapping(value="/list_search")
     // 목록 페이지 새로고침
+  }
+  
+  /*
+   * 20250619 추가 
+   */
+  @GetMapping("/update_cnt")
+  @ResponseBody
+  public String updateCnt() {
+    cateProc.updateMidCnt();
+    cateProc.updateMainCnt();
+    return "카테고리 cnt 동기화 완료"; //수정해야함
   }
   
 }

@@ -6,11 +6,13 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import dev.mvc.tool.Security;
 import dev.mvc.tool.Tool;
 
-@Component("dev.mvc.products.ProductsProc")
+//@Component("dev.mvc.products.ProductsProc")
+@Service("dev.mvc.products.ProductsProc")
 public class ProductsProc implements ProductsProcInter {
   @Autowired
   Security security;

@@ -8,34 +8,45 @@
     > 글 조회
   </div>
   
-  <aside class="aside_right" th:if="${session.grade == 'admin'}">
-    <a href="javascript:location.reload();">새로고침</a>
-    <span class='menu_divide' >│</span>    
-    <!-- <a th:href="@{|./list_by_cateno?cateno=${cateVO.cateno }&word=${word }&now_page=${now_page}|}">목록형</a>    
-    <span class='menu_divide' >│</span> -->
-    <!-- 쇼핑몰을 갤러리 형으로만 유지 결정. 목록형은 지움. -->
-    <a th:href="@{|./list_by_cateno_grid?cateno=${cateVO.cateno }&word=${word }&now_page=${now_page}|}">갤러리형</a>
-    <span class='menu_divide' >│</span>
-    <a href="./create?cateno=${cateno }">등록</a>
-    <span class='menu_divide' >│</span>
-    <a th:href="@{|/products/update_text?productsno=${productsVO.productsno}&now_page=${now_page}&word=${word }|}">글 수정</a>
-    <span class='menu_divide' >│</span>
-    <a th:href="@{|./update_file?productsno=${productsVO.productsno}&word=${word}&now_page=${now_page}|}">파일 수정</a>  
-    <span class='menu_divide' >│</span>
-    <a th:href="@{|/products/map?cateno=${productsVO.cateno }&productsno=${productsVO.productsno}|}">지도</a>
-    <span class='menu_divide' >│</span>
-    <a th:href="@{|/products/youtube?cateno=${productsVO.cateno }&productsno=${productsVO.productsno}&word=${word}&now_page=${now_page}|}">Youtube</a>
-    <span class='menu_divide' >│</span>
-    <a th:href="@{|./delete?productsno=${productsVO.productsno}&word=${word}&now_page=${now_page}&cateno=${productsVO.cateno}|}">삭제</a>  
-  </aside> 
 
-  <aside class="aside_right" th:if="${session.grade != 'admin'}">
-     <a href="javascript:location.reload();">새로고침</a>
-    <span class='menu_divide' >│</span>    
-    <a th:href="@{|./list_by_cateno?cateno=${cateVO.cateno }&word=${word }&now_page=${now_page}|}">목록형</a>    
-    <span class='menu_divide' >│</span>
-    <a th:href="@{|./list_by_cateno_grid?cateno=${cateVO.cateno }&word=${word }&now_page=${now_page}|}">갤러리형</a>
-  </aside> 
+
+  <aside class="aside_right">
+    <a href="javascript:location.reload();">새로고침</a>
+    <span class='menu_divide'>│</span>
+    
+    <a th:href="@{|./list_by_cateno_grid?cateno=${cateVO.cateno}&word=${word}&now_page=${now_page}|}">갤러리형</a>
+
+    <!-- 관리자 등록 메뉴 -->
+    <span class='menu_divide' th:if="${session.grade == 'admin'}">│</span>
+    <a th:if="${session.grade == 'admin'}"
+      th:href="@{|./create?cateno=${cateno}|}">등록</a>
+
+    <!-- 수정/삭제/파일/지도/Youtube: admin 또는 본인글 supplier -->
+    <span class='menu_divide' 
+          th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}">│</span>
+    <a th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}"
+      th:href="@{|/products/update_text?productsno=${productsVO.productsno}&now_page=${now_page}&word=${word}|}">글 수정</a>
+
+    <span class='menu_divide' 
+          th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}">│</span>
+    <a th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}"
+      th:href="@{|./update_file?productsno=${productsVO.productsno}&word=${word}&now_page=${now_page}|}">파일 수정</a>
+
+    <span class='menu_divide' 
+          th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}">│</span>
+    <a th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}"
+      th:href="@{|/products/map?cateno=${productsVO.cateno}&productsno=${productsVO.productsno}|}">지도</a>
+
+    <span class='menu_divide' 
+          th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}">│</span>
+    <a th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}"
+      th:href="@{|/products/youtube?cateno=${productsVO.cateno}&productsno=${productsVO.productsno}&word=${word}&now_page=${now_page}|}">Youtube</a>
+
+    <span class='menu_divide' 
+          th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}">│</span>
+    <a th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}"
+      th:href="@{|./delete?productsno=${productsVO.productsno}&word=${word}&now_page=${now_page}&cateno=${productsVO.cateno}|}">삭제</a>
+  </aside>
  
   <div class='menu_line'></div>
 
@@ -78,7 +89,9 @@
                              th:text='|${productsVO.file1}|'></a> <span th:text="|(${productsVO.size1_label})|"></span>  
                          <a th:href='@{|/download?dir=products/storage&filename=${productsVO.file1saved}&downname=${productsVO.file1}|}'><img src="/products/images/download.png"></a>
         </div>
-      </li>   
+      </li> 
+      
+      
     </ul>
   </fieldset>
 
