@@ -59,6 +59,8 @@ public interface MemberProcInter {
   
   public int hide(int memberno);
   
+  public int deleteByAdmin(int memberno);
+  
   /**
    * 현재 패스워드 검사
    * @param map

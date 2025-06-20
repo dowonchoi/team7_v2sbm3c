@@ -108,6 +108,12 @@ public class MemberProc implements MemberProcInter {
   }
   
   @Override
+  public int deleteByAdmin(int memberno) {
+      return this.memberDAO.deleteByAdmin(memberno);
+  }
+
+  
+  @Override
   public int passwd_check(HashMap<String, Object> map) {
     String passwd = (String)map.get("passwd");
     // map.put("passwd", new Security().aesEncode(passwd));

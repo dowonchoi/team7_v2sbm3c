@@ -86,7 +86,7 @@
   <script>
     function deleteMember(memberno) {
       if (confirm("정말 이 회원을 삭제하시겠습니까?")) {
-        fetch("/member/delete", {
+        fetch("/member/delete_by_admin", {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded"
