@@ -1,94 +1,111 @@
 <!DOCTYPE html>
-
-<html layout:decorate="~{layout}"> <!-- layout.html 상속-->
+<html layout:decorate="~{layout}"> <!-- layout.html 상속 -->
 
 <div layout:fragment="content">
   <script>
     window.onload = () => {
       document.querySelector('#id').addEventListener('keypress', (event) => {
-      // document.getElementById('passwd').addEventListener('keypress', (event) => {
-        if(event.key === 'Enter') { // ===: 타입까지 확인
+        if(event.key === 'Enter') {
           document.getElementById('passwd').focus();
         }
-      }); 
-  
+      });
+
       document.querySelector('#passwd').addEventListener('keypress', (event) => {
-      // document.getElementById('passwd').addEventListener('keypress', (event) => {
         if(event.key === 'Enter') {
           document.getElementById('btn_send').focus();
         }
-      }); 
-  
+      });
     }
-    
-    function send() { // 회원 가입 처리
+
+    function send() {
       let id = document.getElementById('id');
       let id_msg = document.getElementById('id_msg');
-  
+
       if (id.value.trim().length == 0) {
-        id_msg.innerHTML= 'ID 입력은 필수 입니다. ID(이메일)는 3자이상 권장합니다.';
-        id_msg.classList.add('span_warning');    // class 적용
-        passwd.focus();
-  
-        return false;  // 로그인 진행 중지
-        
+        id_msg.innerHTML = 'ID 입력은 필수 입니다. ID(이메일)는 3자 이상 권장합니다.';
+        id_msg.classList.add('span_warning');
+        id.focus();
+        return false;
       }
-  
+
       let passwd = document.getElementById('passwd');
       let passwd_msg = document.getElementById('passwd_msg');
-  
+
       if (passwd.value.trim().length == 0) {
-        passwd_msg.innerHTML= '패스워드 입력은 필수 입니다. 패스워드는 8자이상 권장합니다.';
-        passwd_msg.classList.add('span_warning');    // class 적용
+        passwd_msg.innerHTML = '패스워드 입력은 필수 입니다. 패스워드는 8자 이상 권장합니다.';
+        passwd_msg.classList.add('span_warning');
         passwd.focus();
-  
-        return false;  // 로그인 진행 중지
-        
+        return false;
       }
-  
-      document.getElementById('frm').submit(); // required="required" 작동 안됨.
-    }    
+
+      document.getElementById('frm').submit();
+    }
   </script>
 
-  <div class="title_line">회원 가입(*: 필수)</div>
-  <aside class="aside_right">
-    <a href="javascript:location.reload();">새로고침</a>
-    <span class='menu_divide' >│</span> 
-    <a href='./create'>회원 가입</a>
-    <span class='menu_divide' >│</span> 
-    <a href='./list'>목록</a>
-  </aside> 
+  <!-- 상단 제목 -->
+  <div class="title_line text-center" style="font-size: 32px; font-weight: bold; margin-bottom: 20px;">
+    떨이몰
+  </div>
 
-  <div class='menu_line'></div>
-  
-  <div style="width: 30%; margin: 0px auto ">
+  <!-- 탭 영역 -->
+  <!-- <div class="tab text-center" style="margin-bottom: 20px;">
+    <button class="btn btn-outline-secondary btn-sm active" disabled>ID/전화번호</button>
+  </div> -->
+
+  <!-- 로그인 폼 영역 -->
+  <div class="login-box" style="max-width: 400px; margin: 0 auto;">
     <form name="frm" id="frm" th:object="${memberVO}" method="post" action="/member/login">
-      <div>
-        <label for="id">아이디(이메일)*</label>
-        <input type="text" name="id" id="id" th:value="${ck_id}" autofocus="autofocus" placeholder="아이디(이메일)"
-               class="form-control fom-control-sm" style="width: 100%;">
-        <label><input type="checkbox" name="id_save" id="id_save" value="Y" th:checked="${ck_id_save == 'Y'}"> 저장<label>       
-        <span id='id_msg'></span>  
-      </div>
       
-      <div class="form-group">
-        <label for="passwd">패스워드*</label> 
-        <input type='password' name='passwd' id='passwd' th:value="${ck_passwd}" required="required" 
-                  placeholder="패스워드" class="form-control form-control-sm" style="width: 100%;">
-        <label><input type="checkbox" name="passwd_save" id="passwd_save" value="Y" th:checked="${ck_passwd_save == 'Y'}"> 저장<label>          
-        <span id='passwd_msg'></span>
+      <!-- 아이디 입력 -->
+      <div class="form-group mb-3">
+        <label for="id">아이디(이메일)*</label>
+        <input type="text" name="id" id="id" th:value="${ck_id}" autofocus placeholder="아이디(이메일)"
+               class="form-control form-control-sm">
+        <div class="form-check mt-1">
+          <input type="checkbox" name="id_save" id="id_save" value="Y" th:checked="${ck_id_save == 'Y'}">
+          <label for="id_save"> 저장</label>
+        </div>
+        <span id="id_msg" class="form-text text-danger"></span>
       </div>
 
-      <div class="content_body_bottom">
-        <button type="button" id="btn_send" onclick="send();" class="btn btn-secondary btn-sm">로그인</button>
-        <button type="button" onclick="history.back();" class="btn btn-secondary btn-sm">취소</button>
-        <button type="button" onclick="location.href='/member/create'" class="btn btn-secondary btn-sm">회원 가입</button>
+      <!-- 비밀번호 입력 -->
+      <div class="form-group mb-3">
+        <label for="passwd">패스워드*</label>
+        <input type="password" name="passwd" id="passwd" th:value="${ck_passwd}" required 
+               placeholder="패스워드" class="form-control form-control-sm">
+        <div class="form-check mt-1">
+          <input type="checkbox" name="passwd_save" id="passwd_save" value="Y" th:checked="${ck_passwd_save == 'Y'}">
+          <label for="passwd_save"> 저장</label>
+        </div>
+        <span id="passwd_msg" class="form-text text-danger"></span>
       </div>
 
+      <!-- 버튼 영역 -->
+      <div class="d-grid gap-2">
+        <button type="button" id="btn_send" onclick="send();" class="btn btn-primary btn-sm">로그인</button>
+        <!-- <button type="button" onclick="history.back();" class="btn btn-secondary btn-sm">취소</button> -->
+        <!-- <button type="button" onclick="location.href='/member/create'" class="btn btn-outline-secondary btn-sm">회원 가입</button>
+        <button type="button" onclick="location.href='/member/find_id'" class="btn btn-outline-secondary btn-sm">아이디 찾기</button>
+        <button type="button" onclick="location.href='/member/find_passwd'" class="btn btn-outline-secondary btn-sm">비밀번호 찾기</button> -->
+      </div>
+
+      
+      <!-- 하단 텍스트 링크 영역 -->
+      <ul class="text-center list-inline mt-3" style="font-size: 13px;">
+        <li class="list-inline-item">
+          <a href="/member/find_id" class="find_text" style="text-decoration: none;">아이디 찾기</a>
+        </li>
+        <li class="list-inline-item">│</li>
+        <li class="list-inline-item">
+          <a href="/member/find_passwd" class="find_text" style="text-decoration: none;">비밀번호 찾기</a>
+        </li>
+        <li class="list-inline-item">│</li>
+        <li class="list-inline-item">
+          <a href="/member/create" class="find_text" style="text-decoration: none;">회원가입</a>
+        </li>
+      </ul>
 
     </form>
   </div>
-    
 </div>
 </html>
-

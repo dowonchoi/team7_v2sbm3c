@@ -57,6 +57,8 @@ public interface MemberProcInter {
    */
   public int delete(int memberno);
   
+  public int hide(int memberno);
+  
   /**
    * 현재 패스워드 검사
    * @param map
@@ -69,12 +71,12 @@ public interface MemberProcInter {
    * @param map
    * @return 변경된 패스워드 갯수
    */
-  public int passwd_update(HashMap<String, Object> map);
+  public int passwd_update(Map<String, Object> map);
   
   /**
    * 로그인 처리
    */
-  public int login(HashMap<String, Object> map);
+  public MemberVO login(HashMap<String, Object> map);
   
   /**
    * 회원/관리자인지 검사
@@ -124,6 +126,31 @@ public interface MemberProcInter {
   public int updateSupplierApprovalToPending(int memberno);
 
   public List<Integer> getUsedGradesInRange(int gradeStart, int gradeEnd);
+  
+  /**
+   * 이름 + 전화번호로 아이디 찾기
+   * @param mname, tel
+   * @return 일치하는 회원 정보
+   */
+  public MemberVO findIdByNameAndTel(String mname, String tel);
+
+  /**
+   * 아이디 + 전화번호로 비밀번호 찾기
+   * @param id, tel
+   * @return 일치하는 회원 정보
+   */
+  public MemberVO findPasswdByIdAndTel(String id, String tel);
+
+  /**
+   * 아이디 + 전화번호로 아이디 찾기
+   * @param id, tel
+   * @return 일치하는 회원 정보
+   */
+  public MemberVO findByIdAndTel(String id, String tel);
+
+  public int updatePasswdById(String email, String encrypted);
+
+  public MemberVO findByEmail(String email);
   
 }
 

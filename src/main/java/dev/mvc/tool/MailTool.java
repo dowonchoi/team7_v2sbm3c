@@ -2,19 +2,20 @@ package dev.mvc.tool;
 
 import java.util.Properties;
 
-import javax.activation.DataHandler;
-import javax.activation.FileDataSource;
-import javax.mail.Message;
-import javax.mail.Multipart;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 
 import org.springframework.web.multipart.MultipartFile;
+
+import jakarta.activation.DataHandler;
+import jakarta.activation.FileDataSource;
+import jakarta.mail.Message;
+import jakarta.mail.Multipart;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
 
 public class MailTool {
     /**
@@ -33,7 +34,7 @@ public class MailTool {
       props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
       
       // 3. SMTP 서버정보와 사용자 정보를 기반으로 Session 클래스의 인스턴스 생성
-      Session session = Session.getInstance(props, new javax.mail.Authenticator() {
+      Session session = Session.getDefaultInstance(props, new jakarta.mail.Authenticator() {
           protected PasswordAuthentication getPasswordAuthentication() {
               String user="nayung030703@gmail.com";
               String password="nfpu zpkq huph ekug";
@@ -72,7 +73,7 @@ public class MailTool {
       props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
       
       // 3. SMTP 서버정보와 사용자 정보를 기반으로 Session 클래스의 인스턴스 생성
-      Session session = Session.getInstance(props, new javax.mail.Authenticator() {
+      Session session = Session.getDefaultInstance(props, new jakarta.mail.Authenticator() {
           protected PasswordAuthentication getPasswordAuthentication() {
               String user="nayung030703@gmail.com";
               String password="nfpu zpkq huph ekug";

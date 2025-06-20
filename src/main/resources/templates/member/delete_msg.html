@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}">
+<div layout:fragment="content">
+  <div class="title_line">회원 탈퇴</div>
+
+  <div style="text-align:center; margin-top: 100px;">
+    <h4 th:text="${msg}">회원 탈퇴가 완료되었습니다.</h4>
+    <!-- <button onclick="location.href='/'">홈으로</button> -->
+     <a href="/member/login" class="btn btn-primary mt-2">로그인 페이지로 이동</a>
+  </div>
+</div>
+</html>

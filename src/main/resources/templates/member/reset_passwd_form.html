@@ -1,0 +1,61 @@
+<!-- templates/member/reset_passwd.html -->
+<!DOCTYPE html>
+<html layout:decorate="~{layout}">
+<div layout:fragment="content">  
+<head>
+  <meta charset="UTF-8">
+  <title>비밀번호 재설정</title>
+  <style>
+    .reset-container {
+      max-width: 480px;
+      margin: 60px auto;
+      padding: 30px 40px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+    .reset-container h2 {
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .reset-container .form-control {
+      margin-bottom: 15px;
+    }
+    .reset-container .btn-primary {
+      width: 100%;
+      background-color: #6c2ed9;
+      border-color: #6c2ed9;
+      font-weight: bold;
+    }
+    .reset-container .btn-primary:hover {
+      background-color: #5824b3;
+    }
+    .reset-desc {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 30px;
+    }
+  </style>
+</head>
+<body class="bg-light">
+  <div class="reset-container">
+    <h2>비밀번호 재설정</h2>
+    <p class="reset-desc">비밀번호는 8~20자의 숫자, 특수문자를 포함해야 합니다.</p>
+
+    <form th:action="@{/member/reset_proc}" method="post">
+      <input type="hidden" name="email" th:value="${email}">
+      <input type="hidden" name="code" th:value="${code}">
+
+      <input type="password" class="form-control" id="passwd" name="passwd" placeholder="새 비밀번호 (8~20자 숫자, 특수문자 조합)" required>
+      <input type="password" class="form-control" id="passwdCheck" name="passwdCheck" placeholder="비밀번호 확인" required>
+
+      <button type="submit" class="btn btn-primary mt-2">비밀번호 변경</button>
+    </form>
+
+    <div th:if="${msg}" th:text="${msg}" style="color:red; margin-top: 15px; text-align: center;"></div>
+  </div>
+</body>
+</div>
+</html>

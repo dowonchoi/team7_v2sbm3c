@@ -103,6 +103,11 @@ public class MemberProc implements MemberProcInter {
   }
   
   @Override
+  public int hide(int memberno) {
+    return this.memberDAO.hide(memberno);
+  }
+  
+  @Override
   public int passwd_check(HashMap<String, Object> map) {
     String passwd = (String)map.get("passwd");
     // map.put("passwd", new Security().aesEncode(passwd));
@@ -112,7 +117,7 @@ public class MemberProc implements MemberProcInter {
   }
 
   @Override
-  public int passwd_update(HashMap<String, Object> map) {
+  public int passwd_update(Map<String, Object> map) {
     String passwd = (String)map.get("passwd");
     // map.put("passwd", new Security().aesEncode(passwd));
     map.put("passwd", this.security.aesEncode(passwd));
@@ -121,13 +126,8 @@ public class MemberProc implements MemberProcInter {
   }
   
   @Override
-  public int login(HashMap<String, Object> map) {
-    String passwd = (String)map.get("passwd");
-    // map.put("passwd", new Security().aesEncode(passwd));
-    map.put("passwd", this.security.aesEncode(passwd));
-    int cnt = this.memberDAO.login(map);
-    
-    return cnt;
+  public MemberVO login(HashMap<String, Object> map) {
+      return memberDAO.login(map); // selectOne으로 MemberVO 반환
   }
   
   @Override
@@ -181,7 +181,43 @@ public class MemberProc implements MemberProcInter {
       int cnt2 = this.memberDAO.updateSupplierApprovalToPending(memberno); // 승인 상태 N
       return (cnt1 + cnt2) / 2;
   }
+  
+  @Override
+  public MemberVO findIdByNameAndTel(String mname, String tel) {
+      Map<String, Object> map = new HashMap<>();
+      map.put("mname", mname);
+      map.put("tel", tel);
+      return memberDAO.findIdByNameAndTel(map);
+  }
 
+  @Override
+  public MemberVO findPasswdByIdAndTel(String id, String tel) {
+      Map<String, Object> map = new HashMap<>();
+      map.put("id", id);
+      map.put("tel", tel);
+      return memberDAO.findPasswdByIdAndTel(map);
+  }
+
+  @Override
+  public int updatePasswdById(String id, String passwd) {
+    Map<String, Object> map = new HashMap<>();
+    map.put("id", id);
+    map.put("passwd", passwd);
+    return memberDAO.updatePasswdById(map); // 0이 아닌지 확인
+  }
+
+  @Override
+  public MemberVO findByIdAndTel(String id, String tel) {
+    Map<String, Object> map = new HashMap<>();
+    map.put("id", id);
+    map.put("tel", tel);
+    return memberDAO.findPasswdByIdAndTel(map);
+  }
+
+  @Override
+  public MemberVO findByEmail(String email) {
+      return this.memberDAO.findByEmail(email);
+  }
   
 }
 

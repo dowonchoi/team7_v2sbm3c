@@ -20,7 +20,7 @@
     <colgroup>
       <col style='width: 5%;'/>
       <col style='width: 10%;'/>
-      <col style='width: 15%;'/>
+      <col style='width: 13%;'/>
       <col style='width: 15%;'/>
       <col style='width: 18%;'/>
       <col style='width: 10%;'/>
@@ -47,7 +47,7 @@
           <div th:if="${memberVO.grade >= 5 and memberVO.grade <= 15}">
             <img src='/member/images/member.jpg' title="공급자" class="icon">
           </div>
-          <div th:if="${memberVO.grade >= 16 and memberVO.grade <= 25}">
+          <div th:if="${memberVO.grade >= 16 and memberVO.grade <= 39}">
             <img src='/member/images/user.png' title="소비자" class="icon">
           </div>
           <div th:if="${memberVO.grade >= 40 and memberVO.grade <= 49}">
@@ -84,29 +84,30 @@
     <button type='button' onclick="location.reload();" class="btn btn-primary btn-sm">새로 고침</button>
   </div>
   <script>
-  function deleteMember(memberno) {
-    if (confirm("정말 이 회원을 삭제하시겠습니까?")) {
-      fetch("/member/delete", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: "memberno=" + memberno
-      })
-      .then(response => response.text())
-      .then(result => {
-        if (result.trim() === "success") {
-          alert("회원이 삭제되었습니다.");
-          location.reload();
-        } else {
-          alert("삭제에 실패했습니다.");
-        }
-      })
-      .catch(error => {
-        alert("에러가 발생했습니다: " + error);
-      });
+    function deleteMember(memberno) {
+      if (confirm("정말 이 회원을 삭제하시겠습니까?")) {
+        fetch("/member/delete", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: "memberno=" + memberno
+        })
+        .then(response => response.text())
+        .then(result => {
+          if (result.trim() === "success") {
+            alert("회원이 삭제되었습니다.");
+            location.reload();
+          } else {
+            alert("삭제에 실패했습니다.");
+          }
+        })
+        .catch(error => {
+          alert("에러가 발생했습니다: " + error);
+        });
+      }
     }
-  }
+
 </script>
 
 

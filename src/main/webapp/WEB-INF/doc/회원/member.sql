@@ -41,7 +41,6 @@ CREATE SEQUENCE member_seq
   CACHE 2                       -- 2번은 메모리에서만 계산
   NOCYCLE;                     -- 다시 1부터 생성되는 것을 방지
  
- 
 1. 등록
  
 1) id 중복 확인(null 값을 가지고 있으면 count에서 제외됨)
@@ -72,6 +71,10 @@ ALTER TABLE member RENAME COLUMN supplier_approved TO supplier_approved_old;
 ALTER TABLE member ADD supplier_approved CHAR(1) DEFAULT 'N';
 
 ALTER TABLE member DROP COLUMN supplier_approved_old;
+
+ALTER TABLE member ADD last_login DATE;
+
+ALTER TABLE member ADD is_visible CHAR(1) DEFAULT 'Y';
    
 2) 등록
 INSERT INTO member(memberno, id, passwd, mname, tel, zipcode,
@@ -106,6 +109,9 @@ COMMIT;
 SELECT memberno, id, passwd, mname, tel, zipcode, address1, address2, mdate, grade
 FROM member
 ORDER BY grade ASC, id ASC;
+
+-- 탈퇴 회원 memberno 입력 후 확인
+SELECT memberno, id, is_visible FROM member WHERE memberno = 9;
      
 -- 승인 대기 중인 공급자 조회
 SELECT memberno, id, passwd, mname, tel, zipcode, address1, address2, mdate, grade, supplier_approved
@@ -115,7 +121,7 @@ ORDER BY grade ASC, id ASC;
 SELECT memberno, id, mname, tel, grade, supplier_approved, business_file
 FROM member
 WHERE grade BETWEEN 5 AND 15
-  AND supplier_approved = 0; -- 숫자로 비교
+  AND supplier_approved = 'N'; -- 숫자로 비교
   
 UPDATE member 
 SET supplier_approved = 
@@ -124,7 +130,7 @@ SET supplier_approved =
         WHEN 0 THEN 'N' 
         ELSE 'N' 
     END;
-     
+    
 3. 조회
  
 1) 사원 정보 조회
@@ -181,14 +187,25 @@ UPDATE member
 SET passwd='fS/kjO+fuEKk06Zl7VYMhg=='
 WHERE memberno=1;
 
+-- 예시: admin 계정
 UPDATE member
-SET passwd = 'fS/kjO+fuEKk06Zl7VYMhg=='  -- 즉, Security.aesEncode("123") 결과
+SET passwd = 'fS/kjO+fuEKk06Zl7VYMhg=='  -- ← 암호화된 "1234"
+WHERE id = 'admin';
+
+-- 예시: 모든 계정의 비밀번호가 "1234"라고 가정할 경우
+UPDATE member
+SET passwd = 'fS/kjO+fuEKk06Zl7VYMhg=='
 WHERE passwd = '1234';
+
+SELECT id, passwd FROM member WHERE id = 'nayung030703@gmail.com';
+
+SELECT passwd FROM member WHERE id = 'nayung030703@gmail.com';
+
+COMMIT;
 
 SELECT * FROM member WHERE memberno = 1 AND passwd = '1234';
 
 COMMIT;
-
 
 8. 회원 등급 변경
 -- 정지 회원

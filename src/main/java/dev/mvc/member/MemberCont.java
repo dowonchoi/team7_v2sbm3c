@@ -19,9 +19,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import dev.mvc.cate.CateProcInter;
 import dev.mvc.cate.CateVOMenu;
+import dev.mvc.tool.Security;
+import dev.mvc.tool.Tool;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,6 +43,12 @@ public class MemberCont {
   
   @Autowired  // 자동 주입 어노테이션 꼭 붙이기
   private MemberService memberService;
+  
+  @Autowired  // 자동 주입 어노테이션 꼭 붙이기
+  private MailService mailService;
+  
+  @Autowired
+  private Security security;
   
   public MemberCont() {
     System.out.println("-> MemberCont created.");  
@@ -181,16 +190,20 @@ public class MemberCont {
       int result = memberProc.updateSupplierApproved(paramMap);
       return result == 1 ? "success" : "fail";
   }
-
   
-  @PostMapping(value="/delete", produces = "text/plain; charset=UTF-8")
-  @ResponseBody
-  public String delete_ajax(@RequestParam("memberno") int memberno) {
-      int cnt = this.memberProc.delete(memberno);
-      return cnt == 1 ? "success" : "fail";
+  @GetMapping("/mypage")
+  public String mypage(HttpSession session, Model model) {
+      Integer memberno = (Integer) session.getAttribute("memberno");
+      if (memberno == null) {
+          return "redirect:/member/login"; // 로그인 안 되어 있으면 로그인 페이지로
+      }
+
+      MemberVO memberVO = memberProc.read(memberno);
+      model.addAttribute("memberVO", memberVO);
+      return "/member/mypage"; // mypage.html
   }
 
-  
+
   @GetMapping(value="/list")
   public String list(HttpSession session, Model model) {
     ArrayList<CateVOMenu> menu = this.cateProc.menu();
@@ -203,6 +216,139 @@ public class MemberCont {
     } else {
       return "redirect:/member/login_cookie_need?url=/member/list";
     }
+  }
+  
+  //회원 정보 수정 화면 이동
+  @GetMapping("/update")
+  public String updateForm(HttpSession session, Model model) {
+     Integer memberno = (Integer) session.getAttribute("memberno");
+     if (memberno == null) {
+         return "redirect:/member/login";  // 로그인 안 했으면 로그인 페이지로
+     }
+  
+     MemberVO memberVO = memberProc.read(memberno);  // DB에서 회원 정보 조회
+     model.addAttribute("memberVO", memberVO);       // 수정 폼에 정보 전달
+  
+     return "/member/update";  // templates/member/update.html
+  }
+  
+  //회원 정보 수정 처리
+  @PostMapping("/update")
+  public String updateProc(MemberVO memberVO, RedirectAttributes ra) {
+     int cnt = memberProc.update(memberVO);
+     if (cnt == 1) {
+         ra.addFlashAttribute("msg", "회원 정보가 수정되었습니다.");
+     } else {
+         ra.addFlashAttribute("msg", "회원 정보 수정에 실패했습니다.");
+     }
+  
+     return "redirect:/member/mypage";
+  }
+  
+  //아이디 찾기 폼
+  @GetMapping("/find_id")
+  public String findIdForm() {
+      return "/member/find_id";  // 입력 폼 화면
+  }
+  
+  //아이디 찾기 처리
+  @PostMapping("/find_id")
+  public String findIdProc(@RequestParam("mname") String mname,
+                           @RequestParam("tel") String tel,
+                           Model model) {
+
+      MemberVO memberVO = memberProc.findIdByNameAndTel(mname, tel);  // 메서드 구현 필요
+
+      if (memberVO != null) {
+          model.addAttribute("foundId", memberVO.getId());
+      } else {
+          model.addAttribute("notFound", true);
+      }
+
+      return "/member/find_id_result";  // 결과 출력 페이지
+  } 
+
+  
+  //비밀번호 찾기 폼
+  @GetMapping("/find_passwd")
+  public String findPasswdForm() {
+      return "member/find_passwd";  // 확장자 .html 생략, 정상
+  }
+  
+  //비밀번호 찾기 처리
+  @PostMapping("/find_passwd")
+  public String findPasswd(
+          @RequestParam(name = "id", required = true) String id,
+          @RequestParam(name = "tel", required = true) String tel,
+          HttpSession session,
+          Model model) {
+      
+      System.out.println("id = " + id + ", tel = " + tel); // 디버깅용
+      
+      MemberVO memberVO = memberProc.findByIdAndTel(id, tel);
+      if (memberVO == null) {
+          model.addAttribute("msg", "일치하는 정보가 없습니다.");
+          return "member/find_passwd";
+      }
+
+      int code = (int)(Math.random() * 90000) + 10000;
+      session.setAttribute("passwdCode", code);
+      session.setAttribute("passwdEmail", id);
+
+      String link = "http://localhost:9093/member/reset?code=" + code + "&email=" + id;
+      mailService.sendMail(id, "[서비스명] 비밀번호 재설정 링크", "비밀번호 재설정 링크입니다:\n" + link);
+
+      model.addAttribute("msg", "비밀번호 재설정 링크를 이메일로 전송했습니다.");
+      return "member/find_passwd";
+  }
+
+
+  @GetMapping("/reset")
+  public String resetPasswdForm(@RequestParam("code") int code,
+                                @RequestParam("email") String email,
+                                HttpSession session,
+                                Model model) {
+      Integer savedCode = (Integer) session.getAttribute("passwdCode");
+      String savedEmail = (String) session.getAttribute("passwdEmail");
+
+      // 디버깅용 로그
+      System.out.println("reset: " + code + " / saved: " + savedCode);
+
+      if (savedCode == null || savedEmail == null ||
+          savedCode != code || !savedEmail.equals(email)) {
+          model.addAttribute("msg", "인증 정보가 일치하지 않거나 만료되었습니다.");
+          return "member/msg";
+      }
+
+      model.addAttribute("code", code);
+      model.addAttribute("email", email);
+      return "member/reset_passwd_form";  // 비밀번호 변경 화면
+  }
+  
+  @PostMapping("/reset_proc")
+  public String resetPassword(@RequestParam("email") String email,
+                              @RequestParam("code") String code,
+                              @RequestParam("passwd") String passwd,
+                              RedirectAttributes ra) {
+
+    System.out.println("reset: " + code);
+
+    String aesEncode = security.aesEncode(passwd);
+    System.out.println("암호화된 비밀번호: " + aesEncode);
+
+    MemberVO memberVO = memberProc.findByEmail(email);
+    if (memberVO != null) {
+      memberProc.updatePasswdById(memberVO.getId(), aesEncode);
+      System.out.println("DB에 저장된 비밀번호: " + memberProc.readById(memberVO.getId()).getPasswd());
+    }
+
+    ra.addFlashAttribute("msg", "비밀번호가 성공적으로 변경되었습니다.");
+    return "redirect:/member/reset_msg";
+  }
+  
+  @GetMapping("/reset_msg")
+  public String resetMsg() {
+      return "member/reset_msg";  // templates/member/reset_msg.html
   }
 
 //  /**
@@ -254,66 +400,128 @@ public class MemberCont {
   }
  
   
-  /**
-   * 수정 처리
-   * @param model
-   * @param memberVO
-   * @return
-   */
-  @PostMapping(value="/update")
-  public String update_proc(Model model, 
-                                       @ModelAttribute("memberVO") MemberVO memberVO) {
-    int cnt = this.memberProc.update(memberVO); // 수정
-    
-    if (cnt == 1) {
-      model.addAttribute("code", "update_success");
-      model.addAttribute("mname", memberVO.getMname());
-      model.addAttribute("id", memberVO.getId());
-    } else {
-      model.addAttribute("code", "update_fail");
-    }
-    
-    model.addAttribute("cnt", cnt);
-    
-    return "member/msg"; // /templates/member/msg.html
-  }
+//  /**
+//   * 수정 처리
+//   * @param model
+//   * @param memberVO
+//   * @return
+//   */
+//  @PostMapping(value="/update")
+//  public String update_proc(Model model, 
+//                                       @ModelAttribute("memberVO") MemberVO memberVO) {
+//    int cnt = this.memberProc.update(memberVO); // 수정
+//    
+//    if (cnt == 1) {
+//      model.addAttribute("code", "update_success");
+//      model.addAttribute("mname", memberVO.getMname());
+//      model.addAttribute("id", memberVO.getId());
+//    } else {
+//      model.addAttribute("code", "update_fail");
+//    }
+//    
+//    model.addAttribute("cnt", cnt);
+//    
+//    return "member/msg"; // /templates/member/msg.html
+//  }
 
-  /**
-   * 삭제
-   * @param model
-   * @param memberno 회원 번호
-   * @return 회원 정보
-   */
-  @GetMapping(value="/delete")
-  public String delete(Model model,
-                              @RequestParam(name="memberno", defaultValue = "") Integer memberno) {
-    System.out.println("-> delete memberno: " + memberno);
-    
-    MemberVO memberVO = this.memberProc.read(memberno);
-    model.addAttribute("memberVO", memberVO);
-    
-    return "member/delete";  // templates/member/delete.html
-  }
+//  /**
+//   * 삭제
+//   * @param model
+//   * @param memberno 회원 번호
+//   * @return 회원 정보
+//   */
+//  @GetMapping(value="/delete")
+//  public String delete(Model model,
+//                              @RequestParam(name="memberno", defaultValue = "") Integer memberno) {
+//    System.out.println("-> delete memberno: " + memberno);
+//    
+//    MemberVO memberVO = this.memberProc.read(memberno);
+//    model.addAttribute("memberVO", memberVO);
+//    
+//    return "member/delete";  // templates/member/delete.html
+//  }
+//  
+//  /**
+//   * 회원 Delete process
+//   * @param model
+//   * @param memberno 삭제할 레코드 번호
+//   * @return
+//   */
+//  @PostMapping(value="/delete")
+//  public String delete_process(Model model, 
+//                                          @RequestParam(name="memberno", defaultValue = "") Integer memberno) {
+//    int cnt = this.memberProc.delete(memberno);
+//    
+//    if (cnt == 1) {
+//      return "redirect:/member/list"; // @GetMapping(value="/list")
+//    } else {
+//      model.addAttribute("code", "delete_fail");
+//      return "member/msg"; // /templates/member/msg.html
+//    }
+//  }
   
-  /**
-   * 회원 Delete process
-   * @param model
-   * @param memberno 삭제할 레코드 번호
-   * @return
-   */
-  @PostMapping(value="/delete")
-  public String delete_process(Model model, 
-                                          @RequestParam(name="memberno", defaultValue = "") Integer memberno) {
-    int cnt = this.memberProc.delete(memberno);
-    
-    if (cnt == 1) {
-      return "redirect:/member/list"; // @GetMapping(value="/list")
-    } else {
-      model.addAttribute("code", "delete_fail");
-      return "member/msg"; // /templates/member/msg.html
-    }
+  @PostMapping(value="/delete", produces = "text/plain; charset=UTF-8")
+  @ResponseBody
+  public String delete_ajax(@RequestParam("memberno") int memberno, HttpSession session) {
+      int cnt = this.memberProc.delete(memberno);  // 실제 DB에서 삭제
+      if (cnt == 1) {
+          session.invalidate();  // 로그아웃
+          return "success";
+      } else {
+          return "fail";
+      }
   }
 
+
+  
+  @GetMapping("/delete")
+  public String deleteForm(HttpSession session, Model model) {
+      Integer memberno = (Integer) session.getAttribute("memberno");
+      if (memberno == null) {
+          return "redirect:/member/login";
+      }
+
+      MemberVO memberVO = memberProc.read(memberno);
+      model.addAttribute("memberVO", memberVO);
+
+      return "member/delete"; // 비밀번호 입력 폼 (delete.html)
+  }
+
+  @PostMapping("/delete")
+  public String deleteProc(HttpSession session,
+                           @RequestParam("memberno") int memberno,
+                           @RequestParam("passwd") String passwd,
+                           Model model) {
+      MemberVO memberVO = memberProc.read(memberno);
+      String encrypted = security.aesEncode(passwd);
+
+      if (memberVO != null && memberVO.getPasswd().equals(encrypted)) {
+          int cnt = memberProc.delete(memberno);  // ✅ 실제 DB 삭제
+
+          if (cnt == 1) {
+              session.invalidate();  // 로그아웃 처리
+              model.addAttribute("msg", "회원 탈퇴가 완료되었습니다.");
+          } else {
+              model.addAttribute("msg", "회원 탈퇴 처리 중 오류 발생");
+          }
+      } else {
+          model.addAttribute("msg", "비밀번호가 일치하지 않습니다.");
+      }
+
+      return "member/delete_msg";
+  }
+
+  
+  @GetMapping("/delete_msg")
+  public String deleteMsg() {
+      return "member/delete_msg";
+  }
+
+//  @GetMapping("/delete_confirm")
+//  public String deleteConfirm() {
+//      return "member/delete_confirm";
+//  }
+  
 //  /**
 //   * 로그인
 //   * @param model
@@ -442,95 +650,81 @@ public class MemberCont {
    */
   @PostMapping(value="/login")
   public String login_proc(HttpSession session,
-                                     HttpServletRequest request,
-                                     HttpServletResponse response,
-                                     Model model, 
-                                     @RequestParam(value="id", defaultValue = "") String id, 
-                                     @RequestParam(value="passwd", defaultValue = "") String passwd,
-                                     @RequestParam(value="id_save", defaultValue = "") String id_save,
-                                     @RequestParam(value="passwd_save", defaultValue = "") String passwd_save,
-                                     @RequestParam(value="url", defaultValue = "") String url
-                                     ) {
-    HashMap<String, Object> map = new HashMap<String, Object>();
-    map.put("id", id);
-    map.put("passwd", passwd);
-    
-    int cnt = this.memberProc.login(map);
-    // System.out.println("-> login_proc cnt: " + cnt);
-    
-    model.addAttribute("cnt", cnt);
-    
-    if (cnt == 1) {
-      // id를 이용하여 회원 정보 조회
-      MemberVO memverVO = this.memberProc.readById(id);
-      session.setAttribute("memberno", memverVO.getMemberno());
-      session.setAttribute("id", memverVO.getId()); // 시스템 변수와 중복됨, 권장하지 않음.
-      session.setAttribute("mname", memverVO.getMname());
-      session.setAttribute("grade", memverVO.getGrade());
+                           HttpServletRequest request,
+                           HttpServletResponse response,
+                           Model model,
+                           @RequestParam(value="id", defaultValue = "") String id,
+                           @RequestParam(value="passwd", defaultValue = "") String passwd,
+                           @RequestParam(value="id_save", defaultValue = "") String id_save,
+                           @RequestParam(value="passwd_save", defaultValue = "") String passwd_save,
+                           @RequestParam(value="url", defaultValue = "") String url) {
 
-      // -------------------------------------------------------------------
-      // 회원 등급 처리
-      // -------------------------------------------------------------------
-      if (memverVO.getGrade() >= 1 && memverVO.getGrade() <=4) {
+    System.out.println("입력한 평문 비밀번호: " + passwd);
+    String encrypted = security.aesEncode(passwd);
+    System.out.println("암호화된 로그인 비밀번호: " + encrypted);
+
+    HashMap<String, Object> map = new HashMap<>();
+    map.put("id", id);
+    map.put("passwd", encrypted);
+
+    MemberVO memberVO = this.memberProc.login(map);
+
+    if (memberVO != null) {
+      session.setAttribute("memberno", memberVO.getMemberno());
+      session.setAttribute("id", memberVO.getId());
+      session.setAttribute("mname", memberVO.getMname());
+      session.setAttribute("grade", memberVO.getGrade());
+
+      if (memberVO.getGrade() >= 1 && memberVO.getGrade() <= 4) {
         session.setAttribute("grade", "admin");
-      } else if (memverVO.getGrade() >= 5 && memverVO.getGrade() <= 15) {
+      } else if (memberVO.getGrade() >= 5 && memberVO.getGrade() <= 15) {
         session.setAttribute("grade", "supplier");
-      } else if (memverVO.getGrade() >= 16) {
+      } else {
         session.setAttribute("grade", "user");
       }
-      
+
       System.out.println("-> grade: " + session.getAttribute("grade"));
-      
-      // Cookie 관련 코드---------------------------------------------------------
-      // -------------------------------------------------------------------
-      // id 관련 쿠기 저장
-      // -------------------------------------------------------------------
-      if (id_save.equals("Y")) { // id를 저장할 경우, Checkbox를 체크한 경우
+
+      if (id_save.equals("Y")) {
         Cookie ck_id = new Cookie("ck_id", id);
-        ck_id.setPath("/");  // root 폴더에 쿠키를 기록함으로 모든 경로에서 쿠기 접근 가능
-        ck_id.setMaxAge(60 * 60 * 24 * 30); // 30 day, 초단위
-        response.addCookie(ck_id); // id 저장
-      } else { // N, id를 저장하지 않는 경우, Checkbox를 체크 해제한 경우
+        ck_id.setPath("/");
+        ck_id.setMaxAge(60 * 60 * 24 * 30);
+        response.addCookie(ck_id);
+      } else {
         Cookie ck_id = new Cookie("ck_id", "");
         ck_id.setPath("/");
         ck_id.setMaxAge(0);
-        response.addCookie(ck_id); // id 저장
+        response.addCookie(ck_id);
       }
-      
-      // id를 저장할지 선택하는  CheckBox 체크 여부
+
       Cookie ck_id_save = new Cookie("ck_id_save", id_save);
       ck_id_save.setPath("/");
-      ck_id_save.setMaxAge(60 * 60 * 24 * 30); // 30 day
+      ck_id_save.setMaxAge(60 * 60 * 24 * 30);
       response.addCookie(ck_id_save);
-      // -------------------------------------------------------------------
-  
-      // -------------------------------------------------------------------
-      // Password 관련 쿠기 저장
-      // -------------------------------------------------------------------
-      if (passwd_save.equals("Y")) { // 패스워드 저장할 경우
+
+      if (passwd_save.equals("Y")) {
         Cookie ck_passwd = new Cookie("ck_passwd", passwd);
         ck_passwd.setPath("/");
-        ck_passwd.setMaxAge(60 * 60 * 24 * 30); // 30 day
+        ck_passwd.setMaxAge(60 * 60 * 24 * 30);
         response.addCookie(ck_passwd);
-      } else { // N, 패스워드를 저장하지 않을 경우
+      } else {
         Cookie ck_passwd = new Cookie("ck_passwd", "");
         ck_passwd.setPath("/");
         ck_passwd.setMaxAge(0);
         response.addCookie(ck_passwd);
       }
-      // passwd를 저장할지 선택하는  CheckBox 체크 여부
+
       Cookie ck_passwd_save = new Cookie("ck_passwd_save", passwd_save);
       ck_passwd_save.setPath("/");
-      ck_passwd_save.setMaxAge(60 * 60 * 24 * 30); // 30 day
+      ck_passwd_save.setMaxAge(60 * 60 * 24 * 30);
       response.addCookie(ck_passwd_save);
-      // -------------------------------------------------------------------
-      // ----------------------------------------------------------------------------     
-      
-      if (url.length() > 0) { // 접속 요청이 있었는지 확인
-        return "redirect:" + url;  // redirect:/member/login_cookie_need?url=/cate/list_search
+
+      if (url.length() > 0) {
+        return "redirect:" + url;
       } else {
         return "redirect:/";
       }
+
     } else {
       model.addAttribute("code", "login_fail");
       return "member/msg";

@@ -1,44 +1,47 @@
 <!DOCTYPE html>
-
-<html layout:decorate="~{layout}"> <!-- layout.html 상속-->
-
+<html layout:decorate="~{layout}">
 <div layout:fragment="content">
+  <div class="title_line">회원 탈퇴</div>
+
+  <form th:action="@{/member/delete}" method="post" onsubmit="return confirmDelete();">
+    <!-- memberno를 hidden으로 전송 -->
+    <input type="hidden" th:name="memberno" th:value="${memberVO.memberno}" />
+
+    <div class="form-group">
+      <label>비밀번호 확인</label>
+      <input type="password" name="passwd" class="form-control" required />
+    </div>
+
+    <div class="form-group mt-3">
+      <button type="submit" class="btn btn-danger">회원 탈퇴</button>
+      <a th:href="@{/member/mypage}" class="btn btn-secondary">취소</a>
+    </div>
+  </form>
+
   <script>
-    window.onload = () => {
-      
-    }
-    
-    function send() { // 회원 가입 처리
-      document.getElementById('frm').submit(); // required="required" 작동 안됨.
-    }    
-  </script>
+  function deleteMember() {
+    if (!confirm("정말 탈퇴하시겠습니까?")) return false;
 
-  <div class="title_line">회원 정보 조회 및 수정(*: 필수) > <span th:text="@{|${memberVO.mname} (${memberVO.id})|}"></span></div>
-  <aside class="aside_right">
-    <a href="javascript:location.reload();">새로고침</a>
-    <span class='menu_divide' >│</span> 
-    <a href='./create'>회원 가입</a>
-    <span class='menu_divide' >│</span> 
-    <a href='./list'>목록</a>
-  </aside> 
+    const memberno = document.getElementById("memberno").value;
+    const passwd = document.getElementById("passwd").value;
 
-  <div class='menu_line'></div>
-  
-  <div style="width: 60%; margin: 0px auto ">
-    <form name="frm" id="frm" th:object="${memberVO}" method="post" action="/member/delete">
-      <input type="hidden" name="memberno" th:value="${memberVO.memberno}">
-      
-      <div class="msg_warning">회원 정보는 삭제하면 복구 할 수 없습니다.<br>그래도 삭제하시겠습니까?</div>
-      <div style='text-align: center;'>회원 이름: <span th:text="${memberVO.mname}"></span></div>
-      
-      <div class="content_body_bottom">
-        <button type="button" onclick="send();" class="btn btn-secondary btn-sm">삭제</button>
-        <button type="button" onclick="history.back();" class="btn btn-secondary btn-sm">취소</button>
-      </div>
+    fetch("/member/delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `memberno=${memberno}&passwd=${passwd}`
+    })
+    .then(res => res.text())
+    .then(result => {
+      if (result.trim() === "success") {
+        alert("회원 탈퇴가 완료되었습니다.");
+        location.href = "/member/login";
+      } else {
+        alert("비밀번호가 일치하지 않거나 탈퇴에 실패했습니다.");
+      }
+    });
 
-    </form>
-  </div>
-    
+    return false; // form submit 막기
+  }
+</script>
 </div>
 </html>
-

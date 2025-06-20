@@ -1,0 +1,83 @@
+<!-- src/main/resources/templates/member/find_passwd.html -->
+<!DOCTYPE html>
+<html layout:decorate="~{layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>비밀번호 찾기</title>
+  <style>
+    .find-container {
+      max-width: 420px;
+      margin: 50px auto;
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .find-title {
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .find-input {
+      width: 100%;
+      padding: 10px 15px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    .find-button {
+      width: 100%;
+      padding: 12px;
+      background-color: #28c57a;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .find-button:hover {
+      background-color: #1db76e;
+    }
+    .find-footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+    .find-footer a {
+      margin: 0 8px;
+      color: #555;
+      text-decoration: none;
+    }
+    .find-footer a:hover {
+      text-decoration: underline;
+    }
+    body {
+      background-color: #f5f5f5;
+    }
+  </style>
+</head>
+<body>
+<div layout:fragment="content">
+  <div class="find-container">
+    <div class="find-title">비밀번호 찾기</div>
+
+    <form th:action="@{/member/find_passwd}" method="post">
+      <input type="text" class="find-input" id="id" name="id" placeholder="아이디(이메일)" required>
+      <input type="text" class="find-input" id="tel" name="tel" placeholder="전화번호" required>
+      <button type="submit" class="find-button">비밀번호 찾기</button>
+    </form>
+
+    <div th:if="${msg}" th:text="${msg}" style="color: red; margin-top: 10px; text-align: center;"></div>
+
+    <div class="find-footer">
+      <a href="/login">로그인</a> /
+      <a href="/member/find_id">아이디찾기</a> /
+      <a href="/member/create">회원가입</a>
+    </div>
+  </div>
+
+</body>
+</html>

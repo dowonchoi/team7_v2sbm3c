@@ -1,0 +1,24 @@
+<!-- templates/member/find_id.html -->
+<!DOCTYPE html>
+<html layout:decorate="~{layout}">
+<div layout:fragment="content">
+  <div class="title_line">아이디 찾기</div>
+
+  <form th:action="@{/member/find_id}" method="post">
+    <div class="form-group">
+      <label for="mname">이름</label>
+      <input type="text" class="form-control" id="mname" name="mname" required />
+    </div>
+
+    <div class="form-group">
+      <label for="tel">전화번호</label>
+      <input type="text" class="form-control" id="tel" name="tel" required />
+    </div>
+
+    <div class="form-group mt-3">
+      <button type="submit" class="btn btn-primary">아이디 찾기</button>
+      <a th:href="@{/member/login}" class="btn btn-secondary">로그인으로</a>
+    </div>
+  </form>
+</div>
+</html>

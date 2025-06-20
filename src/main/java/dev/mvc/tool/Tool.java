@@ -511,5 +511,28 @@ public class Tool {
     return path;
   }
   
+  /**
+   * 문자열을 SHA-256 방식으로 암호화
+   * @param str 입력 문자열(예: 비밀번호)
+   * @return 암호화된 문자열
+   */
+  public static String encrypt(String str) {
+    String sha = null;
+    try {
+      java.security.MessageDigest sh = java.security.MessageDigest.getInstance("SHA-256");
+      byte[] byteData = sh.digest(str.getBytes("UTF-8"));
+      StringBuilder sb = new StringBuilder();
+      for (byte b : byteData) {
+        sb.append(String.format("%02x", b));
+      }
+      sha = sb.toString();
+    } catch (Exception e) {
+      e.printStackTrace();
+      sha = null;
+    }
+    return sha;
+  }
+
+  
 }
 

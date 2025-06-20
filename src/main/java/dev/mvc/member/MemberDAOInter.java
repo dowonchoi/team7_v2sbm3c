@@ -60,7 +60,9 @@ public interface MemberDAOInter {
    * @return
    */
   public int delete(int memberno);
-  
+
+  public int hide(int memberno);
+
   /**
    * 현재 패스워드 검사
    * @param map
@@ -73,12 +75,12 @@ public interface MemberDAOInter {
    * @param map
    * @return 변경된 패스워드 갯수
    */
-  public int passwd_update(HashMap<String, Object> map);
+  public int passwd_update(Map<String, Object> map);
   
   /**
    * 로그인 처리
    */
-  public int login(HashMap<String, Object> map);
+  public MemberVO login(HashMap<String, Object> map);
   
   /**
    * 공급자 회원 가입 (사업자 인증 파일 포함)
@@ -118,5 +120,35 @@ public interface MemberDAOInter {
   
 //  /** 모든 공급자 조회 (승인 여부 무관) */
 //  public List<MemberVO> selectAllSuppliers();
+  
+  /**
+   * 이름 + 전화번호로 아이디 찾기
+   * @param map
+   * @return 해당 조건에 맞는 회원정보
+   */
+  public MemberVO findIdByNameAndTel(Map<String, Object> map);
+
+  /**
+   * 아이디 + 전화번호로 비밀번호 찾기
+   * @param map
+   * @return 해당 조건에 맞는 회원정보
+   */
+  public MemberVO findPasswdByIdAndTel(Map<String, Object> map);
+  
+  /**
+   * 이메일 기준으로 비밀번호 변경
+   * @param map (id, passwd)
+   * @return 변경된 레코드 수
+   */
+  public int updatePasswdById(Map<String, Object> map);
+  
+  /**
+   * 아이디 + 전화번호로 회원 조회
+   * @param map (id, tel)
+   * @return 일치하는 회원 정보
+   */
+  public MemberVO findByIdAndTel(Map<String, Object> map);
+  
+  public MemberVO findByEmail(String email);
 
 }

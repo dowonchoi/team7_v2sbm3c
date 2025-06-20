@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}">
+<div layout:fragment="content">
+  <div class="title_line">비밀번호 재설정</div>
+
+  <div class="form-group" style="margin-top: 40px; text-align: center;">
+    <h4 th:text="${msg}">비밀번호가 성공적으로 변경되었습니다.</h4>
+  </div>
+
+  <div class="form-group mt-3" style="text-align: center;">
+    <button type="button" class="btn btn-primary" onclick="location.href='/member/login'">확인</button>
+  </div>
+</div>
+</html>
