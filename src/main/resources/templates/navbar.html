@@ -23,7 +23,7 @@
             <!--/* 중분류명(카테고리) 출력, private ArrayList<CateVO> list_name; */-->
             <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                 <li th:each="cateVO:${cateVOMenu.list_name}">
-                  <a class="dropdown-item" th:href="@{|/products/list_by_cateno?cateno=${cateVO.cateno}|}" th:text="${cateVO.name}"></a>
+                  <a class="dropdown-item" th:href="@{|/products/list_by_cateno_grid?cateno=${cateVO.cateno}|}" th:text="${cateVO.name}"></a>
                 </li>
             </ul>              
           </li>

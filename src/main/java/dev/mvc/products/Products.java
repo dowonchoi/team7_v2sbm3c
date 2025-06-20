@@ -16,13 +16,13 @@ public class Products {
     String path = "";
 
     if (osName.contains("win")) { // Windows
-      path = "C:\\kd\\deploy\\resort\\products\\storage\\";
+      path = "C:\\kd\\deploy\\team\\products\\storage\\";
       // System.out.println("Windows: " + path);
     } else if (osName.contains("mac")) { // MacOS
-      path = "/Users/yourusername/deploy/resort/products/storage/";
+      path = "/Users/yourusername/deploy/team/products/storage/";
       // System.out.println("MacOS: " + path);
     } else { // Linux
-      path = "/home/ubuntu/deploy/resort/products/storage/";
+      path = "/home/ubuntu/deploy/team/products/storage/";
       // System.out.println("Linux: " + path);
     }
 

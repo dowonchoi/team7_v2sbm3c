@@ -119,7 +119,36 @@
     UPDATE cate SET cnt = cnt - #{cnt} WHERE grp=#{grp} and name='--'
   </update>
   
-      
+  
+  <!-- 중분류 CNT 업데이트: products 테이블에서 직접 반영 -->
+  <update id="updateMidCnt">
+    MERGE INTO cate c
+    USING (
+      SELECT cateno, COUNT(*) AS cnt
+      FROM products
+      GROUP BY cateno
+    ) p
+    ON (c.cateno = p.cateno)
+    WHEN MATCHED THEN
+      UPDATE SET c.cnt = p.cnt
+  </update>
+  
+  
+  <!-- 대분류 CNT 업데이트: 자식 cate들의 CNT 합산 -->
+  <update id="updateMainCnt">
+    MERGE INTO cate parent
+    USING (
+      SELECT grp AS grp_name, SUM(cnt) AS total_cnt
+      FROM cate
+      WHERE name != '--'
+      GROUP BY grp
+    ) summary
+    ON (parent.grp = summary.grp_name AND parent.name = '--')
+    WHEN MATCHED THEN
+      UPDATE SET parent.cnt = summary.total_cnt
+  </update>
+
+
 </mapper>
 
 
