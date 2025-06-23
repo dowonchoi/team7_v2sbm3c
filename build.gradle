@@ -52,9 +52,15 @@ dependencies {
   // https://mvnrepository.com/artifact/org.json/json
   implementation 'org.json:json:20240303'
   // https://mvnrepository.com/artifact/com.sun.mail/javax.mail
+<<<<<<< HEAD
   //implementation 'com.sun.mail:javax.mail:1.6.2'
   // https://mvnrepository.com/artifact/javax.activation/activation
   //implementation 'javax.activation:activation:1.1.1'
+=======
+  // implementation 'com.sun.mail:javax.mail:1.6.2'
+  // https://mvnrepository.com/artifact/javax.activation/activation
+  // implementation 'javax.activation:activation:1.1.1'
+>>>>>>> 57e9489c38302257064d16a8a77ea6c20332b62c
   implementation 'org.springframework.boot:spring-boot-starter-mail'
 }
 

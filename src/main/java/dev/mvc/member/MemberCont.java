@@ -459,21 +459,44 @@ public class MemberCont {
 //      return "member/msg"; // /templates/member/msg.html
 //    }
 //  }
-  
+
+ 
+// delete 삭제 부분
   @PostMapping(value="/delete", produces = "text/plain; charset=UTF-8")
   @ResponseBody
-  public String delete_ajax(@RequestParam("memberno") int memberno, HttpSession session) {
-      int cnt = this.memberProc.delete(memberno);  // 실제 DB에서 삭제
-      if (cnt == 1) {
-          session.invalidate();  // 로그아웃
-          return "success";
-      } else {
-          return "fail";
+  public String delete_ajax(@RequestParam("memberno") int memberno,
+                            @RequestParam("passwd") String passwd,
+                            HttpSession session) {
+      MemberVO memberVO = this.memberProc.read(memberno);
+      String encrypted = security.aesEncode(passwd);
+
+      if (memberVO != null && memberVO.getPasswd().equals(encrypted)) {
+          int cnt = this.memberProc.delete(memberno);
+          if (cnt == 1) {
+              session.invalidate();  // 로그아웃
+              return "success";
+          }
       }
+      return "fail";
+  }
+  
+    //관리자 전용 회원 삭제
+  @PostMapping(value="/delete_by_admin", produces = "text/plain; charset=UTF-8")
+  @ResponseBody
+  public String deleteByAdmin(@RequestParam("memberno") int memberno, HttpSession session) {
+      // 세션에서 등급 확인
+      String grade = (String) session.getAttribute("grade");
+
+      // 등급이 없거나 관리자가 아닐 경우 차단
+      if (grade == null || !grade.equals("admin")) {
+          return "unauthorized";  // 또는 return "fail"; 로 처리 가능
+      }
+
+      int cnt = this.memberProc.delete(memberno);
+      return cnt == 1 ? "success" : "fail";
   }
 
 
-  
   @GetMapping("/delete")
   public String deleteForm(HttpSession session, Model model) {
       Integer memberno = (Integer) session.getAttribute("memberno");

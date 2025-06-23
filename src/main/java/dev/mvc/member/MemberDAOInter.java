@@ -62,6 +62,8 @@ public interface MemberDAOInter {
   public int delete(int memberno);
 
   public int hide(int memberno);
+  
+  public int deleteByAdmin(int memberno);
 
   /**
    * 현재 패스워드 검사
