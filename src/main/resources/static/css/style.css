@@ -2,12 +2,12 @@
   
   /* 폰트 선언 */
   @font-face {
-      font-family: 'TTHakgyoansimMonggeulmonggeulR';
-      src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2402_keris@1.0/TTHakgyoansimMonggeulmonggeulR.woff2') format('woff2');
-      font-weight: normal;
-      font-style: normal;
+    font-family: 'Cafe24Oneprettynight';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.1/Cafe24Oneprettynight.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
   }
-
+  
   /* 모든 태그에 적용 */
   *{
      font-family: TTHakgyoansimMonggeulmonggeulR; 

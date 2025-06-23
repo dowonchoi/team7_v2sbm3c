@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.thymeleaf.context.Context;
 
 import dev.mvc.cate.CateProcInter;
 import dev.mvc.cate.CateVOMenu;
@@ -350,6 +353,55 @@ public class MemberCont {
   public String resetMsg() {
       return "member/reset_msg";  // templates/member/reset_msg.html
   }
+  
+  // 테스트용 고객 메일 전송
+  @GetMapping("/member/send_reset_email")
+  @ResponseBody
+  public String sendResetEmail(@RequestParam String email) {
+      try {
+          String resetLink = "http://localhost:9093/member/reset?code=123456&email=" + email;
+          mailService.sendResetPasswordMail(email, resetLink);
+          return "메일 발송 완료";
+      } catch (Exception e) {
+          e.printStackTrace();
+          return "메일 발송 실패: " + e.getMessage();
+      }
+  }
+  
+  // 회원가입시 인증
+  @PostMapping("/send_code")
+  @ResponseBody
+  public String sendCode(@RequestParam("email") String email, HttpSession session) {
+    // ✅ 이메일 유효성 검사 정규식 수정 (도메인 끝자리가 6자 이상인 경우도 허용)
+    if (!email.matches("^[\\w._%+-]+@[\\w.-]+\\.[A-Za-z]{2,}$")) {
+      return "invalid_email";
+    }
+
+    String code = String.format("%06d", new Random().nextInt(999999));
+    long expire = System.currentTimeMillis() + 3 * 60 * 1000; // 3분
+
+    session.setAttribute("authInfo:" + email, new AuthInfo(code, expire));
+    boolean sent = mailService.sendVerificationMail(email, code);
+
+    return sent ? "success" : "fail";
+  }
+
+  
+  @PostMapping("/verify_code")
+  @ResponseBody
+  public String verifyCode(@RequestParam("email") String email, @RequestParam("code") String userCode, HttpSession session) {
+    AuthInfo info = (AuthInfo) session.getAttribute("authInfo:" + email);
+    if (info == null) return "no_code";
+    if (info.isExpired()) return "expired";
+    if (info.getAttemptCount() >= 5) return "too_many_attempts";
+
+    info.setAttemptCount(info.getAttemptCount() + 1);
+    if (info.getCode().equals(userCode)) {
+      session.setAttribute("verified:" + email, true);  // ✅ 인증 완료 여부 저장
+      return "verified";
+    }
+    return "invalid";
+  }
 
 //  /**
 //   * 조회
@@ -461,7 +513,7 @@ public class MemberCont {
 //  }
 
  
-// delete 삭제 부분
+  // delete 삭제 부분
   @PostMapping(value="/delete", produces = "text/plain; charset=UTF-8")
   @ResponseBody
   public String delete_ajax(@RequestParam("memberno") int memberno,
