@@ -3,6 +3,9 @@ package dev.mvc.products;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
 
 import dev.mvc.cate.CateVO;
 
@@ -164,6 +167,12 @@ public interface ProductsDAOInter {
    * @return
    */   
   public int decreaseReplycnt(int productsno);
+  
+  public ArrayList<ProductsVO> list_by_cateno_except_self(@Param("cateno") int cateno, @Param("productsno") int productsno);
+
+  /*무한 스크롤*/
+  public ArrayList<ProductsVO> related_scroll(Map<String, Object> map);
+
 }
  
  

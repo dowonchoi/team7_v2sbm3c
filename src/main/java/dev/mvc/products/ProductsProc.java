@@ -3,6 +3,7 @@ package dev.mvc.products;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -282,6 +283,15 @@ public class ProductsProc implements ProductsProcInter {
     return cnt;
   }
   
+  @Override
+  public ArrayList<ProductsVO> list_by_cateno_except_self(int cateno, int productsno) {
+    return productsDAO.list_by_cateno_except_self(cateno, productsno);
+  }
   
+  @Override
+  public ArrayList<ProductsVO> related_scroll(Map<String, Object> map) {
+    return productsDAO.related_scroll(map);
+  }
+
 }
 

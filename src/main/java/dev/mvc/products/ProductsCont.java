@@ -291,53 +291,98 @@ public class ProductsCont {
       // 파일 전송 코드 시작
       // =============== (1) 파일 업로드 처리 시작 ===============
       // ------------------------------------------------------------------------------
-      String file1 = ""; // 원본 파일명 image
-      String file1saved = ""; // 저장된 파일명, image
-      String thumb1 = ""; // preview image(썸네일 파일명)
-
-      // 파일이 저장될 서버 경로
-      String upDir = Products.getUploadDir(); // 파일을 업로드할 폴더 준비
-      // upDir = upDir + "/" + 한글을 제외한 카테고리 이름
+//      String file1 = ""; // 원본 파일명 image
+//      String file1saved = ""; // 저장된 파일명, image
+//      String thumb1 = ""; // preview image(썸네일 파일명)
+//
+//      // 파일이 저장될 서버 경로
+//      String upDir = Products.getUploadDir(); // 파일을 업로드할 폴더 준비
+//      // upDir = upDir + "/" + 한글을 제외한 카테고리 이름
+//      System.out.println("-> upDir: " + upDir);
+//
+//      MultipartFile mf = productsVO.getFile1MF();// 업로드된 파일 받아오기
+//      file1 = mf.getOriginalFilename(); //  원본 파일명 확인, 01.jpg
+//      System.out.println("-> 원본 파일명 산출 file1: " + file1);
+//
+//      long size1 = mf.getSize(); // 파일 크기
+//      
+//      if (size1 > 0) { //  *파일이 존재할 경우*, 파일 크기 체크, 파일을 올리는 경우
+//        if (Tool.checkUploadFile(file1) == true) { // 업로드 가능한 파일인지 검사
+//          // 파일 저장 후 업로드된 파일명이 리턴됨, spring.jsp, spring_1.jpg, spring_2.jpg...
+//          file1saved = Upload.saveFileSpring(mf, upDir);// 서버에 파일 저장
+//
+//          // 이미지일 경우 썸네일 이미지 생성
+//          if (Tool.isImage(file1saved)) { // 이미지인지 검사
+//            // thumb 이미지 생성후 파일명 리턴됨, width: 200, height: 150
+//            thumb1 = Tool.preview(upDir, file1saved, 200, 150); // 썸네일 크기
+//          }
+//
+//          // VO에 파일 관련 정보 저장
+//          productsVO.setFile1(file1); // 순수 원본 파일명
+//          productsVO.setFile1saved(file1saved); // 저장된 파일명(파일명 중복 처리)
+//          productsVO.setThumb1(thumb1); // 원본이미지 축소판
+//          productsVO.setSize1(size1); // 파일 크기
+//
+//        } else { // 전송 못하는 파일 형식
+//          // 업로드 허용되지 않는 파일일 경우 메시지 전달 후 중단
+//          ra.addFlashAttribute("code", Tool.UPLOAD_FILE_CHECK_FAIL); // 업로드 할 수 없는 파일
+//          ra.addFlashAttribute("cnt", 0); // 업로드 실패
+//          ra.addFlashAttribute("url", "/products/msg"); // msg.html, redirect parameter 적용
+//          return "redirect:/products/post2get"; // Post -> Get -> /products/msg.html
+//        }
+//      } else { // 글만 등록하는 경우
+//        System.out.println("-> 글만 등록");// 파일 없이 텍스트만 등록하는 경우
+//      }
+      String upDir = Products.getUploadDir(); 
       System.out.println("-> upDir: " + upDir);
 
-      // 전송 파일이 없어도 file1MF 객체가 생성됨.
-      // <input type='file' class="form-control" name='file1MF' id='file1MF'
-      // value='' placeholder="파일 선택">
-      MultipartFile mf = productsVO.getFile1MF();// 업로드된 파일 받아오기
-      file1 = mf.getOriginalFilename(); //  원본 파일명 확인, 01.jpg
-//      if (file1.toLowerCase().endsWith("jpeg")) {
-//        file1 = file1.substring(0, file1.indexOf(".")) + ".jpg";
-//      }
-      System.out.println("-> 원본 파일명 산출 file1: " + file1);
+      // ---------------------- file1 처리 ----------------------
+      MultipartFile mf1 = productsVO.getFile1MF();
+      String file1 = mf1.getOriginalFilename();
+      String file1saved = "", thumb1 = "";
+      long size1 = mf1.getSize();
 
-      long size1 = mf.getSize(); // 파일 크기
-      
-      if (size1 > 0) { //  *파일이 존재할 경우*, 파일 크기 체크, 파일을 올리는 경우
-        if (Tool.checkUploadFile(file1) == true) { // 업로드 가능한 파일인지 검사
-          // 파일 저장 후 업로드된 파일명이 리턴됨, spring.jsp, spring_1.jpg, spring_2.jpg...
-          file1saved = Upload.saveFileSpring(mf, upDir);// 서버에 파일 저장
-
-          // 이미지일 경우 썸네일 이미지 생성
-          if (Tool.isImage(file1saved)) { // 이미지인지 검사
-            // thumb 이미지 생성후 파일명 리턴됨, width: 200, height: 150
-            thumb1 = Tool.preview(upDir, file1saved, 200, 150); // 썸네일 크기
-          }
-
-          // VO에 파일 관련 정보 저장
-          productsVO.setFile1(file1); // 순수 원본 파일명
-          productsVO.setFile1saved(file1saved); // 저장된 파일명(파일명 중복 처리)
-          productsVO.setThumb1(thumb1); // 원본이미지 축소판
-          productsVO.setSize1(size1); // 파일 크기
-
-        } else { // 전송 못하는 파일 형식
-          // 업로드 허용되지 않는 파일일 경우 메시지 전달 후 중단
-          ra.addFlashAttribute("code", Tool.UPLOAD_FILE_CHECK_FAIL); // 업로드 할 수 없는 파일
-          ra.addFlashAttribute("cnt", 0); // 업로드 실패
-          ra.addFlashAttribute("url", "/products/msg"); // msg.html, redirect parameter 적용
-          return "redirect:/products/post2get"; // Post -> Get -> /products/msg.html
+      if (size1 > 0 && Tool.checkUploadFile(file1)) {
+        file1saved = Upload.saveFileSpring(mf1, upDir);
+        if (Tool.isImage(file1saved)) {
+          thumb1 = Tool.preview(upDir, file1saved, 200, 150);
         }
-      } else { // 글만 등록하는 경우
-        System.out.println("-> 글만 등록");// 파일 없이 텍스트만 등록하는 경우
+        productsVO.setFile1(file1);
+        productsVO.setFile1saved(file1saved);
+        productsVO.setThumb1(thumb1);
+        productsVO.setSize1(size1);
+      }
+
+      // ---------------------- file2 처리 ----------------------
+      MultipartFile mf2 = productsVO.getFile2MF();
+      String file2 = mf2.getOriginalFilename();
+      String file2saved = "", thumb2 = "";
+      long size2 = mf2.getSize();
+
+      if (size2 > 0 && Tool.checkUploadFile(file2)) {
+        file2saved = Upload.saveFileSpring(mf2, upDir);
+        if (Tool.isImage(file2saved)) {
+          thumb2 = Tool.preview(upDir, file2saved, 200, 150);
+        }
+        productsVO.setFile2(file2);
+        productsVO.setFile2saved(file2saved);
+        productsVO.setThumb2(thumb2);
+      }
+
+      // ---------------------- file3 처리 ----------------------
+      MultipartFile mf3 = productsVO.getFile3MF();
+      String file3 = mf3.getOriginalFilename();
+      String file3saved = "", thumb3 = "";
+      long size3 = mf3.getSize();
+
+      if (size3 > 0 && Tool.checkUploadFile(file3)) {
+        file3saved = Upload.saveFileSpring(mf3, upDir);
+        if (Tool.isImage(file3saved)) {
+          thumb3 = Tool.preview(upDir, file3saved, 200, 150);
+        }
+        productsVO.setFile3(file3);
+        productsVO.setFile3saved(file3saved);
+        productsVO.setThumb3(thumb3);
       }
       // ------------------------------------------------------------------------------
       // 파일 전송 코드 종료
@@ -719,6 +764,14 @@ public class ProductsCont {
     long size1 = productsVO.getSize1();
     String size1_label = Tool.unit(size1);
     productsVO.setSize1_label(size1_label); // VO에 보기 좋게 가공한 크기 저장
+    
+    long size2 = productsVO.getSize2();
+    String size2_label = Tool.unit(size2);
+    productsVO.setSize2_label(size2_label); // VO에 보기 좋게 가공한 크기 저장
+    
+    long size3 = productsVO.getSize3();
+    String size3_label = Tool.unit(size3);
+    productsVO.setSize3_label(size3_label); // VO에 보기 좋게 가공한 크기 저장
 
     model.addAttribute("productsVO", productsVO); // 상품 정보 View로 전달
 
@@ -727,6 +780,10 @@ public class ProductsCont {
     // ---------------------------------------------
     CateVO cateVO = this.cateProc.read(productsVO.getCateno()); // 상품의 카테고리 번호로 조회
     model.addAttribute("cateVO", cateVO); // 카테고리 정보 View에 전달
+    
+    // (3-1) 관련 상품 리스트
+    ArrayList<ProductsVO> relatedList = this.productsProc.list_by_cateno_except_self(productsVO.getCateno(), productsno);
+    model.addAttribute("relatedList", relatedList);
 
     // 조회에서 화면 하단에 출력
     // ArrayList<ReplyVO> reply_list = this.replyProc.list_products(productsno);
@@ -761,6 +818,28 @@ public class ProductsCont {
     return "products/read"; // /templates/products/read.html
     // return "products/read_ai";
   }
+  /*
+   * 무한스크롤
+   */
+  @PostMapping("/related_scroll")
+  @ResponseBody
+  public ArrayList<ProductsVO> related_scroll(
+      @RequestParam("cateno") int cateno,
+      @RequestParam("productsno") int productsno,
+      @RequestParam("page") int page) {
+
+    int start = (page - 1) * 12 + 1;
+    int end = page * 12;
+
+    Map<String, Object> map = new HashMap<>();
+    map.put("cateno", cateno);
+    map.put("productsno", productsno);
+    map.put("start", start);
+    map.put("end", end);
+
+    return productsProc.related_scroll(map); // JSON 자동 변환
+  }
+
   
   /**
    * 맵 등록/수정/삭제 폼 http://localhost:9093/products/map?productsno=1
@@ -1265,13 +1344,25 @@ public class ProductsCont {
       return "redirect:/products/post2get";
     }
 
-    // 기존 파일 삭제
+    String upDir = Products.getUploadDir();
+    
+    // 기존 파일 삭제 - file1
     String file1saved = productsVO_old.getFile1saved();
     String thumb1 = productsVO_old.getThumb1();
-    String upDir = Products.getUploadDir();
-
     Tool.deleteFile(upDir, file1saved);
     Tool.deleteFile(upDir, thumb1);
+    
+    // 기존 파일 삭제 - file2
+    String file2saved = productsVO_old.getFile2saved();
+    String thumb2 = productsVO_old.getThumb2();
+    Tool.deleteFile(upDir, file2saved);
+    Tool.deleteFile(upDir, thumb2);
+
+    // 기존 파일 삭제 - file3
+    String file3saved = productsVO_old.getFile3saved();
+    String thumb3 = productsVO_old.getThumb3();
+    Tool.deleteFile(upDir, file3saved);
+    Tool.deleteFile(upDir, thumb3);
 
     // 새 파일 업로드
     MultipartFile mf = productsVO.getFile1MF();
@@ -1294,7 +1385,53 @@ public class ProductsCont {
     productsVO.setFile1saved(file1saved);
     productsVO.setThumb1(thumb1);
     productsVO.setSize1(size1);
+  //-----------------------------------------------
+   // 새 파일 업로드 및 설정: file2
+   //-----------------------------------------------
+   MultipartFile mf2 = productsVO.getFile2MF();
+   String file2 = mf2.getOriginalFilename();
+   long size2 = mf2.getSize();
+  
+   if (size2 > 0) {
+     file2saved = Upload.saveFileSpring(mf2, upDir);
+     if (Tool.isImage(file2saved)) {
+       thumb2 = Tool.preview(upDir, file2saved, 250, 200);
+     }
+   } else {
+     file2 = "";
+     file2saved = "";
+     thumb2 = "";
+     size2 = 0;
+   }
+   productsVO.setFile2(file2);
+   productsVO.setFile2saved(file2saved);
+   productsVO.setThumb2(thumb2);
+   productsVO.setSize2(size2);
+  
+   //-----------------------------------------------
+   // 새 파일 업로드 및 설정: file3
+   //-----------------------------------------------
+   MultipartFile mf3 = productsVO.getFile3MF();
+   String file3 = mf3.getOriginalFilename();
+   long size3 = mf3.getSize();
+  
+   if (size3 > 0) {
+     file3saved = Upload.saveFileSpring(mf3, upDir);
+     if (Tool.isImage(file3saved)) {
+       thumb3 = Tool.preview(upDir, file3saved, 250, 200);
+     }
+   } else {
+     file3 = "";
+     file3saved = "";
+     thumb3 = "";
+     size3 = 0;
+   }
+   productsVO.setFile3(file3);
+   productsVO.setFile3saved(file3saved);
+   productsVO.setThumb3(thumb3);
+   productsVO.setSize3(size3);
 
+    
     this.productsProc.update_file(productsVO);
 
     ra.addAttribute("productsno", productsVO.getProductsno());
@@ -1467,10 +1604,19 @@ public class ProductsCont {
       ra.addAttribute("url", "/member/login_cookie_need"); 
       return "redirect:/products/post2get";
     }
-
+    // 1. 파일 삭제
+    String upDir = Products.getUploadDir();
     // 1. 파일 삭제
     Tool.deleteFile(Products.getUploadDir(), productsVO_read.getFile1saved());
     Tool.deleteFile(Products.getUploadDir(), productsVO_read.getThumb1());
+    // 이미지 2
+    Tool.deleteFile(upDir, productsVO_read.getFile2saved());
+    Tool.deleteFile(upDir, productsVO_read.getThumb2());
+
+    // 이미지 3
+    Tool.deleteFile(upDir, productsVO_read.getFile3saved());
+    Tool.deleteFile(upDir, productsVO_read.getThumb3());
+    
 
     // 2. DB 삭제
     this.productsProc.delete(productsno);

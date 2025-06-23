@@ -37,6 +37,33 @@
        <textarea name='content' required="required" class="form-control" rows="12" style='width: 100%;' 
                       th:text='${productsVO.content}'></textarea>
     </div>
+    <!-- 부가 적인 상품 관련 추가 -->
+    <div>
+       <label>정가</label>
+       <input type='number' name='price' th:value='${productsVO.price}' required="required" 
+              class="form-control" style='width: 50%;'>
+    </div>
+    <div>
+       <label>할인률 (%)</label>
+       <input type='number' name='dc' th:value='${productsVO.dc}' required="required" 
+              class="form-control" style='width: 50%;'>
+    </div>
+    <div>
+       <label>판매가</label>
+       <input type='number' name='saleprice' th:value='${productsVO.saleprice}' required="required" 
+              class="form-control" style='width: 50%;'>
+    </div>
+    <div>
+       <label>포인트</label>
+       <input type='number' name='point' th:value='${productsVO.point}' required="required" 
+              class="form-control" style='width: 50%;'>
+    </div>
+    <div>
+       <label>재고 수량</label>
+       <input type='number' name='salecnt' th:value='${productsVO.salecnt}' required="required" 
+              class="form-control" style='width: 50%;'>
+    </div>
+    <!-- 부가 적인 상품 관련 추가 -->
     <div>
        <label>검색어</label>
        <input type='text' name='word' th:value='${productsVO.word}' required="required" 

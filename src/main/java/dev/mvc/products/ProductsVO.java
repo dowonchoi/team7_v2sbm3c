@@ -30,6 +30,9 @@ import lombok.ToString;
         map                                  VARCHAR2(1000)            NULL,
         youtube                             VARCHAR2(1000)            NULL,   
         mp4                                   VARCHAR2(100)              NULL,       
+        price_before                         NUMBER(10)      DEFAULT 0 NOT NULL,
+        price_now                            NUMBER(10)     DEFAULT 0 NOT NULL,
+        discount                              NUMBER(3)       DEFAULT 0 NOT NULL,
  */
 
 @Getter @Setter @ToString
@@ -64,6 +67,13 @@ public class ProductsVO {
     /** mp4 */
     private String mp4 = "";
     
+    /*정가*/
+    private int price_before;
+    /*판매가*/
+    private int price_now;
+    /*할인율(%)*/
+    private int discount;
+    
     // 파일 업로드 관련
     // -----------------------------------------------------------------------------------
     /**
@@ -82,6 +92,23 @@ public class ProductsVO {
     private String thumb1 = "";
     /** 메인 이미지 크기 */
     private long size1 = 0;
+    
+    // 추가 이미지 2
+    private MultipartFile file2MF = null;
+    private String size2_label;
+    private String file2 = "";
+    private String file2saved = "";
+    private String thumb2 = "";
+    private long size2 = 0;
+
+    // 추가 이미지 3
+    private MultipartFile file3MF = null;
+    private String size3_label;
+    private String file3 = "";
+    private String file3saved = "";
+    private String thumb3 = "";
+    private long size3 = 0;
+
 
     // 쇼핑몰 상품 관련
     // -----------------------------------------------------------------------------------

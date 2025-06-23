@@ -6,15 +6,15 @@
   <!-- 등록한 레코드 갯수 1 리턴, #{memberno}: public int getAdminno() 호출됨 -->
   <insert id="create" parameterType="dev.mvc.products.ProductsVO">
     INSERT INTO products(productsno, memberno, cateno, title, content, passwd, word,
-                                     file1, file1saved, thumb1, size1, rdate)
+                                     file1, file1saved, thumb1, size1, rdate, price, dc, saleprice, point, salecnt, file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3)
     VALUES(products_seq.nextval, #{memberno}, #{cateno}, #{title}, #{content}, #{passwd}, #{word},
-                #{file1}, #{file1saved}, #{thumb1}, #{size1}, sysdate)
+                #{file1}, #{file1saved}, #{thumb1}, #{size1}, sysdate, #{price}, #{dc}, #{saleprice}, #{point}, #{salecnt}, #{file2}, #{file2saved}, #{thumb2}, #{size2}, #{file3}, #{file3saved}, #{thumb3}, #{size3})
   </insert>
 
   <!-- 모든 카테고리의 등록된 글목록 -->
   <select id="list_all" resultType="dev.mvc.products.ProductsVO">
     SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, passwd, word, rdate,
-               file1, file1saved, thumb1, size1, mp4
+               file1, file1saved, thumb1, size1, mp4, file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3
     FROM products
     ORDER BY productsno DESC
   </select>
@@ -22,7 +22,7 @@
   <!-- 특정 카테고리의 등록된 글목록 (Admin 과 일반 회원(소비자))-->
   <select id="list_by_cateno" resultType="dev.mvc.products.ProductsVO" parameterType="int">
     SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate,
-              LOWER(file1) as file1, file1saved, thumb1, size1, mp4
+              LOWER(file1) as file1, file1saved, thumb1, size1, mp4, file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3
     FROM products 
     WHERE cateno = #{cateno}
     ORDER BY productsno DESC
@@ -31,7 +31,7 @@
   <!-- 특정 카테고리의 등록된 글목록 (공급자(member))-->
   <select id="list_by_memberno" resultType="dev.mvc.products.ProductsVO" parameterType="int">
     SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate,
-              LOWER(file1) as file1, file1saved, thumb1, size1, mp4
+              LOWER(file1) as file1, file1saved, thumb1, size1, mp4, file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3
     FROM products 
     WHERE memberno = #{memberno}
     ORDER BY productsno DESC
@@ -40,7 +40,7 @@
   <!-- 일반적인 조회 -->
   <select id="read" resultType="dev.mvc.products.ProductsVO" parameterType="int">
     SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, passwd, word, rdate,
-              file1, file1saved, thumb1, size1, map, youtube
+              file1, file1saved, thumb1, size1, map, youtube, price, dc, saleprice, point, salecnt, file2, file2saved, thumb2, file3, file3saved, thumb3
     FROM products
     WHERE productsno = #{productsno}
   </select>
@@ -62,7 +62,7 @@
   <!-- 카테고리별 검색 목록 -->
   <select id="list_by_cateno_search" resultType="dev.mvc.products.ProductsVO" parameterType="HashMap">
     SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, word, rdate,
-            file1, file1saved, thumb1, size1, map, youtube
+            file1, file1saved, thumb1, size1, map, youtube, file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3
     FROM products
     <choose>
       <when test="word == null or word == ''"> <!-- 검색하지 않는 경우 -->
@@ -95,11 +95,11 @@
 
   <!-- 카테고리별 검색 + 페이징 목록 -->
   <select id="list_by_cateno_search_paging" resultType="dev.mvc.products.ProductsVO" parameterType="HashMap">
-   SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate, file1, file1saved, thumb1, size1, map, youtube, r
+   SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate, file1, file1saved, thumb1, size1, map, youtube, r, file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3
    FROM (
-              SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate, file1, file1saved, thumb1, size1, map, youtube, rownum as r
+              SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate, file1, file1saved, thumb1, size1, map, youtube, rownum as r, file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3
               FROM (
-                        SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate, file1, file1saved, thumb1, size1, map, youtube
+                        SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate, file1, file1saved, thumb1, size1, map, youtube, file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3
                         FROM products
                         <choose>
                           <when test="word == null or word == ''"> <!-- 검색하지 않는 경우 -->
@@ -131,7 +131,11 @@
   <!-- 글 수정 -->
   <update id="update_text" parameterType="dev.mvc.products.ProductsVO">
     UPDATE products
-    SET title=#{title}, content=#{content},  word=#{word}
+    SET title=#{title}, content=#{content},  word=#{word}, price=#{price},
+      dc=#{dc},
+      saleprice=#{saleprice},
+      point=#{point},
+      salecnt=#{salecnt}
     WHERE productsno = #{productsno}
   </update>
 
@@ -139,7 +143,7 @@
   <!-- 파일 수정 -->
   <update id="update_file" parameterType="dev.mvc.products.ProductsVO">
     UPDATE products
-    SET file1=#{file1}, file1saved=#{file1saved}, thumb1=#{thumb1}, size1=#{size1}
+    SET file1=#{file1}, file1saved=#{file1saved}, thumb1=#{thumb1}, size1=#{size1}, file2 = #{file2}, file2saved = #{file2saved}, thumb2 = #{thumb2}, size2 = #{size2}, file3 = #{file3}, file3saved = #{file3saved}, thumb3 = #{thumb3}, size3 = #{size3}
     WHERE productsno = #{productsno}
   </update>  
 
@@ -204,6 +208,31 @@
      SET replycnt = replycnt - 1
      WHERE productsno = #{productsno}
    </update>
-               
+
+   <!-- 상품 read 아래 카테고리, 추후 추천 상품 카테고리로 바뀔 수 있음 -->
+  <select id="list_by_cateno_except_self" resultType="dev.mvc.products.ProductsVO">
+    SELECT productsno, title, thumb1, price, saleprice
+    FROM products
+    WHERE cateno = #{cateno}
+      AND productsno != #{productsno}
+      AND visible = 'Y'
+    ORDER BY DBMS_RANDOM.VALUE
+    FETCH FIRST 12 ROWS ONLY
+  </select>
+  
+  <!-- 상품 read 아래 카테고리 무한 스크롤 -->
+  <select id="related_scroll" resultType="dev.mvc.products.ProductsVO">
+    SELECT *
+    FROM (
+      SELECT productsno, title, thumb1, price, saleprice,
+             ROW_NUMBER() OVER (ORDER BY DBMS_RANDOM.VALUE) AS rn
+      FROM products
+      WHERE cateno = #{cateno}
+        AND productsno != #{productsno}
+        AND visible = 'Y'
+    )
+    WHERE rn BETWEEN #{start} AND #{end}
+  </select>
+
 </mapper> 
 

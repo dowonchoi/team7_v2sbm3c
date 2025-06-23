@@ -29,10 +29,21 @@ CREATE TABLE products(
         youtube                               VARCHAR2(1000)            NULL,
         mp4                                  VARCHAR2(100)            NULL,
         visible                                CHAR(1)         DEFAULT 'Y' NOT NULL,
+        file2                                   VARCHAR(100)          NULL,  -- 원본 파일명 image
+        file2saved                            VARCHAR(100)          NULL,  -- 저장된 파일명, image
+        thumb2                              VARCHAR(100)          NULL,   -- preview image
+        size2                                 NUMBER(10)      DEFAULT 0 NULL,  -- 파일 사이즈
+        file3                                   VARCHAR(100)          NULL,  -- 원본 파일명 image
+        file3saved                            VARCHAR(100)          NULL,  -- 저장된 파일명, image
+        thumb3                              VARCHAR(100)          NULL,   -- preview image
+        size3                                 NUMBER(10)      DEFAULT 0 NULL,  -- 파일 사이즈
         PRIMARY KEY (productsno),
         FOREIGN KEY (memberno) REFERENCES member (memberno),
         FOREIGN KEY (cateno) REFERENCES cate (cateno)
 );
+ALTER TABLE products ADD price_before NUMBER(10);
+ALTER TABLE products ADD price_now NUMBER(10);
+ALTER TABLE products ADD discount NUMBER(3);
 
 COMMENT ON TABLE products is '상품';
 COMMENT ON COLUMN products.productsno is '상품 번호';
@@ -59,6 +70,14 @@ COMMENT ON COLUMN products.map is '지도';
 COMMENT ON COLUMN products.youtube is 'Youtube 영상';
 COMMENT ON COLUMN products.mp4 is '영상';
 COMMENT ON COLUMN products.visible is '출력 모드';
+COMMENT ON COLUMN products.file2 is '메인 이미지2';
+COMMENT ON COLUMN products.file2saved is '실제 저장된 메인 이미지2';
+COMMENT ON COLUMN products.thumb2 is '메인 이미지 Preview2';
+COMMENT ON COLUMN products.size2 is '메인 이미지 크기2';
+COMMENT ON COLUMN products.file3 is '메인 이미지3';
+COMMENT ON COLUMN products.file3saved is '실제 저장된 메인 이미지3';
+COMMENT ON COLUMN products.thumb3 is '메인 이미지 Preview3';
+COMMENT ON COLUMN products.size3 is '메인 이미지 크기3';
 
 DROP SEQUENCE products_seq;
 
@@ -695,8 +714,18 @@ WHERE productsno = 3;
 
 commit;
 
+-----------------------------------------------------------
+-- 이미지 3장까지 지원하는 슬라이드용 컬럼 추가 SQL
+-----------------------------------------------------------
+-- 이미지 2
+ALTER TABLE products ADD file2 VARCHAR2(100);
+ALTER TABLE products ADD file2saved VARCHAR2(100);
+ALTER TABLE products ADD thumb2 VARCHAR2(100);
+ALTER TABLE products ADD size2 NUMBER(10) DEFAULT 0;
 
-         
-         
-         
+-- 이미지 3
+ALTER TABLE products ADD file3 VARCHAR2(100);
+ALTER TABLE products ADD file3saved VARCHAR2(100);
+ALTER TABLE products ADD thumb3 VARCHAR2(100);
+ALTER TABLE products ADD size3 NUMBER(10) DEFAULT 0;
 

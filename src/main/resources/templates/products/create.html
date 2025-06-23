@@ -32,15 +32,53 @@
        <label>내용</label>
        <textarea name='content' required="required" class="form-control" rows="12" style='width: 100%;'>상품 설명을 등록해 주세요 </textarea>
     </div>
+    <!-- 부가 적인 상품 관련 추가 -->
+    <div>
+       <label>정가</label>
+       <input type='number' name='price' value='10000' required="required" 
+              class="form-control" style='width: 50%;'>
+    </div>
+    <div>
+       <label>할인률 (%)</label>
+       <input type='number' name='dc' value='10' required="required" 
+              class="form-control" style='width: 50%;'>
+    </div>
+    <div>
+       <label>판매가</label>
+       <input type='number' name='saleprice' value='9000' required="required" 
+              class="form-control" style='width: 50%;'>
+    </div>
+    <div>
+       <label>포인트</label>
+       <input type='number' name='point' value='100' required="required" 
+              class="form-control" style='width: 50%;'>
+    </div>
+    <div>
+       <label>재고 수량</label>
+       <input type='number' name='salecnt' value='50' required="required" 
+              class="form-control" style='width: 50%;'>
+    </div>
+    <!-- 부가 적인 상품 관련 추가 -->
     <div>
        <label>검색어</label>
        <input type='text' name='word' value='못난이 채소, 유기농, 농장, 건강, 세일, 할인' required="required" 
               class="form-control" style='width: 100%;'>
     </div>   
+    <!-- 이미지1 추가 -->
     <div>
-       <label>이미지</label>
+       <label>이미지 1</label>
        <input type='file' class="form-control" name='file1MF' id='file1MF' value='' placeholder="파일 선택">
-    </div>   
+    </div>  
+    <!-- 이미지2 추가 -->
+    <div>
+      <label>이미지 2</label>
+      <input type='file' class="form-control" name='file2MF' id='file2MF' value='' placeholder="파일 선택">
+    </div>
+    <!-- 이미지3 추가 -->
+    <div>
+      <label>이미지 3</label>
+      <input type='file' class="form-control" name='file3MF' id='file3MF' value='' placeholder="파일 선택">
+    </div> 
     <div>
        <label>패스워드</label>
        <input type='password' name='passwd' value='1234' required="required" 

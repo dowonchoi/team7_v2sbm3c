@@ -3,6 +3,7 @@ package dev.mvc.products;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 개발자가 구현합니다.
@@ -179,5 +180,9 @@ public interface ProductsProcInter {
    */   
   public int decreaseReplycnt(int productsno);
   
+  public ArrayList<ProductsVO> list_by_cateno_except_self(int cateno, int productsno);
+
+  public ArrayList<ProductsVO> related_scroll(Map<String, Object> map);
+
 }
 

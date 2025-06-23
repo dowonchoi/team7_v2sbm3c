@@ -43,7 +43,8 @@
         <div style='text-align: left; width: 47%; float: left;'>
           <span style='font-size: 1.5em;' th:text="${productsVO.title}"></span>
           <br>
-          <form name='frm' method='POST' action='./update_file' enctype="multipart/form-data">
+          <!-- 0623 슬라이드 수정전 -->
+          <!-- <form name='frm' method='POST' action='./update_file' enctype="multipart/form-data">
             <input type="hidden" name="cateno" th:value="${cateVO.cateno != null ? cateVO.cateno : 0}">
             <input type="hidden" name="productsno" th:value="${productsVO.productsno }">
             <input type="hidden" name="now_page" th:value="${now_page}">
@@ -53,6 +54,27 @@
             변경 이미지 선택<br>  
             <input type='file' name='file1MF' id='file1MF' value='' placeholder="파일 선택"><br>
             <br>
+            <div style='margin-top: 20px; clear: both;'>  
+              <button type="submit" class="btn btn-secondary btn-sm">파일 변경 처리</button>
+              <button type="submit" class="btn btn-secondary btn-sm">파일 삭제</button>
+              <button type="button" onclick="history.back();" class="btn btn-secondary btn-sm">취소</button>
+            </div>  
+          </form> -->
+          <form name='frm' method='POST' action='./update_file' enctype="multipart/form-data">
+            <input type="hidden" name="cateno" th:value="${cateVO.cateno != null ? cateVO.cateno : 0}">
+            <input type="hidden" name="productsno" th:value="${productsVO.productsno}">
+            <input type="hidden" name="now_page" th:value="${now_page}">
+            <input type="hidden" name="search_word" th:value="${word}">
+
+            변경 이미지 1<br>
+            <input type='file' name='file1MF' id='file1MF'><br><br>
+
+            변경 이미지 2<br>
+            <input type='file' name='file2MF' id='file2MF'><br><br>
+
+            변경 이미지 3<br>
+            <input type='file' name='file3MF' id='file3MF'><br><br>
+
             <div style='margin-top: 20px; clear: both;'>  
               <button type="submit" class="btn btn-secondary btn-sm">파일 변경 처리</button>
               <button type="submit" class="btn btn-secondary btn-sm">파일 삭제</button>

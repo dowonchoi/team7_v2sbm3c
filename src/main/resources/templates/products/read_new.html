@@ -1,0 +1,147 @@
+<!DOCTYPE html> 
+
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org"> <!-- layout.html 상속-->
+
+<div layout:fragment="content">
+  <script>
+    window.onload = function() {
+      // 추천 상태에 따라 하트 아이콘 변경
+      let hartCnt = '[[${hartCnt}]]';
+      let tag='';
+      if (hartCnt == 1) {
+        tag = '<a href="javascript:good([[${productsVO.productsno}]])"><img src="/products/images/hart_on_50.png" style="width: 22px" title="추천"></a>';
+      } else {
+        tag = '<a href="javascript:good([[${productsVO.productsno}]])"><img src="/products/images/hart_off_50.png" style="width: 22px" title="추천"></a>';
+      }    
+      document.querySelector('#hart_panel').innerHTML = tag; 
+      document.querySelector('#recom_panel').innerHTML = '([[${productsVO.recom}]])';
+    }
+
+    function good(productsno) {
+      fetch("/products/good", {
+        method: "post",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({productsno})
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.isMember == 1) {
+          let tag='';
+          if (data.hartCnt == 1) {
+            tag = '<a href="javascript:good([[${productsVO.productsno}]])"><img src="/products/images/hart_on_50.png" style="width: 22px" title="추천"></a>';
+          } else {
+            tag = '<a href="javascript:good([[${productsVO.productsno}]])"><img src="/products/images/hart_off_50.png" style="width: 22px" title="추천"></a>';
+          }
+          document.querySelector('#hart_panel').innerHTML = tag; 
+          document.querySelector('#recom_panel').innerHTML = '(' + data.recom + ')';
+        } else {
+          alert("로그인해야 추천 할 수 있습니다.");
+          location.href='/member/login_cookie_need';  
+        }
+      });
+    }
+  </script>
+
+  <div class='title_line'>
+    <span th:text="${cateVO.grp }" class="title_line_text"></span > 
+    > <span th:text="${cateVO.name}" class="title_line_text"></span > 
+    > 글 조회
+  </div>
+
+  <aside class="aside_right">
+    <a href="javascript:location.reload();">새로고침</a>
+    <span class='menu_divide'>│</span>
+    <a th:href="@{|./list_by_cateno_grid?cateno=${cateVO.cateno}&word=${word}&now_page=${now_page}|}">목록</a>
+    <span class='menu_divide'>│</span>
+    <!-- 조건부 수정/삭제 버튼들 -->
+    <a th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}"
+      th:href="@{|/products/update_text?productsno=${productsVO.productsno}&now_page=${now_page}&word=${word}|}">글 수정</a>
+    <span class='menu_divide' 
+          th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}">│</span>
+    <a th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}"
+      th:href="@{|./update_file?productsno=${productsVO.productsno}&word=${word}&now_page=${now_page}|}">파일 수정</a>
+    <span class='menu_divide' 
+          th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}">│</span>
+    <a th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}"
+      th:href="@{|/products/map?cateno=${productsVO.cateno}&productsno=${productsVO.productsno}|}">지도</a>
+    <span class='menu_divide' 
+          th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}">│</span>
+    <a th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}"
+      th:href="@{|/products/youtube?cateno=${productsVO.cateno}&productsno=${productsVO.productsno}&word=${word}&now_page=${now_page}|}">Youtube</a>
+    <span class='menu_divide' 
+          th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}">│</span>
+    <a th:if="${(session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)) and productsVO.cateno != null}"
+      th:href="@{|./delete?productsno=${productsVO.productsno}&word=${word}&now_page=${now_page}&cateno=${productsVO.cateno}|}">삭제</a>
+  </aside>
+
+  <div class='menu_line'></div>
+
+  <!-- ✅ ✅ 좌우 2단 레이아웃 구조 적용 시작 (전체 기능 포함) -->
+  <fieldset class="fieldset_basic">
+    <ul>
+      <li class="li_none">
+        <div class="products_read_container">
+
+          <!-- 🎞 좌측 이미지 슬라이드 -->
+          <div class="products_read_image_box">
+            <div class="swiper">
+              <div class="swiper-wrapper">
+                <div class="swiper-slide" th:if="${productsVO.file1saved != null && productsVO.file1saved.length() > 0}">
+                  <img th:src="@{|/products/storage/${productsVO.file1saved}|}" style="width: 100%;">
+                </div>
+                <div class="swiper-slide" th:if="${productsVO.file2saved != null && productsVO.file2saved.length() > 0}">
+                  <img th:src="@{|/products/storage/${productsVO.file2saved}|}" style="width: 100%;">
+                </div>
+                <div class="swiper-slide" th:if="${productsVO.file3saved != null && productsVO.file3saved.length() > 0}">
+                  <img th:src="@{|/products/storage/${productsVO.file3saved}|}" style="width: 100%;">
+                </div>
+              </div>
+              <div class="swiper-button-prev"></div>
+              <div class="swiper-button-next"></div>
+              <div class="swiper-pagination"></div>
+            </div>
+          </div>
+
+          <!-- 📝 우측 상품 정보 -->
+          <div class="products_read_info_box">
+            <div style="font-size: 1.5em; font-weight: bold;" th:text="${productsVO.title}"></div>
+            <div style="font-size: 1em;" th:text="${productsVO.rdate}"></div><br>
+            <div style="font-size: 1.2em;">
+              <b>정가:</b> <span th:text="${#numbers.formatInteger(productsVO.price, 3, 'COMMA')}">0</span>원<br>
+              <b>할인율:</b> <span th:text="${productsVO.dc}">0</span>%<br>
+              <b>판매가:</b> <span th:text="${#numbers.formatInteger(productsVO.saleprice, 3, 'COMMA')}">0</span>원<br>
+              <b>포인트:</b> <span th:text="${productsVO.point}">0</span>p<br>
+              <b>재고:</b> <span th:text="${productsVO.salecnt}">0</span> 개<br>
+            </div>
+            <div class="products_read_recom" style="margin-top: 10px;">
+              추천: <span id="hart_panel"></span> <span id="recom_panel"></span>
+            </div>
+
+            <!-- 📄 본문 내용 출력 -->
+            <div class="products_read_content" style="margin-top: 20px;">
+              <div th:utext="${productsVO.content}"></div>
+            </div>
+
+            <!-- 📎 다운로드 / 지도 / 유튜브 링크 -->
+            <div class="products_read_links" style="margin-top: 30px;">
+              <div th:if="${productsVO.file1saved != null}">
+                <a th:href="@{|/download?file=${productsVO.file1saved}|}">📎 파일 다운로드</a>
+              </div>
+              <div>
+                <a th:href="@{|/products/map?cateno=${productsVO.cateno}&productsno=${productsVO.productsno}|}">📍 지도 보기</a>
+              </div>
+              <div>
+                <a th:href="@{|/products/youtube?cateno=${productsVO.cateno}&productsno=${productsVO.productsno}|}">▶️ Youtube 보기</a>
+              </div>
+            </div>
+
+          </div>
+
+        </div> <!-- .products_read_container 끝 -->
+      </li>
+    </ul>
+  </fieldset>
+  <!-- ✅ ✅ 좌우 2단 레이아웃 구조 적용 끝 -->
+
+</div>
+</html>

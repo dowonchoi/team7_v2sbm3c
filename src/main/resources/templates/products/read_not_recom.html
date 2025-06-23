@@ -1,6 +1,10 @@
 <!DOCTYPE html> 
 
 <html layout:decorate="~{layout}"> <!-- layout.html 상속-->
+<!-- Swiper CSS & JS 추가 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
 <div layout:fragment="content">
   <div class='title_line'>
     <span th:text="${cateVO.grp }" class="title_line_text"></span > 
@@ -55,13 +59,59 @@
       <li class="li_none">
         <div style="width: 100%; word-break: break-all;">
         
-          <div th:if="${productsVO.file1.endsWith('jpg') or productsVO.file1.endsWith('png') or productsVO.file1.endsWith('gif') or productsVO.file1.endsWith('jpeg')}">
+          <!-- 기존 정적 이미지 -->
+          <!-- <div th:if="${productsVO.file1.endsWith('jpg') or productsVO.file1.endsWith('png') or productsVO.file1.endsWith('gif') or productsVO.file1.endsWith('jpeg')}">
             <img th:src="@{|/products/storage/${productsVO.file1saved}|}" 
                  style='width: 50%; float: left; margin-top: 0.5%; margin-right: 1%;'>
+          </div> -->
+          <!-- 이미지 슬라이드 시작 -->
+          <div class="swiper" style="width: 60%; margin: 0 auto; padding-bottom: 20px;">
+            <div class="swiper-wrapper">
+              <div class="swiper-slide" 
+                  th:if="${productsVO.file1saved != null && productsVO.file1saved.length() > 0}">
+                <img th:src="@{|/products/storage/${productsVO.file1saved}|}" style="width: 100%;">
+              </div>
+              <div class="swiper-slide" 
+                  th:if="${productsVO.file2saved != null && productsVO.file2saved.length() > 0}">
+                <img th:src="@{|/products/storage/${productsVO.file2saved}|}" style="width: 100%;">
+              </div>
+              <div class="swiper-slide" 
+                  th:if="${productsVO.file3saved != null && productsVO.file3saved.length() > 0}">
+                <img th:src="@{|/products/storage/${productsVO.file3saved}|}" style="width: 100%;">
+              </div>
+            </div>
+
+            <!-- 네비게이션 버튼 -->
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-button-next"></div>
+
+            <!-- 페이지 점 -->
+            <div class="swiper-pagination"></div>
           </div>
 
+          <script>
+            const swiper = new Swiper('.swiper', {
+              loop: true,
+              navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+              },
+              pagination: {
+                el: '.swiper-pagination',
+              },
+            });
+          </script>
           <span style="font-size: 1.5em; font-weight: bold;" th:text="${productsVO.title}"></span>
           <span style="font-size: 1em;" th:text="${productsVO.rdate }"></span><br><br>
+          <!-- 부가 적인 상품 관련 추가 시작-->
+          <div style="font-size: 1.2em;">
+            <b>정가:</b> <span th:text="${#numbers.formatInteger(productsVO.price, 3, 'COMMA')}">0</span>원<br>
+            <b>할인율:</b> <span th:text="${productsVO.dc}">0</span>%<br>
+            <b>판매가:</b> <span th:text="${#numbers.formatInteger(productsVO.saleprice, 3, 'COMMA')}">0</span>원<br>
+            <b>포인트:</b> <span th:text="${productsVO.point}">0</span>p<br>
+            <b>재고:</b> <span th:text="${productsVO.salecnt}">0</span> 개<br>
+          </div>
+          <!-- 부가 적인 상품 관련 추가 끝-->
           <div style="white-space: pre-wrap;"><span th:text="${productsVO.content}"></span></div>
         </div>
       </li>

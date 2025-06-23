@@ -48,8 +48,11 @@
             <input type="hidden" name="cateno" th:if="${cateVO.cateno != null}" th:value="${cateVO.cateno}">
             <input type="hidden" name="productsno" th:value="${productsVO.productsno }">
             <input type="hidden" name="now_page" th:value="${now_page}">
-            <input type="hidden" name="search_word" th:value="${word}">
-                
+            <!-- <input type="hidden" name="search_word" th:value="${word}"> -->
+            <!-- 뭔일 생기거든 위에 주석풀면 됨 아래는 삭제하고 -->
+            <input type="hidden" name="word" th:value="${word}">
+
+                 
             <br> 
             <div style='margin-top: 20px; clear: both;'>
               <span style="color: #FF0000; font-weight: bold;">삭제를 진행 하시겠습니까? 삭제하시면 복구 할 수 없습니다.</span>
