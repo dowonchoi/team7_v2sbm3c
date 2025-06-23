@@ -36,6 +36,7 @@
       <th class='th_bs'>등록일</th>
       <th class='th_bs'>승인 상태</th>
       <th class='th_bs'>등급</th>
+      <th class='th_bs'>관리</th>
     </tr>
 
     <tr th:each="memberVO : ${list}">
@@ -63,7 +64,6 @@
         <span th:unless="${memberVO.address1.length() > 15}" th:text="${memberVO.address1}"></span>
       </td>
       <td class='td_basic' th:text="${memberVO.mdate.substring(0, 10)}"></td>
-      <!-- 승인 상태 표시 -->
       <td class='td_basic' style="text-align: center;">
         <span th:if="${memberVO.grade >= 5 and memberVO.grade <= 15}">
           <span th:if="${memberVO.supplier_approved == 'Y'}" style="color:green; font-weight:bold;">승인</span>
@@ -73,16 +73,19 @@
       </td>
       <td class='td_basic' th:text="${memberVO.grade}"></td>
       <td class='td_basic'>
-        <button type="button" class="btn btn-danger btn-sm"
-                th:onclick="|deleteMember(${memberVO.memberno})|">삭제</button>
+        <!-- 관리자만 삭제 버튼 표시 -->
+        <div th:if="${session.grade == 'admin'}">
+          <button type="button" class="btn btn-danger btn-sm"
+                  th:onclick="|deleteMember(${memberVO.memberno})|">삭제</button>
+        </div>
       </td>
-
     </tr>
   </table>
 
   <div class='bottom_menu'>
     <button type='button' onclick="location.reload();" class="btn btn-primary btn-sm">새로 고침</button>
   </div>
+
   <script>
     function deleteMember(memberno) {
       if (confirm("정말 이 회원을 삭제하시겠습니까?")) {
@@ -98,6 +101,8 @@
           if (result.trim() === "success") {
             alert("회원이 삭제되었습니다.");
             location.reload();
+          } else if (result.trim() === "unauthorized") {
+            alert("관리자만 삭제할 수 있습니다.");
           } else {
             alert("삭제에 실패했습니다.");
           }
@@ -107,9 +112,7 @@
         });
       }
     }
-
-</script>
-
+  </script>
 
 </div>
 </html>

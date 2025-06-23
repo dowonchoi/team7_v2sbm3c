@@ -481,12 +481,21 @@ public class MemberCont {
   }
   
     //관리자 전용 회원 삭제
-    @PostMapping(value="/delete_by_admin", produces = "text/plain; charset=UTF-8")
-    @ResponseBody
-    public String deleteByAdmin(@RequestParam("memberno") int memberno) {
-       int cnt = this.memberProc.delete(memberno); // 실제 삭제 처리
-       return cnt == 1 ? "success" : "fail";
-    }
+  @PostMapping(value="/delete_by_admin", produces = "text/plain; charset=UTF-8")
+  @ResponseBody
+  public String deleteByAdmin(@RequestParam("memberno") int memberno, HttpSession session) {
+      // 세션에서 등급 확인
+      String grade = (String) session.getAttribute("grade");
+
+      // 등급이 없거나 관리자가 아닐 경우 차단
+      if (grade == null || !grade.equals("admin")) {
+          return "unauthorized";  // 또는 return "fail"; 로 처리 가능
+      }
+
+      int cnt = this.memberProc.delete(memberno);
+      return cnt == 1 ? "success" : "fail";
+  }
+
 
   @GetMapping("/delete")
   public String deleteForm(HttpSession session, Model model) {
