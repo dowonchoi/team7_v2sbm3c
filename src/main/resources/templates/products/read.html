@@ -22,9 +22,19 @@
     }
     .swiper {
       width: 100%;
-      height: 300px;
+      max-width: 600px;     /* ✅ 최대 가로 크기 제한 */
+      aspect-ratio: 1 / 1;   /* ✅ 정사각형 유지 */
       background: #f9f9f9;
+      margin: 0 auto;        /* ✅ 가운데 정렬 (옵션) */
     }
+
+    .swiper-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;     /* ✅ 정사각형 안에 꽉 차도록 */
+      border-radius: 10px;   /* (선택) 모서리 둥글게 */
+    }
+
     .swiper-slide {
       display: flex;
       justify-content: center;
@@ -32,11 +42,7 @@
       width: 100%;
       height: 100%;
     }
-    .swiper-slide img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: cover;
-    }
+   
     .swiper-button-prev, .swiper-button-next {
       color: #333;
     }
@@ -103,30 +109,99 @@
           <div class="products_read_info_box">
             <div style="font-size: 1.5em; font-weight: bold;" th:text="${productsVO.title}"></div>
             <div style="font-size: 1em;" th:text="${productsVO.rdate}"></div><br>
-            <div style="font-size: 1.2em;">
-              <b>정가:</b> <span th:text="${#numbers.formatInteger(productsVO.price, 3, 'COMMA')}">0</span>원<br>
-              <b>할인율:</b> <span th:text="${productsVO.dc}">0</span>%<br>
-              <b>판매가:</b> <span th:text="${#numbers.formatInteger(productsVO.saleprice, 3, 'COMMA')}">0</span>원<br>
-              <b>포인트:</b> <span th:text="${productsVO.point}">0</span>p<br>
-              <b>재고:</b> <span th:text="${productsVO.salecnt}">0</span> 개<br>
+            <div class="product-price-box">
+              <span class="product-price-original" th:text="${#numbers.formatInteger(productsVO.price, 3, 'COMMA')} + '원'"></span>
+              <br>
+              <span class="product-price-discount" th:text="${productsVO.dc} + '%'"></span>
+              <span class="product-price-sale" th:text="${#numbers.formatInteger(productsVO.saleprice, 3, 'COMMA')} + '원'"></span><br>
+
+              <span class="product-expdate-label">소비기한</span>
+              <span class="product-expdate" th:text="${#dates.format(productsVO.expdate, 'yyyy.MM.dd')}">YYYY.MM.DD</span>
+
             </div>
+
             <div class="products_read_recom" style="margin-top: 10px;">
-              추천: <span id="hart_panel"></span> <span id="recom_panel"></span>
+              추천: <span id="hart_panel"></span> <span id="recom_panel">[[${productsVO.recom}]]개</span>
             </div>
-            <div class="products_read_links" style="margin-top: 30px;">
-              <div th:if="${productsVO.file1saved != null}">
-                <a th:href="@{|/download?file=${productsVO.file1saved}|}">📎 파일 다운로드</a>
+            <!-- ✅ 신규 구매 영역 시작 -->
+            <div class="products_read_purchase_wrap">
+
+              <!-- 무료배송 -->
+              <div class="products_read_shipping">
+                <strong>무료배송</strong>
+                <div class="shipping_note">(단, 제주 및 도서산간지역은 배송비 발생할 수 있습니다.)</div>
               </div>
-              <div>
-                <a th:href="@{|/products/map?cateno=${productsVO.cateno}&productsno=${productsVO.productsno}|}">📍 지도 보기</a>
+
+              <hr class="products_read_divider">
+
+              <!-- 수량 선택 -->
+              <div class="products_read_quantity">
+                <strong>구매수량</strong>
+                <div class="quantity_box">
+                  <button type="button" class="btn_qty" onclick="decreaseQty()">-</button>
+                  <input type="text" id="qty" value="1" readonly>
+                  <button type="button" class="btn_qty" onclick="increaseQty()">+</button>
+                </div>
               </div>
-              <div>
-                <a th:href="@{|/products/youtube?cateno=${productsVO.cateno}&productsno=${productsVO.productsno}|}">▶️ Youtube 보기</a>
+
+              <hr class="products_read_divider">
+
+              <!-- 총 상품 금액 및 버튼들 -->
+              <div class="products_read_total">
+                <div>
+                  <strong>총 상품 금액</strong><br>
+                  <span id="total_price">[[${#numbers.formatInteger(productsVO.saleprice, 3, 'COMMA')}]]원</span>
+                </div>
+
+                <div class="purchase_button_box">
+                  <button class="btn_cart" onclick="location.href='/cart/add?productsno=[[${productsVO.productsno}]]'">🛒 장바구니</button>
+                  <button class="btn_buy" onclick="location.href='/order/form?productsno=[[${productsVO.productsno}]]&qty=' + document.getElementById('qty').value">구매하기</button>
+                </div>
               </div>
             </div>
+            <!-- ✅ 신규 구매 영역 끝 -->
+          </div>
+        </div>
+        <!-- ✅ 수량 증가/감소 스크립트 -->
+        <script th:inline="javascript">
+          // ✅ 전역 변수: 단가 (Thymeleaf 표현식 → JS로 치환됨)
+          const price = /*[[${productsVO.saleprice}]]*/ 0;
+
+          function increaseQty() {
+            let qty = parseInt(document.getElementById('qty').value);
+            document.getElementById('qty').value = ++qty;
+            updateTotal(qty);
+          }
+
+          function decreaseQty() {
+            let qty = parseInt(document.getElementById('qty').value);
+            if (qty > 1) {
+              document.getElementById('qty').value = --qty;
+              updateTotal(qty);
+            }
+          }
+
+          function updateTotal(qty) {
+            const total = price * qty;
+            document.getElementById('total_price').innerText = total.toLocaleString() + '원';
+          }
+        </script>
+        <!-- ✅ 광고 이미지 접기/펼치기 영역 -->
+        <div style="margin-top: 40px;">
+          <div id="adImageBox" class="ad-image-box">
+            <img th:if="${productsVO.fileAdsaved != null && productsVO.fileAdsaved.length() > 0}"
+                th:src="@{|/products/storage/${productsVO.fileAdsaved}|}"
+                alt="광고 이미지"
+                style="max-width: 100%; border-radius: 10px;">
           </div>
 
+          <div style="text-align: center; margin-top: 10px;">
+            <button id="toggleAdBtn" class="ad-toggle-btn" onclick="toggleAdImage()">
+              상품정보 더보기 ▼
+            </button>
+          </div>
         </div>
+
 
         <!-- 본문 내용 분리 표시 -->
         <div class="products_read_content_separate">
@@ -137,9 +212,23 @@
         <div class="menu_line"></div>
               <h5 style="padding: 10px 0;">관련 상품</h5>
               <div id="related-container"></div>
+
               <script th:inline="javascript">
                 const cateno = /*[[${cateVO.cateno}]]*/ 0;
-                const productsno = /*[[${productsVO.productsno}]]*/ 0;
+              </script>
+
+              <script>
+                function formatDate(dateStr) {
+                  if (!dateStr) return '정보 없음';
+                  const date = new Date(dateStr);
+                  if (isNaN(date)) return '정보 없음';
+
+                  return [
+                    date.getFullYear(),
+                    String(date.getMonth() + 1).padStart(2, '0'),
+                    String(date.getDate()).padStart(2, '0')
+                  ].join('.');
+                }
               </script>
 
               <script>
@@ -172,13 +261,33 @@
                       const card = document.createElement("div");
                       card.classList.add("related-card");
                       card.innerHTML = `
-                        <a href="/products/read?productsno=${prod.productsno}">
-                          <img src="/products/storage/${prod.thumb1}">
-                        </a>
+                        <div style="position: relative;">
+                          <a href="/products/read?productsno=${prod.productsno}">
+                            <img src="/products/storage/${prod.thumb1}" alt="${prod.title}">
+                          </a>
+                          <button class="cart-btn" onclick="location.href='/cart/add?productsno=${prod.productsno}'"></button>
+                        </div>
+
                         <div class="related-card-info">
-                          <a href="/products/read?productsno=${prod.productsno}" class="related-card-title">${prod.title}</a><br>
-                          <span class="related-card-price"><s>${prod.price.toLocaleString()}원</s></span><br>
-                          <span class="related-card-sale">${prod.saleprice.toLocaleString()}원</span>
+                          <div class="related-card-title">${prod.title}</div>
+
+                          <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="color:red; font-weight:bold; white-space:nowrap;">
+                              ${prod.dc || 0}%
+                            </span>
+                            <span style="color:black; font-weight:bold; white-space:nowrap;">
+                              ${prod.saleprice.toLocaleString()}원
+                            </span>
+                          </div>
+
+                          <div class="related-card-expdate">
+                            소비기한: ${formatDate(prod.expdate)}
+                          </div>
+
+
+                          <div class="related-card-delivery">무료배송</div>
+
+                          <div class="related-card-rating">★ 4.7 (33)</div>
                         </div>
                       `;
                       container.appendChild(card);
@@ -203,10 +312,51 @@
                 }
 
                 window.addEventListener("scroll", handleScroll);
+              </script>
 
-                // ✅ 모든 초기화 통합: Swiper + 하트 + 관련상품
+
+              <!-- productsno를 JS 변수로 분리 -->
+              <script th:inline="javascript">
+                const productsno = /*[[${productsVO.productsno}]]*/ 0;
+              </script>
+
+              <script>
+                // ✅ 하트 추천 토글 함수
+                function good(productsno) {
+                  fetch("/products/good", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ productsno: productsno })
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                    if (data.isMember == 1) {
+                      let tag = '';
+                      if (data.hartCnt == 1) {
+                        tag = `<a href="javascript:good(${productsno})">
+                                <img src="/products/images/hart_on_50.png" style="width: 22px" title="추천">
+                              </a>`;
+                      } else {
+                        tag = `<a href="javascript:good(${productsno})">
+                                <img src="/products/images/hart_off_50.png" style="width: 22px" title="추천">
+                              </a>`;
+                      }
+                      document.querySelector('#hart_panel').innerHTML = tag;
+                      document.querySelector('#recom_panel').innerText = data.recom + '개';
+                    } else {
+                      alert("로그인 후 이용 가능합니다.");
+                    }
+                  })
+                  .catch(error => {
+                    console.error("추천 처리 실패:", error);
+                  });
+                }
+
+                // ✅ 초기화 (onload 내부에서)
                 window.onload = function() {
-                  // 관련상품 첫 로딩
+                  console.log("🔥 세션 grade: [[${session.grade}]]");
+                  console.log("🔥 세션 memberno: [[${session.memberno}]]");
+
                   loadMoreRelated();
 
                   // Swiper 슬라이드 초기화
@@ -223,22 +373,35 @@
                   });
 
                   // 하트 초기화
-                  let hartCnt = '[[${hartCnt}]]'; // Thymeleaf에서 전달받은 추천 여부
+                  let hartCnt = parseInt('[[${hartCnt}]]'); // 문자열 → 숫자 변환
                   let tag = '';
-
-                  if (hartCnt == 1) {
-                    tag = `<a href="javascript:good([[${productsVO.productsno}]])">
+                  if (hartCnt === 1) {
+                    tag = `<a href="javascript:good(${productsno})">
                             <img src="/products/images/hart_on_50.png" style="width: 22px" title="추천">
                           </a>`;
                   } else {
-                    tag = `<a href="javascript:good([[${productsVO.productsno}]])">
+                    tag = `<a href="javascript:good(${productsno})">
                             <img src="/products/images/hart_off_50.png" style="width: 22px" title="추천">
                           </a>`;
                   }
-
                   document.querySelector('#hart_panel').innerHTML = tag;
+
+                  // 추천 수 표시도 같이 초기화
+                  document.querySelector('#recom_panel').innerText = '[[${productsVO.recom}]]';
                 };
               </script>
+              <script>
+                function toggleAdImage() {
+                  const adBox = document.getElementById("adImageBox");
+                  const btn = document.getElementById("toggleAdBtn");
+
+                  const isOpen = adBox.classList.contains("show");
+
+                  adBox.classList.toggle("show");
+                  btn.innerText = isOpen ? "상품정보 더보기 ▼" : "상품정보 접기 ▲";
+                }
+              </script>
+
       </li>
     </ul>
   </fieldset>

@@ -49,6 +49,11 @@
               class="form-control" style='width: 50%;'>
     </div>
     <div>
+      <label>소비기한</label>
+      <input type="date" name="expdate" class="form-control" style="width: 50%;" required="required">
+    </div>
+
+    <div>
        <label>포인트</label>
        <input type='number' name='point' value='100' required="required" 
               class="form-control" style='width: 50%;'>
@@ -78,7 +83,12 @@
     <div>
       <label>이미지 3</label>
       <input type='file' class="form-control" name='file3MF' id='file3MF' value='' placeholder="파일 선택">
-    </div> 
+    </div>
+    <!-- 광고 이미지 추가 -->
+    <div>
+      <label>광고 이미지 (펼침 영역)</label>
+      <input type='file' class="form-control" name='fileAdMF' id='fileAdMF' placeholder="광고용 배너 이미지 선택">
+    </div>
     <div>
        <label>패스워드</label>
        <input type='password' name='passwd' value='1234' required="required" 

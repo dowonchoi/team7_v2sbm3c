@@ -103,13 +103,28 @@
           </script>
           <span style="font-size: 1.5em; font-weight: bold;" th:text="${productsVO.title}"></span>
           <span style="font-size: 1em;" th:text="${productsVO.rdate }"></span><br><br>
-          <!-- 부가 적인 상품 관련 추가 시작-->
-          <div style="font-size: 1.2em;">
-            <b>정가:</b> <span th:text="${#numbers.formatInteger(productsVO.price, 3, 'COMMA')}">0</span>원<br>
-            <b>할인율:</b> <span th:text="${productsVO.dc}">0</span>%<br>
-            <b>판매가:</b> <span th:text="${#numbers.formatInteger(productsVO.saleprice, 3, 'COMMA')}">0</span>원<br>
-            <b>포인트:</b> <span th:text="${productsVO.point}">0</span>p<br>
-            <b>재고:</b> <span th:text="${productsVO.salecnt}">0</span> 개<br>
+          <!-- ✅ 개선된 가격 정보 표시 영역 -->
+          <div class="price_info_box" style="font-size: 1.2em; margin-bottom: 15px;">
+            <!-- 정가 -->
+            <span style="text-decoration: line-through; font-size: 0.9em; color: gray;">
+              <span th:text="${#numbers.formatInteger(productsVO.price_before, 3, 'COMMA')}">0</span>원
+            </span>
+            <br>
+            <!-- 할인율 및 할인가 -->
+            <span style="color: red; font-weight: bold; margin-left: 10px;" 
+                  th:text="|${productsVO.discount}%|">0%</span><span style="font-weight: bold;" 
+                  th:text="|${#numbers.formatInteger(productsVO.price_now, 3, 'COMMA')}원|">0원</span><br>
+
+            <!-- 포인트 -->
+            <span><b>포인트:</b> <span th:text="${productsVO.point}">0</span>p</span><br>
+
+            <!-- 재고 -->
+            <span><b>재고:</b> <span th:text="${productsVO.salecnt}">0</span> 개</span><br>
+
+            <!-- 소비기한 -->
+            <span><b>소비기한:</b>
+              <span th:text="${#temporals.format(productsVO.expdate, 'yyyy.MM.dd')}">2025.06.30</span>
+            </span>
           </div>
           <!-- 부가 적인 상품 관련 추가 끝-->
           <div style="white-space: pre-wrap;"><span th:text="${productsVO.content}"></span></div>
@@ -133,19 +148,70 @@
       <li class="li_none" th:text="|검색어(키워드): ${productsVO.word }|">
       </li>
       
-      <li class="li_none" th:if="${productsVO.size1 > 0}">
-        <div >
-          첨부 파일: <a th:href='@{|/download?dir=products/storage&filename=${productsVO.file1saved}&downname=${productsVO.file1}|}'
-                             th:text='|${productsVO.file1}|'></a> <span th:text="|(${productsVO.size1_label})|"></span>  
-                         <a th:href='@{|/download?dir=products/storage&filename=${productsVO.file1saved}&downname=${productsVO.file1}|}'><img src="/products/images/download.png"></a>
-        </div>
-      </li> 
-      
       
     </ul>
   </fieldset>
+  <!-- ✅ 하트 추천 영역 추가 -->
+  <div style="margin-top: 20px;">
+    추천: <span id="recom_panel">[[${productsVO.recom}]]개</span>
+  </div>
+
+  <!-- ✅ JS: productsno 및 초기 하트 상태 변수 -->
+  <script th:inline="javascript">
+    const productsno = /*[[${productsVO.productsno}]]*/ 0;
+    const hartCnt = parseInt('[[${hartCnt}]]');  // 문자열 → 숫자
+    const recom = parseInt('[[${productsVO.recom}]]'); // 추천 수
+  </script>
+
+  <script>
+    // ✅ 하트 추천 토글 함수
+    function good(productsno) {
+      fetch("/products/good", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productsno: productsno })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.isMember == 1) {
+          let tag = '';
+          if (data.hartCnt == 1) {
+            tag = `<a href="javascript:good(${productsno})">
+                    <img src="/products/images/hart_on_50.png" style="width: 22px" title="추천">
+                  </a>`;
+          } else {
+            tag = `<a href="javascript:good(${productsno})">
+                    <img src="/products/images/hart_off_50.png" style="width: 22px" title="추천">
+                  </a>`;
+          }
+          document.querySelector('#hart_panel').innerHTML = tag;
+          document.querySelector('#recom_panel').innerText = data.recom + '개';
+        } else {
+          alert("로그인 후 이용 가능합니다.");
+        }
+      })
+      .catch(error => {
+        console.error("추천 처리 실패:", error);
+      });
+    }
+
+    // ✅ 초기 하트 상태 렌더링
+    window.onload = function () {
+      let tag = '';
+      if (hartCnt === 1) {
+        tag = `<a href="javascript:good(${productsno})">
+                <img src="/products/images/hart_on_50.png" style="width: 22px" title="추천">
+              </a>`;
+      } else {
+        tag = `<a href="javascript:good(${productsno})">
+                <img src="/products/images/hart_off_50.png" style="width: 22px" title="추천">
+              </a>`;
+      }
+      document.querySelector('#hart_panel').innerHTML = tag;
+      document.querySelector('#recom_panel').innerText = data.recom + '개';
+    };
+  </script>
 
 </div>
 
 </html>
-

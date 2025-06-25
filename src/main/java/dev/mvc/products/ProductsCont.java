@@ -93,155 +93,6 @@ public class ProductsCont {
     return url; // forward 방식으로 지정된 페이지로 이동, /templates/products/msg.html
   }
 
-// =========================================================
-// 0620 수정 전
-//  @GetMapping(value = "/create")
-//  public String create(Model model, 
-//      @ModelAttribute("productsVO") ProductsVO productsVO, 
-//      @RequestParam(name="cateno", defaultValue="0") int cateno) {
-//    // 상단 카테고리 메뉴 출력용 데이터
-//    ArrayList<CateVOMenu> menu = this.cateProc.menu();
-//    model.addAttribute("menu", menu);
-//
-//    // 현재 선택한 카테고리의 정보를 화면에 출력하기 위해 가져옴
-//    CateVO cateVO = this.cateProc.read(cateno); // 카테고리 정보를 출력하기위한 목적
-//    model.addAttribute("cateVO", cateVO);
-//
-//    return "products/create"; // /templates/products/create.html
-//    //return "products/create_ai"; // /templates/products/create_ai.html
-//  }
-//
-//  /**
-//   * 등록 처리 http://localhost:9093/products/create
-//   * 
-//   * @return
-//   */
-//  @PostMapping(value = "/create")
-//  public String create_proc(HttpServletRequest request, 
-//      HttpSession session, 
-//      Model model, 
-//      @ModelAttribute("productsVO") ProductsVO productsVO,
-//      RedirectAttributes ra) {
-//
-//    // 현재: 관리자 권한이 있는 경우에만 상품 등록 가능
-//    // member(공급자)일 경우에도 (not guest(일반회원=소비자)) 있는 경우에만 상품 등록 가능
-//    if (memberProc.isAdmin(session)) { // 관리자로 로그인한경우
-//      // ------------------------------------------------------------------------------
-//      // 파일 전송 코드 시작
-//      // =============== (1) 파일 업로드 처리 시작 ===============
-//      // ------------------------------------------------------------------------------
-//      String file1 = ""; // 원본 파일명 image
-//      String file1saved = ""; // 저장된 파일명, image
-//      String thumb1 = ""; // preview image(썸네일 파일명)
-//
-//      // 파일이 저장될 서버 경로
-//      String upDir = Products.getUploadDir(); // 파일을 업로드할 폴더 준비
-//      // upDir = upDir + "/" + 한글을 제외한 카테고리 이름
-//      System.out.println("-> upDir: " + upDir);
-//
-//      // 전송 파일이 없어도 file1MF 객체가 생성됨.
-//      // <input type='file' class="form-control" name='file1MF' id='file1MF'
-//      // value='' placeholder="파일 선택">
-//      MultipartFile mf = productsVO.getFile1MF();// 업로드된 파일 받아오기
-//      file1 = mf.getOriginalFilename(); //  원본 파일명 확인, 01.jpg
-////      if (file1.toLowerCase().endsWith("jpeg")) {
-////        file1 = file1.substring(0, file1.indexOf(".")) + ".jpg";
-////      }
-//      System.out.println("-> 원본 파일명 산출 file1: " + file1);
-//
-//      long size1 = mf.getSize(); // 파일 크기
-//      
-//      if (size1 > 0) { //  *파일이 존재할 경우*, 파일 크기 체크, 파일을 올리는 경우
-//        if (Tool.checkUploadFile(file1) == true) { // 업로드 가능한 파일인지 검사
-//          // 파일 저장 후 업로드된 파일명이 리턴됨, spring.jsp, spring_1.jpg, spring_2.jpg...
-//          file1saved = Upload.saveFileSpring(mf, upDir);// 서버에 파일 저장
-//
-//          // 이미지일 경우 썸네일 이미지 생성
-//          if (Tool.isImage(file1saved)) { // 이미지인지 검사
-//            // thumb 이미지 생성후 파일명 리턴됨, width: 200, height: 150
-//            thumb1 = Tool.preview(upDir, file1saved, 200, 150); // 썸네일 크기
-//          }
-//
-//          // VO에 파일 관련 정보 저장
-//          productsVO.setFile1(file1); // 순수 원본 파일명
-//          productsVO.setFile1saved(file1saved); // 저장된 파일명(파일명 중복 처리)
-//          productsVO.setThumb1(thumb1); // 원본이미지 축소판
-//          productsVO.setSize1(size1); // 파일 크기
-//
-//        } else { // 전송 못하는 파일 형식
-//          // 업로드 허용되지 않는 파일일 경우 메시지 전달 후 중단
-//          ra.addFlashAttribute("code", Tool.UPLOAD_FILE_CHECK_FAIL); // 업로드 할 수 없는 파일
-//          ra.addFlashAttribute("cnt", 0); // 업로드 실패
-//          ra.addFlashAttribute("url", "/products/msg"); // msg.html, redirect parameter 적용
-//          return "redirect:/products/post2get"; // Post -> Get -> /products/msg.html
-//        }
-//      } else { // 글만 등록하는 경우
-//        System.out.println("-> 글만 등록");// 파일 없이 텍스트만 등록하는 경우
-//      }
-//      // ------------------------------------------------------------------------------
-//      // 파일 전송 코드 종료
-//      // ------------------------------------------------------------------------------
-//      
-//      // =============== (2) 상품 DB 등록 처리 ===============
-//      // 로그인한 사용자의 memberno를 설정 (작성자 정보)
-//      // Call By Reference: 메모리 공유, Hashcode 전달
-//      int memberno = (int) session.getAttribute("memberno"); // memberno FK
-//      productsVO.setMemberno(memberno);
-//      // DB에 상품 등록
-//      int cnt = this.productsProc.create(productsVO);
-//      
-//      // 20250619 cnt 갱신 추가
-//      this.cateProc.updateMidCnt();   // 중분류: products 기준
-//      this.cateProc.updateMainCnt();  // 대분류: 중분류 합산 기준
-//      // ------------------------------------------------------------------------------
-//      // PK의 return
-//      // ------------------------------------------------------------------------------
-//      // System.out.println("--> productsno: " + productsVO.getProductsno());
-//      // mav.addObject("productsno", productsVO.getProductsno()); // redirect
-//      // parameter 적용
-//      // ------------------------------------------------------------------------------
-//      // =============== (2) DB 등록 처리 종료 ===============
-//      
-//      // =============== (3) 결과 처리 ===============
-//      if (cnt == 1) { // 등록 성공
-//        // type 1, 재업로드 발생
-//        // return "<h1>파일 업로드 성공</h1>"; // 연속 파일 업로드 발생
-//
-//        // type 2, 재업로드 발생
-//        // model.addAttribute("cnt", cnt);
-//        // model.addAttribute("code", "create_success");
-//        // return "products/msg";
-//
-//        // type 3 권장
-//        // return "redirect:/products/list_all"; // /templates/products/list_all.html
-//
-//        // System.out.println("-> productsVO.getCateno(): " + productsVO.getCateno());
-//        // ra.addFlashAttribute("cateno", productsVO.getCateno()); // controller ->
-//        // controller: X
-//
-//        // return "redirect:/products/list_all"; // /templates/products/list_all.html
-//        
-//        // 등록한 카테고리로 다시 목록 페이지 이동
-//        ra.addAttribute("cateno", productsVO.getCateno()); // controller -> controller: O
-//        return "redirect:/products/list_by_cateno";
-//
-//        // return "redirect:/products/list_by_cateno?cateno=" + productsVO.getCateno();
-//        // // /templates/products/list_by_cateno.html
-//      } else { // 등록 실패
-//        ra.addFlashAttribute("code", Tool.CREATE_FAIL); // DBMS 등록 실패
-//        ra.addFlashAttribute("cnt", 0); // 업로드 실패
-//        ra.addFlashAttribute("url", "/products/msg"); // msg.html, redirect parameter 적용
-//        return "redirect:/products/msg"; // Post -> Get - param...
-//        // =============== (3) 결과 처리 종료 ===============
-//      }
-//    } else { // 로그인 실패 한 경우
-//      // /member/login_cookie_need.html
-//      // 로그인하지 않았거나 관리자가 아닌 경우 로그인 요청 페이지로 리다이렉트
-//      // 이부분 역시 수정해야 함.
-//      return "redirect:/member/login_cookie_need?url=/products/create?cateno=" + productsVO.getCateno(); 
-//    }
-//  }  
-//=========================================================
   
   // 등록 폼, products 테이블은 FK로 cateno를 사용함.
   // http://localhost:9093/products/create X
@@ -291,48 +142,7 @@ public class ProductsCont {
       // 파일 전송 코드 시작
       // =============== (1) 파일 업로드 처리 시작 ===============
       // ------------------------------------------------------------------------------
-//      String file1 = ""; // 원본 파일명 image
-//      String file1saved = ""; // 저장된 파일명, image
-//      String thumb1 = ""; // preview image(썸네일 파일명)
-//
-//      // 파일이 저장될 서버 경로
-//      String upDir = Products.getUploadDir(); // 파일을 업로드할 폴더 준비
-//      // upDir = upDir + "/" + 한글을 제외한 카테고리 이름
-//      System.out.println("-> upDir: " + upDir);
-//
-//      MultipartFile mf = productsVO.getFile1MF();// 업로드된 파일 받아오기
-//      file1 = mf.getOriginalFilename(); //  원본 파일명 확인, 01.jpg
-//      System.out.println("-> 원본 파일명 산출 file1: " + file1);
-//
-//      long size1 = mf.getSize(); // 파일 크기
-//      
-//      if (size1 > 0) { //  *파일이 존재할 경우*, 파일 크기 체크, 파일을 올리는 경우
-//        if (Tool.checkUploadFile(file1) == true) { // 업로드 가능한 파일인지 검사
-//          // 파일 저장 후 업로드된 파일명이 리턴됨, spring.jsp, spring_1.jpg, spring_2.jpg...
-//          file1saved = Upload.saveFileSpring(mf, upDir);// 서버에 파일 저장
-//
-//          // 이미지일 경우 썸네일 이미지 생성
-//          if (Tool.isImage(file1saved)) { // 이미지인지 검사
-//            // thumb 이미지 생성후 파일명 리턴됨, width: 200, height: 150
-//            thumb1 = Tool.preview(upDir, file1saved, 200, 150); // 썸네일 크기
-//          }
-//
-//          // VO에 파일 관련 정보 저장
-//          productsVO.setFile1(file1); // 순수 원본 파일명
-//          productsVO.setFile1saved(file1saved); // 저장된 파일명(파일명 중복 처리)
-//          productsVO.setThumb1(thumb1); // 원본이미지 축소판
-//          productsVO.setSize1(size1); // 파일 크기
-//
-//        } else { // 전송 못하는 파일 형식
-//          // 업로드 허용되지 않는 파일일 경우 메시지 전달 후 중단
-//          ra.addFlashAttribute("code", Tool.UPLOAD_FILE_CHECK_FAIL); // 업로드 할 수 없는 파일
-//          ra.addFlashAttribute("cnt", 0); // 업로드 실패
-//          ra.addFlashAttribute("url", "/products/msg"); // msg.html, redirect parameter 적용
-//          return "redirect:/products/post2get"; // Post -> Get -> /products/msg.html
-//        }
-//      } else { // 글만 등록하는 경우
-//        System.out.println("-> 글만 등록");// 파일 없이 텍스트만 등록하는 경우
-//      }
+
       String upDir = Products.getUploadDir(); 
       System.out.println("-> upDir: " + upDir);
 
@@ -384,6 +194,18 @@ public class ProductsCont {
         productsVO.setFile3saved(file3saved);
         productsVO.setThumb3(thumb3);
       }
+      // ---------------------- fileAd (광고 이미지) 처리 ----------------------
+      MultipartFile mfAd = productsVO.getFileAdMF();
+      String fileAd = mfAd.getOriginalFilename();
+      String fileAdsaved = "";
+      long sizeAd = mfAd.getSize();
+
+      if (sizeAd > 0 && Tool.checkUploadFile(fileAd)) {
+        fileAdsaved = Upload.saveFileSpring(mfAd, upDir);
+        productsVO.setFileAd(fileAd);
+        productsVO.setFileAdsaved(fileAdsaved);
+        productsVO.setSizeAd(sizeAd);
+      }
       // ------------------------------------------------------------------------------
       // 파일 전송 코드 종료
       // ------------------------------------------------------------------------------
@@ -393,6 +215,8 @@ public class ProductsCont {
       // Call By Reference: 메모리 공유, Hashcode 전달
       int memberno = (int) session.getAttribute("memberno"); // memberno FK
       productsVO.setMemberno(memberno);
+      // expdate 값 확인
+      System.out.println("expdate: " + productsVO.getExpdate());
       // DB에 상품 등록
       int cnt = this.productsProc.create(productsVO);
       
@@ -818,6 +642,7 @@ public class ProductsCont {
     return "products/read"; // /templates/products/read.html
     // return "products/read_ai";
   }
+  
   /*
    * 무한스크롤
    */
@@ -1430,6 +1255,29 @@ public class ProductsCont {
    productsVO.setFile3saved(file3saved);
    productsVO.setThumb3(thumb3);
    productsVO.setSize3(size3);
+   
+    // 기존 광고 이미지 삭제 - fileAd
+    String fileAdsaved = productsVO_old.getFileAdsaved();
+    Tool.deleteFile(upDir, fileAdsaved);
+    //-----------------------------------------------
+    // 새 파일 업로드 및 설정: fileAd (광고 이미지)
+    //-----------------------------------------------
+    MultipartFile mfAd = productsVO.getFileAdMF();
+    String fileAd = mfAd.getOriginalFilename();
+    long sizeAd = mfAd.getSize();
+    
+    if (sizeAd > 0 && Tool.checkUploadFile(fileAd)) {
+      fileAdsaved = Upload.saveFileSpring(mfAd, upDir);
+    } else {
+      fileAd = "";
+      fileAdsaved = "";
+      sizeAd = 0;
+    }
+    productsVO.setFileAd(fileAd);
+    productsVO.setFileAdsaved(fileAdsaved);
+    productsVO.setSizeAd(sizeAd);
+
+
 
     
     this.productsProc.update_file(productsVO);
@@ -1617,6 +1465,9 @@ public class ProductsCont {
     Tool.deleteFile(upDir, productsVO_read.getFile3saved());
     Tool.deleteFile(upDir, productsVO_read.getThumb3());
     
+    // 광고 이미지 삭제
+    Tool.deleteFile(upDir, productsVO_read.getFileAdsaved());
+    
 
     // 2. DB 삭제
     this.productsProc.delete(productsno);
@@ -1642,87 +1493,61 @@ public class ProductsCont {
   }
 
   /**
-   * 추천 처리 http://localhost:9093/products/good
    * 상품 추천/추천 해제 처리 (AJAX 방식)
-   * @param json_src JSON 형식 문자열 (예: {"productsno": "5"})
-   * @return JSON 응답 문자열 (추천 상태 및 추천수 포함)
+   * @param json_src {"productsno": 38}
+   * @return JSON 응답 (추천 여부, 총 추천 수)
    */
   @PostMapping(value = "/good")
   @ResponseBody
   public String good(HttpSession session, Model model, @RequestBody String json_src){ 
-    System.out.println("-> json_src: " + json_src); // json_src: {"productsno":"5"} // 클라이언트로부터 받은 JSON 문자열
+    System.out.println("-> json_src: " + json_src);
     
-    // ---------------------------
-    // 1. JSON 파싱 및 상품 번호 추출
-    // ---------------------------
-    JSONObject src = new JSONObject(json_src); // String -> JSON  (문자열을 JSON 객체로 변환)
-    int productsno = (int)src.get("productsno"); // 값 가져오기
+    JSONObject src = new JSONObject(json_src);
+    int productsno = Integer.parseInt(src.get("productsno").toString()); // 🔥 핵심 수정 포인트
     System.out.println("-> productsno: " + productsno);
-        
-    // ---------------------------
-    // 2. 로그인 여부 확인
-    // ---------------------------
-    if (this.memberProc.isMember(session)) { // 회원 로그인 확인
-      // 추천을 한 상태인지 확인
-      int memberno = (int)session.getAttribute("memberno");
+
+    JSONObject json = new JSONObject();
+    
+    // 세션에 grade 문자열이 저장되어 있음 ("admin", "member", "guest")
+    String grade = (String) session.getAttribute("grade");
+    Integer memberno = (Integer) session.getAttribute("memberno");
+
+    // 로그인 여부만 판단 (등급 관계없이 모든 회원 허용)
+    if (memberno != null && grade != null && 
+        (grade.equals("admin") || grade.equals("member") || grade.equals("guest") || grade.equals("supplier") || grade.equals("user"))) {
       
-      // ---------------------------
-      // 3. 현재 추천 여부 확인
-      // ---------------------------
-      HashMap<String, Object> map = new HashMap<String, Object>();
-      map.put("productsno", productsno);
-      map.put("memberno", memberno);
-      
-      int good_cnt = this.productsgoodProc.hartCnt(map); // 추천 여부: 0 or 1
-      System.out.println("-> good_cnt: " + good_cnt);
-      
-      if (good_cnt == 1) { // 이미지 추천을 한 회원인지 검사, (1) -> 이미 추천한 경우 → 추천 해제
-        System.out.println("-> 추천 해제: " + productsno + ' ' + memberno);
-        
-        // 추천 기록 식별
-        // Productsgood 테이블에서 추천한 기록을 찾음
-        ProductsgoodVO productsgoodVO = this.productsgoodProc.readByProductsnoMemberno(map);
-        
-        // 추천 기록 삭제 + 추천수 감소
-        this.productsgoodProc.delete(productsgoodVO.getProductsgoodno()); // 추천 기록 삭제
-        this.productsProc.decreaseRecom(productsno); // 추천 카운트 감소
-        
-      } else { // 추천하지 않은 경우 → 추천 등록
-        System.out.println("-> 추천: " + productsno + ' ' + memberno); 
-        
-        ProductsgoodVO productsgoodVO_new = new ProductsgoodVO();
-        productsgoodVO_new.setProductsno(productsno);
-        productsgoodVO_new.setMemberno(memberno);
-        
-        this.productsgoodProc.create(productsgoodVO_new);
-        this.productsProc.increaseRecom(productsno); // 카운트 증가 =  추천수 증가
+      ProductsgoodVO vo = this.productsgoodProc.readByProductsnoMemberno(productsno, memberno);
+      int hartCnt = 0;
+      int recom = 0;
+
+      if (vo == null) {
+        // 추천 등록
+        ProductsgoodVO newVO = new ProductsgoodVO();
+        newVO.setProductsno(productsno);
+        newVO.setMemberno(memberno);
+        this.productsgoodProc.create(newVO);
+        this.productsProc.increaseRecom(productsno);
+        hartCnt = 1;
+      } else {
+        // 추천 해제
+        this.productsgoodProc.deleteByProductsnoMemberno(productsno, memberno);
+        this.productsProc.decreaseRecom(productsno);
       }
-      
-      // ---------------------------
-      // 4. 최종 상태 재확인 및 응답 구성
-      // ---------------------------
-      // 추천 여부가 변경되어 다시 새로운 값을 읽어옴.
-      int hartCnt = this.productsgoodProc.hartCnt(map);  // 현재 추천 여부
-      int recom = this.productsProc.read(productsno).getRecom();  // 현재 총 추천수
-            
-      JSONObject result = new JSONObject(); 
-      result.put("isMember", 1); // 로그인 상태 -> 로그인: 1, 비회원: 0
-      result.put("hartCnt", hartCnt); // 추천 여부, 추천:1, 비추천: 0
-      result.put("recom", recom);   // 추천 총계
-      
-      System.out.println("-> result.toString(): " + result.toString());
-      return result.toString();
-      
-    } else { // 정상적인 로그인이 아닌 경우(비회원이 요청한 경우) 로그인 유도
-      JSONObject result = new JSONObject();
-      result.put("isMember", 0); // 로그인: 1, 비회원: 0
-      
-      System.out.println("-> result.toString(): " + result.toString());
-      return result.toString();
+
+      recom = this.productsProc.read(productsno).getRecom();
+
+      json.put("isMember", 1);
+      json.put("hartCnt", hartCnt);
+      json.put("recom", recom);
+    } else {
+      // 로그인 안 한 경우
+      json.put("isMember", 0);
     }
 
+    return json.toString();  // 🔥 필수 리턴
   }
 
+  
   /*
    * 20250619 추가 
    */
@@ -1735,4 +1560,3 @@ public class ProductsCont {
   }
   
 }
-

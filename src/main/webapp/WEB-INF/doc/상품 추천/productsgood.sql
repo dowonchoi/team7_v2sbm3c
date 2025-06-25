@@ -60,7 +60,7 @@ WHERE productsno=43 AND memberno=1;
 
 -- 삭제
 DELETE FROM productsgood
-WHERE productsgoodno = 5;
+WHERE productsgoodno = 25;
 
 commit;
 
