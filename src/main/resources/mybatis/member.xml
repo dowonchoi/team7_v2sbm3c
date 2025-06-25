@@ -12,18 +12,19 @@
 
   <!-- 일반 회원 가입 -->
   <insert id="create" parameterType="dev.mvc.member.MemberVO">
-    INSERT INTO member (memberno, id, passwd, mname, tel, zipcode, address1, address2, mdate, grade)
-    VALUES (member_seq.nextval, #{id}, #{passwd}, #{mname}, #{tel}, #{zipcode},
-            #{address1}, #{address2}, sysdate, #{grade})
+    INSERT INTO member (memberno, id, email, passwd, mname, tel, zipcode, address1, address2, mdate, grade, supplier_approved, business_file, business_file_origin)
+    VALUES (member_seq.nextval, #{id}, #{email}, #{passwd}, #{mname}, #{tel}, #{zipcode},
+            #{address1}, #{address2}, sysdate, #{grade}, #{supplier_approved}, #{business_file}, #{business_file_origin})
   </insert>
 
   <!-- 공급자 회원 가입 (인증 파일 포함) -->
   <insert id="insertMember" parameterType="dev.mvc.member.MemberVO">
-    INSERT INTO member (memberno, id, passwd, mname, tel, zipcode, address1, address2,
-                        mdate, grade, supplier_approved, business_file)
-    VALUES (member_seq.nextval, #{id}, #{passwd}, #{mname}, #{tel}, #{zipcode},
-            #{address1}, #{address2}, sysdate, #{grade}, #{supplierApproved}, #{businessFile})
+    INSERT INTO member (memberno, id, email, passwd, mname, tel, zipcode, address1, address2,
+                        mdate, grade, supplier_approved, business_file, business_file_origin)
+    VALUES (member_seq.nextval, #{id}, #{email}, #{passwd}, #{mname}, #{tel}, #{zipcode},
+            #{address1}, #{address2}, sysdate, #{grade}, #{supplier_approved}, #{business_file}, #{business_file_origin})
   </insert>
+
 
   <!-- 회원 목록 -->
   <select id="list" resultType="dev.mvc.member.MemberVO">
@@ -35,14 +36,14 @@
 
   <!-- memberno로 회원 정보 조회 -->
   <select id="read" resultType="dev.mvc.member.MemberVO" parameterType="int">
-    SELECT memberno, id, passwd, mname, tel, zipcode, address1, address2, mdate, grade
+    SELECT memberno, id, email, passwd, mname, tel, zipcode, address1, address2, mdate, grade, supplier_approved, business_file, business_file_origin
     FROM member
     WHERE memberno = #{memberno}
   </select>
 
   <!-- id로 회원 정보 조회 -->
   <select id="readById" resultType="dev.mvc.member.MemberVO" parameterType="string">
-    SELECT memberno, id, passwd, mname, tel, zipcode, address1, address2, mdate, grade
+    SELECT memberno, id, email, passwd, mname, tel, zipcode, address1, address2, mdate, grade, supplier_approved
     FROM member
     WHERE id = #{id}
   </select>
@@ -77,7 +78,7 @@
 
   <!-- 로그인 -->
   <select id="login" resultType="dev.mvc.member.MemberVO" parameterType="map">
-    SELECT *
+    SELECT memberno, id, email, passwd, mname, tel, zipcode, address1, address2, mdate, grade, supplier_approved
     FROM member
     WHERE id = #{id}
       AND passwd = #{passwd}
@@ -171,7 +172,7 @@
   <select id="findByEmail" resultType="dev.mvc.member.MemberVO" parameterType="String">
     SELECT *
     FROM member
-    WHERE id = #{email}
+    WHERE email = #{email}
   </select>
 
   

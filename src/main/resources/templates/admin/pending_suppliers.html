@@ -1,28 +1,73 @@
-<!-- 관리자 공급자 승인/거절/취소/다운로드 기능 화면 -->
 <!DOCTYPE html>
 <html layout:decorate="~{layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>공급자 승인 관리</title>
+  <style>
+    .title_line {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .aside_right {
+      float: right;
+      margin-bottom: 10px;
+    }
+    .menu_divide {
+      margin: 0 5px;
+      color: #999;
+    }
+    .table th {
+      background-color: #f8f9fa;
+      text-align: center;
+    }
+    .table td {
+      vertical-align: middle;
+      text-align: center;
+    }
+    .btn-sm {
+      padding: 3px 8px;
+      font-size: 0.8rem;
+    }
+    #filePreviewModal {
+      display: none;
+      position: fixed;
+      top: 10%;
+      left: 20%;
+      width: 60%;
+      height: 80%;
+      background: white;
+      border: 2px solid #ccc;
+      z-index: 9999;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      padding: 15px;
+    }
+    #filePreviewModal .close {
+      float: right;
+      cursor: pointer;
+      color: red;
+      font-weight: bold;
+    }
+    #previewContainer {
+      width: 100%;
+      height: 90%;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
 <div layout:fragment="content">
 
-  <div class='title_line'>공급자 승인 관리 (관리자 전용)</div>
+  <div class="title_line">공급자 승인 관리 (관리자 전용)</div>
 
   <aside class="aside_right">
-  <a href="javascript:location.reload();">새로고침</a>
-  <span class='menu_divide'>│</span>
-  <a href="/member/list">회원 목록</a>  <!-- 추가된 회원 목록 링크 -->
-</aside>
+    <a href="javascript:location.reload();">새로고침</a>
+    <span class="menu_divide">│</span>
+    <a href="/member/list">회원 목록</a>
+  </aside>
 
-
-  <table class="table table-hover table-striped" style='width: 100%;'>
-    <colgroup>
-      <col style='width: 10%;'/>
-      <col style='width: 15%;'/>
-      <col style='width: 15%;'/>
-      <col style='width: 20%;'/>
-      <col style='width: 15%;'/>
-      <col style='width: 10%;'/>
-      <col style='width: 15%;'/>
-    </colgroup>
-
+  <table class="table table-hover table-striped">
     <thead>
       <tr>
         <th>ID</th>
@@ -34,104 +79,148 @@
         <th>관리</th>
       </tr>
     </thead>
-
     <tbody>
       <tr th:each="memberVO : ${supplierList}">
         <td th:text="${memberVO.id}"></td>
         <td th:text="${memberVO.mname}"></td>
         <td th:text="${memberVO.tel}"></td>
-        <td th:text="${memberVO.address1} + ' ' + ${memberVO.address2}"></td>
+        <td th:text="|${memberVO.address1} ${memberVO.address2}|"></td>
 
-        <!-- 인증 파일 -->
         <td>
-          <div th:if="${memberVO.business_file_name != null}">
-            <button type="button" class="btn btn-info btn-sm"
-                    th:onclick="|showPreview('/member/storage/${memberVO.business_file_name}')|">파일</button>
+          <span th:if="${memberVO.business_file != null}">
+            <button class="btn btn-info btn-sm"
+                    th:data-file="${memberVO.business_file}"
+                    onclick="showPreview(this)">
+              미리보기
+            </button>
             |
-            <a th:href="@{/member/storage/{file}(file=${memberVO.business_file_name})}" download>↓</a>
-          </div>
-          <span th:if="${memberVO.business_file_name == null}">-</span>
+            <a th:href="@{'/member/download?filename=' + ${memberVO.business_file} + '&orgname=' + ${memberVO.business_file}}">
+              다운로드
+            </a>
+          </span>
+          <span th:if="${memberVO.business_file == null}">
+            없음
+          </span>
         </td>
 
-        <!-- 승인 상태 -->
         <td>
           <span th:if="${memberVO.supplier_approved == 'Y'}" style="color:green;">승인됨</span>
           <span th:if="${memberVO.supplier_approved == 'N'}" style="color:red;">대기중</span>
           <span th:if="${memberVO.supplier_approved == 'R'}" style="color:gray;">거절됨</span>
         </td>
-        
-        <!-- 관리 버튼 (항상 보이도록 수정) -->
+
         <td>
-          <!-- 승인 버튼 -->
-          <button class="btn btn-sm btn-success"
-                  th:onclick="|approve(${memberVO.memberno})|">승인</button>
-
-          <!-- 승인 취소 버튼 (항상 활성화) -->
-          <button class="btn btn-sm btn-warning"
-                  th:onclick="|cancel(${memberVO.memberno})|">승인 취소</button>
+          <button class="btn btn-success btn-sm" 
+                  th:onclick="|approve(${memberVO.memberno})|">
+            승인
+          </button>
+          <button class="btn btn-warning btn-sm" 
+                  th:onclick="|cancel(${memberVO.memberno})|">
+            승인 취소
+          </button>
+          <button class="btn btn-danger btn-sm" 
+                  th:onclick="|reject(${memberVO.memberno})|">
+            거절
+          </button>
         </td>
-
       </tr>
     </tbody>
   </table>
 
-  <!-- ✅ 파일 미리보기용 모달 -->
-  <div id="filePreviewModal" style="display:none; position:fixed; top:10%; left:20%; width:60%; height:80%; background:white; border:2px solid #ccc; z-index:9999; box-shadow:0 0 20px rgba(0,0,0,0.5); padding:15px;">
-    <div style="text-align:right;">
-      <button class="btn btn-sm btn-danger" onclick="closePreview()">닫기</button>
+  <!-- ✅ 미리보기 모달 -->
+  <div id="filePreviewModal">
+    <div>
+      <span class="close" onclick="closePreview()">✖ 닫기</span>
     </div>
-    <div id="previewContainer" style="width:100%; height:90%; text-align:center;">
-      <!-- 미리보기 내용 -->
-    </div>
+    <div id="previewContainer"></div>
   </div>
 
-  <script>
-    function approve(memberno) {
+</div>
+
+<!-- ✅ 스크립트는 반드시 layout:fragment="script" 안에 -->
+<th:block layout:fragment="script">
+<script>
+  window.onload = function() {
+
+    window.approve = function(memberno) {
       if (confirm("해당 공급자를 승인하시겠습니까?")) {
         fetch('/member/admin/approveSupplier', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: 'memberno=' + memberno
-        }).then(r => r.text()).then(msg => location.reload());
+        }).then(r => r.text()).then(msg => {
+          if (msg.trim() === 'success') {
+            alert("승인되었습니다.");
+            location.reload();
+          } else {
+            alert("실패: " + msg);
+          }
+        });
       }
     }
 
-    function cancel(memberno) {
+    window.cancel = function(memberno) {
       if (confirm("해당 공급자의 승인을 취소하시겠습니까?")) {
         fetch('/member/admin/cancelApproval', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: 'memberno=' + memberno
-        }).then(msg => {
-            if (msg.trim() === 'success') {
-              alert("처리되었습니다.");
-              location.reload();
-            } else {
-              alert("처리에 실패했습니다: " + msg);
-            }
-          })
+        }).then(r => r.text()).then(msg => {
+          if (msg.trim() === 'success') {
+            alert("승인 취소되었습니다.");
+            location.reload();
+          } else {
+            alert("실패: " + msg);
+          }
+        });
       }
     }
 
-    function showPreview(fileUrl) {
-      const ext = fileUrl.split('.').pop().toLowerCase();
+    window.reject = function(memberno) {
+      if (confirm("해당 공급자를 거절하시겠습니까?")) {
+        fetch('/member/admin/rejectSupplier', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: 'memberno=' + memberno
+        }).then(r => r.text()).then(msg => {
+          if (msg.trim() === 'success') {
+            alert("거절 처리되었습니다.");
+            location.reload();
+          } else {
+            alert("실패: " + msg);
+          }
+        });
+      }
+    }
+
+    window.showPreview = function(element) {
+      const filename = element.getAttribute('data-file');
+      if (!filename) {
+        alert("파일 정보가 없습니다.");
+        return;
+      }
+      const fileUrl = '/member/storage/' + filename;
+      const ext = filename.split('.').pop().toLowerCase();
       const container = document.getElementById("previewContainer");
 
       if (["jpg", "jpeg", "png", "gif"].includes(ext)) {
         container.innerHTML = `<img src="${fileUrl}" style="max-width:100%; max-height:100%;">`;
-      } else if (["pdf"].includes(ext)) {
+      } else if (ext === "pdf") {
         container.innerHTML = `<iframe src="${fileUrl}" style="width:100%; height:100%;" frameborder="0"></iframe>`;
       } else {
-        container.innerHTML = `미리보기를 지원하지 않는 형식입니다. <a href="${fileUrl}" download>다운로드</a>`;
+        container.innerHTML = `미리보기를 지원하지 않는 파일입니다.<br><a href="${fileUrl}" download>↓ 다운로드</a>`;
       }
 
       document.getElementById("filePreviewModal").style.display = "block";
     }
 
-    function closePreview() {
+    window.closePreview = function() {
       document.getElementById("filePreviewModal").style.display = "none";
       document.getElementById("previewContainer").innerHTML = "";
     }
-  </script>
-</div>
+  }
+</script>
+</th:block>
+
+</body>
 </html>

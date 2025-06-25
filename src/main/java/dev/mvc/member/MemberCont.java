@@ -1,6 +1,9 @@
 package dev.mvc.member;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,10 +14,12 @@ import java.util.UUID;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,8 +29,27 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.thymeleaf.context.Context;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.net.MalformedURLException;
+import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import dev.mvc.cate.CateProcInter;
 import dev.mvc.cate.CateVOMenu;
+import dev.mvc.login.LoginProcInter;
+import dev.mvc.login.LoginVO;
+import dev.mvc.products.ProductsProc;
+import dev.mvc.products.ProductsVO;
 import dev.mvc.tool.Security;
 import dev.mvc.tool.Tool;
 import jakarta.servlet.http.Cookie;
@@ -44,6 +68,10 @@ public class MemberCont {
   @Qualifier("dev.mvc.cate.CateProc")
   private CateProcInter cateProc;
   
+  @Autowired
+  @Qualifier("dev.mvc.login.LoginProc") 
+  private LoginProcInter loginProc;
+  
   @Autowired  // 자동 주입 어노테이션 꼭 붙이기
   private MemberService memberService;
   
@@ -57,19 +85,13 @@ public class MemberCont {
     System.out.println("-> MemberCont created.");  
   }
   
-  @GetMapping(value="/checkID") // http://localhost:9091/member/checkID?id=admin
+  @GetMapping("/check_id")
   @ResponseBody
-  public String checkID(@RequestParam(name="id", defaultValue = "") String id) {    
-    System.out.println("-> id: " + id);
-    int cnt = this.memberProc.checkID(id);
-    
-    // return "cnt: " + cnt;
-    // return "{\"cnt\": " + cnt + "}";    // {"cnt": 1} JSON
-    
-    JSONObject obj = new JSONObject();
-    obj.put("cnt", cnt);
-    
-    return obj.toString();
+  public Map<String, Object> checkId(@RequestParam("id") String id) {
+      Map<String, Object> response = new HashMap<>();
+      int count = memberProc.checkID(id);
+      response.put("available", count == 0);
+      return response;
   }
   
   /** 회원 가입 폼 */
@@ -80,27 +102,31 @@ public class MemberCont {
     
     return "member/create";    // /templates/member/create.html
   }
-  
+
   /** 회원 가입 처리 */
   @PostMapping("/create")
   public String create_proc(Model model,
                             @ModelAttribute MemberVO memberVO,
                             @RequestParam(name = "userType", defaultValue = "user") String userType,
+                            @RequestParam(name = "business_fileMF", required = false) MultipartFile businessFile,
                             HttpServletRequest request) throws Exception {
 
-      int gradeStart, gradeEnd;
-      if ("supplier".equals(userType)) {
-          gradeStart = 5;
-          gradeEnd = 15;
-      } else {
-          gradeStart = 16;
-          gradeEnd = 39;
+      // ✅ 아이디 중복 검사
+      int cntID = memberProc.checkID(memberVO.getId());
+      if (cntID > 0) {
+          model.addAttribute("code", "duplicate_id");
+          model.addAttribute("msg", "이미 사용 중인 아이디입니다.");
+          return "member/msg";
       }
+      
+      String encrypted = security.aesEncode(memberVO.getPasswd());
+      memberVO.setPasswd(encrypted);
 
-      // 사용 중인 등급 목록 조회
+      // ✅ 등급 설정
+      int gradeStart = ("supplier".equals(userType)) ? 5 : 16;
+      int gradeEnd = ("supplier".equals(userType)) ? 15 : 39;
+
       List<Integer> usedGrades = memberProc.getUsedGradesInRange(gradeStart, gradeEnd);
-
-      // 가능한 미사용 등급 찾기
       int assignedGrade = -1;
       for (int i = gradeStart; i <= gradeEnd; i++) {
           if (!usedGrades.contains(i)) {
@@ -108,38 +134,33 @@ public class MemberCont {
               break;
           }
       }
-
       if (assignedGrade == -1) {
-          // 가입 가능한 등급 없음 → 가입 실패 메시지 처리
-          model.addAttribute("code", "grade_limit_reached");
-          model.addAttribute("msg", "해당 유형의 회원 수가 최대치에 도달했습니다. 가입이 불가합니다.");
+          model.addAttribute("code", "grade_limit");
+          model.addAttribute("msg", "회원 수 초과");
           return "member/msg";
       }
 
-      // 공급자일 경우 사업자 인증 처리
-      if ("supplier".equals(userType)) {
-          memberVO.setGrade(assignedGrade);
-          memberVO.setSupplier_approved("N"); // 기본은 미승인
+      memberVO.setGrade(assignedGrade);
 
-          MultipartFile businessFile = memberVO.getBusiness_file();
+      // ✅ 공급자 파일 업로드
+      if ("supplier".equals(userType)) {
+          memberVO.setSupplier_approved("N");
+
           if (businessFile != null && !businessFile.isEmpty()) {
-              String uploadDir = "C:\\kd\\deploy\\resort\\member\\storage";
-              File uploadDirFile = new File(uploadDir);
-              if (!uploadDirFile.exists()) uploadDirFile.mkdirs();
+              String uploadDir = "C:/kd/deploy/resort/member/storage/";
+              File dir = new File(uploadDir);
+              if (!dir.exists()) dir.mkdirs();
 
               String originalFilename = businessFile.getOriginalFilename();
               String ext = originalFilename.substring(originalFilename.lastIndexOf("."));
-              String saveFilename = java.util.UUID.randomUUID().toString() + ext;
+              String saveFilename = UUID.randomUUID().toString() + ext;
 
-              File saveFile = new File(uploadDirFile, saveFilename);
+              File saveFile = new File(dir, saveFilename);
               businessFile.transferTo(saveFile);
 
-              memberVO.setBusiness_file_name(saveFilename); // DB에 저장
+              memberVO.setBusiness_file(saveFilename);
+              memberVO.setBusiness_file_origin(originalFilename);
           }
-
-      } else {
-          // 일반 소비자
-          memberVO.setGrade(assignedGrade);
       }
 
       int cnt = memberProc.create(memberVO);
@@ -151,13 +172,23 @@ public class MemberCont {
 
       return "member/msg";
   }
-
   
   @GetMapping("/admin/pending_suppliers")
   public String pendingSuppliers(Model model) {
       List<MemberVO> list = memberProc.selectPendingSuppliers();
-      model.addAttribute("supplierList", list); // 또는 "list"
-      return "admin/pending_suppliers"; // templates/admin/pending_suppliers.html 로 이동
+
+      for (MemberVO vo : list) {
+          String filename = vo.getBusiness_file();
+          if (filename != null && filename.contains(".")) {
+              String ext = filename.substring(filename.lastIndexOf(".") + 1).toLowerCase();
+              vo.setFileExt(ext);
+          } else {
+              vo.setFileExt("");
+          }
+      }
+
+      model.addAttribute("supplierList", list);
+      return "admin/pending_suppliers";
   }
   
   @PostMapping("/admin/approveSupplier")
@@ -198,14 +229,32 @@ public class MemberCont {
   public String mypage(HttpSession session, Model model) {
       Integer memberno = (Integer) session.getAttribute("memberno");
       if (memberno == null) {
-          return "redirect:/member/login"; // 로그인 안 되어 있으면 로그인 페이지로
+          return "redirect:/member/login";
       }
 
       MemberVO memberVO = memberProc.read(memberno);
       model.addAttribute("memberVO", memberVO);
-      return "/member/mypage"; // mypage.html
-  }
 
+//      // 최근 주문 내역
+//      List<OrderVO> recentOrders = orderProc.getRecentOrders(memberno);
+//      model.addAttribute("recentOrders", recentOrders);
+
+//      // 최근 본 상품
+//      List<ProductsVO> recentViewedProducts = ProductsProc.getRecentlyViewed(memberno);
+//      model.addAttribute("recentViewedProducts", recentViewedProducts);
+
+      // 요약 정보
+//      model.addAttribute("orderCount", orderProc.countOrders(memberno));
+//      model.addAttribute("cancelCount", orderProc.countCancelledOrders(memberno));
+//      model.addAttribute("cartCount", cartProc.countItems(memberno));
+//      model.addAttribute("couponCount", couponProc.countValidCoupons(memberno));
+//      model.addAttribute("pointAmount", memberProc.getPoint(memberno));
+//      model.addAttribute("reviewCount", reviewProc.countByMember(memberno));
+//      model.addAttribute("qnaCount", qnaProc.countByMember(memberno));
+//      model.addAttribute("inquiryCount", inquiryProc.countByMember(memberno));
+
+      return "/member/mypage";
+  }
 
   @GetMapping(value="/list")
   public String list(HttpSession session, Model model) {
@@ -238,6 +287,11 @@ public class MemberCont {
   //회원 정보 수정 처리
   @PostMapping("/update")
   public String updateProc(MemberVO memberVO, RedirectAttributes ra) {
+     if (memberVO.getPasswd() != null && !memberVO.getPasswd().isEmpty()) {
+         String encrypted = security.aesEncode(memberVO.getPasswd());
+         memberVO.setPasswd(encrypted);
+     }
+  
      int cnt = memberProc.update(memberVO);
      if (cnt == 1) {
          ra.addFlashAttribute("msg", "회원 정보가 수정되었습니다.");
@@ -278,80 +332,88 @@ public class MemberCont {
       return "member/find_passwd";  // 확장자 .html 생략, 정상
   }
   
-  //비밀번호 찾기 처리
+//비밀번호 찾기 처리
   @PostMapping("/find_passwd")
-  public String findPasswd(
-          @RequestParam(name = "id", required = true) String id,
-          @RequestParam(name = "tel", required = true) String tel,
-          HttpSession session,
-          Model model) {
-      
-      System.out.println("id = " + id + ", tel = " + tel); // 디버깅용
-      
-      MemberVO memberVO = memberProc.findByIdAndTel(id, tel);
-      if (memberVO == null) {
-          model.addAttribute("msg", "일치하는 정보가 없습니다.");
-          return "member/find_passwd";
+  public String findPasswdProc(@RequestParam("id") String id, Model model) {
+      MemberVO member = memberProc.readById(id);
+
+      // 아이디 존재 여부 체크
+      if (member == null) {
+          model.addAttribute("msg", "존재하지 않는 아이디입니다.");
+          return "member/find_passwd_fail";
       }
 
-      int code = (int)(Math.random() * 90000) + 10000;
-      session.setAttribute("passwdCode", code);
-      session.setAttribute("passwdEmail", id);
+      // 이메일 형식인지 체크
+      if (!isValidEmail(id)) {
+          model.addAttribute("msg", "이메일 형식의 아이디만 비밀번호 재설정이 가능합니다.");
+          return "member/find_passwd_fail";
+      }
 
-      String link = "http://localhost:9093/member/reset?code=" + code + "&email=" + id;
-      mailService.sendMail(id, "[서비스명] 비밀번호 재설정 링크", "비밀번호 재설정 링크입니다:\n" + link);
+      // 정상 이메일인 경우 메일 발송
+      String resetLink = "http://localhost:9093/member/reset_passwd_form?id=" + id;
 
-      model.addAttribute("msg", "비밀번호 재설정 링크를 이메일로 전송했습니다.");
-      return "member/find_passwd";
+      String subject = "[떨이몰] 비밀번호 재설정 링크입니다.";
+      String content = "<p>안녕하세요.</p>"
+                     + "<p>비밀번호 재설정을 원하신다면 아래 링크를 클릭해주세요.</p>"
+                     + "<a href='" + resetLink + "'>비밀번호 재설정하기</a>";
+
+      mailService.sendMail(id, subject, content);
+
+      model.addAttribute("msg", "비밀번호 재설정 링크를 전송했습니다.");
+      return "member/find_passwd_result";
+  }
+  
+  //🔥 이메일 형식 체크 메서드
+  public boolean isValidEmail(String email) {
+     String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+     return email != null && email.matches(emailRegex);
   }
 
-
   @GetMapping("/reset")
-  public String resetPasswdForm(@RequestParam("code") int code,
+  public String resetPasswdForm(@RequestParam("code") String code,
                                 @RequestParam("email") String email,
                                 HttpSession session,
                                 Model model) {
-      Integer savedCode = (Integer) session.getAttribute("passwdCode");
-      String savedEmail = (String) session.getAttribute("passwdEmail");
 
-      // 디버깅용 로그
-      System.out.println("reset: " + code + " / saved: " + savedCode);
+      AuthInfo info = (AuthInfo) session.getAttribute("resetCode:" + email);
 
-      if (savedCode == null || savedEmail == null ||
-          savedCode != code || !savedEmail.equals(email)) {
+      if (info == null || info.isExpired() || !info.getCode().equals(code)) {
           model.addAttribute("msg", "인증 정보가 일치하지 않거나 만료되었습니다.");
           return "member/msg";
       }
 
       model.addAttribute("code", code);
       model.addAttribute("email", email);
-      return "member/reset_passwd_form";  // 비밀번호 변경 화면
+      return "member/reset_passwd_form";
   }
   
   @PostMapping("/reset_proc")
   public String resetPassword(@RequestParam("email") String email,
                               @RequestParam("code") String code,
                               @RequestParam("passwd") String passwd,
+                              HttpSession session,
                               RedirectAttributes ra) {
 
-    System.out.println("reset: " + code);
+      AuthInfo info = (AuthInfo) session.getAttribute("resetCode:" + email);
 
-    String aesEncode = security.aesEncode(passwd);
-    System.out.println("암호화된 비밀번호: " + aesEncode);
+      if (info == null || info.isExpired() || !info.getCode().equals(code)) {
+          ra.addFlashAttribute("msg", "인증 정보가 유효하지 않습니다.");
+          return "redirect:/member/reset_msg";
+      }
 
-    MemberVO memberVO = memberProc.findByEmail(email);
-    if (memberVO != null) {
-      memberProc.updatePasswdById(memberVO.getId(), aesEncode);
-      System.out.println("DB에 저장된 비밀번호: " + memberProc.readById(memberVO.getId()).getPasswd());
-    }
+      String aesPasswd = security.aesEncode(passwd);
+      memberProc.updatePasswdById(email, aesPasswd);
 
-    ra.addFlashAttribute("msg", "비밀번호가 성공적으로 변경되었습니다.");
-    return "redirect:/member/reset_msg";
+      // ✔️ 인증 정보 세션에서 삭제
+      session.removeAttribute("resetCode:" + email);
+
+      ra.addFlashAttribute("msg", "비밀번호가 성공적으로 변경되었습니다.");
+      return "redirect:/member/reset_msg";
   }
   
   @GetMapping("/reset_msg")
   public String resetMsg() {
-      return "member/reset_msg";  // templates/member/reset_msg.html
+      return "member/reset_msg";
   }
   
   // 테스트용 고객 메일 전송
@@ -378,7 +440,7 @@ public class MemberCont {
     }
 
     String code = String.format("%06d", new Random().nextInt(999999));
-    long expire = System.currentTimeMillis() + 3 * 60 * 1000; // 3분
+    long expire = System.currentTimeMillis() + 1 * 60 * 1000; // 3분
 
     session.setAttribute("authInfo:" + email, new AuthInfo(code, expire));
     boolean sent = mailService.sendVerificationMail(email, code);
@@ -571,10 +633,10 @@ public class MemberCont {
       String encrypted = security.aesEncode(passwd);
 
       if (memberVO != null && memberVO.getPasswd().equals(encrypted)) {
-          int cnt = memberProc.delete(memberno);  // ✅ 실제 DB 삭제
+          int cnt = memberProc.delete(memberno);
 
           if (cnt == 1) {
-              session.invalidate();  // 로그아웃 처리
+              session.invalidate();
               model.addAttribute("msg", "회원 탈퇴가 완료되었습니다.");
           } else {
               model.addAttribute("msg", "회원 탈퇴 처리 중 오류 발생");
@@ -652,7 +714,7 @@ public class MemberCont {
     session.invalidate();  // 모든 세션 변수 삭제
     return "redirect:/";
   }
-
+  
   // ----------------------------------------------------------------------------------
   // Cookie 사용 로그인 관련 코드 시작
   // ----------------------------------------------------------------------------------
@@ -740,6 +802,11 @@ public class MemberCont {
     HashMap<String, Object> map = new HashMap<>();
     map.put("id", id);
     map.put("passwd", encrypted);
+    
+    // 로그인 기록 객체 생성
+    LoginVO loginVO = new LoginVO();
+    loginVO.setId(id);
+    loginVO.setIp(request.getRemoteAddr()); // 접속 IP
 
     MemberVO memberVO = this.memberProc.login(map);
 
@@ -758,6 +825,10 @@ public class MemberCont {
       }
 
       System.out.println("-> grade: " + session.getAttribute("grade"));
+      
+      // 로그인 성공 기록
+      loginVO.setSw("Y");
+      loginProc.create(loginVO);
 
       if (id_save.equals("Y")) {
         Cookie ck_id = new Cookie("ck_id", id);
@@ -800,6 +871,10 @@ public class MemberCont {
       }
 
     } else {
+      // 로그인 실패 기록
+      loginVO.setSw("N");
+      loginProc.create(loginVO);
+
       model.addAttribute("code", "login_fail");
       return "member/msg";
     }
@@ -839,32 +914,23 @@ public class MemberCont {
   @PostMapping(value="/passwd_check")
   @ResponseBody
   public String passwd_check(HttpSession session, @RequestBody String json_src) {
-    System.out.println("-> json_src: " + json_src); // json_src: {"current_passwd":"1234"}
-    
-    JSONObject src = new JSONObject(json_src); // String -> JSON
-    
-    String current_passwd = (String)src.get("current_passwd"); // 값 가져오기
-    System.out.println("-> current_passwd: " + current_passwd);
-    
-    try {
-      Thread.sleep(3000);
-    } catch(Exception e) {
-      
-    }
-    
-    int memberno = (int)session.getAttribute("memberno"); // session에서 가져오기
-    HashMap<String, Object> map = new HashMap<String, Object>();
-    map.put("memberno", memberno);
-    map.put("passwd", current_passwd);
-    
-    int cnt = this.memberProc.passwd_check(map);
-    
-    JSONObject json = new JSONObject();
-    json.put("cnt", cnt); // 1: 현재 패스워드 일치
-    System.out.println(json.toString());
-    
-    return json.toString();   
+     JSONObject src = new JSONObject(json_src);
+     String current_passwd = (String)src.get("current_passwd");
+  
+     String encrypted = security.aesEncode(current_passwd);
+  
+     int memberno = (int)session.getAttribute("memberno");
+     HashMap<String, Object> map = new HashMap<>();
+     map.put("memberno", memberno);
+     map.put("passwd", encrypted);  // 🔥 암호화해서 전달
+  
+     int cnt = this.memberProc.passwd_check(map);
+  
+     JSONObject json = new JSONObject();
+     json.put("cnt", cnt); // 1: 현재 패스워드 일치
+     return json.toString();
   }
+
   
   /**
    * 패스워드 변경
@@ -876,45 +942,46 @@ public class MemberCont {
    */
   @PostMapping(value="/passwd_update_proc")
   public String update_passwd_proc(HttpSession session, 
-                                                    Model model, 
-                                                    @RequestParam(value="current_passwd", defaultValue = "") String current_passwd, 
-                                                    @RequestParam(value="passwd", defaultValue = "") String passwd) {
-    if (this.memberProc.isMember(session)) {
-      int memberno = (int)session.getAttribute("memberno"); // session에서 가져오기
-      HashMap<String, Object> map = new HashMap<String, Object>();
-      map.put("memberno", memberno);
-      map.put("passwd", current_passwd);
-      
-      int cnt = this.memberProc.passwd_check(map);
-      
-      if (cnt == 0) { // 패스워드 불일치
-        model.addAttribute("code", "passwd_not_equal");
-        model.addAttribute("cnt", 0);
-        
-      } else { // 패스워드 일치
-        map = new HashMap<String, Object>();
-        map.put("memberno", memberno);
-        map.put("passwd", passwd); // 새로운 패스워드
-        
-        int passwd_change_cnt = this.memberProc.passwd_update(map);
-        
-        if (passwd_change_cnt == 1) {
-          model.addAttribute("code", "passwd_change_success");
-          model.addAttribute("cnt", 1);
-        } else {
-          model.addAttribute("code", "passwd_change_fail");
-          model.addAttribute("cnt", 0);
-        }
-      }
-
-      return "member/msg";   // /templates/member/msg.html
-    } else {
-      return "redirect:/member/login_cookie_need"; // redirect
-      
-    }
-    
-
+                                  Model model, 
+                                  @RequestParam(value="current_passwd", defaultValue = "") String current_passwd, 
+                                  @RequestParam(value="passwd", defaultValue = "") String passwd) {
+     if (this.memberProc.isMember(session)) {
+         int memberno = (int)session.getAttribute("memberno");
+  
+         String encryptedCurrent = security.aesEncode(current_passwd);
+  
+         HashMap<String, Object> map = new HashMap<>();
+         map.put("memberno", memberno);
+         map.put("passwd", encryptedCurrent);  // 현재 비밀번호 확인도 암호화
+  
+         int cnt = this.memberProc.passwd_check(map);
+  
+         if (cnt == 0) { 
+             model.addAttribute("code", "passwd_not_equal");
+             model.addAttribute("cnt", 0);
+         } else {
+             map = new HashMap<>();
+             String encryptedNew = security.aesEncode(passwd);  // 🔥 새 비밀번호 암호화
+             map.put("memberno", memberno);
+             map.put("passwd", encryptedNew);
+  
+             int passwd_change_cnt = this.memberProc.passwd_update(map);
+  
+             if (passwd_change_cnt == 1) {
+                 model.addAttribute("code", "passwd_change_success");
+                 model.addAttribute("cnt", 1);
+             } else {
+                 model.addAttribute("code", "passwd_change_fail");
+                 model.addAttribute("cnt", 0);
+             }
+         }
+  
+         return "member/msg";
+     } else {
+         return "redirect:/member/login_cookie_need";
+     }
   }
+
   
   /**
    * 로그인 요구에 따른 로그인 폼 출력 
@@ -971,8 +1038,62 @@ public class MemberCont {
     return "member/login_cookie_need";  // templates/member/login_cookie_need.html
   }
 
-  
-}
+  @GetMapping("/storage/{filename}")
+  @ResponseBody
+  public ResponseEntity<Resource> viewFile(@PathVariable("filename") String filename) {
+      try {
+          String filePath = "C:/kd/deploy/resort/member/storage/" + filename;
+          Path path = Paths.get(filePath);
 
+          if (!Files.exists(path)) {
+              return ResponseEntity.notFound().build();
+          }
+
+          Resource resource = new UrlResource(path.toUri());
+          String contentType = Files.probeContentType(path);
+          if (contentType == null) {
+              contentType = "application/octet-stream";
+          }
+
+          return ResponseEntity.ok()
+                  .contentType(MediaType.parseMediaType(contentType))
+                  .body(resource);
+
+      } catch (Exception e) {
+          e.printStackTrace();
+          return ResponseEntity.internalServerError().build();
+      }
+  }
+
+  @GetMapping("/download")
+  public ResponseEntity<Resource> downloadFile(
+          @RequestParam("filename") String filename,
+          @RequestParam(value = "orgname", required = false) String orgname) {
+      try {
+          String filePath = "C:\\kd\\deploy\\resort\\member\\storage\\" + filename;
+          Path path = Paths.get(filePath);
+
+          if (!Files.exists(path)) {
+              return ResponseEntity.notFound().build();
+          }
+
+          Resource resource = new UrlResource(path.toUri());
+          String downloadName = (orgname != null && !orgname.isEmpty()) ? orgname : filename;
+
+          String encodedFileName = URLEncoder.encode(downloadName, "UTF-8").replace("+", "%20");
+
+          return ResponseEntity.ok()
+                  .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                  .header(HttpHeaders.CONTENT_DISPOSITION,
+                          "attachment; filename=\"" + encodedFileName + "\"")
+                  .body(resource);
+
+      } catch (Exception e) {
+          e.printStackTrace();
+          return ResponseEntity.internalServerError().build();
+      }
+  }
+
+}
 
 

@@ -1,21 +1,27 @@
 <!DOCTYPE html>
 <html layout:decorate="~{layout}">
 <div layout:fragment="content">
-  <div class="title_line">마이페이지</div>
 
-  <table class="table">
-    <tr><th>ID</th><td th:text="${memberVO.id}"></td></tr>
+<link rel="stylesheet" href="/css/mypage.css">
+
+<div class="mypage-container">
+  <div class="mypage-title">마이페이지</div>
+
+  <table class="mypage-table">
+    <tr><th>아이디</th><td th:text="${memberVO.id}"></td></tr>
+    <tr><th>이메일</th><td th:text="${memberVO.email}"></td></tr>  
     <tr><th>이름</th><td th:text="${memberVO.mname}"></td></tr>
     <tr><th>전화번호</th><td th:text="${memberVO.tel}"></td></tr>
-    <tr><th>주소</th><td th:text="${memberVO.address1} + ' ' + ${memberVO.address2}"></td></tr>
+    <tr><th>주소</th><td th:text="${memberVO.address1 + ' ' + memberVO.address2}"></td></tr>
     <tr><th>가입일</th><td th:text="${memberVO.mdate}"></td></tr>
-
-    <tr th:if="${memberVO.grade >= 5 and memberVO.grade <= 15}">
+    <tr><th>등급</th><td th:text="${memberVO.grade}"></td></tr>
+    <tr th:if="${memberVO.grade != null and memberVO.grade >= 5 and memberVO.grade <= 15}">
       <th>승인 상태</th>
       <td>
-        <span th:if="${memberVO.supplier_approved == 'Y'}">승인됨</span>
-        <span th:if="${memberVO.supplier_approved == 'N'}">대기중</span>
-        <span th:if="${memberVO.supplier_approved == 'R'}">거절됨</span>
+        <span th:if="${memberVO.supplier_approved == 'Y'}" class="approval-status status-approved">승인</span>
+        <span th:if="${memberVO.supplier_approved == 'N'}" class="approval-status status-pending">승인 대기</span>
+        <span th:if="${memberVO.supplier_approved == 'R'}" class="approval-status status-rejected">승인 거절</span>
+        <span th:if="${memberVO.supplier_approved == null}" class="approval-status status-none">정보 없음</span>
       </td>
     </tr>
   </table>
@@ -24,5 +30,58 @@
     <a class="btn btn-primary" th:href="@{/member/update}">정보 수정</a>
     <a class="btn btn-danger" th:href="@{/member/delete}">회원 탈퇴</a>
   </div>
+
+  <div class="section-title">쇼핑 정보</div>
+  <div class="info-boxes">
+    <div class="info-box"><strong>주문내역</strong><span th:text="${orderCount} + '건'"></span></div>
+    <div class="info-box"><strong>취소/교환/반품</strong><span th:text="${cancelCount} + '건'"></span></div>
+    <div class="info-box"><strong>장바구니</strong><span th:text="${cartCount} + '건'"></span></div>
+  </div>
+
+  <div class="section-title">혜택 관리</div>
+  <div class="info-boxes">
+    <div class="info-box"><strong>쿠폰</strong><span th:text="${couponCount} + '장'"></span></div>
+    <div class="info-box"><strong>포인트</strong><span th:text="${pointAmount} + 'P'"></span></div>
+  </div>
+
+  <div class="section-title">최근 주문 내역</div>
+  <div class="order-table">
+    <table>
+      <thead>
+        <tr><th>주문일자</th><th>주문번호</th><th>상품명</th><th>결제금액</th><th>상태</th></tr>
+      </thead>
+      <tbody>
+        <tr th:each="order : ${recentOrders}">
+          <td th:text="${order.orderDate}"></td>
+          <td th:text="${order.orderNo}"></td>
+          <td th:text="${order.productName}"></td>
+          <td th:text="${order.totalAmount}"></td>
+          <td th:text="${order.status}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(recentOrders)}">
+          <td colspan="5">최근 주문 내역이 없습니다.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">최근 본 상품</div>
+  <div class="recent-products">
+    <table>
+      <tr th:each="product : ${recentViewedProducts}">
+        <td><img th:src="@{'/product/images/' + ${product.image}}" th:alt="${product.name}" /></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="section-title">활동 요약</div>
+  <div class="info-boxes">
+    <div class="info-box"><strong>상품 후기</strong><span th:text="${reviewCount} + '건'"></span></div>
+    <div class="info-box"><strong>상품 문의</strong><span th:text="${qnaCount} + '건'"></span></div>
+    <div class="info-box"><strong>1:1 문의</strong><span th:text="${inquiryCount} + '건'"></span></div>
+  </div>
+
+</div>
+
 </div>
 </html>

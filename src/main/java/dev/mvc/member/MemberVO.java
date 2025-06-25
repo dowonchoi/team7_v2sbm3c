@@ -22,8 +22,10 @@ public class MemberVO {
 
     /** 회원 번호 */
     private int memberno;
-    /** 아이디(이메일) */
+    /** 아이디 */
     private String id = "";
+    /** 이메일 */
+    private String email = "";
     /** 패스워드 */
     private String passwd = "";
     /** 회원 성명 */
@@ -51,12 +53,16 @@ public class MemberVO {
     private String url_address = "";
     
     /** 공급자 승인 여부: 'Y' 또는 'N' */
-    private String supplier_approved;
+    private String supplier_approved = "N";
 
     /** 사업자 인증 파일 경로 */
-    private MultipartFile business_file;
+    private MultipartFile business_fileMF;
     
     // 업로드용 필드, Controller에서 파일 받을 때 사용
-    private String business_file_name;
+    private String business_file = "";
+
+    private String business_file_origin = ""; // 원본 파일명 (다운로드 시 표시용)
     
+    /** 🔥 파일 확장자 (템플릿에서 용도에 따라 표시하거나 조건 처리) */
+    private String fileExt = "";
 }

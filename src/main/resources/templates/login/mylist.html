@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}">
+<div layout:fragment="content">
+
+  <h3>내 로그인 내역</h3>
+
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>번호</th>
+        <th>IP</th>
+        <th>성공 여부</th>
+        <th>로그인 날짜</th>
+        <th>관리</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="vo : ${list}">
+        <td th:text="${vo.loginno}"></td>
+        <td th:text="${vo.ip}"></td>
+        <td>
+          <span th:if="${vo.sw == 'Y'}" style="color:green;">성공</span>
+          <span th:if="${vo.sw == 'N'}" style="color:red;">실패</span>
+        </td>
+        <td th:text="${#dates.format(vo.logindate, 'yyyy-MM-dd HH:mm:ss')}"></td>
+        <td>
+          <a th:href="@{|/login/delete?loginno=${vo.loginno}|}" 
+             onclick="return confirm('정말 삭제하시겠습니까?');">
+             삭제
+          </a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+</html>

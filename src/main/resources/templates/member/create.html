@@ -2,120 +2,42 @@
 <html layout:decorate="~{layout}">
 <div layout:fragment="content">
 
-<style>
-  .step-indicator {
-    display: flex;
-    justify-content: space-around;
-    margin-bottom: 30px;
-  }
-  .step {
-    text-align: center;
-    flex: 1;
-    font-weight: bold;
-    color: #999;
-  }
-  .step.active {
-    color: #007bff;
-  }
-  .step.complete {
-    color: green;
-  }
-  .role-option {
-    display: inline-block;
-    width: 220px;
-    height: 260px;
-    border: 3px solid #ccc;
-    border-radius: 10px;
-    margin: 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color 0.3s;
-    background-color: #f9f9f9;
-  }
-  .role-option:hover {
-    border-color: #007bff;
-  }
-  .role-option img {
-    width: 120px;
-    height: 120px;
-    margin-top: 20px;
-  }
-  .role-option p {
-    margin-top: 10px;
-    font-size: 18px;
-    font-weight: bold;
-  }
-  .role-option input[type="radio"] {
-    display: none;
-  }
-  .role-option.selected {
-    border-color: #007bff;
-    background-color: #e9f5ff;
-  }
-  .span_warning { color: red; }
-  .span_info { color: green; }
-  .step-title {
-    text-align: center;
-    font-size: 22px;
-    font-weight: bold;
-    margin-bottom: 20px;
-  }
-  .form-group label {
-    display: block;
-    text-align: left;
-    font-size: 18px;
-    margin-bottom: 10px;
-  }
-</style>
+<link rel="stylesheet" href="/css/member.css">
+
+<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 
 <script>
-  window.onload = () => {
-    const roleOptions = document.querySelectorAll('.role-option');
-    const step1 = document.getElementById('step1');
-    const step2 = document.getElementById('step2');
-    const step3 = document.getElementById('step3');
+  let timer = null;
+  let timeLeft = 300;
 
-    roleOptions.forEach(opt => {
-      opt.addEventListener('click', () => {
-        roleOptions.forEach(o => o.classList.remove('selected'));
-        opt.classList.add('selected');
-        opt.querySelector('input[type=radio]').checked = true;
+  function startTimer() {
+    clearInterval(timer);
+    timeLeft = 300;
+    updateTimerDisplay();
 
-        const userType = opt.querySelector('input[type=radio]').value;
-        document.getElementById('business_auth').style.display = (userType === 'supplier') ? 'block' : 'none';
+    timer = setInterval(() => {
+      timeLeft--;
+      updateTimerDisplay();
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        const msg = document.getElementById('code_msg');
+        msg.style.display = 'block';
+        msg.innerText = '인증 시간이 만료되었습니다.';
+        msg.className = 'feedback-text span_warning';
+      }
+    }, 1000);
+  }
 
-        step1.style.display = 'none';
-        step2.style.display = 'block';
-        document.getElementById('step1-indicator').classList.remove('active');
-        document.getElementById('step1-indicator').classList.add('complete');
-        document.getElementById('step2-indicator').classList.add('active');
-      });
-    });
-  };
-
-  function showStep3(userType) {
-    document.getElementById('step2').style.display = 'none';
-    document.getElementById('step3').style.display = 'block';
-    document.getElementById('step2-indicator').classList.remove('active');
-    document.getElementById('step2-indicator').classList.add('complete');
-    document.getElementById('step3-indicator').classList.add('active');
-
-    const msg = userType === 'supplier'
-      ? '가입 신청이 완료되었습니다. 관리자의 승인 후 공급자로 이용 가능합니다. 승인 전까지는 소비자로 로그인됩니다.'
-      : '가입이 완료되었습니다! 이제 서비스를 이용하실 수 있습니다.';
-
-    document.getElementById('completeMessage').innerText = msg;
-
-    setTimeout(() => {
-      window.location.href = '/member/login';
-    }, 3000);
+  function updateTimerDisplay() {
+    const min = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+    const sec = String(timeLeft % 60).padStart(2, '0');
+    document.getElementById('timer').innerText = `${min}:${sec}`;
   }
 
   function sendCode() {
-    const email = document.getElementById('email').value.trim();
-    if (email === '') {
-      alert('이메일을 입력해주세요.');
-      document.getElementById('email').focus();
+    const email = document.getElementById('email').value;
+    if (!email.includes('@')) {
+      alert('유효한 이메일을 입력하세요.');
       return;
     }
 
@@ -126,24 +48,30 @@
     })
     .then(res => res.text())
     .then(result => {
+      const msg = document.getElementById('email_msg');
+      msg.style.display = 'block';
       if (result === 'success') {
-        document.getElementById('id_msg').innerText = '인증코드가 전송되었습니다.';
-        document.getElementById('id_msg').className = 'span_info';
-      } else if (result === 'invalid_email') {
-        alert('올바른 이메일 형식이 아닙니다.');
+        msg.innerText = '이메일로 인증코드를 보냈습니다.';
+        msg.className = 'feedback-text span_info';
+        startTimer();
       } else {
-        alert('이메일 전송에 실패했습니다. 다시 시도해주세요.');
+        msg.innerText = '이메일 전송에 실패했습니다.';
+        msg.className = 'feedback-text span_warning';
       }
     });
   }
 
   function verifyCode() {
-    const email = document.getElementById('email').value.trim();
-    const code = document.getElementById('code').value.trim();
-    if (email === '' || code === '') {
-      alert('이메일과 인증코드를 입력해주세요.');
+    if (timeLeft <= 0) {
+      const msg = document.getElementById('code_msg');
+      msg.style.display = 'block';
+      msg.innerText = '인증 시간이 만료되었습니다.';
+      msg.className = 'feedback-text span_warning';
       return;
     }
+
+    const email = document.getElementById('email').value;
+    const code = document.getElementById('code').value;
 
     fetch('/member/verify_code', {
       method: 'POST',
@@ -153,133 +81,199 @@
     .then(res => res.text())
     .then(result => {
       const msg = document.getElementById('code_msg');
+      msg.style.display = 'block';
       if (result === 'verified') {
-        msg.innerText = '인증이 완료되었습니다.';
-        msg.className = 'span_info';
+        msg.textContent = '본인 인증이 확인되었습니다.';
+        msg.className = 'feedback-text span_info';
         document.getElementById('verified').value = 'Y';
-      } else if (result === 'expired') {
-        msg.innerText = '인증코드가 만료되었습니다.';
-        msg.className = 'span_warning';
-      } else if (result === 'invalid') {
-        msg.innerText = '인증코드가 올바르지 않습니다.';
-        msg.className = 'span_warning';
-      } else if (result === 'too_many_attempts') {
-        msg.innerText = '인증 시도 횟수를 초과했습니다.';
-        msg.className = 'span_warning';
+        clearInterval(timer);
+        document.getElementById('timer').innerText = '';
       } else {
-        msg.innerText = '인증에 실패했습니다.';
-        msg.className = 'span_warning';
+        msg.textContent = '인증 실패 (' + result + ')';
+        msg.className = 'feedback-text span_warning';
       }
     });
   }
 
-  function send() {
-    const requiredIds = ['mname', 'id', 'email', 'passwd', 'mdate', 'tel', 'zipcode', 'address1', 'address2'];
-    for (let id of requiredIds) {
-      const el = document.getElementById(id);
-      if (!el || el.value.trim() === '') {
-        alert(`${id} 항목을 입력하세요.`);
-        el?.focus();
-        return false;
+  function execDaumPostcode() {
+    new daum.Postcode({
+      oncomplete: function(data) {
+        document.getElementById('zipcode').value = data.zonecode;
+        document.getElementById('address1').value = data.roadAddress || data.jibunAddress;
+        document.getElementById('address2').focus();
       }
-    }
-    const verified = document.getElementById('verified')?.value;
-    if (verified !== 'Y') {
-      alert('이메일 인증을 완료해야 가입할 수 있습니다.');
+    }).open();
+  }
+
+  function checkId() {
+    const id = document.getElementById('username').value;
+    if (!id) return alert('아이디를 입력하세요.');
+
+    fetch('/member/check_id?id=' + encodeURIComponent(id))
+      .then(response => response.json())
+      .then(data => {
+        const msg = document.getElementById('id_msg');
+        msg.textContent = data.available ? '사용 가능한 아이디입니다' : '이미 사용 중인 아이디입니다';
+        msg.style.color = data.available ? 'green' : 'red';
+      });
+  }
+
+  function mergePhoneBeforeSubmit() {
+    const tel1 = document.getElementById('tel1').value;
+    const tel2 = document.getElementById('tel2').value;
+    const tel3 = document.getElementById('tel3').value;
+    if (!tel2 || !tel3) {
+      alert("전화번호를 모두 입력해주세요.");
       return false;
     }
-    const userType = document.querySelector('input[name="userType"]:checked')?.value;
-    showStep3(userType);
+    const fullTel = `${tel1}-${tel2}-${tel3}`;
+    const telInput = document.createElement('input');
+    telInput.type = 'hidden';
+    telInput.name = 'tel';
+    telInput.value = fullTel;
+    document.getElementById('frm').appendChild(telInput);
+    return true;
+  }
+
+  function selectUserType(type) {
+    document.getElementById('userTypeInput').value = type;
+
+    if (type === 'supplier') {
+      document.getElementById('business_auth').style.display = 'block';
+      document.getElementById('business_file').required = true;
+    } else {
+      document.getElementById('business_auth').style.display = 'none';
+      document.getElementById('business_file').required = false;
+    }
+
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'block';
+
+    document.getElementById('step1-indicator').classList.remove('active');
+    document.getElementById('step2-indicator').classList.add('active');
+    document.getElementById('line1').classList.add('active');
   }
 
   function cancelSignup() {
     document.getElementById('step2').style.display = 'none';
     document.getElementById('step1').style.display = 'block';
-    document.getElementById('step2-indicator').classList.remove('active');
-    document.getElementById('step1-indicator').classList.remove('complete');
+
     document.getElementById('step1-indicator').classList.add('active');
+    document.getElementById('step2-indicator').classList.remove('active');
+    document.getElementById('line1').classList.remove('active');
   }
 </script>
 
-<div class="title_line">회원 가입</div>
 
-<!-- 단계 표시 -->
+<!-- STEP INDICATOR -->
 <div class="step-indicator">
-  <div class="step active" id="step1-indicator">STEP 1<br>회원 유형 선택</div>
-  <div class="step" id="step2-indicator">STEP 2<br>회원 정보 입력</div>
-  <div class="step" id="step3-indicator">STEP 3<br>가입 완료</div>
+  <div id="step1-indicator" class="step active">
+    <div class="step-circle">step 1</div>
+    <div class="step-label">유형 선택</div>
+  </div>
+  <div id="line1" class="step-line"></div>
+  <div id="step2-indicator" class="step">
+    <div class="step-circle">step 2</div>
+    <div class="step-label">정보 입력</div>
+  </div>
+  <div id="line2" class="step-line"></div>
+  <div id="step3-indicator" class="step">
+    <div class="step-circle">step 3</div>
+    <div class="step-label">가입 완료</div>
+  </div>
 </div>
 
-<div style="width: 60%; margin: 0 auto;">
-  <!-- STEP 1: 회원유형 선택 -->
-  <div id="step1">
-    <div class="form-group" style="text-align: center;">
-      <label style="font-weight: bold; font-size: 18px;">회원 유형을 선택하세요*</label><br>
-      <div style="display: flex; gap: 40px; justify-content: center; margin-top: 20px;">
-        <div class="role-option">
-          <input type="radio" name="userType" value="user" id="type_user">
-          <img src="/images/user.png" alt="소비자">
-          <p>소비자</p>
-        </div>
-        <div class="role-option">
-          <input type="radio" name="userType" value="supplier" id="type_supplier">
-          <img src="/images/supplier.png" alt="공급자">
-          <p>공급자</p>
-        </div>
+
+<!-- STEP 1 -->
+<div id="step1">
+  <div class="form-group" style="text-align: center;">
+    <label style="font-weight: bold; font-size: 18px;">회원 유형을 선택하세요*</label>
+    <div style="display: flex; gap: 40px; justify-content: center; margin-top: 20px;">
+      <div class="role-option" onclick="selectUserType('user')">
+        <input type="radio" name="userType" id="userType_user" value="user" style="display: none;">
+        <img src="/images/user.png" alt="소비자">
+        <p>소비자</p>
+      </div>
+      <div class="role-option" onclick="selectUserType('supplier')">
+        <input type="radio" name="userType" id="userType_supplier" value="supplier" style="display: none;">
+        <img src="/images/supplier.png" alt="공급자">
+        <p>공급자</p>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- STEP 2: 회원가입 입력 -->
-  <div id="step2" style="display:none">
-    <form name="frm" id="frm" method="post" action="/member/create" enctype="multipart/form-data">
-      <div id="business_auth" style="display: none;">
-        <div class="form-group">
-          <label for="business_file">사업자 등록증 (PDF, JPG 등)</label>
-          <input type="file" id="business_file" name="business_file" class="form-control">
-        </div>
-      </div>
+<!-- STEP 2 -->
+<form id="frm" method="post" action="/member/create" enctype="multipart/form-data" onsubmit="return mergePhoneBeforeSubmit();">
+  <input type="hidden" id="userTypeInput" name="userType" value="">
 
-      <div class="form-group"><label for="mname">성명*</label><input type="text" id="mname" name="mname" class="form-control"></div>
-      <div class="form-group"><label for="mdate">생년월일*</label><input type="date" id="mdate" name="mdate" class="form-control"></div>
+  <div id="step2" style="display: none; max-width: 480px; margin: 0 auto;">
+    <div id="business_auth" style="display: none;">
+      <label for="business_file">사업자 등록증*</label>
+      <input type="file" id="business_file" name="business_fileMF" class="form-control input-sm">
+    </div>
 
-      <div class="form-group">
-        <label for="id">이메일(ID)*</label>
-        <div style="display: flex; gap: 10px; align-items: center;">
-          <input type="text" id="id" name="id" class="form-control" onblur="checkID()">
-          <button type="button" onclick="sendCode()" class="btn btn-sm btn-outline-success">코드 전송</button>
-        </div>
-        <span id="id_msg"></span>
-      </div>
+    <label>성명*</label>
+    <input type="text" id="mname" name="mname" class="form-control input-sm uniform-size" required>
 
-      <div class="form-group">
-        <label for="code">인증코드 입력</label>
-        <div style="display: flex; gap: 10px;">
-          <input type="text" id="code" class="form-control" placeholder="인증코드 입력">
-          <button type="button" onclick="verifyCode()" class="btn btn-sm btn-outline-primary">확인</button>
-        </div>
-        <span id="code_msg"></span>
-        <input type="hidden" id="verified" name="verified" value="N">
-      </div>
+    <label>아이디*</label>
+    <div class="form-row">
+      <input type="text" id="username" name="id" class="form-control input-sm uniform-size flex-grow-1" required>
+      <button type="button" onclick="checkId()" class="btn btn-outline-success btn-sm uniform-btn">중복 확인</button>
+    </div>
+    <span id="id_msg" class="feedback-text"></span><br>
 
-      <div class="form-group"><label for="passwd">비밀번호*</label><input type="password" id="passwd" name="passwd" class="form-control"></div>
-      <div class="form-group"><label for="tel">전화번호*</label><input type="tel" id="tel" name="tel" class="form-control"></div>
-      <div class="form-group"><label for="zipcode">우편번호*</label><input type="text" id="zipcode" name="zipcode" class="form-control"></div>
-      <div class="form-group"><label for="address1">주소*</label><input type="text" id="address1" name="address1" class="form-control"></div>
-      <div class="form-group"><label for="address2">상세주소*</label><input type="text" id="address2" name="address2" class="form-control"></div>
+    <label>이메일*</label>
+    <div class="form-row">
+      <input type="email" id="email" name="email" class="form-control input-sm uniform-size flex-grow-1" required>
+      <button type="button" onclick="sendCode()" class="btn btn-outline-success btn-sm uniform-btn">코드 전송</button>
+    </div>
+    <span id="email_msg" class="feedback-text span_info" style="display: none;">이메일로 인증코드를 보냈습니다.</span><br>
 
-      <div style="margin-top: 30px;">
-        <button type="button" onclick="send()" class="btn btn-primary">회원가입</button>
-        <button type="button" onclick="cancelSignup()" class="btn btn-secondary">취소</button>
-      </div>
-    </form>
+    <label>인증코드 입력</label>
+    <div class="form-row">
+      <input type="text" id="code" class="form-control input-sm uniform-size flex-grow-1" required>
+      <button type="button" onclick="verifyCode()" class="btn btn-outline-primary btn-sm uniform-btn">확인</button>
+    </div>
+    <span id="code_msg" class="feedback-text span_info" style="display: none;">본인 인증이 확인되었습니다.</span>
+    <input type="hidden" id="verified" name="verified" value="N">
+
+    <label>비밀번호*</label>
+    <input type="password" id="passwd" name="passwd" class="form-control input-sm uniform-size" required>
+
+    <label>전화번호*</label>
+    <div class="form-row">
+      <select id="tel1" class="form-control uniform-size"><option value="010">010</option><option value="011">011</option></select>
+      <span>-</span>
+      <input type="text" id="tel2" maxlength="4" class="form-control uniform-size" required>
+      <span>-</span>
+      <input type="text" id="tel3" maxlength="4" class="form-control uniform-size" required>
+    </div>
+
+    <label>우편번호*</label>
+    <div class="form-row">
+      <input type="text" id="zipcode" name="zipcode" class="form-control uniform-size" readonly required>
+      <button type="button" onclick="execDaumPostcode()" class="btn btn-outline-primary btn-sm uniform-btn">주소 검색</button>
+    </div>
+
+    <label>기본주소*</label>
+    <input type="text" id="address1" name="address1" class="form-control uniform-size" readonly required>
+
+    <label>상세주소*</label>
+    <input type="text" id="address2" name="address2" class="form-control uniform-size" required>
+
+    <div style="margin-top: 30px; text-align: center;">
+      <button type="submit" class="btn btn-primary btn-sm uniform-btn">회원가입</button>
+      <button type="button" onclick="cancelSignup()" class="btn btn-secondary btn-sm uniform-btn">취소</button>
+    </div>
   </div>
+</form>
 
-  <!-- STEP 3: 가입완료 메시지 -->
-  <div id="step3" style="display: none; text-align: center; margin-top: 50px;">
-    <h3 id="completeMessage"></h3>
-    <a href="/member/login" class="btn btn-success mt-3">로그인 페이지로 이동</a>
-  </div>
+
+<!-- STEP 3 -->
+<div id="step3" style="display: none; text-align: center; margin-top: 50px;">
+  <h3 id="completeMessage"></h3>
+  <a href="/member/login" class="btn btn-success mt-3">로그인 페이지로 이동</a>
 </div>
 
 </div>

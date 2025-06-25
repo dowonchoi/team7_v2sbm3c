@@ -1,11 +1,14 @@
 package dev.mvc.member;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class MemberService {
@@ -63,5 +66,23 @@ public class MemberService {
    int cnt2 = memberDAO.updateGrade(memberno, 5); // 다시 대기등급
    return (cnt1 + cnt2) / 2;
   }
+  
+  public String uploadFile(String uploadDir, MultipartFile file) throws Exception {
+    if (file.isEmpty()) {
+        return null;
+    }
+
+    File dir = new File(uploadDir);
+    if (!dir.exists()) dir.mkdirs();
+
+    String originalName = file.getOriginalFilename();
+    String ext = originalName.substring(originalName.lastIndexOf("."));
+    String saveFileName = UUID.randomUUID().toString() + ext;
+
+    File saveFile = new File(dir, saveFileName);
+    file.transferTo(saveFile);
+
+    return saveFileName;
+}
 
 }

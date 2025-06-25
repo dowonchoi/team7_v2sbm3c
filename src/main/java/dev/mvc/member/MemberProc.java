@@ -26,8 +26,7 @@ public class MemberProc implements MemberProcInter {
 
   @Override
   public int checkID(String id) {
-    int cnt = this.memberDAO.checkID(id);
-    return cnt;
+    return memberDAO.checkID(id);
   }
 
   @Override
@@ -226,6 +225,5 @@ public class MemberProc implements MemberProcInter {
   }
   
 }
-
 
 
