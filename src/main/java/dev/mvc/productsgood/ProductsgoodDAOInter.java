@@ -2,6 +2,9 @@ package dev.mvc.productsgood;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+
+import dev.mvc.products.ProductsVO;
 
 public interface ProductsgoodDAOInter {
   /**
@@ -51,8 +54,14 @@ public interface ProductsgoodDAOInter {
    */
   public ArrayList<ProductsproductsgoodMemberVO> list_all_join();
   
-}
+  public ProductsgoodVO readByProductsnoMemberno(Map<String, Object> map);
+  public int deleteByProductsnoMemberno(Map<String, Object> map);
 
+  public ArrayList<ProductsVO> list_user_liked_products(int memberno);
+
+  public ArrayList<ProductsVO> list_supplier_products_liked(int memberno);
+
+}
 
 
 

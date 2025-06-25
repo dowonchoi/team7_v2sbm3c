@@ -185,4 +185,3 @@ public interface ProductsProcInter {
   public ArrayList<ProductsVO> related_scroll(Map<String, Object> map);
 
 }
-

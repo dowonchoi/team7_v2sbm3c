@@ -19,6 +19,7 @@ import dev.mvc.calendar.CalendarVO;
 import dev.mvc.cate.CateProcInter;
 import dev.mvc.cate.CateVOMenu;
 import dev.mvc.member.MemberProcInter;
+import dev.mvc.products.ProductsVO;
 import dev.mvc.productsgood.ProductsproductsgoodMemberVO;
 import jakarta.servlet.http.HttpSession;
 
@@ -132,8 +133,26 @@ public class ProductsgoodCont {
 
   }
   
-}
+  //소비자: 내가 추천한 상품들 조회
+  @GetMapping("/user_liked_list")
+  public String userLikedList(HttpSession session, Model model) {
+   int memberno = (int) session.getAttribute("memberno");
+   ArrayList<ProductsVO> list = this.productsgoodProc.list_user_liked_products(memberno);
+   model.addAttribute("list", list);
+   return "products/user_liked_list";
+  }
+  
+  //공급자: 내가 등록한 상품 중 추천 받은 것들
+  @GetMapping("/supplier_products_liked")
+  public String supplierProductsLiked(HttpSession session, Model model) {
+   int memberno = (int) session.getAttribute("memberno");
+   ArrayList<ProductsVO> list = this.productsgoodProc.list_supplier_products_liked(memberno);
+   model.addAttribute("list", list);
+   return "products/supplier_liked_list";
+  }
 
+  
+}
 
 
 

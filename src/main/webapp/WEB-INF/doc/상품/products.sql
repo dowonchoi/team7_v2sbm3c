@@ -208,9 +208,9 @@ ORDER BY productsno ASC;
 
 -- 카테고리별 목록
 SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, word, rdate,
-       file1, file1saved, thumb1, size1, map, youtube
+       file1, file1saved, thumb1, size1, map, youtube, file2, file2saved, thumb2, file3, file3saved, thumb3
 FROM products
-WHERE cateno=2
+--WHERE cateno=2
 ORDER BY productsno ASC;
 
 -- 1) 검색

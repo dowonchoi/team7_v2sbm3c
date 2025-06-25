@@ -111,7 +111,7 @@
               <b>재고:</b> <span th:text="${productsVO.salecnt}">0</span> 개<br>
             </div>
             <div class="products_read_recom" style="margin-top: 10px;">
-              추천: <span id="hart_panel"></span> <span id="recom_panel"></span>
+              추천: <span id="hart_panel"></span> <span id="recom_panel">[[${productsVO.recom}]]개</span>
             </div>
             <div class="products_read_links" style="margin-top: 30px;">
               <div th:if="${productsVO.file1saved != null}">
@@ -137,9 +137,9 @@
         <div class="menu_line"></div>
               <h5 style="padding: 10px 0;">관련 상품</h5>
               <div id="related-container"></div>
+
               <script th:inline="javascript">
                 const cateno = /*[[${cateVO.cateno}]]*/ 0;
-                const productsno = /*[[${productsVO.productsno}]]*/ 0;
               </script>
 
               <script>
@@ -203,10 +203,51 @@
                 }
 
                 window.addEventListener("scroll", handleScroll);
+              </script>
 
-                // ✅ 모든 초기화 통합: Swiper + 하트 + 관련상품
+
+              <!-- productsno를 JS 변수로 분리 -->
+              <script th:inline="javascript">
+                const productsno = /*[[${productsVO.productsno}]]*/ 0;
+              </script>
+
+              <script>
+                // ✅ 하트 추천 토글 함수
+                function good(productsno) {
+                  fetch("/products/good", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ productsno: productsno })
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                    if (data.isMember == 1) {
+                      let tag = '';
+                      if (data.hartCnt == 1) {
+                        tag = `<a href="javascript:good(${productsno})">
+                                <img src="/products/images/hart_on_50.png" style="width: 22px" title="추천">
+                              </a>`;
+                      } else {
+                        tag = `<a href="javascript:good(${productsno})">
+                                <img src="/products/images/hart_off_50.png" style="width: 22px" title="추천">
+                              </a>`;
+                      }
+                      document.querySelector('#hart_panel').innerHTML = tag;
+                      document.querySelector('#recom_panel').innerText = data.recom + '개';
+                    } else {
+                      alert("로그인 후 이용 가능합니다.");
+                    }
+                  })
+                  .catch(error => {
+                    console.error("추천 처리 실패:", error);
+                  });
+                }
+
+                // ✅ 초기화 (onload 내부에서)
                 window.onload = function() {
-                  // 관련상품 첫 로딩
+                  console.log("🔥 세션 grade: [[${session.grade}]]");
+                  console.log("🔥 세션 memberno: [[${session.memberno}]]");
+                  
                   loadMoreRelated();
 
                   // Swiper 슬라이드 초기화
@@ -223,22 +264,24 @@
                   });
 
                   // 하트 초기화
-                  let hartCnt = '[[${hartCnt}]]'; // Thymeleaf에서 전달받은 추천 여부
+                  let hartCnt = parseInt('[[${hartCnt}]]'); // 문자열 → 숫자 변환
                   let tag = '';
-
-                  if (hartCnt == 1) {
-                    tag = `<a href="javascript:good([[${productsVO.productsno}]])">
+                  if (hartCnt === 1) {
+                    tag = `<a href="javascript:good(${productsno})">
                             <img src="/products/images/hart_on_50.png" style="width: 22px" title="추천">
                           </a>`;
                   } else {
-                    tag = `<a href="javascript:good([[${productsVO.productsno}]])">
+                    tag = `<a href="javascript:good(${productsno})">
                             <img src="/products/images/hart_off_50.png" style="width: 22px" title="추천">
                           </a>`;
                   }
-
                   document.querySelector('#hart_panel').innerHTML = tag;
+
+                  // 추천 수 표시도 같이 초기화
+                  document.querySelector('#recom_panel').innerText = '[[${productsVO.recom}]]';
                 };
               </script>
+
       </li>
     </ul>
   </fieldset>

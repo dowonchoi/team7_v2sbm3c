@@ -2,9 +2,12 @@ package dev.mvc.productsgood;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import dev.mvc.products.ProductsVO;
 
 @Component("dev.mvc.productsgood.ProductsgoodProc")
 public class ProductsgoodProc implements ProductsgoodProcInter {
@@ -53,7 +56,38 @@ public class ProductsgoodProc implements ProductsgoodProcInter {
     return list;
   }
 
-}
 
+
+  @Override
+  public ProductsgoodVO readByProductsnoMemberno(int productsno, int memberno) {
+    // 파라미터를 Map으로 만들어 DAO 호출
+    Map<String, Object> map = new HashMap<>();
+    map.put("productsno", productsno);
+    map.put("memberno", memberno);
+    
+    return this.productsgoodDAO.readByProductsnoMemberno(map);
+  }
+
+  @Override
+  public int deleteByProductsnoMemberno(int productsno, int memberno) {
+    // 파라미터를 Map으로 만들어 DAO 호출
+    Map<String, Object> map = new HashMap<>();
+    map.put("productsno", productsno);
+    map.put("memberno", memberno);
+    
+    return this.productsgoodDAO.deleteByProductsnoMemberno(map);
+  }
+
+  @Override
+  public ArrayList<ProductsVO> list_user_liked_products(int memberno) {
+    return this.productsgoodDAO.list_user_liked_products(memberno);
+  }
+
+  @Override
+  public ArrayList<ProductsVO> list_supplier_products_liked(int memberno) {
+    return this.productsgoodDAO.list_supplier_products_liked(memberno);
+  }
+
+}
 
 

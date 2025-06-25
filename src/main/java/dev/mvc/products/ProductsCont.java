@@ -818,6 +818,7 @@ public class ProductsCont {
     return "products/read"; // /templates/products/read.html
     // return "products/read_ai";
   }
+  
   /*
    * 무한스크롤
    */
@@ -1642,86 +1643,62 @@ public class ProductsCont {
   }
 
   /**
-   * 추천 처리 http://localhost:9093/products/good
    * 상품 추천/추천 해제 처리 (AJAX 방식)
-   * @param json_src JSON 형식 문자열 (예: {"productsno": "5"})
-   * @return JSON 응답 문자열 (추천 상태 및 추천수 포함)
+   * @param json_src {"productsno": 38}
+   * @return JSON 응답 (추천 여부, 총 추천 수)
    */
   @PostMapping(value = "/good")
   @ResponseBody
   public String good(HttpSession session, Model model, @RequestBody String json_src){ 
-    System.out.println("-> json_src: " + json_src); // json_src: {"productsno":"5"} // 클라이언트로부터 받은 JSON 문자열
+    System.out.println("-> json_src: " + json_src);
     
-    // ---------------------------
-    // 1. JSON 파싱 및 상품 번호 추출
-    // ---------------------------
-    JSONObject src = new JSONObject(json_src); // String -> JSON  (문자열을 JSON 객체로 변환)
-    int productsno = (int)src.get("productsno"); // 값 가져오기
+    JSONObject src = new JSONObject(json_src);
+    int productsno = Integer.parseInt(src.get("productsno").toString()); // 🔥 핵심 수정 포인트
     System.out.println("-> productsno: " + productsno);
-        
-    // ---------------------------
-    // 2. 로그인 여부 확인
-    // ---------------------------
-    if (this.memberProc.isMember(session)) { // 회원 로그인 확인
-      // 추천을 한 상태인지 확인
-      int memberno = (int)session.getAttribute("memberno");
+
+    JSONObject json = new JSONObject();
+    
+    // 세션에 grade 문자열이 저장되어 있음 ("admin", "member", "guest")
+    String grade = (String) session.getAttribute("grade");
+    Integer memberno = (Integer) session.getAttribute("memberno");
+
+    // 로그인 여부만 판단 (등급 관계없이 모든 회원 허용)
+    if (memberno != null && grade != null && 
+        (grade.equals("admin") || grade.equals("member") || grade.equals("guest") || grade.equals("supplier") || grade.equals("user"))) {
       
-      // ---------------------------
-      // 3. 현재 추천 여부 확인
-      // ---------------------------
-      HashMap<String, Object> map = new HashMap<String, Object>();
-      map.put("productsno", productsno);
-      map.put("memberno", memberno);
-      
-      int good_cnt = this.productsgoodProc.hartCnt(map); // 추천 여부: 0 or 1
-      System.out.println("-> good_cnt: " + good_cnt);
-      
-      if (good_cnt == 1) { // 이미지 추천을 한 회원인지 검사, (1) -> 이미 추천한 경우 → 추천 해제
-        System.out.println("-> 추천 해제: " + productsno + ' ' + memberno);
-        
-        // 추천 기록 식별
-        // Productsgood 테이블에서 추천한 기록을 찾음
-        ProductsgoodVO productsgoodVO = this.productsgoodProc.readByProductsnoMemberno(map);
-        
-        // 추천 기록 삭제 + 추천수 감소
-        this.productsgoodProc.delete(productsgoodVO.getProductsgoodno()); // 추천 기록 삭제
-        this.productsProc.decreaseRecom(productsno); // 추천 카운트 감소
-        
-      } else { // 추천하지 않은 경우 → 추천 등록
-        System.out.println("-> 추천: " + productsno + ' ' + memberno); 
-        
-        ProductsgoodVO productsgoodVO_new = new ProductsgoodVO();
-        productsgoodVO_new.setProductsno(productsno);
-        productsgoodVO_new.setMemberno(memberno);
-        
-        this.productsgoodProc.create(productsgoodVO_new);
-        this.productsProc.increaseRecom(productsno); // 카운트 증가 =  추천수 증가
+      ProductsgoodVO vo = this.productsgoodProc.readByProductsnoMemberno(productsno, memberno);
+      int hartCnt = 0;
+      int recom = 0;
+
+      if (vo == null) {
+        // 추천 등록
+        ProductsgoodVO newVO = new ProductsgoodVO();
+        newVO.setProductsno(productsno);
+        newVO.setMemberno(memberno);
+        this.productsgoodProc.create(newVO);
+        this.productsProc.increaseRecom(productsno);
+        hartCnt = 1;
+      } else {
+        // 추천 해제
+        this.productsgoodProc.deleteByProductsnoMemberno(productsno, memberno);
+        this.productsProc.decreaseRecom(productsno);
       }
-      
-      // ---------------------------
-      // 4. 최종 상태 재확인 및 응답 구성
-      // ---------------------------
-      // 추천 여부가 변경되어 다시 새로운 값을 읽어옴.
-      int hartCnt = this.productsgoodProc.hartCnt(map);  // 현재 추천 여부
-      int recom = this.productsProc.read(productsno).getRecom();  // 현재 총 추천수
-            
-      JSONObject result = new JSONObject(); 
-      result.put("isMember", 1); // 로그인 상태 -> 로그인: 1, 비회원: 0
-      result.put("hartCnt", hartCnt); // 추천 여부, 추천:1, 비추천: 0
-      result.put("recom", recom);   // 추천 총계
-      
-      System.out.println("-> result.toString(): " + result.toString());
-      return result.toString();
-      
-    } else { // 정상적인 로그인이 아닌 경우(비회원이 요청한 경우) 로그인 유도
-      JSONObject result = new JSONObject();
-      result.put("isMember", 0); // 로그인: 1, 비회원: 0
-      
-      System.out.println("-> result.toString(): " + result.toString());
-      return result.toString();
+
+      recom = this.productsProc.read(productsno).getRecom();
+
+      json.put("isMember", 1);
+      json.put("hartCnt", hartCnt);
+      json.put("recom", recom);
+    } else {
+      // 로그인 안 한 경우
+      json.put("isMember", 0);
     }
 
+    return json.toString();  // 🔥 필수 리턴
   }
+
+  
+
 
   /*
    * 20250619 추가 
@@ -1735,4 +1712,3 @@ public class ProductsCont {
   }
   
 }
-

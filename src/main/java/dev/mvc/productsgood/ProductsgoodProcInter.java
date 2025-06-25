@@ -3,6 +3,7 @@ package dev.mvc.productsgood;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import dev.mvc.products.ProductsVO;
 import dev.mvc.productsgood.ProductsproductsgoodMemberVO;
 
 public interface ProductsgoodProcInter {
@@ -53,7 +54,26 @@ public interface ProductsgoodProcInter {
    */
   public ArrayList<ProductsproductsgoodMemberVO> list_all_join();
   
-}
+  /**
+   * productsno + memberno 조합으로 추천 여부 조회
+   * @param productsno
+   * @param memberno
+   * @return ProductsgoodVO
+   */
+  public ProductsgoodVO readByProductsnoMemberno(int productsno, int memberno);
 
+  /**
+   * productsno + memberno 조합으로 추천 삭제
+   * @param productsno
+   * @param memberno
+   * @return 삭제된 레코드 수
+   */
+  public int deleteByProductsnoMemberno(int productsno, int memberno);
+
+  public ArrayList<ProductsVO> list_user_liked_products(int memberno);
+
+  public ArrayList<ProductsVO> list_supplier_products_liked(int memberno);
+
+}
 
 

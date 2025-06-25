@@ -50,6 +50,29 @@
     WHERE c.productsno = r.productsno AND r.memberno = m.memberno
     ORDER BY productsgoodno DESC
   </select>
-      
-</mapper>
 
+  <!-- productsno + memberno 조합으로 추천 삭제 -->
+  <delete id="deleteByProductsnoMemberno" parameterType="HashMap">
+    DELETE FROM productsgood
+    WHERE productsno = #{productsno} AND memberno = #{memberno}
+  </delete>
+
+  <!-- 소비자: 내가 하트 누른 상품 리스트 -->
+  <select id="list_user_liked_products" resultType="dev.mvc.products.ProductsVO" parameterType="int">
+    SELECT p.*
+    FROM products p
+    JOIN productsgood g ON p.productsno = g.productsno
+    WHERE g.memberno = #{memberno}
+    ORDER BY g.productsgoodno DESC
+  </select>
+
+  <!-- 공급자: 내가 등록한 상품 중 추천 받은 상품 리스트 -->
+  <select id="list_supplier_products_liked" resultType="dev.mvc.products.ProductsVO" parameterType="int">
+    SELECT *
+    FROM products
+    WHERE memberno = #{memberno}
+      AND recom > 0
+    ORDER BY recom DESC
+  </select>
+
+</mapper>

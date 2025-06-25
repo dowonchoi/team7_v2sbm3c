@@ -144,8 +144,67 @@
       
     </ul>
   </fieldset>
+  <!-- ✅ 하트 추천 영역 추가 -->
+  <div style="margin-top: 20px;">
+    추천: <span id="recom_panel">[[${productsVO.recom}]]개</span>
+  </div>
+
+  <!-- ✅ JS: productsno 및 초기 하트 상태 변수 -->
+  <script th:inline="javascript">
+    const productsno = /*[[${productsVO.productsno}]]*/ 0;
+    const hartCnt = parseInt('[[${hartCnt}]]');  // 문자열 → 숫자
+    const recom = parseInt('[[${productsVO.recom}]]'); // 추천 수
+  </script>
+
+  <script>
+    // ✅ 하트 추천 토글 함수
+    function good(productsno) {
+      fetch("/products/good", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productsno: productsno })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.isMember == 1) {
+          let tag = '';
+          if (data.hartCnt == 1) {
+            tag = `<a href="javascript:good(${productsno})">
+                    <img src="/products/images/hart_on_50.png" style="width: 22px" title="추천">
+                  </a>`;
+          } else {
+            tag = `<a href="javascript:good(${productsno})">
+                    <img src="/products/images/hart_off_50.png" style="width: 22px" title="추천">
+                  </a>`;
+          }
+          document.querySelector('#hart_panel').innerHTML = tag;
+          document.querySelector('#recom_panel').innerText = data.recom + '개';
+        } else {
+          alert("로그인 후 이용 가능합니다.");
+        }
+      })
+      .catch(error => {
+        console.error("추천 처리 실패:", error);
+      });
+    }
+
+    // ✅ 초기 하트 상태 렌더링
+    window.onload = function () {
+      let tag = '';
+      if (hartCnt === 1) {
+        tag = `<a href="javascript:good(${productsno})">
+                <img src="/products/images/hart_on_50.png" style="width: 22px" title="추천">
+              </a>`;
+      } else {
+        tag = `<a href="javascript:good(${productsno})">
+                <img src="/products/images/hart_off_50.png" style="width: 22px" title="추천">
+              </a>`;
+      }
+      document.querySelector('#hart_panel').innerHTML = tag;
+      document.querySelector('#recom_panel').innerText = data.recom + '개';
+    };
+  </script>
 
 </div>
 
 </html>
-

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+  <div class="title_line">내가 찜 상품 목록</div>
+  <div class="menu_line"></div>
+
+  <div class="container_main">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>상품번호</th>
+          <th>이미지</th>
+          <th>상품명</th>
+          <th>등록일</th>
+          <th>추천수</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="vo : ${list}">
+          <td th:text="${vo.productsno}">1</td>
+          <td>
+            <img th:if="${vo.thumb1 != null}" th:src="@{|/products/storage/${vo.thumb1}|}" style="width: 80px;">
+          </td>
+          <td>
+            <a th:href="@{|/products/read?productsno=${vo.productsno}|}" th:text="${vo.title}">제목</a>
+          </td>
+          <td th:text="${vo.rdate}">2025-06-25</td>
+          <td th:text="${vo.recom}">0</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</html>
