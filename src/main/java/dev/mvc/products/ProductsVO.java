@@ -1,5 +1,8 @@
 package dev.mvc.products;
 
+import java.util.Date;
+
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.Getter;
@@ -123,5 +126,40 @@ public class ProductsVO {
     /** 재고 수량 */
     private int salecnt = 0;
     
+    @DateTimeFormat(pattern = "yyyy-MM-dd")  // ← 추가!
+    private Date expdate;
+
+ // 광고 이미지용 추가
+    private MultipartFile fileAdMF;
+    private String fileAd = "";
+    private String fileAdsaved = "";
+    private long sizeAd = 0;
+
+    // Getter/Setter 추가
+    public MultipartFile getFileAdMF() {
+      return fileAdMF;
+    }
+    public void setFileAdMF(MultipartFile fileAdMF) {
+      this.fileAdMF = fileAdMF;
+    }
+    public String getFileAd() {
+      return fileAd;
+    }
+    public void setFileAd(String fileAd) {
+      this.fileAd = fileAd;
+    }
+    public String getFileAdsaved() {
+      return fileAdsaved;
+    }
+    public void setFileAdsaved(String fileAdsaved) {
+      this.fileAdsaved = fileAdsaved;
+    }
+    public long getSizeAd() {
+      return sizeAd;
+    }
+    public void setSizeAd(long sizeAd) {
+      this.sizeAd = sizeAd;
+    }
+
   
 }

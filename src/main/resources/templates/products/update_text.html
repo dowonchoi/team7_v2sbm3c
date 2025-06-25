@@ -59,6 +59,10 @@
               class="form-control" style='width: 50%;'>
     </div>
     <div>
+      <label>소비기한</label>
+      <input type="date" name="expdate" class="form-control" style="width: 50%;" required="required">
+    </div>
+    <div>
        <label>재고 수량</label>
        <input type='number' name='salecnt' th:value='${productsVO.salecnt}' required="required" 
               class="form-control" style='width: 50%;'>
@@ -78,7 +82,7 @@
       <button type="submit" class="btn btn-secondary btn-sm">저장</button>
       <button type="button"
         th:if="${cateVO.cateno != null}"
-        th:attr="onclick=|location.href='./list_by_cateno_search_paging_grid?cateno=${cateVO.cateno}'|"
+        th:attr="onclick=|location.href='/products/list_by_cateno_grid?cateno=${cateVO.cateno}&now_page=${now_page}&word=${word}'|"
         class="btn btn-secondary btn-sm">목록</button>
     </div>
   

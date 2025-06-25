@@ -37,6 +37,7 @@ CREATE TABLE products(
         file3saved                            VARCHAR(100)          NULL,  -- 저장된 파일명, image
         thumb3                              VARCHAR(100)          NULL,   -- preview image
         size3                                 NUMBER(10)      DEFAULT 0 NULL,  -- 파일 사이즈
+        expdate                               DATE
         PRIMARY KEY (productsno),
         FOREIGN KEY (memberno) REFERENCES member (memberno),
         FOREIGN KEY (cateno) REFERENCES cate (cateno)
@@ -129,7 +130,7 @@ COMMIT;
 
 -- 전체 목록
 SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, passwd, word, rdate,
-           file1, file1saved, thumb1, size1, map, youtube, mp4
+           file1, file1saved, thumb1, size1, map, youtube, mp4, expdate
 FROM products
 ORDER BY productsno DESC;
 
@@ -188,8 +189,9 @@ commit;
 
 -- 삭제
 DELETE FROM products
-WHERE productsno = 25;
+WHERE productsno = 1;
 commit;
+
 
 DELETE FROM products
 WHERE cateno=12 AND productsno <= 41;
@@ -729,3 +731,9 @@ ALTER TABLE products ADD file3saved VARCHAR2(100);
 ALTER TABLE products ADD thumb3 VARCHAR2(100);
 ALTER TABLE products ADD size3 NUMBER(10) DEFAULT 0;
 
+-- 소비기한
+ALTER TABLE products ADD expdate DATE;
+
+SELECT productsno, title, expdate FROM products WHERE productsno = 38; -- 테스트용
+
+commit;
