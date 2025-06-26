@@ -232,21 +232,22 @@
                 <div>생산자(수입자)</div>
                 <div th:text="${productsVO.maker}">-</div>
                 <div>원산지</div>
-                <div th:text="${productsVO.country}">-</div>
+                <div th:text="${productsVO.origin}">-</div>
 
 
-                <div>제조연월일, 소비기한 또는 품질유지기한</div>
-                <div th:text="${#dates.format(productsVO.expdate, 'yyyy.MM.dd')}">-</div>
+                <div>제조연월일</div>
+                <div th:text="${productsVO.makedate}">제품에 별도 표시</div>
                 <div>세부 품목군별 표시사항</div>
                 <div th:text="${productsVO.detail}">-</div>
 
                 <div>수입식품 문구 여부</div>
-                <div th:text="${productsVO.imported}">-</div>
+                <div th:text="${productsVO.importyn}">-</div>
                 <div>상품 구성</div>
-                <div th:text="${productsVO.components}">-</div>
+                <div th:text="${productsVO.pack}">-</div>
+
 
                 <div>보관방법,취급방법</div>
-                <div th:text="${productsVO.storage}">-</div>
+                <div th:text="${productsVO.keep}">-</div>
                 <div>소비자안전을 위한 주의사항</div>
                 <div th:text="${productsVO.safe}">-</div>
 

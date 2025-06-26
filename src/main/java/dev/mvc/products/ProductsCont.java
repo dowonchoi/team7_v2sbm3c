@@ -161,6 +161,12 @@ public class ProductsCont {
         productsVO.setFile1saved(file1saved);
         productsVO.setThumb1(thumb1);
         productsVO.setSize1(size1);
+      } else {
+        // ❗ 업로드하지 않은 경우 → 기본 이미지 적용
+        file1 = "default.png";               // 원본 파일명 (화면용, 필요시)
+        file1saved = "default.png";          // 서버에 저장된 파일명 (실제 사용)
+        thumb1 = "default_thumb.png";        // 썸네일 파일 (있으면 지정)
+        size1 = 0L;
       }
 
       // ---------------------- file2 처리 ----------------------
@@ -177,6 +183,12 @@ public class ProductsCont {
         productsVO.setFile2(file2);
         productsVO.setFile2saved(file2saved);
         productsVO.setThumb2(thumb2);
+      } else {
+        // ❗ 업로드하지 않은 경우 → 기본 이미지 적용
+        file2 = "default.png";               // 원본 파일명 (화면용, 필요시)
+        file2saved = "default.png";          // 서버에 저장된 파일명 (실제 사용)
+        thumb2 = "default_thumb.png";        // 썸네일 파일 (있으면 지정)
+        size2 = 0L;
       }
 
       // ---------------------- file3 처리 ----------------------
@@ -193,6 +205,12 @@ public class ProductsCont {
         productsVO.setFile3(file3);
         productsVO.setFile3saved(file3saved);
         productsVO.setThumb3(thumb3);
+      } else {
+        // ❗ 업로드하지 않은 경우 → 기본 이미지 적용
+        file3 = "default.png";               // 원본 파일명 (화면용, 필요시)
+        file3saved = "default.png";          // 서버에 저장된 파일명 (실제 사용)
+        thumb3 = "default_thumb.png";        // 썸네일 파일 (있으면 지정)
+        size3 = 0L;
       }
       // ---------------------- fileAd (광고 이미지) 처리 ----------------------
       MultipartFile mfAd = productsVO.getFileAdMF();
@@ -205,6 +223,11 @@ public class ProductsCont {
         productsVO.setFileAd(fileAd);
         productsVO.setFileAdsaved(fileAdsaved);
         productsVO.setSizeAd(sizeAd);
+      } else {
+        // ❗ 업로드하지 않은 경우 → 기본 이미지 적용
+        fileAd = "default_ad.png";            // 원본 파일명 (화면용)
+        fileAdsaved = "default_ad.png";       // 서버에 저장된 파일명
+        sizeAd = 0L; 
       }
       // ------------------------------------------------------------------------------
       // 파일 전송 코드 종료

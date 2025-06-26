@@ -8,20 +8,21 @@
     INSERT INTO products(productsno, memberno, cateno, title, content, passwd, word,
                                      file1, file1saved, thumb1, size1, rdate, price, dc, saleprice, point, salecnt, file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3, expdate, fileAd, fileAdsaved, sizeAd, item, maker, makedate, importyn, keep, counsel_tel, sizeinfo, origin, detail, pack, safe)
     VALUES(products_seq.nextval, #{memberno}, #{cateno}, #{title}, #{content}, #{passwd}, #{word},
-                #{file1}, #{file1saved}, #{thumb1}, #{size1}, sysdate, #{price}, #{dc}, #{saleprice}, #{point}, #{salecnt}, #{file2}, #{file2saved}, #{thumb2}, #{size2}, #{file3}, #{file3saved}, #{thumb3}, #{size3}, #{expdate}, #{fileAd}, #{fileAdsaved}, #{sizeAd}, #{item}, #{maker}, #{makedate}, #{importyn}, #{keep}, #{counsel_tel}, #{sizeinfo}, #{origin}, #{detail}, #{pack}, #{safe}))
+                #{file1}, #{file1saved}, #{thumb1}, #{size1}, sysdate, #{price}, #{dc}, #{saleprice}, #{point}, #{salecnt}, #{file2}, #{file2saved}, #{thumb2}, #{size2}, #{file3}, #{file3saved}, #{thumb3}, #{size3}, #{expdate}, #{fileAd}, #{fileAdsaved}, #{sizeAd}, #{item}, #{maker}, #{makedate}, #{importyn}, #{keep}, #{counsel_tel}, #{sizeinfo}, #{origin}, #{detail}, #{pack}, #{safe})
   </insert>
 
   <!-- 모든 카테고리의 등록된 글목록 -->
   <select id="list_all" resultType="dev.mvc.products.ProductsVO">
-    INSERT INTO products(productsno, memberno, cateno, title, content, passwd, word,
-                         file1, file1saved, thumb1, size1, rdate, price, dc, saleprice, point, salecnt, 
-                         file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3, expdate,
-                         fileAd, fileAdsaved, sizeAd, item, maker, makedate, importyn, keep, counsel_tel, sizeinfo, origin, detail, pack, safe)
-    VALUES(products_seq.nextval, #{memberno}, #{cateno}, #{title}, #{content}, #{passwd}, #{word},
-           #{file1}, #{file1saved}, #{thumb1}, #{size1}, sysdate, #{price}, #{dc}, #{saleprice}, #{point}, #{salecnt}, 
-           #{file2}, #{file2saved}, #{thumb2}, #{size2}, #{file3}, #{file3saved}, #{thumb3}, #{size3}, #{expdate},
-           #{fileAd}, #{fileAdsaved}, #{sizeAd}, #{item}, #{maker}, #{makedate}, #{importyn}, #{keep}, #{counsel_tel}, #{sizeinfo}, #{origin}, #{detail}, #{pack}, #{safe}))
+    SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate,
+           LOWER(file1) AS file1, file1saved, thumb1, size1,
+           file2, file2saved, thumb2, size2,
+           file3, file3saved, thumb3, size3,
+           expdate, fileAd, fileAdsaved, sizeAd,
+           item, maker, makedate, importyn, keep, counsel_tel, sizeinfo, origin, detail, pack, safe
+    FROM products
+    ORDER BY productsno DESC
   </select>
+
   
   <!-- 특정 카테고리의 등록된 글목록 (Admin 과 일반 회원(소비자))-->
   <select id="list_by_cateno" resultType="dev.mvc.products.ProductsVO" parameterType="int">

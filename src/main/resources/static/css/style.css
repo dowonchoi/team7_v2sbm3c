@@ -958,7 +958,7 @@
   
   .product-info-grid {
     display: grid;
-    grid-template-columns: 15% 30% 22% 33%;
+    grid-template-columns: 15% 30% 23% 32%;
     border: 1px solid #e0e0e0;
     border-top: none;
   }
