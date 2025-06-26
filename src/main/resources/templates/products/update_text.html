@@ -72,7 +72,55 @@
        <label>검색어</label>
        <input type='text' name='word' th:value='${productsVO.word}' required="required" 
                  class="form-control" style='width: 100%;'>
-    </div>   
+    </div>
+    <hr>
+    <h4>상품 상세 정보</h4>
+
+    <div>
+      <label>품목 또는 명칭</label>
+      <input type="text" name="item" th:value="${productsVO.item}" class="form-control" style="width: 100%;">
+    </div>
+    <div>
+      <label>생산자(수입자)</label>
+      <input type="text" name="maker" th:value="${productsVO.maker}" class="form-control" style="width: 100%;">
+    </div>
+    <div>
+      <label>제조연월일, 소비기한 또는 품질유지기한</label>
+      <input type="text" name="makedate" th:value="${productsVO.makedate}" class="form-control" style="width: 100%;">
+    </div>
+    <div>
+      <label>수입식품 문구 여부</label>
+      <input type="text" name="importyn" th:value="${productsVO.importyn}" class="form-control" style="width: 100%;">
+    </div>
+    <div>
+      <label>보관방법, 취급방법</label>
+      <input type="text" name="keep" th:value="${productsVO.keep}" class="form-control" style="width: 100%;">
+    </div>
+    <div>
+      <label>소비자상담 관련 전화번호</label>
+      <input type="text" name="counsel_tel" th:value="${productsVO.counsel_tel}" class="form-control" style="width: 100%;">
+    </div>
+    <div>
+      <label>포장단위별 용량(중량), 수량, 크기</label>
+      <input type="text" name="sizeinfo" th:value="${productsVO.sizeinfo}" class="form-control" style="width: 100%;">
+    </div>
+    <div>
+      <label>원산지</label>
+      <input type="text" name="origin" th:value="${productsVO.origin}" class="form-control" style="width: 100%;">
+    </div>
+    <div>
+      <label>세부 품목군별 표시사항</label>
+      <input type="text" name="detail" th:value="${productsVO.detail}" class="form-control" style="width: 100%;">
+    </div>
+    <div>
+      <label>상품 구성</label>
+      <input type="text" name="pack" th:value="${productsVO.pack}" class="form-control" style="width: 100%;">
+    </div>
+    <div>
+      <label>소비자 안전을 위한 주의사항</label>
+      <input type="text" name="safe" th:value="${productsVO.safe}" class="form-control" style="width: 100%;">
+    </div>
+   
     <div>
        <label>패스워드</label>
        <input type='password' name='passwd' required="required" 

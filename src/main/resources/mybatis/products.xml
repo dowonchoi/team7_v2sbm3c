@@ -6,9 +6,9 @@
   <!-- 등록한 레코드 갯수 1 리턴, #{memberno}: public int getAdminno() 호출됨 -->
   <insert id="create" parameterType="dev.mvc.products.ProductsVO">
     INSERT INTO products(productsno, memberno, cateno, title, content, passwd, word,
-                                     file1, file1saved, thumb1, size1, rdate, price, dc, saleprice, point, salecnt, file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3, expdate, fileAd, fileAdsaved, sizeAd)
+                                     file1, file1saved, thumb1, size1, rdate, price, dc, saleprice, point, salecnt, file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3, expdate, fileAd, fileAdsaved, sizeAd, item, maker, makedate, importyn, keep, counsel_tel, sizeinfo, origin, detail, pack, safe)
     VALUES(products_seq.nextval, #{memberno}, #{cateno}, #{title}, #{content}, #{passwd}, #{word},
-                #{file1}, #{file1saved}, #{thumb1}, #{size1}, sysdate, #{price}, #{dc}, #{saleprice}, #{point}, #{salecnt}, #{file2}, #{file2saved}, #{thumb2}, #{size2}, #{file3}, #{file3saved}, #{thumb3}, #{size3}, #{expdate}, #{fileAd}, #{fileAdsaved}, #{sizeAd})
+                #{file1}, #{file1saved}, #{thumb1}, #{size1}, sysdate, #{price}, #{dc}, #{saleprice}, #{point}, #{salecnt}, #{file2}, #{file2saved}, #{thumb2}, #{size2}, #{file3}, #{file3saved}, #{thumb3}, #{size3}, #{expdate}, #{fileAd}, #{fileAdsaved}, #{sizeAd}, #{item}, #{maker}, #{makedate}, #{importyn}, #{keep}, #{counsel_tel}, #{sizeinfo}, #{origin}, #{detail}, #{pack}, #{safe}))
   </insert>
 
   <!-- 모든 카테고리의 등록된 글목록 -->
@@ -16,17 +16,17 @@
     INSERT INTO products(productsno, memberno, cateno, title, content, passwd, word,
                          file1, file1saved, thumb1, size1, rdate, price, dc, saleprice, point, salecnt, 
                          file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3, expdate,
-                         fileAd, fileAdsaved, sizeAd)
+                         fileAd, fileAdsaved, sizeAd, item, maker, makedate, importyn, keep, counsel_tel, sizeinfo, origin, detail, pack, safe)
     VALUES(products_seq.nextval, #{memberno}, #{cateno}, #{title}, #{content}, #{passwd}, #{word},
            #{file1}, #{file1saved}, #{thumb1}, #{size1}, sysdate, #{price}, #{dc}, #{saleprice}, #{point}, #{salecnt}, 
            #{file2}, #{file2saved}, #{thumb2}, #{size2}, #{file3}, #{file3saved}, #{thumb3}, #{size3}, #{expdate},
-           #{fileAd}, #{fileAdsaved}, #{sizeAd})
+           #{fileAd}, #{fileAdsaved}, #{sizeAd}, #{item}, #{maker}, #{makedate}, #{importyn}, #{keep}, #{counsel_tel}, #{sizeinfo}, #{origin}, #{detail}, #{pack}, #{safe}))
   </select>
   
   <!-- 특정 카테고리의 등록된 글목록 (Admin 과 일반 회원(소비자))-->
   <select id="list_by_cateno" resultType="dev.mvc.products.ProductsVO" parameterType="int">
     SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate,
-              LOWER(file1) as file1, file1saved, thumb1, size1, mp4, file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3, expdate, fileAd, fileAdsaved, sizeAd
+              LOWER(file1) as file1, file1saved, thumb1, size1, mp4, file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3, expdate, fileAd, fileAdsaved, sizeAd, item, maker, makedate, importyn, keep, counsel_tel, sizeinfo, origin, detail, pack, safe
     FROM products 
     WHERE cateno = #{cateno}
     ORDER BY productsno DESC
@@ -35,7 +35,7 @@
   <!-- 특정 카테고리의 등록된 글목록 (공급자(member))-->
   <select id="list_by_memberno" resultType="dev.mvc.products.ProductsVO" parameterType="int">
     SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate,
-              LOWER(file1) as file1, file1saved, thumb1, size1, mp4, file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3, expdate, fileAd, fileAdsaved, sizeAd
+              LOWER(file1) as file1, file1saved, thumb1, size1, mp4, file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3, expdate, fileAd, fileAdsaved, sizeAd, item, maker, makedate, importyn, keep, counsel_tel, sizeinfo, origin, detail, pack, safe
     FROM products 
     WHERE memberno = #{memberno}
     ORDER BY productsno DESC
@@ -44,7 +44,7 @@
   <!-- 일반적인 조회 -->
   <select id="read" resultType="dev.mvc.products.ProductsVO" parameterType="int">
     SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, passwd, word, rdate,
-              file1, file1saved, thumb1, size1, map, youtube, price, dc, saleprice, point, salecnt, file2, file2saved, thumb2, file3, file3saved, thumb3, expdate, fileAd, fileAdsaved, sizeAd
+              file1, file1saved, thumb1, size1, map, youtube, price, dc, saleprice, point, salecnt, file2, file2saved, thumb2, file3, file3saved, thumb3, expdate, fileAd, fileAdsaved, sizeAd, item, maker, makedate, importyn, keep, counsel_tel, sizeinfo, origin, detail, pack, safe
     FROM products
     WHERE productsno = #{productsno}
   </select>
@@ -66,7 +66,7 @@
   <!-- 카테고리별 검색 목록 -->
   <select id="list_by_cateno_search" resultType="dev.mvc.products.ProductsVO" parameterType="HashMap">
     SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, word, rdate,
-            file1, file1saved, thumb1, size1, map, youtube, file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3, expdate, fileAd, fileAdsaved, sizeAd
+            file1, file1saved, thumb1, size1, map, youtube, file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3, expdate, fileAd, fileAdsaved, sizeAd, item, maker, makedate, importyn, keep, counsel_tel, sizeinfo, origin, detail, pack, safe
     FROM products
     <choose>
       <when test="word == null or word == ''"> <!-- 검색하지 않는 경우 -->
@@ -99,11 +99,11 @@
 
   <!-- 카테고리별 검색 + 페이징 목록 -->
   <select id="list_by_cateno_search_paging" resultType="dev.mvc.products.ProductsVO" parameterType="HashMap">
-   SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate, file1, file1saved, thumb1, size1, map, youtube, r, file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3, expdate, fileAd, fileAdsaved, sizeAd
+   SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate, file1, file1saved, thumb1, size1, map, youtube, r, file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3, expdate, fileAd, fileAdsaved, sizeAd, item, maker, makedate, importyn, keep, counsel_tel, sizeinfo, origin, detail, pack, safe
    FROM (
-              SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate, file1, file1saved, thumb1, size1, map, youtube, rownum as r, file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3, expdate, fileAd, fileAdsaved, sizeAd
+              SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate, file1, file1saved, thumb1, size1, map, youtube, rownum as r, file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3, expdate, fileAd, fileAdsaved, sizeAd, item, maker, makedate, importyn, keep, counsel_tel, sizeinfo, origin, detail, pack, safe
               FROM (
-                        SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate, file1, file1saved, thumb1, size1, map, youtube, file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3, expdate, fileAd, fileAdsaved, sizeAd
+                        SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate, file1, file1saved, thumb1, size1, map, youtube, file2, file2saved, thumb2, size2, file3, file3saved, thumb3, size3, expdate, fileAd, fileAdsaved, sizeAd, item, maker, makedate, importyn, keep, counsel_tel, sizeinfo, origin, detail, pack, safe
                         FROM products
                         <choose>
                           <when test="word == null or word == ''"> <!-- 검색하지 않는 경우 -->
@@ -140,7 +140,18 @@
       saleprice=#{saleprice},
       point=#{point},
       salecnt=#{salecnt},
-      expdate=#{expdate}
+      expdate=#{expdate},
+      item=#{item},
+      maker=#{maker},
+      makedate=#{makedate},
+      importyn=#{importyn},
+      keep=#{keep},
+      counsel_tel=#{counsel_tel},
+      sizeinfo=#{sizeinfo},
+      origin=#{origin},
+      detail=#{detail},
+      pack=#{pack},
+      safe=#{safe}
     WHERE productsno = #{productsno}
   </update>
 

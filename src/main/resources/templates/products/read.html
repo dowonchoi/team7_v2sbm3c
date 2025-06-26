@@ -186,6 +186,11 @@
             document.getElementById('total_price').innerText = total.toLocaleString() + '원';
           }
         </script>
+        <div class="products_read_content_separate">
+          <hr>
+          <h3>상품 설명</h3>
+          <div th:utext="${productsVO.content}"></div>
+        </div>
         <!-- ✅ 광고 이미지 접기/펼치기 영역 -->
         <div style="margin-top: 40px;">
           <div id="adImageBox" class="ad-image-box">
@@ -200,16 +205,95 @@
               상품정보 더보기 ▼
             </button>
           </div>
+          <br>
+          <br>
         </div>
 
+        <!-- ✅ 상품 상세 정보 탭 UI 시작 -->
+        <div class="product-tab-box">
+          <ul class="product-tab-menu">
+            <li class="product-tab-item active" onclick="showProductTab('detail')">상품상세</li>
+            <li class="product-tab-item" onclick="showProductTab('review')"> 상품평(<span>0</span>) </li>
+            <li class="product-tab-item" onclick="showProductTab('qna')">상품문의</li>
+            <li class="product-tab-item" onclick="showProductTab('shipping')">배송/교환/반품 안내</li>
+          </ul>
 
+          <div class="product-tab-content">
+            <div id="product-tab-detail" class="product-tab-section"> 
+              <!-- ✅ 상품상세 표 (3열 구성) -->
+              <h3 class="product-info-title">필수 표기정보</h3>
+
+              <div class="product-info-grid">
+                <div>품목 또는 명칭</div>
+                <div th:text="${productsVO.item}">-</div>
+                <div>포장단위별 내용물의 용량(중량), 수량, 크기</div>
+                <div th:text="${productsVO.qty}">-</div>
+
+                <div>생산자(수입자)</div>
+                <div th:text="${productsVO.maker}">-</div>
+                <div>원산지</div>
+                <div th:text="${productsVO.country}">-</div>
+
+
+                <div>제조연월일, 소비기한 또는 품질유지기한</div>
+                <div th:text="${#dates.format(productsVO.expdate, 'yyyy.MM.dd')}">-</div>
+                <div>세부 품목군별 표시사항</div>
+                <div th:text="${productsVO.detail}">-</div>
+
+                <div>수입식품 문구 여부</div>
+                <div th:text="${productsVO.imported}">-</div>
+                <div>상품 구성</div>
+                <div th:text="${productsVO.components}">-</div>
+
+                <div>보관방법,취급방법</div>
+                <div th:text="${productsVO.storage}">-</div>
+                <div>소비자안전을 위한 주의사항</div>
+                <div th:text="${productsVO.safe}">-</div>
+
+                <div>소비자상담관련 전화번호</div>
+                <div th:text="${productsVO.counsel_tel}">-</div>
+                <div style="grid-column: span 2;"></div> <!--  마지막 두 칸 병합 -->
+              </div>
+
+              <div class="product-detail-warning">
+                🔴 판매자가 현금거래를 요구하면 거부하시고 즉시 사기 거래 신고센터 (1670-9832)에 신고하시기 바랍니다.
+              </div>
+
+            </div>
+            <div id="product-tab-review" class="product-tab-section" style="display: none;">
+              <p>상품평 영역 (추후 추가 예정)</p>
+            </div>
+            <div id="product-tab-qna" class="product-tab-section" style="display: none;">
+              <p>상품문의 영역 (추후 추가 예정)</p>
+            </div>
+            <div id="product-tab-shipping" class="product-tab-section" style="display: none;">
+              <p>배송/교환/반품 안내 영역 (추후 추가 예정)</p>
+            </div>
+          </div>
+        </div>
+        <br>
+        <!-- ✅ 상품 상세 정보 탭 UI 끝 -->
+        <!-- ✅ 탭 스크립트 -->
+        <script>
+          function showProductTab(tabName) {
+            // 모든 콘텐츠 숨기기
+            document.querySelectorAll('.product-tab-section').forEach(el => el.style.display = 'none');
+            // 선택된 콘텐츠 표시
+            document.getElementById('product-tab-' + tabName).style.display = 'block';
+
+            // 모든 탭 비활성화
+            document.querySelectorAll('.product-tab-item').forEach(el => el.classList.remove('active'));
+            // 현재 탭 활성화
+            const tabMap = {
+              detail: 0,
+              review: 1,
+              qna: 2,
+              shipping: 3
+            };
+            document.querySelectorAll('.product-tab-item')[tabMap[tabName]].classList.add('active');
+          }
+        </script>
         <!-- 본문 내용 분리 표시 -->
-        <div class="products_read_content_separate">
-          <hr>
-          <h3>상품 설명</h3>
-          <div th:utext="${productsVO.content}"></div>
-        </div>
-        <div class="menu_line"></div>
               <h5 style="padding: 10px 0;">관련 상품</h5>
               <div id="related-container"></div>
 

@@ -865,10 +865,10 @@
     opacity: 1;
   }
 
-/* 펼쳐졌을 때 그라데이션 제거 */
-.ad-image-box.show::after {
-  opacity: 0;
-}
+  /* 펼쳐졌을 때 그라데이션 제거 */
+  .ad-image-box.show::after {
+    opacity: 0;
+  }
 
 
   
@@ -881,6 +881,110 @@
     color: #007bff;
     border-radius: 5px;
     cursor: pointer;
+  }
+  
+  
+  
+  /* 상품 상세 페이지 탭 전체 박스 */
+  .product-tab-box {
+    margin-top: 40px;
+    width: 100%;
+    border-top: 2px solid #ccc;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  /* 탭 메뉴 */
+  .product-tab-menu {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* 탭 메뉴 항목 */
+  .product-tab-item {
+    flex: 1;
+    text-align: center;
+    padding: 14px 0;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1em;
+    color: #333;
+    background-color: #f5f5f5;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    border-top: 3px solid transparent;
+    border-bottom: none;
+  }
+  
+  .product-tab-item:first-child {
+    border-left: none;
+  }
+  .product-tab-item:last-child {
+    border-right: none;
+  }
+  
+  /* 활성 탭 */
+  .product-tab-item.active {
+    background-color: white;
+    border-top: 3px solid #333;
+    border-bottom: 1px solid white;
+    color: #000;
+  }
+  
+  /* 탭 콘텐츠 영역 */
+  .product-tab-content {
+    border-top: none;
+    padding: 20px 0;
+    background-color: #fff;
+  }
+  
+  /* 개별 탭 콘텐츠 */
+  .product-tab-section {
+    display: block;
+  }
+
+
+
+  .product-info-title {
+    font-weight: bold;
+    font-size: 15px;
+    border-bottom: 2px solid #333;
+    padding-bottom: 6px;
+    margin-top: 32px;
+  }
+  
+  .product-info-grid {
+    display: grid;
+    grid-template-columns: 15% 30% 22% 33%;
+    border: 1px solid #e0e0e0;
+    border-top: none;
+  }
+  
+  .product-info-grid > div {
+    border-top: 1px solid #e0e0e0;
+    border-right: 1px solid #e0e0e0;
+    padding: 12px 10px;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.5;
+  }
+  
+  .product-info-grid > div:nth-child(4n) {
+    border-right: none; /* 오른쪽 끝 열은 선 제거 */
+  }
+  
+  .product-detail-warning {
+    margin-top: 24px;
+    padding: 16px;
+    background-color: #ffeeee;
+    border: 1px solid #f2bcbc;
+    color: #d32f2f;
+    font-size: 14px;
+    border-radius: 4px;
+    font-weight: 500;
   }
 
 

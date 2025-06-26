@@ -160,6 +160,148 @@ public class ProductsVO {
     public void setSizeAd(long sizeAd) {
       this.sizeAd = sizeAd;
     }
+    
+ // 상품 상세정보 필드
+    private String item;           // 품목 또는 명칭
+    private String maker;          // 생산자(수입자)
+    private String makedate;       // 제조연월일, 소비기한
+    private String importyn;       // 수입식품 문구 여부
+    private String keep;           // 보관방법, 취급방법
+    private String counsel_tel;    // 소비자상담 전화번호
+    private String sizeinfo;       // 용량, 수량, 크기
+    private String origin;         // 원산지
+    private String detail;         // 세부 품목군별 표시사항
+    private String pack;           // 상품 구성
+    private String safe;           // 소비자 안전 주의사항
 
-  
+    // Getter/Setter
+    public String getItem() {
+      return item;
+    }
+    public void setItem(String item) {
+      this.item = item;
+    }
+
+    public String getMaker() {
+      return maker;
+    }
+    public void setMaker(String maker) {
+      this.maker = maker;
+    }
+
+    public String getMakedate() {
+      return makedate;
+    }
+    public void setMakedate(String makedate) {
+      this.makedate = makedate;
+    }
+
+    public String getImportyn() {
+      return importyn;
+    }
+    public void setImportyn(String importyn) {
+      this.importyn = importyn;
+    }
+
+    public String getKeep() {
+      return keep;
+    }
+    public void setKeep(String keep) {
+      this.keep = keep;
+    }
+
+    public String getCounsel_tel() {
+      return counsel_tel;
+    }
+    public void setCounsel_tel(String counsel_tel) {
+      this.counsel_tel = counsel_tel;
+    }
+
+    public String getSizeinfo() {
+      return sizeinfo;
+    }
+    public void setSizeinfo(String sizeinfo) {
+      this.sizeinfo = sizeinfo;
+    }
+
+    public String getOrigin() {
+      return origin;
+    }
+    public void setOrigin(String origin) {
+      this.origin = origin;
+    }
+
+    public String getDetail() {
+      return detail;
+    }
+    public void setDetail(String detail) {
+      this.detail = detail;
+    }
+
+    public String getPack() {
+      return pack;
+    }
+    public void setPack(String pack) {
+      this.pack = pack;
+    }
+
+    public String getSafe() {
+      return safe;
+    }
+    public void setSafe(String safe) {
+      this.safe = safe;
+    }
+
+    private int qty; // 수량
+
+    public int getQty() {
+        return qty;
+    }
+
+    public void setQty(int qty) {
+        this.qty = qty;
+    }
+
+    private String country;
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    private String imported;
+
+    public String getImported() {
+        return imported;
+    }
+
+    public void setImported(String imported) {
+        this.imported = imported;
+    }
+
+    private String components;
+
+    public String getComponents() {
+        return components;
+    }
+
+    public void setComponents(String components) {
+        this.components = components;
+    }
+
+    private String storage;
+
+    public String getStorage() {
+        return storage;
+    }
+
+    public void setStorage(String storage) {
+        this.storage = storage;
+    }
+    
+    
+
 }
