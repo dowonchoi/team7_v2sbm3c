@@ -1,0 +1,16 @@
+<div th:fragment="list_search_fragment">
+  <div style="text-align: right; margin-bottom: 10px;">
+    <form name="frm_search" method="get" action="/member/list_search_paging" style="display: inline-flex; gap: 5px;">
+      <input type="text" name="word" id="word" th:value="${word}" 
+             placeholder="ID, 이름 검색"
+             style="padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px;">
+             
+      <button type='submit' class='btn btn-secondary btn-sm'>검색</button>
+      
+      <span th:if="${word != null and word != ''}">
+        <button type='button' class='btn btn-outline-secondary btn-sm'
+                th:onclick="|location.href='/member/list_search_paging'|">검색 취소</button>
+      </span>                    
+    </form>
+  </div>
+</div>

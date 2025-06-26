@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}">
+<div layout:fragment="content">
+
+  <link rel="stylesheet" href="/css/withdrawn_list.css">
+
+  <div class='title_line'>탈퇴 회원 목록 (관리자 전용)</div>
+
+  <aside class="aside_right">
+    <a href="javascript:location.reload();">새로고침</a>
+    <span class='menu_divide'>│</span>
+    <a href='./list'>회원 목록</a>
+    <span class='menu_divide'>│</span>
+    <a href="./admin/pending_suppliers">승인 대기 공급자</a>
+  </aside>
+
+  <div class='menu_line'></div>
+
+  <table class="table table-striped" style="width: 100%;">
+  <colgroup>
+    <col style="width: 5%;" />
+    <col style="width: 10%;" />
+    <col style="width: 10%;" />
+    <col style="width: 15%;" />
+    <col style="width: 20%;" />
+    <col style="width: 12%;" />
+    <col style="width: 8%;" />
+    <col style="width: 20%;" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>ID</th>
+      <th>성명</th>
+      <th>전화번호</th>
+      <th>주소</th>
+      <th>등록일</th>
+      <th>등급</th>
+      <th>관리</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr th:each="memberVO : ${list}">
+      <td>
+        <img src='/member/images/x.png' title="탈퇴 회원" class="icon">
+      </td>
+      <td th:text="${memberVO.id}"></td>
+      <td th:text="${memberVO.mname}"></td>
+      <td th:text="${memberVO.tel}"></td>
+      <td th:text="${memberVO.address1}"></td>
+      <td th:text="${memberVO.mdate.substring(0, 10)}"></td>
+      <td th:text="${memberVO.grade}"></td>
+      <td>
+        <div class="action-box">
+          <form th:action="@{/member/restore}" method="post" style="display:flex; gap:6px;">
+            <input type="hidden" name="memberno" th:value="${memberVO.memberno}" />
+            <select name="userType" class="form-select form-select-sm">
+              <option value="user">소비자</option>
+              <option value="supplier">공급자</option>
+            </select>
+            <button type="submit" class="btn btn-success btn-sm">복구</button>
+          </form>
+          <button type="button" class="btn btn-danger btn-sm"
+                  th:onclick="|deleteMember(${memberVO.memberno})|">
+            삭제
+          </button>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+  <div class='bottom_menu'>
+    <button type='button' onclick="location.reload();" class="btn btn-primary btn-sm">새로 고침</button>
+  </div>
+
+  <script>
+    function deleteMember(memberno) {
+      if (confirm("정말 이 회원을 완전히 삭제하시겠습니까?")) {
+        fetch("/member/delete_by_admin", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: "memberno=" + memberno
+        })
+        .then(response => response.text())
+        .then(result => {
+          if (result.trim() === "success") {
+            alert("회원이 삭제되었습니다.");
+            location.reload();
+          } else if (result.trim() === "unauthorized") {
+            alert("관리자만 삭제할 수 있습니다.");
+          } else {
+            alert("삭제에 실패했습니다.");
+          }
+        })
+        .catch(error => {
+          alert("에러가 발생했습니다: " + error);
+        });
+      }
+    }
+  </script>
+
+</div>
+</html>

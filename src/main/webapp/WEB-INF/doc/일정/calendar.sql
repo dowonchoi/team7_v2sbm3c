@@ -36,6 +36,10 @@ MAXVALUE 9999999999  -- 최대값: 9999999999 --> NUMBER(10) 대응
 CACHE 2              -- 2번은 메모리에서만 계산
 NOCYCLE;             -- 다시 1부터 생성되는 것을 방지
 
+ALTER TABLE calendar ADD (
+    startdate VARCHAR2(10),
+    enddate VARCHAR2(10)
+);
 
 -- 데이터 삽입
 INSERT INTO calendar(calendarno, labeldate, label, title, content, cnt, seqno, regdate, memberno)

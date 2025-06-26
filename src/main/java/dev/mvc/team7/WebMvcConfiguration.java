@@ -18,11 +18,11 @@ public class WebMvcConfiguration implements WebMvcConfigurer{
         // ▶ file:////home/ubuntu/deploy/team/products/storage
       
         // C:/kd/deploy/team/products/storage ->  /products/storage -> http://localhost:9091/products/storage;
-        registry.addResourceHandler("/products/storage/**").addResourceLocations("file:///" +  Products.getUploadDir());
+//        registry.addResourceHandler("/products/storage/**").addResourceLocations("file:///" +  Products.getUploadDir());
         
 //       // 제품 이미지용
-//      registry.addResourceHandler("/products/storage/**")
-//              .addResourceLocations("file:///C:/kd/deploy/resort/products/storage/");
+      registry.addResourceHandler("/products/storage/**")
+              .addResourceLocations("file:///C:/kd/deploy/resort/products/storage/");
 
         // 🔥 회원(member) 사업자 파일용
         registry.addResourceHandler("/member/storage/**")

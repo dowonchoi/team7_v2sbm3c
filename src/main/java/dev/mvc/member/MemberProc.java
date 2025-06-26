@@ -28,26 +28,78 @@ public class MemberProc implements MemberProcInter {
   public int checkID(String id) {
     return memberDAO.checkID(id);
   }
+  
+  @Override
+  public int checkEmail(String email) {
+      return memberDAO.checkEmail(email);
+  }
 
   @Override
   public int create(MemberVO memberVO) {
-    String passwd = memberVO.getPasswd();
-//    Security security = new Security(); // dev.mvc.tool
-//    String passwd_encoded = security.aesEncode(passwd); // 암호화
-    // map.put("passwd", new Security().aesEncode(passwd));
-    String passwd_encoded = this.security.aesEncode(passwd);
-    memberVO.setPasswd(passwd_encoded); // 패스워드 저장
-    
-    // memberVO.setPasswd(new Security().aesEncode(memberVO.getPasswd())); // 단축형
-    
-    int cnt = this.memberDAO.create(memberVO);  // 가입
-    return cnt;
+      String passwd = memberVO.getPasswd();
+      String passwd_encoded = security.aesEncode(passwd); // ✅ 암호화
+      memberVO.setPasswd(passwd_encoded);
+
+      return memberDAO.create(memberVO); // DB 저장
   }
  
   @Override
   public ArrayList<MemberVO> list() {
     ArrayList<MemberVO> list = this.memberDAO.list();
     return list;
+  }
+  
+  @Override
+  public List<MemberVO> list_search(Map<String, Object> map) {
+      return memberDAO.list_search(map);
+  }
+  
+  @Override
+  public List<MemberVO> list_search_paging(String word, int nowPage, int recordPerPage) {
+      int start_num = ((nowPage - 1) * recordPerPage) + 1;
+      int end_num = nowPage * recordPerPage;
+
+      Map<String, Object> map = new HashMap<>();
+      map.put("word", word);
+      map.put("start_num", start_num);
+      map.put("end_num", end_num);
+
+      return memberDAO.list_search_paging(map);
+  }
+
+  @Override
+  public int list_search_count(String word) {
+      return memberDAO.list_search_count(word);
+  }
+
+  @Override
+  public String pagingBox(int nowPage, String word, String listFile, int search_count, int recordPerPage, int pagePerBlock) {
+      int totalPage = (int) Math.ceil((double) search_count / recordPerPage);
+      int startPage = ((nowPage - 1) / pagePerBlock) * pagePerBlock + 1;
+      int endPage = startPage + pagePerBlock - 1;
+      endPage = Math.min(endPage, totalPage);
+
+      StringBuffer str = new StringBuffer();
+
+      str.append("<div class='paging'>");
+      if (startPage > 1) {
+          str.append("<a href='" + listFile + "?now_page=" + (startPage - 1) + "&word=" + word + "'>Prev</a>");
+      }
+
+      for (int i = startPage; i <= endPage; i++) {
+          if (i == nowPage) {
+              str.append("<span class='current'>" + i + "</span>");
+          } else {
+              str.append("<a href='" + listFile + "?now_page=" + i + "&word=" + word + "'>" + i + "</a>");
+          }
+      }
+
+      if (endPage < totalPage) {
+          str.append("<a href='" + listFile + "?now_page=" + (endPage + 1) + "&word=" + word + "'>Next</a>");
+      }
+      str.append("</div>");
+
+      return str.toString();
   }
   
   @Override
@@ -67,12 +119,12 @@ public class MemberProc implements MemberProcInter {
     boolean sw = false; // 로그인하지 않은 것으로 초기화
     
     if (session.getAttribute("grade") != null) {
-      if (((String)session.getAttribute("grade")).equals("admin") ||
-          ((String)session.getAttribute("grade")).equals("member")) {
+      String grade = (String) session.getAttribute("grade");
+      if (grade.equals("admin") || grade.equals("supplier") || grade.equals("user")) {
         sw = true;
       }
     }
-    
+   
     return sw;
   }
 
@@ -110,7 +162,55 @@ public class MemberProc implements MemberProcInter {
   public int deleteByAdmin(int memberno) {
       return this.memberDAO.deleteByAdmin(memberno);
   }
+  
+  @Override
+  public int withdraw(int memberno) {
+      return this.memberDAO.withdraw(memberno);
+  }
+  
+  @Override
+  public List<MemberVO> selectWithdrawnMembers() {
+      return memberDAO.selectWithdrawnMembers();
+  }
+  
+  @Override
+  public int restoreMember(int memberno, String userType) {
+      int gradeStart, gradeEnd;
+      if ("supplier".equals(userType)) {
+          gradeStart = 5;
+          gradeEnd = 15;
+      } else {
+          gradeStart = 16;
+          gradeEnd = 39;
+      }
 
+      // 현재 사용 중인 등급 조회
+      HashMap<String, Object> gradeMap = new HashMap<>();
+      gradeMap.put("gradeStart", gradeStart);
+      gradeMap.put("gradeEnd", gradeEnd);
+      List<Integer> usedGrades = memberDAO.getUsedGradesInRange(gradeMap);
+
+      // 사용 가능한 가장 작은 등급 찾기
+      int assignedGrade = -1;
+      for (int i = gradeStart; i <= gradeEnd; i++) {
+          if (!usedGrades.contains(i)) {
+              assignedGrade = i;
+              break;
+          }
+      }
+
+      // 만약 사용 가능한 등급이 없으면 최대값으로 배정
+      if (assignedGrade == -1) {
+          assignedGrade = gradeEnd;
+      }
+
+      // 복구 쿼리 실행
+      HashMap<String, Object> paramMap = new HashMap<>();
+      paramMap.put("grade", assignedGrade);
+      paramMap.put("memberno", memberno);
+
+      return memberDAO.restoreMember(paramMap);
+  }
   
   @Override
   public int passwd_check(HashMap<String, Object> map) {
@@ -131,24 +231,24 @@ public class MemberProc implements MemberProcInter {
   }
   
   @Override
-  public int updatePasswd(MemberVO memberVO) {
-      return memberDAO.updatePasswd(memberVO);
-  }
-  
-  @Override
   public MemberVO login(HashMap<String, Object> map) {
       return memberDAO.login(map); // selectOne으로 MemberVO 반환
   }
   
+//  @Override
+//  public int insertMember(MemberVO memberVO) {
+//      // 회원 가입 처리, 사업자 인증 포함
+//      String passwd = memberVO.getPasswd();
+//      String passwd_encoded = this.security.aesEncode(passwd);
+//      memberVO.setPasswd(passwd_encoded);
+//      
+//      int cnt = this.memberDAO.create(memberVO);
+//      return cnt;
+//  }
+  
   @Override
-  public int insertMember(MemberVO memberVO) {
-      // 회원 가입 처리, 사업자 인증 포함
-      String passwd = memberVO.getPasswd();
-      String passwd_encoded = this.security.aesEncode(passwd);
-      memberVO.setPasswd(passwd_encoded);
-      
-      int cnt = this.memberDAO.create(memberVO);
-      return cnt;
+  public int updateGrade(int memberno, int grade) {
+      return memberDAO.updateGrade(memberno, grade);
   }
   
   // 공급자 등급 관리

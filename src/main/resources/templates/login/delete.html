@@ -86,11 +86,9 @@
 
     <p style="text-align: center; color: red;">정말 삭제하시겠습니까?</p>
 
-    <form action="./delete_proc" method="post" class="buttons">
-      <input type="hidden" name="loginno" th:value="${loginVO.loginno}">
-      <button type="submit" class="btn btn-delete">삭제</button>
-      <a href="./mylist" class="btn btn-cancel">취소</a>
-    </form>
+    <a th:href="@{|/login/delete?loginno=${vo.loginno}|}">
+      삭제
+    </a>
   </div>
 
 </body>

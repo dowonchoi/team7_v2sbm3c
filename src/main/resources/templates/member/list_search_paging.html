@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}">
+<div layout:fragment="content">
+
+<h3>회원 목록</h3>
+
+<form method="get" action="/member/list_search_paging">
+  <input type="text" name="word" th:value="${word}" placeholder="검색어">
+  <button type="submit">검색</button>
+</form>
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>번호</th>
+      <th>아이디</th>
+      <th>이름</th>
+      <th>전화번호</th>
+      <th>주소</th>
+      <th>등록일</th>
+      <th>등급</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr th:each="vo : ${list}">
+      <td th:text="${vo.memberno}"></td>
+      <td th:text="${vo.id}"></td>
+      <td th:text="${vo.mname}"></td>
+      <td th:text="${vo.tel}"></td>
+      <td th:text="${vo.address1}"></td>
+      <td th:text="${#dates.format(vo.mdate, 'yyyy-MM-dd')}"></td>
+      <td th:text="${vo.grade}"></td>
+    </tr>
+  </tbody>
+</table>
+
+<div th:utext="${paging}"></div>
+
+</div>
+</html>
