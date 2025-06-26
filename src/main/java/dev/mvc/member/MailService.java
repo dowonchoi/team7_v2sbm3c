@@ -118,7 +118,7 @@ public class MailService {
 
       helper.setTo(email);
       helper.setSubject("[tteoliMall] 이메일 인증 코드입니다");
-      helper.setText("<p>인증 코드는 <b>" + code + "</b> 입니다.<br>3분 안에 입력해주세요.</p>", true);
+      helper.setText("<p>인증 코드는 <b>" + code + "</b> 입니다.<br>1분 안에 입력해주세요.</p>", true);
       helper.setFrom(new InternetAddress(fromEmail, "tteoliMall", "UTF-8"));
 
       mailSender.send(message);

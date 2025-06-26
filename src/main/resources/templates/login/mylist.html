@@ -2,36 +2,65 @@
 <html layout:decorate="~{layout}">
 <div layout:fragment="content">
 
-  <h3>내 로그인 내역</h3>
+<head>
+  <style>
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
 
-  <table class="table table-bordered">
-    <thead>
-      <tr>
-        <th>번호</th>
-        <th>IP</th>
-        <th>성공 여부</th>
-        <th>로그인 날짜</th>
-        <th>관리</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr th:each="vo : ${list}">
-        <td th:text="${vo.loginno}"></td>
-        <td th:text="${vo.ip}"></td>
-        <td>
-          <span th:if="${vo.sw == 'Y'}" style="color:green;">성공</span>
-          <span th:if="${vo.sw == 'N'}" style="color:red;">실패</span>
-        </td>
-        <td th:text="${#dates.format(vo.logindate, 'yyyy-MM-dd HH:mm:ss')}"></td>
-        <td>
-          <a th:href="@{|/login/delete?loginno=${vo.loginno}|}" 
-             onclick="return confirm('정말 삭제하시겠습니까?');">
-             삭제
-          </a>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+    .btn-delete {
+      background-color: #e74c3c;
+    }
+
+    .btn-delete:hover {
+      background-color: #c0392b;
+    }
+
+    .table th, .table td {
+      vertical-align: middle;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<h3>내 로그인 내역</h3>
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>번호</th>
+      <th>IP</th>
+      <th>성공 여부</th>
+      <th>로그인 날짜</th>
+      <th>관리</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr th:each="vo : ${list}">
+      <td th:text="${vo.loginno}"></td>
+      <td th:text="${vo.ip}"></td>
+      <td>
+        <span th:if="${vo.sw == 'Y'}" style="color:green;">성공</span>
+        <span th:if="${vo.sw == 'N'}" style="color:red;">실패</span>
+      </td>
+      <td th:text="${#dates.format(vo.logindate, 'yyyy-MM-dd HH:mm:ss')}"></td>
+      <td>
+        <a th:href="@{|/login/delete?loginno=${vo.loginno}|}" 
+           class="btn btn-delete">
+           삭제
+        </a>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 </div>
 </html>

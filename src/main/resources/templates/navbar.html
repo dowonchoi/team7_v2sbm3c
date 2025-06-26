@@ -38,10 +38,8 @@
             </a>
             <ul class="dropdown-menu" aria-labelledby="userMenuDropdown">
               <li><a class="dropdown-item" th:href="@{/member/mypage}">마이페이지</a></li>
-<<<<<<< HEAD
               <!-- <li><a class="dropdown-item" th:href="@{/member/passwd_update}">비밀번호 변경</a></li> -->
               <li><a class="dropdown-item" th:href="@{/login/mylist}">내 로그인 내역</a></li>
-=======
               <li><a class="dropdown-item" th:href="@{/member/passwd_update}">비밀번호 변경</a></li>
 
               <!-- 소비자용 -->
@@ -53,8 +51,6 @@
               <li th:if="${session.grade == 'supplier'}">
                 <a class="dropdown-item" th:href="@{/productsgood/supplier_products_liked}">내 상품 추천 내역</a>
               </li>
-
->>>>>>> 7bb6aaa44401eb7d943823632b65a4e2d8905b7b
               <li><a class="dropdown-item" th:href="@{/member/logout}">로그아웃</a></li>
             </ul>
 

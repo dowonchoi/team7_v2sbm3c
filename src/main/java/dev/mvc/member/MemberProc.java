@@ -131,6 +131,11 @@ public class MemberProc implements MemberProcInter {
   }
   
   @Override
+  public int updatePasswd(MemberVO memberVO) {
+      return memberDAO.updatePasswd(memberVO);
+  }
+  
+  @Override
   public MemberVO login(HashMap<String, Object> map) {
       return memberDAO.login(map); // selectOne으로 MemberVO 반환
   }

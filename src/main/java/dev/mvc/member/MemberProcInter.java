@@ -75,6 +75,8 @@ public interface MemberProcInter {
    */
   public int passwd_update(Map<String, Object> map);
   
+  public int updatePasswd(MemberVO memberVO);
+  
   /**
    * 로그인 처리
    */
