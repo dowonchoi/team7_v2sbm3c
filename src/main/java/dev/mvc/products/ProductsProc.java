@@ -292,5 +292,7 @@ public class ProductsProc implements ProductsProcInter {
   public ArrayList<ProductsVO> related_scroll(Map<String, Object> map) {
     return productsDAO.related_scroll(map);
   }
+  
+  
 
 }

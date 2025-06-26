@@ -48,9 +48,9 @@
         <span th:text="${productsVO.file1}"></span>
       </div>
 
-      <div th:if="${productsVO.size1 == 0}" style="width: 100%; height: 100px;">
-        <img src="/products/images/none1.png" style="width: 100%; height: 100%;">
-      </div>
+      <!-- <div th:if="${productsVO.size1 == 0}" style="width: 100%; height: 100px;">
+        <img src="/products/images/default_thumb.png" style="width: 100%; height: 100%;">
+      </div> -->
       <div>
         <span th:if="${productsVO.title.length() > 16 }" 
                   th:text="|${productsVO.title.substring(0, 16) }...|" style="font-weight: bold;"></span>

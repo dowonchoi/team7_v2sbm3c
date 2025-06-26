@@ -155,64 +155,87 @@ public class ProductsCont {
       if (size1 > 0 && Tool.checkUploadFile(file1)) {
         file1saved = Upload.saveFileSpring(mf1, upDir);
         if (Tool.isImage(file1saved)) {
-          thumb1 = Tool.preview(upDir, file1saved, 200, 150);
+          thumb1 = Tool.preview(upDir, file1saved, 100, 150);
         }
         productsVO.setFile1(file1);
         productsVO.setFile1saved(file1saved);
         productsVO.setThumb1(thumb1);
         productsVO.setSize1(size1);
       } else {
-        // ❗ 업로드하지 않은 경우 → 기본 이미지 적용
-        file1 = "default.png";               // 원본 파일명 (화면용, 필요시)
-        file1saved = "default.png";          // 서버에 저장된 파일명 (실제 사용)
-        thumb1 = "default_thumb.png";        // 썸네일 파일 (있으면 지정)
+     // ❗ 업로드하지 않은 경우 → 기본 이미지 복사
+        String defaultDir = "C:/kd/ws_java/team7_v2sbm3c/src/main/resources/static/products/images/";
+        String targetDir = upDir;
+
+        Tool.copyFile(defaultDir + "default.png", targetDir + "default.png");
+        Tool.copyFile(defaultDir + "default_thumb.png", targetDir + "default_thumb.png");
+
+        file1 = "default.png";
+        file1saved = "default.png";
+        thumb1 = "default_thumb.png";
         size1 = 0L;
+
+        productsVO.setFile1(file1);
+        productsVO.setFile1saved(file1saved);
+        productsVO.setThumb1(thumb1);
+        productsVO.setSize1(size1);
       }
 
       // ---------------------- file2 처리 ----------------------
+   // ---------------------- file2 처리 ----------------------
       MultipartFile mf2 = productsVO.getFile2MF();
       String file2 = mf2.getOriginalFilename();
-      String file2saved = "", thumb2 = "";
+      String file2saved = "";
       long size2 = mf2.getSize();
 
       if (size2 > 0 && Tool.checkUploadFile(file2)) {
-        file2saved = Upload.saveFileSpring(mf2, upDir);
-        if (Tool.isImage(file2saved)) {
-          thumb2 = Tool.preview(upDir, file2saved, 200, 150);
-        }
+        file2saved = Upload.saveFileSpring(mf2, upDir); // 썸네일 생성 X
         productsVO.setFile2(file2);
         productsVO.setFile2saved(file2saved);
-        productsVO.setThumb2(thumb2);
+        productsVO.setSize2(size2);
       } else {
-        // ❗ 업로드하지 않은 경우 → 기본 이미지 적용
-        file2 = "default.png";               // 원본 파일명 (화면용, 필요시)
-        file2saved = "default.png";          // 서버에 저장된 파일명 (실제 사용)
-        thumb2 = "default_thumb.png";        // 썸네일 파일 (있으면 지정)
-        size2 = 0L;
-      }
+        String defaultDir = "C:/kd/ws_java/team7_v2sbm3c/src/main/resources/static/products/images/";
+        String targetDir = upDir;
 
-      // ---------------------- file3 처리 ----------------------
+        Tool.copyFile(defaultDir + "default.png", targetDir + "default.png");
+
+        file2 = "default.png";
+        file2saved = "default.png";
+        size2 = 0L;
+
+        productsVO.setFile2(file2);
+        productsVO.setFile2saved(file2saved);
+        productsVO.setSize2(size2);
+      }
+      //---------------------------------------------
+   // ---------------------- file3 처리 ----------------------
       MultipartFile mf3 = productsVO.getFile3MF();
       String file3 = mf3.getOriginalFilename();
-      String file3saved = "", thumb3 = "";
+      String file3saved = "";
       long size3 = mf3.getSize();
 
       if (size3 > 0 && Tool.checkUploadFile(file3)) {
-        file3saved = Upload.saveFileSpring(mf3, upDir);
-        if (Tool.isImage(file3saved)) {
-          thumb3 = Tool.preview(upDir, file3saved, 200, 150);
-        }
+        file3saved = Upload.saveFileSpring(mf3, upDir); // 썸네일 생성 X
         productsVO.setFile3(file3);
         productsVO.setFile3saved(file3saved);
-        productsVO.setThumb3(thumb3);
+        productsVO.setSize3(size3);
       } else {
-        // ❗ 업로드하지 않은 경우 → 기본 이미지 적용
-        file3 = "default.png";               // 원본 파일명 (화면용, 필요시)
-        file3saved = "default.png";          // 서버에 저장된 파일명 (실제 사용)
-        thumb3 = "default_thumb.png";        // 썸네일 파일 (있으면 지정)
+        String defaultDir = "C:/kd/ws_java/team7_v2sbm3c/src/main/resources/static/products/images/";
+        String targetDir = upDir;
+
+        Tool.copyFile(defaultDir + "default.png", targetDir + "default.png");
+
+        file3 = "default.png";
+        file3saved = "default.png";
         size3 = 0L;
+
+        productsVO.setFile3(file3);
+        productsVO.setFile3saved(file3saved);
+        productsVO.setSize3(size3);
       }
-      // ---------------------- fileAd (광고 이미지) 처리 ----------------------
+
+
+
+   // ---------------------- fileAd 처리 ----------------------
       MultipartFile mfAd = productsVO.getFileAdMF();
       String fileAd = mfAd.getOriginalFilename();
       String fileAdsaved = "";
@@ -220,14 +243,24 @@ public class ProductsCont {
 
       if (sizeAd > 0 && Tool.checkUploadFile(fileAd)) {
         fileAdsaved = Upload.saveFileSpring(mfAd, upDir);
+        // 썸네일은 필요 없다면 생략 가능
         productsVO.setFileAd(fileAd);
         productsVO.setFileAdsaved(fileAdsaved);
         productsVO.setSizeAd(sizeAd);
       } else {
-        // ❗ 업로드하지 않은 경우 → 기본 이미지 적용
-        fileAd = "default_ad.png";            // 원본 파일명 (화면용)
-        fileAdsaved = "default_ad.png";       // 서버에 저장된 파일명
-        sizeAd = 0L; 
+        // ❗ 업로드하지 않은 경우 → 기본 광고 이미지 복사
+        String defaultDir = "C:/kd/ws_java/team7_v2sbm3c/src/main/resources/static/products/images/";
+        String targetDir = upDir;
+
+        Tool.copyFile(defaultDir + "default_ad.png", targetDir + "default_ad.png");
+
+        fileAd = "default_ad.png";
+        fileAdsaved = "default_ad.png";
+        sizeAd = 0L;
+
+        productsVO.setFileAd(fileAd);
+        productsVO.setFileAdsaved(fileAdsaved);
+        productsVO.setSizeAd(sizeAd);
       }
       // ------------------------------------------------------------------------------
       // 파일 전송 코드 종료
@@ -246,40 +279,16 @@ public class ProductsCont {
       // 20250619 cnt 갱신 추가
       this.cateProc.updateMidCnt();   // 중분류: products 기준
       this.cateProc.updateMainCnt();  // 대분류: 중분류 합산 기준
-      // ------------------------------------------------------------------------------
-      // PK의 return
-      // ------------------------------------------------------------------------------
-      // System.out.println("--> productsno: " + productsVO.getProductsno());
-      // mav.addObject("productsno", productsVO.getProductsno()); // redirect
-      // parameter 적용
-      // ------------------------------------------------------------------------------
       // =============== (2) DB 등록 처리 종료 ===============
       
       // =============== (3) 결과 처리 ===============
       if (cnt == 1) { // 등록 성공
-        // type 1, 재업로드 발생
-        // return "<h1>파일 업로드 성공</h1>"; // 연속 파일 업로드 발생
-
-        // type 2, 재업로드 발생
-        // model.addAttribute("cnt", cnt);
-        // model.addAttribute("code", "create_success");
-        // return "products/msg";
-
-        // type 3 권장
-        // return "redirect:/products/list_all"; // /templates/products/list_all.html
-
-        // System.out.println("-> productsVO.getCateno(): " + productsVO.getCateno());
-        // ra.addFlashAttribute("cateno", productsVO.getCateno()); // controller ->
-        // controller: X
-
-        // return "redirect:/products/list_all"; // /templates/products/list_all.html
         
         // 등록한 카테고리로 다시 목록 페이지 이동
         ra.addAttribute("cateno", productsVO.getCateno()); // controller -> controller: O
         return "redirect:/products/list_by_cateno_grid";
 
-        // return "redirect:/products/list_by_cateno?cateno=" + productsVO.getCateno();
-        // // /templates/products/list_by_cateno.html
+
       } else { // 등록 실패
         ra.addFlashAttribute("code", Tool.CREATE_FAIL); // DBMS 등록 실패
         ra.addFlashAttribute("cnt", 0); // 업로드 실패
@@ -288,9 +297,7 @@ public class ProductsCont {
         // =============== (3) 결과 처리 종료 ===============
       }
     } else { // 로그인 실패 한 경우
-      // /member/login_cookie_need.html
-      // 로그인하지 않았거나 관리자가 아닌 경우 로그인 요청 페이지로 리다이렉트
-      // 이부분 역시 수정해야 함.
+
       return "redirect:/member/login_cookie_need?url=/products/create?cateno=" + productsVO.getCateno(); 
     }
   }  
@@ -1202,15 +1209,11 @@ public class ProductsCont {
     
     // 기존 파일 삭제 - file2
     String file2saved = productsVO_old.getFile2saved();
-    String thumb2 = productsVO_old.getThumb2();
     Tool.deleteFile(upDir, file2saved);
-    Tool.deleteFile(upDir, thumb2);
 
     // 기존 파일 삭제 - file3
     String file3saved = productsVO_old.getFile3saved();
-    String thumb3 = productsVO_old.getThumb3();
     Tool.deleteFile(upDir, file3saved);
-    Tool.deleteFile(upDir, thumb3);
 
     // 새 파일 업로드
     MultipartFile mf = productsVO.getFile1MF();
@@ -1233,51 +1236,42 @@ public class ProductsCont {
     productsVO.setFile1saved(file1saved);
     productsVO.setThumb1(thumb1);
     productsVO.setSize1(size1);
-  //-----------------------------------------------
-   // 새 파일 업로드 및 설정: file2
-   //-----------------------------------------------
-   MultipartFile mf2 = productsVO.getFile2MF();
-   String file2 = mf2.getOriginalFilename();
-   long size2 = mf2.getSize();
+    //-----------------------------------------------
+    // 새 파일 업로드 및 설정: file2
+    //-----------------------------------------------
+    MultipartFile mf2 = productsVO.getFile2MF();
+    String file2 = mf2.getOriginalFilename();
+    long size2 = mf2.getSize();
   
-   if (size2 > 0) {
-     file2saved = Upload.saveFileSpring(mf2, upDir);
-     if (Tool.isImage(file2saved)) {
-       thumb2 = Tool.preview(upDir, file2saved, 250, 200);
-     }
-   } else {
-     file2 = "";
-     file2saved = "";
-     thumb2 = "";
-     size2 = 0;
-   }
-   productsVO.setFile2(file2);
-   productsVO.setFile2saved(file2saved);
-   productsVO.setThumb2(thumb2);
-   productsVO.setSize2(size2);
+    if (size2 > 0) {
+      file2saved = Upload.saveFileSpring(mf2, upDir);
+    } else {
+      file2 = "";
+      file2saved = "";
+      size2 = 0;
+    }
+    productsVO.setFile2(file2);
+    productsVO.setFile2saved(file2saved);
+    productsVO.setSize2(size2);  // ✅ thumb2 제거
   
-   //-----------------------------------------------
-   // 새 파일 업로드 및 설정: file3
-   //-----------------------------------------------
-   MultipartFile mf3 = productsVO.getFile3MF();
-   String file3 = mf3.getOriginalFilename();
-   long size3 = mf3.getSize();
+    //-----------------------------------------------
+    // 새 파일 업로드 및 설정: file3
+    //-----------------------------------------------
+    MultipartFile mf3 = productsVO.getFile3MF();
+    String file3 = mf3.getOriginalFilename();
+    long size3 = mf3.getSize();
   
-   if (size3 > 0) {
-     file3saved = Upload.saveFileSpring(mf3, upDir);
-     if (Tool.isImage(file3saved)) {
-       thumb3 = Tool.preview(upDir, file3saved, 250, 200);
-     }
-   } else {
-     file3 = "";
-     file3saved = "";
-     thumb3 = "";
-     size3 = 0;
-   }
-   productsVO.setFile3(file3);
-   productsVO.setFile3saved(file3saved);
-   productsVO.setThumb3(thumb3);
-   productsVO.setSize3(size3);
+    if (size3 > 0) {
+      file3saved = Upload.saveFileSpring(mf3, upDir);
+    } else {
+      file3 = "";
+      file3saved = "";
+      size3 = 0;
+    }
+    productsVO.setFile3(file3);
+    productsVO.setFile3saved(file3saved);
+    productsVO.setSize3(size3);  //  thumb3 제거
+
    
     // 기존 광고 이미지 삭제 - fileAd
     String fileAdsaved = productsVO_old.getFileAdsaved();
@@ -1482,11 +1476,9 @@ public class ProductsCont {
     Tool.deleteFile(Products.getUploadDir(), productsVO_read.getThumb1());
     // 이미지 2
     Tool.deleteFile(upDir, productsVO_read.getFile2saved());
-    Tool.deleteFile(upDir, productsVO_read.getThumb2());
 
     // 이미지 3
     Tool.deleteFile(upDir, productsVO_read.getFile3saved());
-    Tool.deleteFile(upDir, productsVO_read.getThumb3());
     
     // 광고 이미지 삭제
     Tool.deleteFile(upDir, productsVO_read.getFileAdsaved());

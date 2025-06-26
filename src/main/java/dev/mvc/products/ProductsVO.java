@@ -101,7 +101,6 @@ public class ProductsVO {
     private String size2_label;
     private String file2 = "";
     private String file2saved = "";
-    private String thumb2 = "";
     private long size2 = 0;
 
     // 추가 이미지 3
@@ -109,7 +108,6 @@ public class ProductsVO {
     private String size3_label;
     private String file3 = "";
     private String file3saved = "";
-    private String thumb3 = "";
     private long size3 = 0;
 
 
@@ -302,6 +300,47 @@ public class ProductsVO {
         this.storage = storage;
     }
     
+    public MultipartFile getFile1MF() {
+      return file1MF;
+    }
+
+    public void setFile1MF(MultipartFile file1MF) {
+      this.file1MF = file1MF;
+    }
+
+    public MultipartFile getFile2MF() {
+      return file2MF;
+    }
+
+    public void setFile2MF(MultipartFile file2MF) {
+      this.file2MF = file2MF;
+    }
+
+    public MultipartFile getFile3MF() {
+      return file3MF;
+    }
+
+    public void setFile3MF(MultipartFile file3MF) {
+      this.file3MF = file3MF;
+    }
+
+    public long getSize2() {
+      return size2;
+    }
+
+    public void setSize2(long size2) {
+      this.size2 = size2;
+    }
+
+    public long getSize3() {
+      return size3;
+    }
+
+    public void setSize3(long size3) {
+      this.size3 = size3;
+    }
     
+    
+
 
 }

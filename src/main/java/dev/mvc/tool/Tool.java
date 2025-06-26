@@ -5,6 +5,10 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.image.PixelGrabber;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
@@ -532,6 +536,18 @@ public class Tool {
     }
     return sha;
   }
+
+  public static void copyFile(String source, String destination) {
+    try {
+      Files.copy(Paths.get(source), Paths.get(destination), StandardCopyOption.REPLACE_EXISTING);
+      System.out.println("✅ 복사 성공: " + source + " -> " + destination);
+    } catch (IOException e) {
+      System.out.println("❌ 복사 실패: " + source + " -> " + destination);
+      e.printStackTrace();
+    }
+  }
+
+
 
   
 }

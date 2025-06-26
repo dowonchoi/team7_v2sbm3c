@@ -173,6 +173,7 @@ public interface ProductsDAOInter {
   /*무한 스크롤*/
   public ArrayList<ProductsVO> related_scroll(Map<String, Object> map);
 
+  
 }
  
  
