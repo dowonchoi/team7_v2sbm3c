@@ -24,11 +24,17 @@
         <span th:if="${memberVO.supplier_approved == null}" class="approval-status status-none">정보 없음</span>
       </td>
     </tr>
+    <!-- 🔥 등급 안내 문구 추가 -->
+    <div style="margin: 20px 0; color: #ad6739; font-size: 14px;">
+      <b>등급 안내:</b> 
+      관리자(1~4), 판매업체(5~15), 회원(16~39), 탈퇴회원(40~59)
+    </div>
   </table>
 
   <div class="btn-group">
     <a class="btn btn-primary" th:href="@{/member/update}">정보 수정</a>
     <a class="btn btn-danger" th:href="@{/member/delete}">회원 탈퇴</a>
+    <a class="btn btn-secondary" th:href="@{/login/mylist}">로그인 내역 확인</a>
   </div>
 
   <div class="section-title">쇼핑 정보</div>

@@ -3,35 +3,60 @@
 <div layout:fragment="content">
 
 <head>
-  <style>
-    .btn {
-      padding: 6px 12px;
-      border: none;
-      border-radius: 6px;
-      color: white;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background-color 0.3s;
-      text-decoration: none;
-      display: inline-block;
-    }
+<style>
+.btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+  text-decoration: none;
+  display: inline-block;
+}
 
-    .btn-delete {
-      background-color: #e74c3c;
-    }
+.btn-delete {
+  background-color: #f39d9d;
+  color: white; /* ✅ 여기서 글씨 색 */
+}
 
-    .btn-delete:hover {
-      background-color: #c0392b;
-    }
+.btn-delete:hover {
+  background-color: #f1a79f;
+  color: white; /* ✅ hover 시에도 유지 */
+}
 
-    .table th, .table td {
-      vertical-align: middle;
-      text-align: center;
-    }
+.table th, .table td {
+  vertical-align: middle;
+  text-align: center;
+}
+.btn-mypage {
+  background-color: #fab1a0;  /* 회색 */
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-mypage:hover {
+  background-color: #5a6268;
+}
   </style>
 </head>
 
-<h3>내 로그인 내역</h3>
+<div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #aaa; padding: 8px 0; margin-bottom: 10px;">
+  <div>
+    <span style="font-size: 25px; color: #ccc;">회원 > 로그인 내역</span>
+  </div>
+  <div>
+    <a class="btn-mypage" th:href="@{/member/mypage}">마이페이지로 이동</a>
+  </div>
+</div>
 
 <table class="table table-bordered">
   <thead>
@@ -53,10 +78,7 @@
       </td>
       <td th:text="${#dates.format(vo.logindate, 'yyyy-MM-dd HH:mm:ss')}"></td>
       <td>
-        <a th:href="@{|/login/delete?loginno=${vo.loginno}|}" 
-           class="btn btn-delete">
-           삭제
-        </a>
+        <a th:href="@{|/login/delete?loginno=${vo.loginno}|}" class="btn btn-delete">삭제</a>
       </td>
     </tr>
   </tbody>

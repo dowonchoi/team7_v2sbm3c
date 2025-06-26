@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}">
+<div layout:fragment="content">
+
+  <div class="title_line">회원 목록 (검색)</div>
+
+  <aside class="aside_right">
+    <a href="./list">전체 목록</a>
+    <span class="menu_divide">│</span>
+    <a href="./list_search">검색</a>
+  </aside>
+
+  <div class="menu_line"></div>
+
+  <!-- 🔍 검색창 -->
+  <div style="text-align: right; margin-bottom: 10px;">
+    <form method="get" action="/member/list_search" style="display: inline-flex; gap: 6px;">
+      <input type="text" name="word" th:value="${word}" placeholder="검색"
+            style="padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px;">
+
+      <button type="submit" class="btn btn-secondary btn-sm">검색</button>
+
+      <span th:if="${word != null and word != ''}">
+        <button type="button" class="btn btn-secondary btn-sm"
+                onclick="location.href='/member/list'">검색 취소</button>
+      </span>
+    </form>
+  </div>
+
+  <!-- 🔥 회원 목록 -->
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>성명</th>
+        <th>전화번호</th>
+        <th>주소</th>
+        <th>등록일</th>
+        <th>승인 상태</th>
+        <th>등급</th>
+        <th>관리</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="member : ${list}">
+        <td th:text="${member.id}">ID</td>
+        <td th:text="${member.mname}">성명</td>
+        <td th:text="${member.tel}">전화번호</td>
+        <td th:text="|${member.address1} ${member.address2}|">주소</td>
+        <td th:text="${member.mdate.substring(0, 10)}"></td>등록일</td>
+        <td>
+          <span th:if="${member.supplier_approved == 'N'}" style="color:red;">미승인</span>
+          <span th:if="${member.supplier_approved == 'Y'}" style="color:green;">승인됨</span>
+          <span th:if="${member.supplier_approved == null or member.supplier_approved == ''}">-</span>
+        </td>
+        <td th:text="${member.grade}">등급</td>
+        <td>
+          <button type="button" class="btn btn-danger btn-sm"
+                  th:onclick="|deleteMember(${member.memberno})|">삭제</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 🔢 페이징 영역 -->
+  <div th:utext="${paging}" class="paging_box"></div>
+
+</div>
+</html>

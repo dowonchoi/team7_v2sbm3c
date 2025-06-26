@@ -32,6 +32,19 @@ public interface MemberDAOInter {
    * @return
    */
   public ArrayList<MemberVO> list();
+  
+  /**
+   * 회원 목록 검색
+   * @param map
+   * @return
+   */
+  public List<MemberVO> list_search(Map<String, Object> map);
+  
+  //검색 + 페이징 목록
+  public List<MemberVO> list_search_paging(Map<String, Object> map);
+  
+  //검색 레코드 수
+  public int list_search_count(String word);
 
   /**
    * memberno로 회원 정보 조회
@@ -64,7 +77,17 @@ public interface MemberDAOInter {
   public int hide(int memberno);
   
   public int deleteByAdmin(int memberno);
-
+  
+  public int withdraw(int memberno);  // 🔥 탈퇴 처리
+  
+  public int restoreMember(HashMap<String, Object> map); // 탈퇴 복구
+  
+  //탈퇴 회원 목록 조회
+  public List<MemberVO> selectWithdrawnMembers();
+  
+  /** 이메일 중복 확인 */
+  public int checkEmail(String email);
+  
   /**
    * 현재 패스워드 검사
    * @param map
@@ -79,19 +102,17 @@ public interface MemberDAOInter {
    */
   public int passwd_update(Map<String, Object> map);
   
-  public int updatePasswd(MemberVO memberVO);
-  
   /**
    * 로그인 처리
    */
   public MemberVO login(HashMap<String, Object> map);
   
-  /**
-   * 공급자 회원 가입 (사업자 인증 파일 포함)
-   * @param memberVO
-   * @return 등록된 레코드 수
-   */
-  public int insertMember(MemberVO memberVO);
+//  /**
+//   * 공급자 회원 가입 (사업자 인증 파일 포함)
+//   * @param memberVO
+//   * @return 등록된 레코드 수
+//   */
+//  public int insertMember(MemberVO memberVO);
   
   /**
    * 공급자 등급

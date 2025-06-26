@@ -3,45 +3,61 @@
 <div layout:fragment="content">
   <div class="title_line">회원 탈퇴</div>
 
-  <!-- form 제거 완료 -->
+  <form id="deleteForm">
+    <input type="hidden" id="memberno" th:value="${memberVO.memberno}" />
 
-  <input type="hidden" id="memberno" th:value="${memberVO.memberno}" />
+    <div class="form-group">
+      <label>비밀번호 확인</label>
+      <input type="password" id="passwd" class="form-control" required />
+    </div>
 
-  <div class="form-group">
-    <label>비밀번호 확인</label>
-    <input type="password" id="passwd" class="form-control" required />
-  </div>
+    <p class="text-danger mt-2">
+      ※ 탈퇴 시 계정은 즉시 비활성화되며, 데이터는 내부 정책에 따라 일정 기간 보관됩니다.
+    </p>
 
-  <div class="form-group mt-3">
-    <button type="button" class="btn btn-danger" onclick="deleteMember()">회원 탈퇴</button>
-    <a th:href="@{/member/mypage}" class="btn btn-secondary">취소</a>
-  </div>
+    <div class="form-group mt-3">
+      <button type="submit" class="btn btn-danger">회원 탈퇴</button>
+      <a th:href="@{/member/mypage}" class="btn btn-secondary">취소</a>
+    </div>
+  </form>
 
   <script>
-    function deleteMember() {
-      if (!confirm("정말 탈퇴하시겠습니까?")) return;
+    document.getElementById("deleteForm").addEventListener("submit", function(e) {
+      e.preventDefault();
 
       const memberno = document.getElementById("memberno").value;
-      const passwd = document.getElementById("passwd").value;
+      const passwd = document.getElementById("passwd").value.trim();
+
+      if (passwd === "") {
+        alert("비밀번호를 입력하세요.");
+        return;
+      }
+
+      if (!confirm("정말 탈퇴하시겠습니까? 탈퇴 시 복구가 불가능합니다.")) return;
 
       fetch("/member/delete", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: `memberno=${memberno}&passwd=${encodeURIComponent(passwd)}`
       })
-      .then(res => res.text())
-      .then(result => {
-        if (result.trim() === "success") {
-          alert("회원 탈퇴가 완료되었습니다.");
-          location.href = "/member/login";
-        } else {
-          alert("비밀번호가 일치하지 않거나 탈퇴에 실패했습니다.");
-        }
-      })
-      .catch(error => {
-        alert("에러 발생: " + error);
-      });
-    }
+        .then(res => res.text())
+        .then(result => {
+          const res = result.trim();
+
+          if (res === "success") {
+            alert("회원 탈퇴가 완료되었습니다.");
+            location.href = "/";
+          } else if (res === "fail") {
+            alert("비밀번호가 일치하지 않습니다.");
+          } else {
+            alert("탈퇴 처리 중 오류가 발생했습니다. 다시 시도해 주세요.");
+          }
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          alert("네트워크 오류가 발생했습니다.");
+        });
+    });
   </script>
 </div>
 </html>

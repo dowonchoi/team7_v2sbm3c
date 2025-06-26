@@ -105,3 +105,92 @@
     max-width: 300px;
   }
 }
+/* ==================== 이용약관 영역 ==================== */
+.terms-container {
+  border: 2px solid #ddd;
+  border-radius: 16px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  margin-top: 20px;
+}
+
+.terms-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.terms-header input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
+
+.terms-header label {
+  font-weight: bold;
+  color: #007bff;
+  font-size: 16px;
+}
+
+.terms-list {
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 15px;
+  background: white;
+}
+
+.terms-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.terms-item:last-child {
+  margin-bottom: 0;
+}
+
+.terms-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+}
+
+.terms-item label {
+  flex-grow: 1;
+  font-size: 14px;
+}
+
+.terms-required {
+  color: red;
+  margin-right: 5px;
+  font-weight: bold;
+}
+
+.btn-agree {
+  width: 100%;
+  background-color: #007bff;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.3s;
+}
+
+.btn-agree:hover {
+  background-color: #0056b3;
+}
+.terms-sub {
+  padding-left: 24px;
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.terms-sub label {
+  font-weight: 400;
+  color: #bbb;
+}

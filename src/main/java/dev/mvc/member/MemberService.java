@@ -25,11 +25,11 @@ public class MemberService {
     return memberDAO.create(memberVO);
   }
 
-  // 공급자 회원 가입
-  public int insertMember(MemberVO memberVO) {
-    memberVO.setSupplier_approved("N"); // 초기 승인 상태 'N'
-    return memberDAO.insertMember(memberVO);
-  }
+//  // 공급자 회원 가입
+//  public int insertMember(MemberVO memberVO) {
+//    memberVO.setSupplier_approved("N"); // 초기 승인 상태 'N'
+//    return memberDAO.insertMember(memberVO);
+//  }
 
   // 승인 대기 공급자 목록 조회
   public List<MemberVO> getPendingSuppliers() {
@@ -46,7 +46,6 @@ public class MemberService {
     int cnt2 = memberDAO.updateGrade(memberno, 10);
     return (cnt1 + cnt2) / 2;
   }
-
 
   //공급자 승인 거절 처리
   public int rejectSupplier(int memberno) {

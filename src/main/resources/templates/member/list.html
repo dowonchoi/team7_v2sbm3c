@@ -6,15 +6,32 @@
 
   <aside class="aside_right">
     <a href="javascript:location.reload();">새로고침</a>
-    <span class='menu_divide'>│</span>
-    <a href='./create'>회원 가입</a>
+    <!-- <span class='menu_divide'>│</span>
+    <a href='./create'>회원 가입</a> -->
     <span class='menu_divide'>│</span>
     <a href='./list'>목록</a>
     <span class='menu_divide'>│</span>
     <a href="./admin/pending_suppliers">승인 대기 공급자</a>
+    <span href='menu_divide'>|</span>
+    <a href="./withdrawn_list">탈퇴 회원 목록</a>
   </aside>
 
   <div class='menu_line'></div>
+
+  <!-- 🔍 검색창 -->
+  <div style="text-align: right; margin-bottom: 10px;">
+    <form method="get" action="/member/list_search" style="display: inline-flex; gap: 6px;">
+      <input type="text" name="word" th:value="${word}" placeholder="검색"
+            style="padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px;">
+
+      <button type="submit" class="btn btn-secondary btn-sm">검색</button>
+
+      <span th:if="${word != null and word != ''}">
+        <button type="button" class="btn btn-outline-secondary btn-sm"
+                onclick="location.href='/member/list'">검색 취소</button>
+      </span>
+    </form>
+  </div>
 
   <table class="table table-striped" style='width: 100%;'>
     <colgroup>

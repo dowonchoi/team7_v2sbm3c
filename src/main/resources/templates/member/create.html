@@ -3,10 +3,48 @@
 <div layout:fragment="content">
 
 <link rel="stylesheet" href="/css/member.css">
-
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 
+<style>
+  .terms-box {
+    border: 1px solid #ccc;
+    padding: 10px;
+    height: 150px;
+    overflow-y: scroll;
+    background-color: #f9f9f9;
+    margin-bottom: 10px;
+    font-size: 13px;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: nowrap;
+  }
+
+  .form-row button {
+    white-space: nowrap;
+    padding: 6px 12px;
+    font-size: 14px;
+    height: 36px;
+  }
+
+  .form-row select, .form-row input {
+    height: 36px;
+    font-size: 14px;
+  }
+
+  .btn {
+    padding: 6px 12px;
+    font-size: 14px;
+    height: 36px;
+    min-width: 80px;
+  }
+</style>
+
 <script>
+  // 이메일 타이머 기능
   let timer = null;
   let timeLeft = 300;
 
@@ -34,33 +72,84 @@
     document.getElementById('timer').innerText = `${min}:${sec}`;
   }
 
-  function sendCode() {
-    const email = document.getElementById('email').value;
-    if (!email.includes('@')) {
-      alert('유효한 이메일을 입력하세요.');
+  // 이메일 도메인 직접 입력
+  function changeEmailDomain() {
+    const domain = document.getElementById('emailDomain');
+
+    if (domain.value === 'self') {
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.id = 'emailDomainInput';  // ⭐ id 변경
+      input.className = 'form-control input-sm';
+      input.placeholder = '도메인 입력';
+      input.required = true;
+      input.oninput = resetEmailCheck;
+
+      domain.parentNode.replaceChild(input, domain);
+      input.focus();
+    }
+
+    resetEmailCheck();
+  }
+
+  function getFullEmail() {
+    const id = document.getElementById('emailId').value.trim();
+    const domainEl = document.getElementById('emailDomain') || document.getElementById('emailDomainInput');
+    const domain = domainEl.value.trim();
+    return `${id}@${domain}`;
+  }
+
+  // 이메일 중복 확인
+  function checkEmail() {
+    const email = getFullEmail();
+    const msg = document.getElementById('email_msg');
+    const sendCodeBtn = document.getElementById('sendCodeBtn');
+
+    if (!email.includes('@') || email.startsWith('@') || email.endsWith('@')) {
+      alert('올바른 이메일을 입력하세요.');
       return;
     }
+
+    fetch('/member/check_email?email=' + encodeURIComponent(email))
+      .then(response => response.json())
+      .then(data => {
+        msg.style.display = 'block';
+        if (data.available) {
+          msg.textContent = '사용 가능한 이메일입니다.';
+          msg.className = 'feedback-text span_info';
+          sendCodeBtn.disabled = false;
+        } else {
+          msg.textContent = '이미 사용 중인 이메일입니다.';
+          msg.className = 'feedback-text span_warning';
+          sendCodeBtn.disabled = true;
+        }
+      });
+  }
+
+  function sendCode() {
+    const email = getFullEmail();
+    const msg = document.getElementById('email_msg');
 
     fetch('/member/send_code', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: 'email=' + encodeURIComponent(email)
     })
-    .then(res => res.text())
-    .then(result => {
-      const msg = document.getElementById('email_msg');
-      msg.style.display = 'block';
-      if (result === 'success') {
-        msg.innerText = '이메일로 인증코드를 보냈습니다.';
-        msg.className = 'feedback-text span_info';
-        startTimer();
-      } else {
-        msg.innerText = '이메일 전송에 실패했습니다.';
-        msg.className = 'feedback-text span_warning';
-      }
-    });
+      .then(res => res.text())
+      .then(result => {
+        msg.style.display = 'block';
+        if (result === 'success') {
+          msg.innerText = '이메일로 인증코드를 보냈습니다.';
+          msg.className = 'feedback-text span_info';
+          startTimer();
+        } else {
+          msg.innerText = '이메일 전송에 실패했습니다.';
+          msg.className = 'feedback-text span_warning';
+        }
+      });
   }
 
+  // 인증 코드 확인
   function verifyCode() {
     if (timeLeft <= 0) {
       const msg = document.getElementById('code_msg');
@@ -70,54 +159,74 @@
       return;
     }
 
-    const email = document.getElementById('email').value;
+    const email = getFullEmail();
     const code = document.getElementById('code').value;
+    const msg = document.getElementById('code_msg');
 
     fetch('/member/verify_code', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: 'email=' + encodeURIComponent(email) + '&code=' + encodeURIComponent(code)
     })
-    .then(res => res.text())
-    .then(result => {
-      const msg = document.getElementById('code_msg');
-      msg.style.display = 'block';
-      if (result === 'verified') {
-        msg.textContent = '본인 인증이 확인되었습니다.';
-        msg.className = 'feedback-text span_info';
-        document.getElementById('verified').value = 'Y';
-        clearInterval(timer);
-        document.getElementById('timer').innerText = '';
-      } else {
-        msg.textContent = '인증 실패 (' + result + ')';
-        msg.className = 'feedback-text span_warning';
-      }
-    });
+      .then(res => res.text())
+      .then(result => {
+        msg.style.display = 'block';
+        if (result === 'verified') {
+          msg.textContent = '본인 인증이 확인되었습니다.';
+          msg.className = 'feedback-text span_info';
+          document.getElementById('verified').value = 'Y';
+          clearInterval(timer);
+          document.getElementById('timer').innerText = '';
+        } else {
+          msg.textContent = '인증 실패 (' + result + ')';
+          msg.className = 'feedback-text span_warning';
+        }
+      });
   }
 
-  function execDaumPostcode() {
-    new daum.Postcode({
-      oncomplete: function(data) {
-        document.getElementById('zipcode').value = data.zonecode;
-        document.getElementById('address1').value = data.roadAddress || data.jibunAddress;
-        document.getElementById('address2').focus();
-      }
-    }).open();
+  // 이메일 초기화
+  function resetEmailCheck() {
+    const msg = document.getElementById('email_msg');
+    const sendCodeBtn = document.getElementById('sendCodeBtn');
+
+    msg.style.display = 'none';
+    msg.textContent = '';
+    sendCodeBtn.disabled = true;
   }
 
+  // 아이디 중복 확인
   function checkId() {
     const id = document.getElementById('username').value;
-    if (!id) return alert('아이디를 입력하세요.');
+    const msg = document.getElementById('id_msg');
+
+    if (id.trim().length < 6) {
+      msg.style.display = 'block';
+      msg.textContent = '아이디는 최소 6자 이상 입력해주세요.';
+      msg.style.color = 'red';
+      return;
+    }
 
     fetch('/member/check_id?id=' + encodeURIComponent(id))
       .then(response => response.json())
       .then(data => {
-        const msg = document.getElementById('id_msg');
-        msg.textContent = data.available ? '사용 가능한 아이디입니다' : '이미 사용 중인 아이디입니다';
-        msg.style.color = data.available ? 'green' : 'red';
+        msg.style.display = 'block';
+        if (data.available) {
+          msg.textContent = '사용 가능한 아이디입니다.';
+          msg.style.color = 'green';
+        } else {
+          msg.textContent = '이미 사용 중인 아이디입니다.';
+          msg.style.color = 'red';
+        }
       });
   }
 
+  function resetIdCheck() {
+    const msg = document.getElementById('id_msg');
+    msg.style.display = 'none';
+    msg.textContent = '';
+  }
+
+  // 전화번호 합치기
   function mergePhoneBeforeSubmit() {
     const tel1 = document.getElementById('tel1').value;
     const tel2 = document.getElementById('tel2').value;
@@ -135,6 +244,47 @@
     return true;
   }
 
+  // ✅ 약관 체크 검증
+  function validateForm() {
+    const required = document.querySelectorAll('.terms-item input.required');
+    for (let chk of required) {
+      if (!chk.checked) {
+        alert("필수 약관에 동의해야 합니다.");
+        return false;
+      }
+    }
+    return mergePhoneBeforeSubmit();
+  }
+
+  // ✅ 전체 동의 체크
+  function toggleAll(source) {
+    const checkboxes = document.querySelectorAll('.terms-item input, .terms-sub input');
+    checkboxes.forEach(chk => chk.checked = source.checked);
+  }
+
+  // ✅ 광고성 정보 수신 → 하위 선택 연동
+  document.addEventListener('DOMContentLoaded', () => {
+    const ad = document.getElementById('term6');
+    const children = ['term7', 'term8', 'term9'];
+
+    ad.addEventListener('change', () => {
+      children.forEach(id => document.getElementById(id).checked = ad.checked);
+    });
+
+    children.forEach(id => {
+      document.getElementById(id).addEventListener('change', () => {
+        const allChecked = children.every(id => document.getElementById(id).checked);
+        ad.checked = allChecked;
+      });
+    });
+  });
+
+  // 팝업
+  function openPopup(url) {
+    window.open(url, 'popup', 'width=600,height=700,scrollbars=yes,resizable=no');
+  }
+
+  // 회원 유형 선택
   function selectUserType(type) {
     document.getElementById('userTypeInput').value = type;
 
@@ -154,6 +304,7 @@
     document.getElementById('line1').classList.add('active');
   }
 
+  // 회원가입 취소
   function cancelSignup() {
     document.getElementById('step2').style.display = 'none';
     document.getElementById('step1').style.display = 'block';
@@ -163,7 +314,6 @@
     document.getElementById('line1').classList.remove('active');
   }
 </script>
-
 
 <!-- STEP INDICATOR -->
 <div class="step-indicator">
@@ -183,19 +333,16 @@
   </div>
 </div>
 
-
 <!-- STEP 1 -->
 <div id="step1">
   <div class="form-group" style="text-align: center;">
     <label style="font-weight: bold; font-size: 18px;">회원 유형을 선택하세요*</label>
     <div style="display: flex; gap: 40px; justify-content: center; margin-top: 20px;">
       <div class="role-option" onclick="selectUserType('user')">
-        <input type="radio" name="userType" id="userType_user" value="user" style="display: none;">
         <img src="/images/user.png" alt="소비자">
         <p>소비자</p>
       </div>
       <div class="role-option" onclick="selectUserType('supplier')">
-        <input type="radio" name="userType" id="userType_supplier" value="supplier" style="display: none;">
         <img src="/images/supplier.png" alt="공급자">
         <p>공급자</p>
       </div>
@@ -204,71 +351,137 @@
 </div>
 
 <!-- STEP 2 -->
-<form id="frm" method="post" action="/member/create" enctype="multipart/form-data" onsubmit="return mergePhoneBeforeSubmit();">
+<form id="frm" method="post" action="/member/create" enctype="multipart/form-data" onsubmit="return validateForm();">
   <input type="hidden" id="userTypeInput" name="userType" value="">
 
-  <div id="step2" style="display: none; max-width: 480px; margin: 0 auto;">
+  <div id="step2" style="display: none; max-width: 500px; margin: 0 auto;">
     <div id="business_auth" style="display: none;">
       <label for="business_file">사업자 등록증*</label>
       <input type="file" id="business_file" name="business_fileMF" class="form-control input-sm">
     </div>
 
     <label>성명*</label>
-    <input type="text" id="mname" name="mname" class="form-control input-sm uniform-size" required>
+    <input type="text" id="mname" name="mname" class="form-control input-sm" required>
 
     <label>아이디*</label>
     <div class="form-row">
-      <input type="text" id="username" name="id" class="form-control input-sm uniform-size flex-grow-1" required>
-      <button type="button" onclick="checkId()" class="btn btn-outline-success btn-sm uniform-btn">중복 확인</button>
+      <input type="text" id="username" name="id" class="form-control input-sm flex-grow-1" required oninput="resetIdCheck()">
+      <button type="button" onclick="checkId()" class="btn btn-outline-success btn-sm">중복 확인</button>
     </div>
     <span id="id_msg" class="feedback-text"></span><br>
 
     <label>이메일*</label>
-    <div class="form-row">
-      <input type="email" id="email" name="email" class="form-control input-sm uniform-size flex-grow-1" required>
-      <button type="button" onclick="sendCode()" class="btn btn-outline-success btn-sm uniform-btn">코드 전송</button>
+    <div class="form-row" style="display: flex; gap: 5px; align-items: center;">
+      <input type="text" id="emailId" class="form-control input-sm" placeholder="이메일 아이디" required oninput="resetEmailCheck()">
+      <span>@</span>
+      <select id="emailDomain" class="form-control input-sm" onchange="changeEmailDomain()">
+        <option value="">도메인 선택</option>
+        <option value="naver.com">naver.com</option>
+        <option value="gmail.com">gmail.com</option>
+        <option value="daum.net">daum.net</option>
+        <option value="self">직접 입력</option>
+      </select>
+      <button type="button" onclick="checkEmail()" class="btn btn-outline-success btn-sm">중복 확인</button>
+      <button type="button" id="sendCodeBtn" onclick="sendCode()" class="btn btn-outline-primary btn-sm" disabled>코드 전송</button>
     </div>
-    <span id="email_msg" class="feedback-text span_info" style="display: none;">이메일로 인증코드를 보냈습니다.</span><br>
+    <span id="email_msg" class="feedback-text"></span><br>
 
     <label>인증코드 입력</label>
     <div class="form-row">
-      <input type="text" id="code" class="form-control input-sm uniform-size flex-grow-1" required>
-      <button type="button" onclick="verifyCode()" class="btn btn-outline-primary btn-sm uniform-btn">확인</button>
+      <input type="text" id="code" class="form-control input-sm flex-grow-1" required>
+      <button type="button" onclick="verifyCode()" class="btn btn-outline-primary btn-sm">확인</button>
     </div>
-    <span id="code_msg" class="feedback-text span_info" style="display: none;">본인 인증이 확인되었습니다.</span>
+    <span id="code_msg" class="feedback-text"></span>
     <input type="hidden" id="verified" name="verified" value="N">
 
     <label>비밀번호*</label>
-    <input type="password" id="passwd" name="passwd" class="form-control input-sm uniform-size" required>
+    <input type="password" id="passwd" name="passwd" class="form-control input-sm" required>
 
     <label>전화번호*</label>
     <div class="form-row">
-      <select id="tel1" class="form-control uniform-size"><option value="010">010</option><option value="011">011</option></select>
+      <select id="tel1" class="form-control"><option value="010">010</option><option value="011">011</option></select>
       <span>-</span>
-      <input type="text" id="tel2" maxlength="4" class="form-control uniform-size" required>
+      <input type="text" id="tel2" maxlength="4" class="form-control" required>
       <span>-</span>
-      <input type="text" id="tel3" maxlength="4" class="form-control uniform-size" required>
+      <input type="text" id="tel3" maxlength="4" class="form-control" required>
     </div>
 
     <label>우편번호*</label>
     <div class="form-row">
-      <input type="text" id="zipcode" name="zipcode" class="form-control uniform-size" readonly required>
-      <button type="button" onclick="execDaumPostcode()" class="btn btn-outline-primary btn-sm uniform-btn">주소 검색</button>
+      <input type="text" id="zipcode" name="zipcode" class="form-control" readonly required>
+      <button type="button" onclick="execDaumPostcode()" class="btn btn-outline-primary btn-sm">주소 검색</button>
     </div>
 
     <label>기본주소*</label>
-    <input type="text" id="address1" name="address1" class="form-control uniform-size" readonly required>
+    <input type="text" id="address1" name="address1" class="form-control" readonly required>
 
     <label>상세주소*</label>
-    <input type="text" id="address2" name="address2" class="form-control uniform-size" required>
+    <input type="text" id="address2" name="address2" class="form-control" required>
 
-    <div style="margin-top: 30px; text-align: center;">
-      <button type="submit" class="btn btn-primary btn-sm uniform-btn">회원가입</button>
-      <button type="button" onclick="cancelSignup()" class="btn btn-secondary btn-sm uniform-btn">취소</button>
-    </div>
-  </div>
-</form>
+    <!-- ✅ 약관 동의 -->
+    <div class="terms-container">
+      <div class="terms-header">
+        <input type="checkbox" id="allCheck" onclick="toggleAll(this)">
+        <label for="allCheck"><b>모두 확인하였으며 동의합니다.</b></label>
+      </div>
 
+      <div class="terms-item">
+        <input type="checkbox" id="term1" class="required">
+        <label for="term1"><span class="terms-required">[필수]</span> 만 14세 이상입니다.</label>
+        <a href="javascript:void(0);" onclick="openPopup('/member/terms/age')">▶</a>
+      </div>
+
+      <div class="terms-item">
+        <input type="checkbox" id="term2" class="required">
+        <label for="term2"><span class="terms-required">[필수]</span> 이용약관 동의</label>
+        <a href="javascript:void(0);" onclick="openPopup('/member/terms/terms')">▶</a>
+      </div>
+
+      <div class="terms-item">
+        <input type="checkbox" id="term3" class="required">
+        <label for="term3"><span class="terms-required">[필수]</span> 개인정보 수집 및 이용 동의</label>
+        <a href="javascript:void(0);" onclick="openPopup('/member/terms/privacy')">▶</a>
+      </div>
+
+      <div class="terms-item">
+        <input type="checkbox" id="term4" class="required">
+        <label for="term4"><span class="terms-required">[필수]</span> 개인정보 제3자 제공 동의</label>
+        <a href="javascript:void(0);" onclick="openPopup('/member/terms/thirdparty')">▶</a>
+      </div>
+
+      <div class="terms-item">
+        <input type="checkbox" id="term5">
+        <label for="term5">[선택] 마케팅 목적 개인정보 수집 및 이용 동의</label>
+        <a href="javascript:void(0);" onclick="openPopup('/member/terms/marketing')">▶</a>
+      </div>
+
+      <div class="terms-item">
+        <input type="checkbox" id="term6">
+        <label for="term6">[선택] 광고성 정보 수신 동의</label>
+        <a href="javascript:void(0);" onclick="openPopup('/member/terms/ad')">▶</a>
+      </div>
+
+      <div class="terms-sub">
+        <div>
+          <input type="checkbox" id="term7">
+          <label for="term7">이메일 수신 동의</label>
+        </div>
+        <div>
+          <input type="checkbox" id="term8">
+          <label for="term8">SMS, SNS 수신 동의</label>
+        </div>
+        <div>
+          <input type="checkbox" id="term9">
+          <label for="term9">앱 푸시 수신 동의</label>
+        </div>
+      </div>
+
+        <div style="margin-top: 30px; text-align: center;">
+          <button type="submit" class="btn btn-primary btn-sm">회원가입</button>
+          <button type="button" onclick="cancelSignup()" class="btn btn-secondary btn-sm">취소</button>
+        </div>
+      </div>
+    </form>
 
 <!-- STEP 3 -->
 <div id="step3" style="display: none; text-align: center; margin-top: 50px;">

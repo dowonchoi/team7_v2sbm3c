@@ -9,7 +9,7 @@ DROP TABLE member CASCADE CONSTRAINTS;
 CREATE TABLE member (
   memberno NUMBER(10) PRIMARY KEY,                 -- 회원 번호
   id VARCHAR(30) NOT NULL UNIQUE,                  -- 아이디(이메일)
-  email VARCHAR2(100),                             -- 이메일
+  email ,                             -- 이메일
   passwd VARCHAR(200) NOT NULL,                    -- 암호화된 비밀번호
   mname VARCHAR(30) NOT NULL,                      -- 성명
   tel VARCHAR(14) NOT NULL,                        -- 전화번호
@@ -53,6 +53,10 @@ ALTER TABLE member MODIFY supplier_approved VARCHAR2(1) DEFAULT 'N';
 ALTER TABLE member RENAME COLUMN business_file_name TO business_file;
 
 ALTER TABLE member ADD business_file_origin VARCHAR2(100);
+
+UPDATE member
+SET passwd = 'fS/kjO+fuEKk06Zl7VYMhg==' 
+WHERE id = 'test';
   
 SELECT memberno, business_file
 FROM member 
@@ -126,5 +130,7 @@ WHERE memberno = 9;
 UPDATE member
 SET passwd = 'fS/kjO+fuEKk06Zl7VYMhg=='  -- ← 정확히 security.aesEncode("1234") 값
 WHERE id = 'admin';
+
+SELECT passwd FROM member;
 
 COMMIT;
