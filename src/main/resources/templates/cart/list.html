@@ -2,77 +2,82 @@
 <html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
 <div layout:fragment="content">
 
-  <h2>장바구니 목록</h2>
+  <!-- 경로만 우측에 띄우기 위해 별도 wrapper 추가 -->
+  <div class="cart-header-line">
+    <div class="cart-title-heading">장바구니 목록</div>
+    <div class="cart-path-box">
+      <span class="cart-path-active">장바구니</span> &gt;
+      <span>주문/결제</span> &gt;
+      <span>주문완료</span>
+    </div>
+  </div>
 
-  <table class="table table-bordered" style="width:100%;">
-    <thead>
-      <tr>
-        <th>상품</th>
-        <th>수량</th>
-        <th>단가</th>
-        <th>합계</th>
-        <th>삭제</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr th:each="cart : ${list}">
-        <td>
-          <!-- 체크박스 -->
-           <input type="checkbox" th:checked="${cart.selected == 'Y'}"
-                th:attr="data-cartno=${cart.cartno}"
-                onchange="updateSelected(this)">
-          <img th:src="@{|/products/storage/${cart.productsVO.thumb1}|}" width="80">
-          <div th:text="${cart.productsVO.title}">상품명</div>
-        </td>
+  <!-- 전체 wrapper -->
+  <div class="cart-wrapper">
+    <div class="cart-container">
+      <div class="cart-item" th:each="cart : ${list}">
+        <input type="checkbox" th:checked="${cart.selected == 'Y'}"
+              th:attr="data-cartno=${cart.cartno}"
+              onchange="updateSelected(this)"
+              class="cart-checkbox">
 
-        <!-- 수량 조절 UI -->
-        <td>
-          <div style="display:flex; align-items:center; gap:5px;">
+        <img th:src="@{|/products/storage/${cart.productsVO.thumb1}|}" class="cart-thumb">
+
+        <div class="cart-info-box">
+          <div class="cart-info-header">
+            <div class="cart-title" th:text="${cart.productsVO.title}">상품명</div>
+            <form th:action="@{/cart/delete}" method="post">
+              <input type="hidden" name="cartno" th:value="${cart.cartno}" />
+              <button type="submit" class="cart-delete-btn">삭제</button>
+            </form>
+          </div>
+
+          <div class="cart-delivery">내일(월) 도착 보장</div>
+
+          <div class="cart-price" th:text="${#numbers.formatInteger(cart.productsVO.saleprice, 3, 'COMMA')} + '원'">0원</div>
+
+          <div class="cart-qty">
             <button type="button"
                     th:attr="onclick=|changeCnt(${cart.cartno}, -1)|">-</button>
             <input type="text"
                   th:id="'cnt_' + ${cart.cartno}"
                   th:value="${cart.cnt}"
-                  readonly style="width:40px; text-align:center;">
+                  readonly>
             <button type="button"
                     th:attr="onclick=|changeCnt(${cart.cartno}, 1)|">+</button>
           </div>
-        </td>
 
+          <div class="cart-subtotal"
+              th:id="'subtotal_' + ${cart.cartno}"
+              th:attr="data-unitprice=${cart.productsVO.saleprice}"
+              th:text="${#numbers.formatInteger(cart.productsVO.saleprice * cart.cnt, 3, 'COMMA')} + '원'">
+          </div>
+        </div>
+      </div>
+    </div>
 
-        <td th:text="${#numbers.formatInteger(cart.productsVO.saleprice, 3, 'COMMA')} + '원'">0원</td>
+    <div class="cart-summary-box">
+      <div class="cart-summary-title">주문 예상 금액</div>
 
-        <td th:id="'subtotal_' + ${cart.cartno}"
-            th:attr="data-unitprice=${cart.productsVO.saleprice}"
-            th:text="${#numbers.formatInteger(cart.productsVO.saleprice * cart.cnt, 3, 'COMMA')} + '원'">
-        </td>
+      <ul class="cart-summary-list">
+        <li><span>총 상품 가격</span><span>0원</span></li>
+        <li><span>총 할인</span><span class="red">-0원</span></li>
+        <li><span>총 배송비</span><span>+0원</span></li>
+        <li class="total"><span>합계</span><span id="total_price"
+            th:attr="data-total=${total}"
+            th:text="${#numbers.formatInteger(total, 3, 'COMMA')} + '원'">0원</span></li>
+      </ul>
 
-        <td>
-          <form th:action="@{/cart/delete}" method="post">
-            <input type="hidden" name="cartno" th:value="${cart.cartno}" />
-            <button type="submit">삭제</button>
-          </form>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+      <form th:action="@{/order/form}" method="get">
+        <button type="submit" class="btn-order">구매하기 (0)</button>
+      </form>
 
-  <div style="text-align:right; margin-top:20px;">
-    <strong>총 합계:</strong>
-    <span id="total_price"
-          th:attr="data-total=${total}"
-          th:text="${#numbers.formatInteger(total, 3, 'COMMA')} + '원'">0원</span>
+      <form th:action="@{/cart/delete_all}" method="post" style="margin-top: 10px;">
+        <button type="submit" class="btn-delete-all">전체 삭제</button>
+      </form>
+    </div>
   </div>
 
-
-  <div style="text-align:right; margin-top:10px;">
-    <form th:action="@{/cart/delete_all}" method="post" style="display:inline;">
-      <button type="submit">전체 삭제</button>
-    </form>
-    <form th:action="@{/order/form}" method="get" style="display:inline;">
-      <button type="submit">주문하기</button>
-    </form>
-  </div>
 
   <script>
   function changeCnt(cartno, delta) {
