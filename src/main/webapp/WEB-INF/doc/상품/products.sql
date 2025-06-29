@@ -31,20 +31,26 @@ CREATE TABLE products(
         visible                                CHAR(1)         DEFAULT 'Y' NOT NULL,
         file2                                   VARCHAR(100)          NULL,  -- 원본 파일명 image
         file2saved                            VARCHAR(100)          NULL,  -- 저장된 파일명, image
-        thumb2                              VARCHAR(100)          NULL,   -- preview image
         size2                                 NUMBER(10)      DEFAULT 0 NULL,  -- 파일 사이즈
         file3                                   VARCHAR(100)          NULL,  -- 원본 파일명 image
         file3saved                            VARCHAR(100)          NULL,  -- 저장된 파일명, image
-        thumb3                              VARCHAR(100)          NULL,   -- preview image
         size3                                 NUMBER(10)      DEFAULT 0 NULL,  -- 파일 사이즈
         expdate                               DATE
         PRIMARY KEY (productsno),
         FOREIGN KEY (memberno) REFERENCES member (memberno),
         FOREIGN KEY (cateno) REFERENCES cate (cateno)
 );
-ALTER TABLE products ADD price_before NUMBER(10);
-ALTER TABLE products ADD price_now NUMBER(10);
-ALTER TABLE products ADD discount NUMBER(3);
+ALTER TABLE products ADD item VARCHAR2(200);       -- 품목 또는 명칭
+ALTER TABLE products ADD maker VARCHAR2(200);      -- 생산자(수입자)
+ALTER TABLE products ADD makedate VARCHAR2(200);   -- 제조연월일
+ALTER TABLE products ADD importyn VARCHAR2(200);   -- 수입식품 문구 여부
+ALTER TABLE products ADD keep VARCHAR2(200);       -- 보관방법, 취급방법
+ALTER TABLE products ADD counsel_tel VARCHAR2(200);  -- 소비자상담 전화번호
+ALTER TABLE products ADD sizeinfo VARCHAR2(200);   -- 용량/수량/크기
+ALTER TABLE products ADD origin VARCHAR2(200);     -- 원산지
+ALTER TABLE products ADD detail VARCHAR2(200);     -- 품목군별 표시사항
+ALTER TABLE products ADD pack VARCHAR2(200);       -- 상품 구성
+ALTER TABLE products ADD safe VARCHAR2(200);       -- 소비자 안전 주의사항
 
 COMMENT ON TABLE products is '상품';
 COMMENT ON COLUMN products.productsno is '상품 번호';
@@ -79,6 +85,18 @@ COMMENT ON COLUMN products.file3 is '메인 이미지3';
 COMMENT ON COLUMN products.file3saved is '실제 저장된 메인 이미지3';
 COMMENT ON COLUMN products.thumb3 is '메인 이미지 Preview3';
 COMMENT ON COLUMN products.size3 is '메인 이미지 크기3';
+-- 📝 컬럼 주석
+COMMENT ON COLUMN products.item IS '품목 또는 명칭';
+COMMENT ON COLUMN products.maker IS '생산자(수입자)';
+COMMENT ON COLUMN products.makedate IS '제조연월일, 소비기한';
+COMMENT ON COLUMN products.importyn IS '수입식품 문구 여부';
+COMMENT ON COLUMN products.keep IS '보관방법, 취급방법';
+COMMENT ON COLUMN products.counsel_tel IS '소비자상담 전화번호';
+COMMENT ON COLUMN products.sizeinfo IS '용량, 수량, 크기';
+COMMENT ON COLUMN products.origin IS '원산지';
+COMMENT ON COLUMN products.detail IS '세부 품목군별 표시사항';
+COMMENT ON COLUMN products.pack IS '상품 구성';
+COMMENT ON COLUMN products.safe IS '소비자 안전 주의사항';
 
 DROP SEQUENCE products_seq;
 
@@ -733,7 +751,27 @@ ALTER TABLE products ADD size3 NUMBER(10) DEFAULT 0;
 
 -- 소비기한
 ALTER TABLE products ADD expdate DATE;
+--
+
+-- 상품 상세 정보용 컬럼 추가
+ALTER TABLE products ADD item VARCHAR2(200);       -- 품목 또는 명칭
+ALTER TABLE products ADD maker VARCHAR2(200);      -- 생산자(수입자)
+ALTER TABLE products ADD makedate VARCHAR2(200);   -- 제조연월일
+ALTER TABLE products ADD importyn VARCHAR2(200);   -- 수입식품 문구 여부
+ALTER TABLE products ADD keep VARCHAR2(200);       -- 보관방법, 취급방법
+ALTER TABLE products ADD counsel_tel VARCHAR2(200);  -- 소비자상담 전화번호
+ALTER TABLE products ADD sizeinfo VARCHAR2(200);   -- 용량/수량/크기
+ALTER TABLE products ADD origin VARCHAR2(200);     -- 원산지
+ALTER TABLE products ADD detail VARCHAR2(200);     -- 품목군별 표시사항
+ALTER TABLE products ADD pack VARCHAR2(200);       -- 상품 구성
+ALTER TABLE products ADD safe VARCHAR2(200);       -- 소비자 안전 주의사항
+
+
 
 SELECT productsno, title, expdate FROM products WHERE productsno = 38; -- 테스트용
 
 commit;
+DESC products;
+
+SELECT * FROM products WHERE productsno = 11;
+

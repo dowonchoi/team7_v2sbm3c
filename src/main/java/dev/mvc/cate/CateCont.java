@@ -66,17 +66,11 @@ public class CateCont {
   /** 페이징 목록 주소, @GetMapping(value="/list_search") */
   private String list_url = "/cate/list_search";
   
-//  @GetMapping(value="/create")  // http://localhost:9091/cate/create
-//  @ResponseBody
-//  public String create() {
-//    System.out.println("-> http://localhost:9091/cate/create");
-//    return "<h2>Create test</h2>";
-//  }
 
   /**
    * 등록폼
-   * // http://localhost:9091/cate/create
-   * // http://localhost:9091/cate/create/  X
+   * // http://localhost:9093/cate/create
+   * // http://localhost:9093/cate/create/  X
    * @return
    */
   @GetMapping(value="/create")  
@@ -132,7 +126,7 @@ public class CateCont {
   
   /**
    * 전체 목록
-   * http://localhost:9091/cate/list_all
+   * http://localhost:9093/cate/list_all
    * @param model
    * @return
    */
@@ -157,45 +151,12 @@ public class CateCont {
     
     return "cate/list_all"; // /templates/cate/list_all.html
   }
-
-//  /**
-//   * 전체 목록
-//   * http://localhost:9091/cate/list_search
-//   * @param model
-//   * @return
-//   */
-//  @GetMapping(value="/list_search")
-//  public String list_search(Model model, 
-//                                    @ModelAttribute("cateVO") CateVO cateVO,
-//                                    @RequestParam(name="word", defaultValue = "") String word) {
-//    cateVO.setGrp("");
-//    cateVO.setName("");
-//    
-//    ArrayList<CateVO> list = this.cateProc.list_search(word);
-//    model.addAttribute("list", list);
-//    
-//    // 2단 메뉴
-//    ArrayList<CateVOMenu> menu = this.cateProc.menu();
-//    model.addAttribute("menu", menu);
-//    
-//    // 카테고리 그룹 목록
-//    ArrayList<String> grpset = this.cateProc.grpset();
-//    cateVO.setGrp(String.join("/",  grpset));
-//    System.out.println("-> cateVO.getGrp(): " + cateVO.getGrp());
-//    
-//    model.addAttribute("word", word);
-//    
-//    int list_search_count = list.size(); // 검색된 레코드 갯수
-//    model.addAttribute("list_search_count", list_search_count);
-//    
-//    return "cate/list_search"; // /templates/cate/list_search.html
-//  }
   
   /**
    * 등록 폼 및 검색 목록 + 페이징
-   * http://localhost:9091/cate/list_search
-   * http://localhost:9091/cate/list_search?word=&now_page=
-   * http://localhost:9091/cate/list_search?word=까페&now_page=1
+   * http://localhost:9093/cate/list_search
+   * http://localhost:9093/cate/list_search?word=&now_page=
+   * http://localhost:9093/cate/list_search?word=까페&now_page=1
    * @param model
    * @return
    */
@@ -265,7 +226,7 @@ public class CateCont {
   /**
    * 조회
    * 특정 카테고리(cateno)의 상세 정보 조회 + 검색 결과 목록 + 페이징 출력
-   * http://localhost:9091/cate/read/1
+   * http://localhost:9093/cate/read/1
    * @param model
    * @return
    */
@@ -327,7 +288,7 @@ public class CateCont {
    * 지정된 cateno의 데이터를 불러와서 입력 폼에 표시
    * 관리자만 접근 가능 / 공급자도 수정가능하게 해야 함
    * 검색 목록 + 페이징 정보도 같이 전달
-   * http://localhost:9091/cate/update/1
+   * http://localhost:9093/cate/update/1
    * @param model
    * @return
    */
@@ -418,7 +379,7 @@ public class CateCont {
 //      model.addAttribute("code", Tool.UPDATE_SUCCESS);  
 //      model.addAttribute("name", cateVO.getName());
       // System.out.println("-> redirect:/cate/update/" + cateVO.getCateno() + "?word=" + word);
-      // http://localhost:9091/cate/update/33?word=영화
+      // http://localhost:9093/cate/update/33?word=영화
       // return "redirect:/cate/update/" + cateVO.getCateno() + "?word=" + word; // @GetMapping(value="/update") // 한글 깨짐, X
       ra.addAttribute("word", word); // redirect로 데이터 전송, 한글 깨짐 방지, redirect 시 검색어 유지 (URL에 자동 포함됨)
       return "redirect:/cate/update/" + cateVO.getCateno(); // 다시 수정폼으로 이동
@@ -436,7 +397,7 @@ public class CateCont {
    * 삭제폼
    * 삭제 전 확인을 위한 화면
    * 현재 선택된 카테고리 정보, 관련 상품 수, 검색 결과 및 페이징 정보도 함께 표시
-   * http://localhost:9091/cate/delete/1
+   * http://localhost:9093/cate/delete/1
    * @param model
    * @return
    */
@@ -607,7 +568,7 @@ public class CateCont {
   /**
    * 우선 순위 높임, 10 등 -> 1 등
    * 내부적으로 seqno 값을 줄임
-   * http://localhost:9091/cate/update_seqno_forward/1
+   * http://localhost:9093/cate/update_seqno_forward/1
    */
   @GetMapping(value="/update_seqno_forward/{cateno}")
   public String update_seqno_forward(Model model, @PathVariable("cateno") Integer cateno,
@@ -626,7 +587,7 @@ public class CateCont {
   /**
    * 우선 순위 낮춤, 1 등 -> 10 등
    * 내부적으로 seqno 값을 증가시킴
-   * http://localhost:9091/cate/update_seqno_forward/1
+   * http://localhost:9093/cate/update_seqno_forward/1
    */
   @GetMapping(value="/update_seqno_backward/{cateno}")
   public String update_seqno_backward(Model model, @PathVariable("cateno") Integer cateno,
@@ -646,7 +607,7 @@ public class CateCont {
    * 카테고리 공개 설정  (visible = 'Y')
    * 일반 사용자에게도 보여지도록 설정
    * 검색어 및 현재 페이지 정보 유지하며 목록으로 리다이렉트
-   * http://localhost:9091/cate/update_visible_y/1
+   * http://localhost:9093/cate/update_visible_y/1
    */
   @GetMapping(value="/update_visible_y/{cateno}")
   public String update_visible_y(Model model, @PathVariable("cateno") Integer cateno,
@@ -670,7 +631,7 @@ public class CateCont {
    * 카테고리 비공개 설정 (visible = 'N')
    * 관리자에게만 보이고 일반 사용자에겐 숨김
    * 검색어 및 현재 페이지 정보 유지하며 목록으로 리다이렉트
-   * http://localhost:9091/cate/update_visible_n/1
+   * http://localhost:9093/cate/update_visible_n/1
    */
   @GetMapping(value="/update_visible_n/{cateno}")
   public String update_visible_n(Model model, @PathVariable("cateno") Integer cateno,

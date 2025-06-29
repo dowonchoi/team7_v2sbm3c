@@ -154,7 +154,10 @@
                 </div>
 
                 <div class="purchase_button_box">
-                  <button class="btn_cart" onclick="location.href='/cart/add?productsno=[[${productsVO.productsno}]]'">🛒 장바구니</button>
+                  <button class="btn_cart"
+                    th:onclick="|location.href='/cart/add?productsno=${productsVO.productsno}&cnt=' + document.getElementById('qty').value|">
+                    장바구니
+                  </button>
                   <button class="btn_buy" onclick="location.href='/order/form?productsno=[[${productsVO.productsno}]]&qty=' + document.getElementById('qty').value">구매하기</button>
                 </div>
               </div>
@@ -191,7 +194,7 @@
           <h3>상품 설명</h3>
           <div th:utext="${productsVO.content}"></div>
         </div>
-        <!-- ✅ 광고 이미지 접기/펼치기 영역 -->
+        <!--  광고 이미지 접기/펼치기 영역 -->
         <div style="margin-top: 40px;">
           <div id="adImageBox" class="ad-image-box">
             <img th:if="${productsVO.fileAdsaved != null && productsVO.fileAdsaved.length() > 0}"

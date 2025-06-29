@@ -22,11 +22,11 @@ public class WebMvcConfiguration implements WebMvcConfigurer{
         
 //       // 제품 이미지용
       registry.addResourceHandler("/products/storage/**")
-              .addResourceLocations("file:///C:/kd/deploy/resort/products/storage/");
+              .addResourceLocations("file:///C:/kd/deploy/team/products/storage/");
 
         // 🔥 회원(member) 사업자 파일용
         registry.addResourceHandler("/member/storage/**")
-                .addResourceLocations("file:///C:/kd/deploy/resort/member/storage/");
+                .addResourceLocations("file:///C:/kd/deploy/team/member/storage/");
 
         // C:/kd/deploy/team/food/storage ->  /food/storage -> http://localhost:9091/food/storage;
         // registry.addResourceHandler("/food/storage/**").addResourceLocations("file:///" +  Food.getUploadDir());
