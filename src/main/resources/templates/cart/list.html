@@ -16,10 +16,13 @@
   <div class="cart-wrapper">
     <div class="cart-container">
       <div class="cart-item" th:each="cart : ${list}">
-        <input type="checkbox" th:checked="${cart.selected == 'Y'}"
-              th:attr="data-cartno=${cart.cartno}"
-              onchange="updateSelected(this)"
-              class="cart-checkbox">
+        <input type="checkbox"
+                class="cart-checkbox"
+                th:checked="${cart.selected == 'Y'}"
+                th:attrappend="data-cartno=${cart.cartno}, data-price=${cart.productsVO.price}, data-saleprice=${cart.productsVO.saleprice}"
+                onchange="updateSelected(this)">
+
+
 
         <img th:src="@{|/products/storage/${cart.productsVO.thumb1}|}" class="cart-thumb">
 
@@ -52,6 +55,12 @@
               th:attr="data-unitprice=${cart.productsVO.saleprice}"
               th:text="${#numbers.formatInteger(cart.productsVO.saleprice * cart.cnt, 3, 'COMMA')} + '원'">
           </div>
+          <!-- 포인트 -->
+          <div class="point-box">
+            <span th:text="'총 적립 포인트: ' + (${cart.productsVO.point} * ${cart.cnt}) + '점 (' + ${cart.productsVO.point} + '점 × ' + ${cart.cnt} + '개)'">
+              총 적립 포인트: 600점 (200점 × 3개)
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -60,17 +69,29 @@
       <div class="cart-summary-title">주문 예상 금액</div>
 
       <ul class="cart-summary-list">
-        <li><span>총 상품 가격</span><span>0원</span></li>
-        <li><span>총 할인</span><span class="red">-0원</span></li>
+        <li><span>총 상품 가격</span>
+            <span id="total_origin" th:text="${#numbers.formatInteger(totalPriceOrigin, 3, 'COMMA')} + '원'">0원</span>
+        </li>
+        <li><span>총 할인</span>
+            <span class="red" id="total_discount"
+                  th:text="${#numbers.formatInteger(totalDiscount, 3, 'COMMA')} + '원'">
+              0원
+            </span>
+        </li>
         <li><span>총 배송비</span><span>+0원</span></li>
+        <li class="point-total">
+          <span>총 적립 포인트</span>
+          <span id="total_point" th:text="${#numbers.formatInteger(totalPoint, 3, 'COMMA')} + '점'">0점</span>
+        </li>
         <li class="total"><span>합계</span><span id="total_price"
             th:attr="data-total=${total}"
             th:text="${#numbers.formatInteger(total, 3, 'COMMA')} + '원'">0원</span></li>
       </ul>
 
-      <form th:action="@{/order/form}" method="get">
-        <button type="submit" class="btn-order">구매하기 (0)</button>
-      </form>
+      <button type="submit" class="btn-order" id="buy-btn">
+        구매하기 (<span id="buy-count" >0</span>)
+      </button>
+
 
       <form th:action="@{/cart/delete_all}" method="post" style="margin-top: 10px;">
         <button type="submit" class="btn-delete-all">전체 삭제</button>
@@ -106,6 +127,8 @@
 
         // 총합 재계산
         updateTotalPrice();
+        updateBuyCount();  // 수량 변경 시도 반영
+        recalculateSummary(); // 총합도 갱신
       } else {
         alert("수량 변경 실패");
       }
@@ -140,6 +163,9 @@
       if (result !== 'success') {
         alert('선택 상태 변경 실패');
         checkbox.checked = !checkbox.checked; // 롤백
+      } else {
+        updateBuyCount(); // 상태 변경 성공 시 수량도 갱신
+        recalculateSummary(); // 총합 갱신
       }
     })
     .catch(error => {
@@ -148,9 +174,70 @@
     });
   }
   </script>
+  <script>
+  function updateBuyCount() {
+    let count = 0;
+    // 각 장바구니 항목 반복
+    document.querySelectorAll('.cart-item').forEach(item => {
+      const checkbox = item.querySelector('.cart-checkbox');
 
+      // 선택된 항목만 카운트
+      if (checkbox.checked) {
+        count += 1;
+      }
+    });
 
+    // 구매하기 버튼 텍스트 갱신
+    document.getElementById("buy-count").innerText = count;
+  }
+  </script>
+  <script>
+    // 페이지 로드 후 구매 수량 계산
+    window.addEventListener('load', () => {
+      updateBuyCount();
+      recalculateSummary(); // ✅ 초기 총합 갱신
+    });
+  </script>
 
+  <script>
+  // 장바구니 총합 요약 계산
+  function recalculateSummary() {
+    let totalOrigin = 0;     // 총 정가
+    let totalDiscount = 0;   // 총 할인
+    let totalFinal = 0;      // 총 결제 금액
+    let totalPoint = 0;      // 총 포인트
 
+    // 장바구니 항목 순회
+    document.querySelectorAll('.cart-item').forEach(item => {
+      const checkbox = item.querySelector('.cart-checkbox');
+      if (checkbox.checked) {
+        const cnt = parseInt(item.querySelector('input[id^="cnt_"]').value); // 수량
+        const price = parseInt(checkbox.getAttribute('data-price') || '0');  // 정가
+        const salePrice = parseInt(checkbox.getAttribute('data-saleprice') || '0'); // 할인가
+        console.log(`[디버깅] cartno: ${checkbox.getAttribute('data-cartno')}, 정가(price): ${price}, 할인가(salePrice): ${salePrice}, 할인액: ${price - salePrice}`);
+        const discount = price - salePrice;                                   // 할인액
+
+        // 누적 계산
+        totalOrigin += price * cnt;
+        totalDiscount += discount * cnt;
+        totalFinal += salePrice * cnt;
+
+        // 포인트 추출 → 정규식 사용
+        const pointBox = item.querySelector('.point-box span');
+        const pointText = pointBox ? pointBox.innerText.match(/총 적립 포인트: (\d+)/) : null;
+        totalPoint += pointText ? parseInt(pointText[1]) : 0;
+      }
+    });
+
+    // 숫자 포맷 함수 (쉼표 + 단위 붙이기)
+    const format = n => n.toLocaleString() + '원';
+
+    // DOM에 결과 표시
+    document.getElementById("total_origin").innerText = format(totalOrigin);               // 총 상품 가격
+    document.getElementById("total_discount").innerText = format(totalDiscount);     // 총 할인
+    document.getElementById("total_price").innerText = format(totalFinal);                 // 합계
+    document.getElementById("total_point").innerText = totalPoint.toLocaleString() + '점'; // 총 포인트
+  }
+  </script>
 </div>
 </html>

@@ -253,5 +253,11 @@
     )
     WHERE rn BETWEEN #{start} AND #{end}
   </select>
+  
+  <!-- 특정 상품(productsno)의 개당 포인트(point)를 가져오는 SQL -->
+  <select id="getPointByProductsno" parameterType="int" resultType="int">
+    SELECT point FROM products WHERE productsno = #{productsno}
+  </select>
+
 
 </mapper> 

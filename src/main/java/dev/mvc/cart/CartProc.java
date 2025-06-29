@@ -2,6 +2,7 @@ package dev.mvc.cart;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,5 +69,42 @@ public class CartProc implements CartProcInter {
   public int update_selected(Map<String, Object> map) {
     return cartDAO.update_selected(map);
   }
+  
+  @Override
+  public int sum_total_point(int memberno) {
+      int totalPoint = 0;
+      
+      List<CartVO> cartList = this.cartDAO.list_by_memberno(memberno);
+
+      for (CartVO cartVO : cartList) {
+          // 선택된 항목만 계산 ('Y'만 적립 대상)
+          if ("Y".equals(cartVO.getSelected())) {
+              int point = cartVO.getProductsVO().getPoint();
+              int cnt = cartVO.getCnt();
+              totalPoint += (point * cnt);
+          }
+      }
+
+      return totalPoint;
+  }
+  
+  /** 총 상품 정가 계산 */
+  @Override
+  public int sum_total_price_origin(int memberno){
+    return cartDAO.sum_total_price_origin(memberno);
+  }
+
+  /** 총 할인액 계산 */
+  @Override
+  public int sum_total_discount(int memberno) {
+    return cartDAO.sum_total_discount(memberno);
+  }
+
+//
+//  /** 구매 수량 총합 (selected = 'Y' 인 것만) */
+//  @Override
+//  public int sum_total_qty_selected(int memberno);
+
+
 
 }

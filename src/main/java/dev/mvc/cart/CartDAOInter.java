@@ -60,5 +60,20 @@ public interface CartDAOInter {
    * @return 변경된 레코드 수
    */
   public int update_selected(Map<String, Object> map);
+  
+  /**
+   * 회원의 장바구니 정가 기준 총합 계산
+   * @param memberno
+   * @return 총 정가
+   */
+  public int sum_total_price_origin(int memberno);
+
+  /**
+   * 회원 장바구니 총 할인액 계산
+   * @param memberno
+   * @return 총 할인 금액
+   */
+  public int sum_total_discount(int memberno);
+
 
 }

@@ -55,5 +55,23 @@ public interface CartProcInter {
   public int sum_total_price(int memberno);
   
   public int update_selected(Map<String, Object> map);
+  
+  /** 선택된 항목들의 총 적립 포인트 합산 */
+  public int sum_total_point(int memberno);
+  
+  /**
+   * 회원 장바구니 정가 기준 총합 계산
+   */
+  public int sum_total_price_origin(int memberno);
+  
+  /**
+   * 회원 장바구니 총 할인액 계산
+   */
+  public int sum_total_discount(int memberno);
+
+  
+  
+
+
 
 }

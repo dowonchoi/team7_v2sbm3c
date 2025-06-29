@@ -22,5 +22,8 @@ public class CartVO {
   
   // 'Y'는 구매 예정, 'N'은 장바구니에만 보관
   private String selected = "Y";
+  
+  //1개 상품에 대한 적립 포인트
+  private int point;
 
 }

@@ -6,8 +6,8 @@
 
   <!-- 1. 장바구니 항목 등록 -->
   <insert id="create" parameterType="dev.mvc.cart.CartVO">
-    INSERT INTO cart(cartno, memberno, productsno, cnt, selected, rdate)
-    VALUES(cart_seq.NEXTVAL, #{memberno}, #{productsno}, #{cnt}, #{selected}, SYSDATE)
+    INSERT INTO cart(cartno, memberno, productsno, cnt, selected, rdate, point)
+    VALUES(cart_seq.NEXTVAL, #{memberno}, #{productsno}, #{cnt}, #{selected}, SYSDATE, #{point})
   </insert>
 
   <!-- 2. 회원별 장바구니 목록 조회 (Products JOIN 포함) -->
@@ -16,9 +16,11 @@
            P.productsno AS "productsVO.productsno",
            P.title       AS "productsVO.title",
            P.thumb1      AS "productsVO.thumb1",
+           P.price       AS "productsVO.price",
            P.saleprice   AS "productsVO.saleprice",
            P.dc          AS "productsVO.dc",
-           P.expdate     AS "productsVO.expdate"
+           P.expdate     AS "productsVO.expdate",
+           P.point AS "productsVO.point"
     FROM cart C
     JOIN products P ON C.productsno = P.productsno
     WHERE C.memberno = #{memberno}
@@ -69,9 +71,11 @@
       <id property="productsno" column="productsVO.productsno" />
       <result property="title" column="productsVO.title" />
       <result property="thumb1" column="productsVO.thumb1" />
+      <result property="price" column="productsVO.price" />
       <result property="saleprice" column="productsVO.saleprice" />
       <result property="dc" column="productsVO.dc" />
       <result property="expdate" column="productsVO.expdate" />
+      <result property="point" column="productsVO.point" />
     </association>
   </resultMap>
   
@@ -80,6 +84,22 @@
     SET selected = #{selected}
     WHERE cartno = #{cartno}
   </update>
+  
+  <!-- 총 상품 정가 계산: 정가(price) * 수량(cnt)의 합 -->
+  <select id="sum_total_price_origin" resultType="int" parameterType="int">
+    SELECT NVL(SUM(P.price * C.cnt), 0)
+    FROM cart C
+    JOIN products P ON C.productsno = P.productsno
+    WHERE C.memberno = #{memberno}
+  </select>
+
+  <!-- 총 할인 금액 계산: (정가 - 할인가) * 수량 -->
+  <select id="sum_total_discount" resultType="int" parameterType="int">
+    SELECT NVL(SUM((P.price - P.saleprice) * C.cnt), 0)
+    FROM cart C
+    JOIN products P ON C.productsno = P.productsno
+    WHERE C.memberno = #{memberno}
+  </select>
 
 
 

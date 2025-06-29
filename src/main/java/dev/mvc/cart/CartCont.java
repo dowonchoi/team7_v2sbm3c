@@ -73,10 +73,17 @@ public class CartCont {
 
     // 장바구니 목록 + 총합
     ArrayList<CartVO> list = cartProc.list_by_memberno(memberno);
-    int total = cartProc.sum_total_price(memberno);
+    int total = cartProc.sum_total_price(memberno); // 총 결제 금액
+    int totalPriceOrigin = cartProc.sum_total_price_origin(memberno); //총 상품 가격(할인 전)
+    model.addAttribute("totalPriceOrigin", totalPriceOrigin);
+    int totalDiscount = cartProc.sum_total_discount(memberno); //총 할인
+    model.addAttribute("totalDiscount", totalDiscount);
+    int totalPoint = cartProc.sum_total_point(memberno); //  적립 총 포인트
+
 
     model.addAttribute("list", list);
     model.addAttribute("total", total);
+    model.addAttribute("totalPoint", totalPoint);
 
     return "cart/list";  // /templates/cart/list.html
   }
@@ -155,5 +162,19 @@ public class CartCont {
 
     return (updated == 1) ? "success" : "fail";
   }
+  
+  @PostMapping("/cart/delete_selected")
+  public String deleteSelected(@RequestParam("cartnos") String cartnos, HttpSession session) {
+      int memberno = (int) session.getAttribute("memberno"); // 세션 확인
+
+      String[] cartnoArr = cartnos.split(",");
+      for (String cartnoStr : cartnoArr) {
+          int cartno = Integer.parseInt(cartnoStr);
+          cartProc.delete(cartno); // 단건 삭제
+      }
+
+      return "redirect:/cart/list";
+  }
+
 
 }

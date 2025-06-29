@@ -119,7 +119,10 @@
               <span class="product-expdate" th:text="${#dates.format(productsVO.expdate, 'yyyy.MM.dd')}">YYYY.MM.DD</span>
 
             </div>
-
+            <!-- 적립 포인트 박스 -->
+            <div class="point-box">
+              <span th:text="'포인트 적립: ' + ${productsVO.point} + '점'">포인트 적립: 000점</span>
+            </div>
             <div class="products_read_recom" style="margin-top: 10px;">
               추천: <span id="hart_panel"></span> <span id="recom_panel">[[${productsVO.recom}]]개</span>
             </div>
