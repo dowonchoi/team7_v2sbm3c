@@ -1,6 +1,7 @@
 package dev.mvc.cart;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public interface CartProcInter {
@@ -69,7 +70,13 @@ public interface CartProcInter {
    */
   public int sum_total_discount(int memberno);
 
+  //선택된 장바구니 항목 목록 조회 (selected='Y')
+  public List<CartVO> list_selected_by_memberno(int memberno);
   
+  //선택된 장바구니 항목의 총 금액 계산
+  public int total_selected_by_memberno(int memberno);
+
+
   
 
 

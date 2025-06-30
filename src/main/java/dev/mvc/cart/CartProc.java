@@ -100,10 +100,17 @@ public class CartProc implements CartProcInter {
     return cartDAO.sum_total_discount(memberno);
   }
 
-//
-//  /** 구매 수량 총합 (selected = 'Y' 인 것만) */
-//  @Override
-//  public int sum_total_qty_selected(int memberno);
+  @Override
+  public List<CartVO> list_selected_by_memberno(int memberno) {
+    // 선택된(selected='Y') 장바구니 항목만 조회하여 리스트 반환
+    return cartDAO.list_selected_by_memberno(memberno);
+  }
+
+  @Override
+  public int total_selected_by_memberno(int memberno) {
+    // 선택된 항목들의 할인가 * 수량을 합산한 총액 반환
+    return cartDAO.total_selected_by_memberno(memberno);
+  }
 
 
 

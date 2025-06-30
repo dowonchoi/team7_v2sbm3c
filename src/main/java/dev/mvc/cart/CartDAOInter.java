@@ -1,6 +1,7 @@
 package dev.mvc.cart;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public interface CartDAOInter {
@@ -74,6 +75,12 @@ public interface CartDAOInter {
    * @return 총 할인 금액
    */
   public int sum_total_discount(int memberno);
+
+  //선택된 장바구니 항목만 조회
+  public List<CartVO> list_selected_by_memberno(int memberno);
+  
+  //선택된 장바구니 항목의 총 결제 금액 계산
+  public int total_selected_by_memberno(int memberno);
 
 
 }

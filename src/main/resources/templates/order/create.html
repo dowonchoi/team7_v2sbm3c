@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+  <h2>주문/결제</h2>
+    <form th:action="@{/order/create}" method="post">
+
+    <!-- 수령자 정보 -->
+    <div>
+      <label>수령자 이름</label>
+      <input type="text" name="rname" required>
+    </div>
+
+    <div>
+      <label>연락처</label>
+      <input type="text" name="rtel" required>
+    </div>
+
+    <div>
+      <label>우편번호</label>
+      <input type="text" name="rzipcode" required>
+    </div>
+
+    <div>
+      <label>주소 1</label>
+      <input type="text" name="raddress1" required>
+    </div>
+
+    <div>
+      <label>주소 2</label>
+      <input type="text" name="raddress2">
+    </div>
+
+    <div>
+      <label>배송 메모</label>
+      <input type="text" name="message" placeholder="문 앞에 두세요 등">
+    </div>
+
+    <!-- 결제 수단 -->
+    <div>
+      <label>결제수단</label>
+      <select name="payment">
+        <option value="가상결제">가상결제</option>
+        <option value="무통장입금">무통장입금</option>
+        <option value="신용카드">신용카드</option>
+      </select>
+    </div>
+    <!-- 장바구니 선택 항목 목록 출력 -->
+    <h3>주문 상품 목록</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>상품</th>
+          <th>수량</th>
+          <th>할인가</th>
+          <th>소계</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="cart : ${cartList}">
+          <td>
+            <img th:src="@{|/products/storage/${cart.productsVO.thumb1}|}" width="50">
+            <span th:text="${cart.productsVO.title}">상품명</span>
+          </td>
+          <td th:text="${cart.cnt}">1</td>
+          <td th:text="${#numbers.formatInteger(cart.productsVO.saleprice, 3, 'COMMA')} + '원'">할인가</td>
+          <td th:text="${#numbers.formatInteger(cart.productsVO.saleprice * cart.cnt, 3, 'COMMA')} + '원'">소계</td>
+        </tr>
+      </tbody>
+    </table>
+    <!-- 총 금액 및 포인트 출력 -->
+    <div>
+      <strong>총 결제 금액: </strong>
+      <span th:text="${#numbers.formatInteger(total, 3, 'COMMA')} + '원'">0원</span>
+    </div>
+
+    <!-- 숨겨서 총액, 포인트 전송 -->
+    <input type="hidden" name="total" th:value="${total}">
+    <input type="hidden" name="point" value="0"><!-- 향후 포인트 적립 계산 가능 -->
+    <!-- 주문하기 버튼 -->
+    <div>
+      <button type="submit">주문하기</button>
+    </div>
+
+  </form>
+</div>
+</html>

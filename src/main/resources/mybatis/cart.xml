@@ -101,6 +101,23 @@
     WHERE C.memberno = #{memberno}
   </select>
 
+  <!-- 선택된 장바구니 항목 목록 조회 (selected = 'Y') -->
+  <select id="list_selected_by_memberno" resultType="dev.mvc.cart.CartVO" parameterType="int">
+    SELECT *
+    FROM cart
+    WHERE memberno = #{memberno}
+      AND selected = 'Y'
+    ORDER BY cartno ASC
+  </select>
+  
+  <!-- 선택된 장바구니 항목의 총 결제 금액 계산 -->
+  <select id="total_selected_by_memberno" resultType="int" parameterType="int">
+    SELECT NVL(SUM(saleprice * cnt), 0)  -- null 방지를 위해 NVL 사용
+    FROM cart
+    WHERE memberno = #{memberno}
+      AND selected = 'Y'
+  </select>
+
 
 
 

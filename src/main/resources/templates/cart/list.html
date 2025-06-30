@@ -115,9 +115,14 @@
             th:text="${#numbers.formatInteger(total, 3, 'COMMA')} + '원'">0원</span></li>
       </ul>
 
-      <button type="submit" class="btn-order" id="buy-btn">
-        구매하기 (<span id="buy-count" >0</span>)
-      </button>
+      <form th:action="@{/order/create}" method="get" style="margin-top: 10px;">
+        <!-- 서버에도 넘겨서 GET 파라미터로 사용될 수 있도록 숨겨진 total 값 -->
+        <input type="hidden" name="total" id="orderTotal" th:value="${total}" />
+        
+        <button type="submit" class="btn-order" id="buy-btn">
+          구매하기 (<span id="buy-count">0</span>)
+        </button>
+      </form>
 
 
       <form th:action="@{/cart/delete_all}" method="post" style="margin-top: 10px;">
@@ -228,7 +233,7 @@
     // 페이지 로드 후 구매 수량 계산
     window.addEventListener('load', () => {
       updateBuyCount();
-      recalculateSummary(); // ✅ 초기 총합 갱신
+      recalculateSummary(); //  초기 총합 갱신
     });
   </script>
 
@@ -270,6 +275,11 @@
     document.getElementById("total_discount").innerText = format(totalDiscount);     // 총 할인
     document.getElementById("total_price").innerText = format(totalFinal);                 // 합계
     document.getElementById("total_point").innerText = totalPoint.toLocaleString() + '점'; // 총 포인트
+
+    const orderTotalInput = document.getElementById("orderTotal");
+    if (orderTotalInput) {
+      orderTotalInput.value = totalFinal;
+    }
   }
   </script>
   <script>
