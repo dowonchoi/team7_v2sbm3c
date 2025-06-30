@@ -37,17 +37,41 @@
 
           <div class="cart-delivery">내일(월) 도착 보장</div>
 
-          <div class="cart-price" th:text="${#numbers.formatInteger(cart.productsVO.saleprice, 3, 'COMMA')} + '원'">0원</div>
+          <!-- [정가] [할인율] [할인가] -->
+          <div class="cart-price-group">
+            <span class="price-original"
+                  th:text="${#numbers.formatInteger(cart.productsVO.price, 3, 'COMMA')} + '원'">정가</span>
+            
+            <span class="price-discount"
+                  th:text="'-' + ${cart.productsVO.dc} + '%'">할인율</span>
 
+
+            <span class="price-sale"
+                  th:text="${#numbers.formatInteger(cart.productsVO.saleprice, 3, 'COMMA')} + '원'">할인가</span>
+          </div>
+
+          <!-- 수량 선택 영역 (cart-qty) -->
           <div class="cart-qty">
-            <button type="button"
-                    th:attr="onclick=|changeCnt(${cart.cartno}, -1)|">-</button>
-            <input type="text"
+            <!-- 수량 감소 버튼 -->
+            <button type="button" class="qty-btn" th:attr="onclick=|changeCnt(${cart.cartno}, -1)|">−</button>
+
+            <!-- 현재 수량 표시 input (readonly) -->
+            <!-- <input type="text"
                   th:id="'cnt_' + ${cart.cartno}"
                   th:value="${cart.cnt}"
-                  readonly>
-            <button type="button"
-                    th:attr="onclick=|changeCnt(${cart.cartno}, 1)|">+</button>
+                  readonly
+                  class="qty-input"> -->
+            <input type="number"
+                  th:id="'cnt_' + ${cart.cartno}"
+                  th:value="${cart.cnt}"
+                  min="1"
+                  class="qty-input"
+                   style="pointer-events: auto;"
+                  th:attr="oninput=|onCntChange(this, ${cart.cartno})|">
+
+
+            <!-- 수량 증가 버튼 -->
+            <button type="button" class="qty-btn" th:attr="onclick=|changeCnt(${cart.cartno}, 1)|">+</button>
           </div>
 
           <div class="cart-subtotal"
@@ -56,7 +80,7 @@
               th:text="${#numbers.formatInteger(cart.productsVO.saleprice * cart.cnt, 3, 'COMMA')} + '원'">
           </div>
           <!-- 포인트 -->
-          <div class="point-box">
+          <div class="point-box" style="display:inline-block;">
             <span class="point-text"
                   th:attr="data-point=${cart.productsVO.point}"
                   th:id="'point_' + ${cart.cartno}"
@@ -248,5 +272,46 @@
     document.getElementById("total_point").innerText = totalPoint.toLocaleString() + '점'; // 총 포인트
   }
   </script>
+  <script>
+    function onCntChange(inputEl, cartno) {
+      let cnt = parseInt(inputEl.value);
+
+      // 유효성 검사
+      if (isNaN(cnt) || cnt < 1) {
+        alert("수량은 1개 이상이어야 합니다.");
+        inputEl.value = 1;
+        cnt = 1;
+      }
+
+      // 서버에 수량 업데이트 요청
+      fetch('/cart/update_cnt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          cartno: cartno,
+          cnt: cnt
+        })
+      })
+      .then(response => {
+        if (response.ok) {
+          // 화면 갱신
+          const subtotalEl = document.getElementById("subtotal_" + cartno);
+          const unitPrice = parseInt(subtotalEl.dataset.unitprice);
+          subtotalEl.innerText = (unitPrice * cnt).toLocaleString() + '원';
+
+          const pointSpan = document.getElementById("point_" + cartno);
+          const pointPerUnit = parseInt(pointSpan.dataset.point);
+          pointSpan.innerText = `총 적립 포인트: ${pointPerUnit * cnt}점 (${pointPerUnit}점 × ${cnt}개)`;
+
+          updateTotalPrice();
+          updateBuyCount();
+          recalculateSummary();
+        } else {
+          alert("수량 변경 실패");
+        }
+      });
+    }
+  </script>
+
 </div>
 </html>
