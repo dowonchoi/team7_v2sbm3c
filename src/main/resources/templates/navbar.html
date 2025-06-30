@@ -42,6 +42,7 @@
               <li><a class="dropdown-item" th:href="@{/member/mypage}">마이페이지</a></li>
               <!-- <li><a class="dropdown-item" th:href="@{/member/passwd_update}">비밀번호 변경</a></li> -->
               <!-- <li><a class="dropdown-item" th:href="@{/login/mylist}">내 로그인 내역</a></li> -->
+              <li><a class="dropdown-item" th:href="@{/cart/list}">장바구니</a></li>
 
               <!-- 관리자만 비밀번호 변경 -->
               <li th:if="${session.grade == 'admin'}">

@@ -334,6 +334,18 @@ public class MemberProc implements MemberProcInter {
       return this.memberDAO.findByEmail(email);
   }
   
+  //회원의 포인트를 누적 추가
+  @Override
+  public int addPoint(int memberno, int point) {
+      return memberDAO.addPoint(memberno, point);
+  }
+
+  //포인트 합계 조회
+  @Override
+  public int sum_total_point(int memberno) {
+      return this.memberDAO.sum_total_point(memberno);
+  }
+
 }
 
 

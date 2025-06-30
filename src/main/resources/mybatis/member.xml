@@ -254,4 +254,18 @@
     WHERE email = #{email}
   </select>
   
+  <!-- 회원 포인트 누적 업데이트 SQL -->
+  <update id="addPoint">
+    UPDATE member
+    SET point = point + #{point}
+    WHERE memberno = #{memberno}
+  </update>
+  
+  <!-- 포인트 합계 조회 -->
+  <select id="sum_total_point" resultType="int" parameterType="int">
+    SELECT NVL(SUM(point), 0) FROM cart WHERE memberno = #{memberno}
+  </select>
+
+
+  
 </mapper>

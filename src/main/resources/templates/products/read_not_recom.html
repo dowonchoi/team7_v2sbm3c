@@ -103,7 +103,7 @@
           </script>
           <span style="font-size: 1.5em; font-weight: bold;" th:text="${productsVO.title}"></span>
           <span style="font-size: 1em;" th:text="${productsVO.rdate }"></span><br><br>
-          <!-- ✅ 개선된 가격 정보 표시 영역 -->
+          <!--  개선된 가격 정보 표시 영역 -->
           <div class="price_info_box" style="font-size: 1.2em; margin-bottom: 15px;">
             <!-- 정가 -->
             <span style="text-decoration: line-through; font-size: 0.9em; color: gray;">
@@ -151,12 +151,12 @@
       
     </ul>
   </fieldset>
-  <!-- ✅ 하트 추천 영역 추가 -->
+  <!--  하트 추천 영역 추가 -->
   <div style="margin-top: 20px;">
     추천: <span id="recom_panel">[[${productsVO.recom}]]개</span>
   </div>
 
-  <!-- ✅ JS: productsno 및 초기 하트 상태 변수 -->
+  <!--  JS: productsno 및 초기 하트 상태 변수 -->
   <script th:inline="javascript">
     const productsno = /*[[${productsVO.productsno}]]*/ 0;
     const hartCnt = parseInt('[[${hartCnt}]]');  // 문자열 → 숫자
@@ -164,7 +164,7 @@
   </script>
 
   <script>
-    // ✅ 하트 추천 토글 함수
+    //  하트 추천 토글 함수
     function good(productsno) {
       fetch("/products/good", {
         method: "POST",
@@ -195,7 +195,7 @@
       });
     }
 
-    // ✅ 초기 하트 상태 렌더링
+    //  초기 하트 상태 렌더링
     window.onload = function () {
       let tag = '';
       if (hartCnt === 1) {

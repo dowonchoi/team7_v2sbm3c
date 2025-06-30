@@ -10,7 +10,9 @@ import java.util.List;
 // Payend pay = new Payend2023();
 // Payend pay = new Payend2024();
 // pay.calc();
-import java.util.Map;         
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;         
 
 public interface MemberDAOInter {
   /**
@@ -178,5 +180,12 @@ public interface MemberDAOInter {
   public MemberVO findByIdAndTel(Map<String, Object> map);
   
   public MemberVO findByEmail(String email);
+  
+  //회원의 포인트를 누적 추가하는 메서드 선언
+  public int addPoint(@Param("memberno") int memberno, @Param("point") int point);
+
+  //포인트 합계 조회
+  public int sum_total_point(int memberno);
+
 
 }

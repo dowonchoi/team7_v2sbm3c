@@ -134,3 +134,5 @@ WHERE id = 'admin';
 SELECT passwd FROM member;
 
 COMMIT;
+
+

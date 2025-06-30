@@ -113,4 +113,16 @@ public interface MemberProcInter {
 
   /** 이메일로 회원 조회 */
   public MemberVO findByEmail(String email);
+  
+  //회원의 포인트를 누적 추가하는 메서드
+  public int addPoint(int memberno, int point);
+  
+  /**
+   * 장바구니 총 포인트 합계 계산 (selected='Y'인 항목만)
+   * @param memberno
+   * @return 총 포인트 점수
+   */
+  public int sum_total_point(int memberno);
+
+
 }

@@ -3,7 +3,7 @@
 <html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org"> <!-- layout.html 상속-->
 
 <div layout:fragment="content">
-  <!-- ✅ Swiper CDN 포함 -->
+  <!--  Swiper CDN 포함 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
   <style>
@@ -22,16 +22,16 @@
     }
     .swiper {
       width: 100%;
-      max-width: 600px;     /* ✅ 최대 가로 크기 제한 */
-      aspect-ratio: 1 / 1;   /* ✅ 정사각형 유지 */
+      max-width: 600px;     /*  최대 가로 크기 제한 */
+      aspect-ratio: 1 / 1;   /*  정사각형 유지 */
       background: #f9f9f9;
-      margin: 0 auto;        /* ✅ 가운데 정렬 (옵션) */
+      margin: 0 auto;        /*  가운데 정렬 (옵션) */
     }
 
     .swiper-slide img {
       width: 100%;
       height: 100%;
-      object-fit: cover;     /* ✅ 정사각형 안에 꽉 차도록 */
+      object-fit: cover;     /*  정사각형 안에 꽉 차도록 */
       border-radius: 10px;   /* (선택) 모서리 둥글게 */
     }
 
@@ -119,11 +119,14 @@
               <span class="product-expdate" th:text="${#dates.format(productsVO.expdate, 'yyyy.MM.dd')}">YYYY.MM.DD</span>
 
             </div>
-
+            <!-- 적립 포인트 박스 -->
+            <div class="point-box">
+              <span th:text="'포인트 적립: ' + ${productsVO.point} + '점'">포인트 적립: 000점</span>
+            </div>
             <div class="products_read_recom" style="margin-top: 10px;">
               추천: <span id="hart_panel"></span> <span id="recom_panel">[[${productsVO.recom}]]개</span>
             </div>
-            <!-- ✅ 신규 구매 영역 시작 -->
+            <!--  신규 구매 영역 시작 -->
             <div class="products_read_purchase_wrap">
 
               <!-- 무료배송 -->
@@ -154,17 +157,20 @@
                 </div>
 
                 <div class="purchase_button_box">
-                  <button class="btn_cart" onclick="location.href='/cart/add?productsno=[[${productsVO.productsno}]]'">🛒 장바구니</button>
+                  <button class="btn_cart"
+                    th:onclick="|location.href='/cart/add?productsno=${productsVO.productsno}&cnt=' + document.getElementById('qty').value|">
+                    장바구니
+                  </button>
                   <button class="btn_buy" onclick="location.href='/order/form?productsno=[[${productsVO.productsno}]]&qty=' + document.getElementById('qty').value">구매하기</button>
                 </div>
               </div>
             </div>
-            <!-- ✅ 신규 구매 영역 끝 -->
+            <!--  신규 구매 영역 끝 -->
           </div>
         </div>
-        <!-- ✅ 수량 증가/감소 스크립트 -->
+        <!--  수량 증가/감소 스크립트 -->
         <script th:inline="javascript">
-          // ✅ 전역 변수: 단가 (Thymeleaf 표현식 → JS로 치환됨)
+          //  전역 변수: 단가 (Thymeleaf 표현식 → JS로 치환됨)
           const price = /*[[${productsVO.saleprice}]]*/ 0;
 
           function increaseQty() {
@@ -191,7 +197,7 @@
           <h3>상품 설명</h3>
           <div th:utext="${productsVO.content}"></div>
         </div>
-        <!-- ✅ 광고 이미지 접기/펼치기 영역 -->
+        <!--  광고 이미지 접기/펼치기 영역 -->
         <div style="margin-top: 40px;">
           <div id="adImageBox" class="ad-image-box">
             <img th:if="${productsVO.fileAdsaved != null && productsVO.fileAdsaved.length() > 0}"
@@ -209,7 +215,7 @@
           <br>
         </div>
 
-        <!-- ✅ 상품 상세 정보 탭 UI 시작 -->
+        <!--  상품 상세 정보 탭 UI 시작 -->
         <div class="product-tab-box">
           <ul class="product-tab-menu">
             <li class="product-tab-item active" onclick="showProductTab('detail')">상품상세</li>
@@ -220,7 +226,7 @@
 
           <div class="product-tab-content">
             <div id="product-tab-detail" class="product-tab-section"> 
-              <!-- ✅ 상품상세 표 (3열 구성) -->
+              <!--  상품상세 표 (3열 구성) -->
               <h3 class="product-info-title">필수 표기정보</h3>
 
               <div class="product-info-grid">
@@ -273,8 +279,8 @@
           </div>
         </div>
         <br>
-        <!-- ✅ 상품 상세 정보 탭 UI 끝 -->
-        <!-- ✅ 탭 스크립트 -->
+        <!--  상품 상세 정보 탭 UI 끝 -->
+        <!--  탭 스크립트 -->
         <script>
           function showProductTab(tabName) {
             // 모든 콘텐츠 숨기기
@@ -406,7 +412,7 @@
               </script>
 
               <script>
-                // ✅ 하트 추천 토글 함수
+                //  하트 추천 토글 함수
                 function good(productsno) {
                   fetch("/products/good", {
                     method: "POST",
@@ -437,7 +443,7 @@
                   });
                 }
 
-                // ✅ 초기화 (onload 내부에서)
+                //  초기화 (onload 내부에서)
                 window.onload = function() {
                   console.log("🔥 세션 grade: [[${session.grade}]]");
                   console.log("🔥 세션 memberno: [[${session.memberno}]]");
