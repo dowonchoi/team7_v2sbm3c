@@ -14,6 +14,9 @@ ALTER TABLE cart ADD selected CHAR(1) DEFAULT 'Y';
 -- Y / N 등으로 장바구니 체크 여부 구분하는 필드
 ALTER TABLE cart ADD selected VARCHAR2(1) DEFAULT 'Y';
 
+ALTER TABLE cart ADD point NUMBER(5) DEFAULT 0;
+
+
 
 CREATE SEQUENCE cart_seq START WITH 1 INCREMENT BY 1;
 

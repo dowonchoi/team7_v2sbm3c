@@ -57,7 +57,10 @@
           </div>
           <!-- 포인트 -->
           <div class="point-box">
-            <span th:text="'총 적립 포인트: ' + (${cart.productsVO.point} * ${cart.cnt}) + '점 (' + ${cart.productsVO.point} + '점 × ' + ${cart.cnt} + '개)'">
+            <span class="point-text"
+                  th:attr="data-point=${cart.productsVO.point}"
+                  th:id="'point_' + ${cart.cartno}"
+                  th:text="'총 적립 포인트: ' + (${cart.productsVO.point} * ${cart.cnt}) + '점 (' + ${cart.productsVO.point} + '점 × ' + ${cart.cnt} + '개)'">
               총 적립 포인트: 600점 (200점 × 3개)
             </span>
           </div>
@@ -124,6 +127,12 @@
         const unitPrice = parseInt(subtotalEl.dataset.unitprice);
         const subtotal = unitPrice * cnt;
         subtotalEl.innerText = subtotal.toLocaleString() + '원';
+
+        // 포인트도 즉시 갱신
+        const pointSpan = document.getElementById("point_" + cartno);
+        const pointPerUnit = parseInt(pointSpan.dataset.point);
+        const totalPoint = pointPerUnit * cnt;
+        pointSpan.innerText = `총 적립 포인트: ${totalPoint}점 (${pointPerUnit}점 × ${cnt}개)`;
 
         // 총합 재계산
         updateTotalPrice();
