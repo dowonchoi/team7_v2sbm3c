@@ -114,6 +114,9 @@ public interface MemberDAOInter {
 //   */
 //  public int insertMember(MemberVO memberVO);
   
+  /** 등급 조회 */
+  public int getGrade(int memberno);
+  
   /**
    * 공급자 등급
    * @param paramMap

@@ -33,6 +33,17 @@ MAXVALUE 9999999999  -- 최대값: 9999999999 --> NUMBER(10) 대응
 CACHE 2              -- 2번은 메모리에서만 계산
 NOCYCLE;             -- 다시 1부터 생성되는 것을 방지
 
+-- 카테고리 데이터 등록
+INSERT INTO CATE(cateno, grp, name, cnt, seqno, visible, rdate)
+VALUES (CATE_SEQ.nextval, '일정', '행사', 0, 1, 'Y', sysdate);
+
+INSERT INTO CATE(cateno, grp, name, cnt, seqno, visible, rdate)
+VALUES (CATE_SEQ.nextval, '일정', '공지', 0, 2, 'Y', sysdate);
+
+INSERT INTO CATE(cateno, grp, name, cnt, seqno, visible, rdate)
+VALUES (CATE_SEQ.nextval, '일정', '이벤트', 0, 3, 'Y', sysdate);
+
+COMMIT;
 
 --> CREATE
 INSERT INTO cate(cateno, grp, name, cnt, seqno, visible, rdate)
@@ -507,15 +518,3 @@ USING (
 ON (parent.grp = summary.grp_name AND parent.name = '--') -- 대분류 조건
 WHEN MATCHED THEN
   UPDATE SET parent.cnt = summary.total_cnt;
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,7 +1,9 @@
 package dev.mvc.calendar;
 
+import java.io.File;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -9,304 +11,245 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import dev.mvc.cate.CateProcInter;
-import dev.mvc.cate.CateVO;
 import dev.mvc.cate.CateVOMenu;
-import dev.mvc.products.ProductsVO;
 import dev.mvc.member.MemberProcInter;
+import dev.mvc.member.MemberVO;
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
 
 @Controller
-@RequestMapping(value = "/calendar")
+@RequestMapping("/calendar")
 public class CalendarCont {
-  @Autowired
-  @Qualifier("dev.mvc.member.MemberProc") // @Service("dev.mvc.member.MemberProc")
-  private MemberProcInter memberProc;
-  
-  @Autowired
-  @Qualifier("dev.mvc.cate.CateProc") // @Component("dev.mvc.cate.CateProc")
-  private CateProcInter cateProc;
 
-  @Autowired
-  @Qualifier("dev.mvc.calendar.CalendarProc") // @Component("dev.mvc.calendar.CalendarProc")
-  private CalendarProcInter calendarProc;  
-  
-  public CalendarCont() {
-    System.out.println("-> CalendarCont created.");
-  }
-  
-  /**
-   * POST 요청시 새로고침 방지, POST 요청 처리 완료 → redirect → url → GET → forward -> html 데이터
-   * 전송
-   * 
-   * @return
-   */
-  @GetMapping(value = "/post2get")
-  public String post2get(Model model, 
-                                 @RequestParam(name="url", defaultValue = "") String url) {
-    ArrayList<CateVOMenu> menu = this.cateProc.menu();
-    model.addAttribute("menu", menu);
+    @Autowired
+    @Qualifier("dev.mvc.calendar.CalendarProc")
+    private CalendarProcInter calendarProc;
 
-    return url; // forward, /templates/...
-  }
-  
-  // http://localhost:9091/calendar/create
-  @GetMapping(value = "/create")
-  public String create(Model model) {
-    ArrayList<CateVOMenu> menu = this.cateProc.menu();
-    model.addAttribute("menu", menu);
-    
-    return "calendar/create"; // /templates/calendar/create.html
+    @Autowired
+    @Qualifier("dev.mvc.member.MemberProc")
+    private MemberProcInter memberProc;
 
-  }
-  
-  /**
-   * 등록 처리, http://localhost:9091/calendar/create
-   * 
-   * @return
-   */
-  @PostMapping(value = "/create")
-  public String create_proc(HttpSession session, Model model, 
-           @ModelAttribute("calendarVO") CalendarVO calendarVO) {
-    
-    // int memberno = (int)session.getAttribute("memberno");
-    int memberno = 1; // 테스트용
-    calendarVO.setMemberno(memberno);
-    
-    int cnt = this.calendarProc.create(calendarVO);
+    @Autowired
+    @Qualifier("dev.mvc.cate.CateProc")
+    private CateProcInter cateProc;
 
-    if (cnt == 1) {
-      // model.addAttribute("code", "create_success");
-      // model.addAttribute("name", cateVO.getName());
+    private final String uploadDir = "C:/kd/deploy/resort/calendar/storage/";
 
-      return "redirect:/calendar/list_all"; // @GetMapping(value="/list_all")
-    } else {
-      model.addAttribute("code", "create_fail");
+    // ✅ 전체 목록
+    @GetMapping("/list_all")
+    public String list_all(Model model) {
+        List<CalendarVO> list = calendarProc.list_all();
+        model.addAttribute("list", list);
+        model.addAttribute("menu", cateProc.menu());
+        return "calendar/list_all";
     }
 
-    model.addAttribute("cnt", cnt);
-
-    return "calendar/msg"; // /templates/calendar/msg.html
-  }
-  
-  /**
-   * 목록
-   * 
-   * @param model
-   * @return
-   */
-  // http://localhost:9091/cate/list_all
-  @GetMapping(value = "/list_all")
-  public String list_all(Model model) {
-    ArrayList<CalendarVO> list = this.calendarProc.list_all();
-    model.addAttribute("list", list);
-
-    ArrayList<CateVOMenu> menu = this.cateProc.menu();
-    model.addAttribute("menu", menu);
-
-    return "calendar/list_all"; // /templates/calendar/list_all.html
-  }
- 
-  /**
-   * 조회 http://localhost:9091/calendar/read/1
-   * 
-   * @return
-   */
-  @GetMapping(path = "/read/{calendarno}")
-  public String read(Model model, @PathVariable("calendarno") int calendarno) {
-    
-    ArrayList<CateVOMenu> menu = this.cateProc.menu();
-    model.addAttribute("menu", menu);
-
-    this.calendarProc.increaseCnt(calendarno); // 조회수 증가
-    
-    CalendarVO calendarVO = this.calendarProc.read(calendarno);
-
-    model.addAttribute("calendarVO", calendarVO);
-
-    return "calendar/read";
-  }
-  
-  /**
-   * 수정 폼 http:// localhost:9091/calendar/update?calendarno=1
-   *
-   */
-  @GetMapping(value = "/update")
-  public String update_text(HttpSession session, 
-      Model model, 
-      @RequestParam(name="calendarno", defaultValue = "0") int calendarno, 
-      RedirectAttributes ra) {    
-    
-    ArrayList<CateVOMenu> menu = this.cateProc.menu();
-    model.addAttribute("menu", menu);
-
-    if (this.memberProc.isAdmin(session)) { // 관리자로 로그인한경우
-      CalendarVO calendarVO = this.calendarProc.read(calendarno);
-      model.addAttribute("calendarVO", calendarVO);
-
-      return "calendar/update"; // /templates/calendar/update.html
-    } else {
-      // ra.addAttribute("url", "/member/login_cookie_need"); // /templates/member/login_cookie_need.html
-      // return "redirect:/contents/msg"; // @GetMapping(value = "/msg")
-      return "member/login_cookie_need"; // /templates/member/login_cookie_need.html
+    // ✅ 캘린더 화면
+    @GetMapping("/list_calendar")
+    public String list_calendar(Model model,
+                                @RequestParam(name = "year", defaultValue = "0") int year,
+                                @RequestParam(name = "month", defaultValue = "0") int month) {
+        if (year == 0) {
+            LocalDate today = LocalDate.now();
+            year = today.getYear();
+            month = today.getMonthValue();
+        }
+        model.addAttribute("year", year);
+        model.addAttribute("month", month - 1);
+        return "calendar/list_calendar";
     }
 
-  }
-  
-  /**
-   * 수정 처리 http://localhost:9091/calendar/update?calendarno=1
-   * 
-   * @return
-   */
-  @PostMapping(value = "/update")
-  public String update(HttpSession session, 
-      Model model, 
-      @ModelAttribute("calendarVO") CalendarVO calendarVO, 
-      RedirectAttributes ra) {
-    
-    if (this.memberProc.isAdmin(session)) { // 관리자 로그인 확인
-      this.calendarProc.update(calendarVO); // 글수정
+    // ✅ 캘린더 월간 데이터
+    @GetMapping("/list_calendar_range")
+    @ResponseBody
+    public String list_calendar_range(@RequestParam("month") String month) {
+        List<CalendarVO> list = calendarProc.list_calendar_range(month);
 
-      return "redirect:/calendar/read/" + calendarVO.getCalendarno(); // @GetMapping(value = "/read")
-
-    } else { // 정상적인 로그인이 아닌 경우 로그인 유도
-      ra.addAttribute("url", "/member/login_cookie_need"); // /templates/member/login_cookie_need.html
-      return "redirect:/calendar/post2get"; // @GetMapping(value = "/msg")
+        JSONArray array = new JSONArray();
+        for (CalendarVO vo : list) {
+            JSONObject obj = new JSONObject();
+            obj.put("calendarno", vo.getCalendarno());
+            obj.put("title", vo.getTitle());
+            obj.put("label", vo.getLabel());
+            obj.put("startdate", vo.getStartdate());
+            obj.put("enddate", vo.getEnddate());
+            obj.put("grade", memberProc.getGrade(vo.getMemberno()));
+            array.put(obj);
+        }
+        return array.toString();
     }
 
-  }
-
-  /**
-   * 삭제 폼 http:// localhost:9091/calendar/delete?calendarno=1
-   *
-   */
-  @GetMapping(path = "/delete/{calendarno}")
-  public String delete(HttpSession session, 
-      Model model, 
-      @PathVariable("calendarno") int calendarno, 
-      RedirectAttributes ra) {    
-    
-    ArrayList<CateVOMenu> menu = this.cateProc.menu();
-    model.addAttribute("menu", menu);
-
-    if (this.memberProc.isAdmin(session)) { // 관리자로 로그인한경우
-      CalendarVO calendarVO = this.calendarProc.read(calendarno);
-      model.addAttribute("calendarVO", calendarVO);
-
-      return "calendar/delete"; // /templates/calendar/delete.html
-    } else {
-      // ra.addAttribute("url", "/member/login_cookie_need"); // /templates/member/login_cookie_need.html
-      // return "redirect:/contents/msg"; // @GetMapping(value = "/msg")
-      return "member/login_cookie_need"; // /templates/member/login_cookie_need.html
-    }
-  }
-  
-  /**
-   * 삭제 처리 http://localhost:9091/calendar/delete?calendarno=1
-   * 
-   * @return
-   */
-  @PostMapping(value = "/delete")
-  public String delete_proc(HttpSession session, 
-      Model model, 
-      @RequestParam(name="calendarno", defaultValue = "0") int calendarno, 
-      RedirectAttributes ra) {    
-    
-    if (this.memberProc.isAdmin(session)) { // 관리자 로그인 확인
-      this.calendarProc.delete(calendarno);
-
-      return "redirect:/calendar/list_all";
-
-    } else { // 정상적인 로그인이 아닌 경우 로그인 유도
-      ra.addAttribute("url", "/member/login_cookie_need"); // /templates/member/login_cookie_need.html
-      return "redirect:/calendar/post2get"; // @GetMapping(value = "/msg")
+    // ✅ 등록 폼
+    @GetMapping("/create")
+    public String create(Model model) {
+        model.addAttribute("menu", cateProc.menu());
+        return "calendar/create";
     }
 
-  }
+    // ✅ 등록 처리
+    @PostMapping("/create")
+    public String createProc(HttpSession session, CalendarVO vo) throws Exception {
+        Integer memberno = (Integer) session.getAttribute("memberno");
+        Integer grade = convertGrade(session.getAttribute("grade"));
 
-  /**
-   * 특정 날짜의 목록
-   * 현재 월: http://localhost:9091/calendar/list_calendar
-   * 이전 월: http://localhost:9091/calendar/list_calendar?year=2024&month=12 
-   * 다음 월: http://localhost:9091/calendar/list_calendar?year=2024&month=1
-   * @param model
-   * @return
-   */
-  @GetMapping(value = "/list_calendar")
-  public String list_calendar(Model model,
-      @RequestParam(name="year", defaultValue = "0") int year,
-      @RequestParam(name="month", defaultValue = "0") int month) {
-	  
-    if (year == 0) {
-        // 현재 날짜를 가져옴
-        LocalDate today = LocalDate.now();
+        if (memberno == null) return "redirect:/member/login";
 
-        // 년도와 월 추출
-        year = today.getYear();
-        month = today.getMonthValue();
-    } 
-    
-    String month_str = String.format("%02d", month); // 두 자리 형식으로
-	  System.out.println("-> month: " + month_str);
-	
-    String date = year + "-" + month;
-	  System.out.println("-> date: " + date);
-    
-//    ArrayList<CalendarVO> list = this.calendarProc.list_calendar(date);
-//    model.addAttribute("list", list);
+        vo.setMemberno(memberno);
+        vo.setVisible((grade != null && grade <= 4) ? "Y" : "Y");
 
-    ArrayList<CateVOMenu> menu = this.cateProc.menu();
-    model.addAttribute("menu", menu);
-
-    
-    model.addAttribute("year", year);
-    model.addAttribute("month", month-1);  // javascript는 1월이 0임. 
-    
-    return "calendar/list_calendar"; // /templates/calendar/list_calendar.html
-  }
-  
-  /**
-   * 특정 날짜의 목록
-   * 
-   * @param model
-   * @return
-   */
-  // http://localhost:9091/calendar/list_calendar_day?labeldate=2025-05-01
-  @GetMapping(value = "/list_calendar_day")
-  @ResponseBody
-  public String list_calendar_day(Model model, @RequestParam(name="labeldate", defaultValue = "") String labeldate) {
-	System.out.println("-> labeldate: " + labeldate);
-	
-    ArrayList<CalendarVO> list = this.calendarProc.list_calendar_day(labeldate);
-    model.addAttribute("list", list);
-
-    JSONArray schedule_list = new JSONArray();
-    
-    for (CalendarVO calendarVO: list) {
-        JSONObject schedual = new JSONObject();
-        schedual.put("calendarno", calendarVO.getCalendarno());
-        schedual.put("labeldate", calendarVO.getLabeldate());
-        schedual.put("label", calendarVO.getLabel());
-        schedual.put("seqno", calendarVO.getSeqno());
-        
-        schedule_list.put(schedual);
+        uploadFile(vo);
+        calendarProc.create(vo);
+        return "redirect:/calendar/list_calendar";
     }
 
-    return schedule_list.toString();
-    
-  }
-  
+    // ✅ 상세 보기
+    @GetMapping("/read/{calendarno}")
+    public String read(Model model, @PathVariable("calendarno") int calendarno) {
+        CalendarVO vo = calendarProc.read(calendarno);
+        calendarProc.increaseCnt(calendarno);
+
+        MemberVO memberVO = memberProc.read(vo.getMemberno());
+        String id = (memberVO != null) ? memberVO.getId() : "알 수 없음";
+        String gradeName = gradeName(memberVO != null ? memberVO.getGrade() : null);
+
+        model.addAttribute("calendarVO", vo);
+        model.addAttribute("id", id);
+        model.addAttribute("gradeName", gradeName);
+        model.addAttribute("menu", cateProc.menu());
+
+        return "calendar/read";
+    }
+
+    // ✅ 수정 폼
+    @GetMapping("/update/{calendarno}")
+    public String update_form(@PathVariable("calendarno") int calendarno, Model model, HttpSession session) {
+        Integer memberno = (Integer) session.getAttribute("memberno");
+        Integer grade = convertGrade(session.getAttribute("grade"));
+
+        if (memberno == null || grade == null) {
+            return "redirect:/member/login";
+        }
+
+        CalendarVO vo = calendarProc.read(calendarno);
+        if (vo == null) {
+            return "redirect:/calendar/list_calendar";
+        }
+
+        if (grade <= 4) {
+            model.addAttribute("isAdmin", true);
+        } else if (!memberno.equals(vo.getMemberno())) {
+            return "redirect:/calendar/list_calendar";
+        }
+
+        model.addAttribute("cateList", cateProc.menu());
+        model.addAttribute("calendarVO", vo);
+
+        return "calendar/update";
+    }
+
+    // ✅ 수정 처리
+    @PostMapping("/update")
+    public String update(CalendarVO vo, HttpSession session) {
+        Integer grade = convertGrade(session.getAttribute("grade"));
+        if (grade == null) return "redirect:/member/login";
+
+        if (grade > 4) {
+            CalendarVO origin = calendarProc.read(vo.getCalendarno());
+            vo.setVisible(origin.getVisible());
+        }
+
+        uploadFile(vo);
+        calendarProc.update(vo);
+        return "redirect:/calendar/list_calendar";
+    }
+
+    // ✅ 삭제 폼
+    @GetMapping("/delete/{calendarno}")
+    public String delete_form(@PathVariable("calendarno") int calendarno, Model model, HttpSession session) {
+        CalendarVO vo = calendarProc.read(calendarno);
+        Integer memberno = (Integer) session.getAttribute("memberno");
+        Integer grade = convertGrade(session.getAttribute("grade"));
+
+        if (grade != null && grade > 4 && !memberno.equals(vo.getMemberno())) {
+            return "redirect:/calendar/list_calendar";
+        }
+
+        model.addAttribute("calendarVO", vo);
+        return "calendar/delete";
+    }
+
+    // ✅ 삭제 처리
+    @PostMapping("/delete")
+    public String delete_proc(@RequestParam("calendarno") int calendarno, HttpSession session) {
+        CalendarVO vo = calendarProc.read(calendarno);
+        Integer memberno = (Integer) session.getAttribute("memberno");
+        Integer grade = convertGrade(session.getAttribute("grade"));
+
+        if (grade != null && grade > 4 && !memberno.equals(vo.getMemberno())) {
+            return "redirect:/calendar/list_calendar";
+        }
+
+        deleteFile(vo.getFile1saved());
+        calendarProc.delete(calendarno);
+        return "redirect:/calendar/list_all";
+    }
+
+    // ✅ 파일 업로드 처리
+    private void uploadFile(CalendarVO vo) {
+        try {
+            MultipartFile mf = vo.getFile1MF();
+            if (mf != null && !mf.isEmpty()) {
+                File dir = new File(uploadDir);
+                if (!dir.exists()) dir.mkdirs();
+
+                String origin = mf.getOriginalFilename();
+                String saved = UUID.randomUUID().toString() + "_" + origin;
+                mf.transferTo(new File(uploadDir + saved));
+
+                vo.setFile1origin(origin);
+                vo.setFile1saved(saved);
+                vo.setFile1size(mf.getSize());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ✅ 파일 삭제 처리
+    private void deleteFile(String filename) {
+        if (filename != null && !filename.isEmpty()) {
+            File file = new File(uploadDir + filename);
+            if (file.exists()) file.delete();
+        }
+    }
+
+    // ✅ Grade → 등급명 변환
+    private String gradeName(Integer grade) {
+        if (grade == null) return "알 수 없음";
+        if (grade <= 4) return "관리자";
+        if (grade <= 15) return "공급자";
+        return "소비자";
+    }
+
+    // ✅ grade 세션 처리 함수 (문자형 → 숫자형 변환 포함)
+    private Integer convertGrade(Object gradeObj) {
+        if (gradeObj instanceof Integer) return (Integer) gradeObj;
+        if (gradeObj instanceof String) {
+            switch (((String) gradeObj)) {
+                case "admin": return 1;
+                case "supplier": return 5;
+                case "user": return 16;
+                default:
+                    try {
+                        return Integer.parseInt((String) gradeObj);
+                    } catch (NumberFormatException e) {
+                        return null;
+                    }
+            }
+        }
+        return null;
+    }
 }
-

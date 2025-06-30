@@ -1,0 +1,86 @@
+body {
+  background-color: #fefefe;
+  font-family: 'Noto Sans KR', sans-serif;
+  color: #333;
+  padding: 20px;
+}
+
+h3 {
+  text-align: center;
+  color: #ff7f50;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+form {
+  background-color: #fff;
+  width: 500px;
+  margin: auto;
+  padding: 25px 30px;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  color: #444;
+  font-weight: 600;
+}
+
+input[type="text"],
+input[type="date"],
+textarea {
+  width: 100%;
+  padding: 10px 15px;
+  border: 2px solid #ffd9d9;
+  border-radius: 12px;
+  background-color: #fff8f8;
+  font-size: 14px;
+  margin-bottom: 15px;
+  transition: all 0.2s;
+}
+
+input:focus,
+textarea:focus {
+  border-color: #ff7f50;
+  background-color: #fff;
+  outline: none;
+}
+
+textarea {
+  resize: none;
+}
+
+button {
+  background-color: #ff7f50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-right: 10px;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #ff5e2e;
+}
+
+button[type="button"] {
+  background-color: #b0b0b0;
+}
+
+button[type="button"]:hover {
+  background-color: #999;
+}
+
+input[type="text"]::placeholder,
+textarea::placeholder {
+  color: #bbb;
+}
+
+form > div {
+  margin-bottom: 15px;
+}

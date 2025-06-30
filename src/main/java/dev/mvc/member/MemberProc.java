@@ -113,6 +113,11 @@ public class MemberProc implements MemberProcInter {
     MemberVO memberVO = this.memberDAO.readById(id);
     return memberVO;
   }
+  
+  @Override
+  public int getGrade(int memberno) {
+      return memberDAO.getGrade(memberno);
+  }
 
   @Override
   public boolean isMember(HttpSession session){

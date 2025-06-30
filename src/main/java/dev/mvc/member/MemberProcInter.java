@@ -38,6 +38,9 @@ public interface MemberProcInter {
 
   /** 회원 조회 (id 기준) */
   public MemberVO readById(String id);
+  
+  /** 등급 조회 */
+  public int getGrade(int memberno);
 
   /** 회원 존재 여부 (member인지) */
   public boolean isMember(HttpSession session);

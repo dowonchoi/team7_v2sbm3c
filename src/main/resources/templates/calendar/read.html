@@ -1,48 +1,50 @@
-<html layout:decorate="~{layout}"> <!-- layout.html 상속-->
+<!DOCTYPE html>
+<html layout:decorate="~{layout}">
 <div layout:fragment="content">
-  <div class='title_line'>
-    <div th:text="${calendarVO.title}"></div>
-  </div>
+
+<link rel="stylesheet" href="/css/read.css">
+
+<div class="title_line">📅 일정 상세</div>
+
+<aside class="aside_right">
+  <a th:href="@{|/calendar/update/${calendarVO.calendarno}|}">수정</a> │
+  <a th:href="@{|/calendar/delete/${calendarVO.calendarno}|}">삭제</a> │
+  <a th:href="@{/calendar/list_all}">목록</a>
+</aside>
+
+<div class="menu_line"></div>
+
+<!-- ✅ 등록 정보 -->
+<div class="calendar-meta-inline">
+  등록자: <span th:text="${calendarVO.id}"></span> │
+  등록일: <span th:text="${#dates.format(calendarVO.regdate, 'yyyy-MM-dd HH:mm')}"></span> │
+  조회수: <span th:text="${calendarVO.cnt}"></span> |
+  공개여부: <span th:text="${calendarVO.visible == 'Y' ? '공개' : '비공개'}"></span>
+</div>
+
+<!-- ✅ 본문 내용 (이미지 + 정보) -->
+<div class="calendar-detail-box">
   
-  <aside class="aside_right" th:if="${session.grade == 'admin'}">
-    <a th:href="|javascript:location.reload();|">새로고침</a>
-    <span class='menu_divide' >│</span>    
-    <a th:href="@{|/calendar/list_calendar|}">일정</a>        
-    <span class='menu_divide' >│</span>    
-    <a th:href="@{|/calendar/list_all|}">목록</a>    
-    <span class='menu_divide' >│</span>
-    <a th:href="@{|/calendar/create|}">등록</a>
-    <span class='menu_divide' >│</span>
-    <a th:href="@{|/calendar/update?calendarno=${calendarVO.calendarno}|}">수정</a>
-    <span class='menu_divide' >│</span>
-    <a th:href="@{|/calendar/delete|}">삭제</a>  
- </aside> 
+  <!-- ✅ 이미지 -->
+  <div class="calendar-image">
+    <th:block th:if="${calendarVO.file1saved != null && calendarVO.file1saved != ''}">
+      <img th:src="@{|/calendar/storage/${calendarVO.file1saved}|}" 
+           th:alt="${calendarVO.file1origin}">
+    </th:block>
+    <th:block th:unless="${calendarVO.file1saved != null && calendarVO.file1saved != ''}">
+      <div class="no-image">이미지 없음</div>
+    </th:block>
+  </div>
 
-  <aside class="aside_right" th:if="${session.grade != 'admin'}">
-    <a th:href="|javascript:location.reload();|">새로고침</a>
-    <span class='menu_divide' >│</span>    
-    <a th:href="@{|/calendar/list_calendar|}">일정</a>    
-  </aside> 
- 
-  <div class='menu_line'></div>
-
-  <fieldset class="fieldset_basic">
-    <ul>
-      <li class="li_none">
-        <div style="width: 100%; word-break: break-all;">
-          <span style="font-size: 1.5em; font-weight: bold;" th:text="${calendarVO.title}"></span>
-          <span style="font-size: 1em;" th:text="${calendarVO.regdate }"></span><br><br>
-          <div style="white-space: pre-wrap;"><span th:text="${calendarVO.content}"></span></div>
-        </div>
-      </li>
-
-      <li class="li_none" th:text="|등록일: ${calendarVO.regdate }(calendarVO.cnt)|">
-      </li>
-      
-    </ul>
-  </fieldset>
+  <!-- ✅ 상세 정보 -->
+  <div class="calendar-info">
+    <div><b>제목</b>: <span th:text="${calendarVO.title}"></span></div>
+    <div><b>기간</b>: <span th:text="${calendarVO.startdate + ' ~ ' + calendarVO.enddate}"></span></div>
+    <div><b>출력 날짜</b>: <span th:text="${calendarVO.labeldate}"></span></div>
+    <div><b>내용</b>: <span th:text="${calendarVO.content}"></span></div>
+  </div>
 
 </div>
 
+</div>
 </html>
-

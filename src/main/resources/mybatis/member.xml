@@ -171,6 +171,13 @@
     SET passwd = #{passwd}
     WHERE memberno = #{memberno}
   </update>
+  
+  <!-- 등급 조회 -->
+  <select id="getGrade" resultType="int" parameterType="int">
+    SELECT grade
+    FROM member
+    WHERE memberno = #{memberno}
+  </select>
 
   <!-- 사용 중인 등급 목록 조회 -->
   <select id="getUsedGradesInRange" resultType="int" parameterType="map">

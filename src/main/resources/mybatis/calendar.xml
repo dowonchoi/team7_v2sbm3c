@@ -3,61 +3,181 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
  
 <mapper namespace="dev.mvc.calendar.CalendarDAOInter">
-  <!-- 등록 -->
+   <!-- 등록 -->
   <insert id="create" parameterType="dev.mvc.calendar.CalendarVO">
-    INSERT INTO calendar(calendarno, labeldate, label, title, content, cnt, seqno, regdate, memberno)
-    VALUES (calendar_seq.nextval, #{labeldate}, #{label}, #{title}, #{content}, 0, 1, sysdate, #{memberno})
+    INSERT INTO calendar(
+      calendarno, labeldate, startdate, enddate, label, title, content, cnt, seqno, regdate,
+      memberno, file1saved, file1origin, file1size, cateno, visible
+    ) VALUES (
+      calendar_seq.nextval, #{labeldate}, #{startdate}, #{enddate}, #{label}, #{title}, #{content}, 0, #{seqno}, sysdate,
+      #{memberno}, #{file1saved}, #{file1origin}, #{file1size}, #{cateno}, #{visible}
+    )
   </insert>
   
   <!-- 전체 목록 -->
   <select id="list_all" resultType="dev.mvc.calendar.CalendarVO">
-    SELECT calendarno, labeldate, label, title, content, cnt, seqno, regdate, memberno
-    FROM calendar
-    ORDER BY labeldate DESC, seqno ASC
+    SELECT c.calendarno, c.labeldate, c.startdate, c.enddate, c.label, c.title, c.content, c.cnt, c.seqno, c.regdate, c.memberno,
+              c.file1saved, c.file1origin, c.file1size, c.cateno, m.grade, m.id
+    FROM calendar c
+    JOIN member m ON c.memberno = m.memberno
+    ORDER BY c.labeldate DESC, c.seqno ASC
+  </select>
+
+  <!-- 관리자용 (전체) -->
+  <select id="list_admin" resultType="dev.mvc.calendar.CalendarVO">
+    SELECT c.calendarno, c.labeldate, c.startdate, c.enddate,
+           c.label, c.title, c.content, c.cnt, c.seqno, c.regdate, c.memberno,
+           m.grade
+    FROM calendar c
+    JOIN member m ON c.memberno = m.memberno
+    ORDER BY c.startdate DESC, c.seqno ASC
+  </select>
+
+  <!-- 공급자용 (관리자 일정만 조회) -->
+  <select id="list_supplier" resultType="dev.mvc.calendar.CalendarVO" parameterType="int">
+    SELECT c.calendarno, c.labeldate, c.startdate, c.enddate,
+           c.label, c.title, c.content, c.cnt, c.seqno, c.regdate, c.memberno,
+           m.grade
+    FROM calendar c
+    JOIN member m ON c.memberno = m.memberno
+    WHERE (m.grade BETWEEN 1 AND 4  -- 관리자 일정
+           OR c.memberno = #{memberno}) -- 본인 일정
+      AND c.visible = 'Y'
+    ORDER BY c.labeldate DESC, c.seqno ASC
+  </select>
+
+  <!-- 소비자용 -->
+  <select id="list_user" resultType="dev.mvc.calendar.CalendarVO" parameterType="java.lang.Integer">
+    SELECT c.calendarno, c.labeldate, c.startdate, c.enddate,
+           c.label, c.title, c.content, c.cnt, c.seqno, c.regdate, c.memberno,
+           m.grade
+    FROM calendar c
+    JOIN member m ON c.memberno = m.memberno
+    WHERE (m.grade BETWEEN 1 AND 4  -- 관리자
+           OR m.grade BETWEEN 5 AND 15  -- 공급자
+           OR c.memberno = #{memberno}) -- 본인
+      AND c.visible = 'Y'
+    ORDER BY c.labeldate DESC, c.seqno ASC
+  </select>
+
+
+
+  <!-- 특정 날짜의 일정 (정확히) -->
+  <select id="list_calendar_day" parameterType="string" resultType="dev.mvc.calendar.CalendarVO">
+    SELECT * FROM calendar
+    WHERE labeldate = #{labeldate}
+    ORDER BY seqno ASC
   </select>
   
-  <!-- 일반적인 조회 -->
-  <select id="read" resultType="dev.mvc.calendar.CalendarVO" parameterType="int">
-    SELECT calendarno, labeldate, label, title, content, cnt, regdate, seqno
+  <select id="list_calendar_range" resultType="dev.mvc.calendar.CalendarVO">
+    SELECT calendarno, labeldate, startdate, enddate, label, title, content, cnt, seqno, regdate, memberno, 
+           file1saved, file1origin, file1size, cateno
     FROM calendar
-    WHERE calendarno = #{calendarno}
+    WHERE startdate &lt;= LAST_DAY(TO_DATE(#{month}, 'YYYY-MM'))
+      AND enddate &gt;= TO_DATE(#{month}, 'YYYY-MM')
+    ORDER BY startdate ASC, seqno ASC
   </select>
-  
-  <!-- 조회수 증가 -->
-  <update id="increaseCnt" parameterType="int">
-    UPDATE calendar
-    SET cnt = cnt + 1
-    WHERE calendarno = #{calendarno}
-  </update>
 
-  <!-- 글 수정 -->
-  <update id="update" parameterType="dev.mvc.calendar.CalendarVO">
-    UPDATE calendar
-    SET labeldate = #{labeldate}, label = #{label}, title = #{title}, content = #{content}, seqno = #{seqno}
-    WHERE calendarno = #{calendarno}
-  </update>
+   <!-- ✅ 월간 달력용 (해당 달에 걸친 일정 전부 조회) -->
+  <select id="list_calendar_range_by_cate" parameterType="map" resultType="dev.mvc.calendar.CalendarVO">
+    SELECT c.calendarno, c.labeldate, c.startdate, c.enddate,
+           c.label, c.title, c.content, c.cnt, c.seqno, c.regdate, 
+           c.memberno, c.cateno,
+           m.grade
+    FROM calendar c
+    JOIN member m ON c.memberno = m.memberno
+    WHERE c.cateno = #{cateno}
+      AND NOT (
+        c.enddate &lt; TO_DATE(CONCAT(#{month}, '-01'), 'YYYY-MM-DD')
+        OR
+        c.startdate &gt; LAST_DAY(TO_DATE(CONCAT(#{month}, '-01'), 'YYYY-MM-DD'))
+      )
+    ORDER BY c.startdate ASC, c.seqno ASC
+  </select>
 
-  <!-- 특정 카테고리에 속한 모든 레코드 삭제 -->
-  <delete id="delete" parameterType="int">
-    DELETE FROM calendar
-    WHERE calendarno = #{calendarno}
-  </delete>
-  
-  <!-- 특정 달의 조회 -->
-  <select id="list_calendar" resultType="dev.mvc.calendar.CalendarVO" parameterType="String">
+  <!-- 특정 달의 일정 (정확히 해당 달) -->
+  <select id="list_calendar_month" resultType="dev.mvc.calendar.CalendarVO" parameterType="String">
     SELECT calendarno, labeldate, label, seqno
     FROM calendar
     WHERE SUBSTR(labeldate, 1, 7) = #{labeldate}
     ORDER BY labeldate ASC, seqno ASC
   </select>
 
-  <!-- 특정 날짜 조회 -->
+  <!-- 상세 조회 -->
+  <select id="read" resultType="dev.mvc.calendar.CalendarVO" parameterType="int">
+    SELECT c.calendarno, c.labeldate, c.startdate, c.enddate, c.label, c.title, c.content, c.cnt, c.seqno, c.regdate, c.memberno,
+           c.file1saved, c.file1origin, c.file1size, c.cateno, c.visible, m.grade, m.id
+    FROM calendar c
+    JOIN member m ON c.memberno = m.memberno
+    WHERE calendarno = #{calendarno}
+  </select>
+
+  <!-- 조회수 증가 -->
+  <update id="increaseCnt" parameterType="int">
+    UPDATE calendar
+    SET cnt = cnt + 1
+    WHERE calendarno = #{calendarno}
+  </update>
+  
+  <!-- 관리자 수정용 -->
+  <update id="update_admin" parameterType="dev.mvc.calendar.CalendarVO">
+    UPDATE calendar
+    SET labeldate = #{labeldate}, startdate = #{startdate}, enddate = #{enddate},
+        label = #{label}, title = #{title}, content = #{content}, seqno = #{seqno},
+        file1saved = #{file1saved}, file1origin = #{file1origin}, file1size = #{file1size}, 
+        cateno = #{cateno}, visible = #{visible}
+    WHERE calendarno = #{calendarno}
+  </update>
+
+  <!-- 글 수정 -->
+  <update id="update" parameterType="dev.mvc.calendar.CalendarVO">
+    UPDATE calendar
+    SET labeldate = #{labeldate}, startdate = #{startdate}, enddate = #{enddate},
+        label = #{label}, title = #{title}, content = #{content}, seqno = #{seqno},
+        file1saved = #{file1saved}, file1origin = #{file1origin}, file1size = #{file1size}, 
+        cateno = #{cateno}, visible = #{visible}
+    WHERE calendarno = #{calendarno} AND memberno = #{memberno}
+  </update>
+  
+  <!-- 삭제 -->
+  <delete id="delete" parameterType="int">
+    DELETE FROM calendar
+    WHERE calendarno = #{calendarno}
+  </delete>
+
+  <!-- 로그 기록 -->
+  <insert id="insertLog" parameterType="dev.mvc.calendar.CalendarLogVO">
+    INSERT INTO calendar_log (
+      log_id, calendarno, action, memberno,
+      action_date, old_title, old_content
+    ) VALUES (
+      calendar_log_seq.NEXTVAL, #{calendarno}, #{action}, #{memberno},
+      SYSDATE, #{old_title}, #{old_content}
+    )
+  </insert>
+
+  <!-- 로그 목록 -->
+  <select id="listLog" resultType="dev.mvc.calendar.CalendarLogVO">
+    SELECT *
+    FROM calendar_log
+    ORDER BY action_date DESC
+  </select>
+  
+  <!-- 특정 달의 조회 -->
+  <select id="list_calendar" resultType="dev.mvc.calendar.CalendarVO" parameterType="String">
+    SELECT calendarno, labeldate, label, title, seqno
+    FROM calendar
+    WHERE SUBSTR(labeldate, 1, 7) = #{labeldate}
+    ORDER BY labeldate ASC, seqno ASC
+  </select>
+
+  <!-- 특정 날짜 조회
   <select id="list_calendar_day" resultType="dev.mvc.calendar.CalendarVO" parameterType="String">
     SELECT calendarno, labeldate, label, seqno
     FROM calendar
     WHERE labeldate = #{labeldate}
     ORDER BY seqno ASC
-  </select> 
+  </select>  -->
        
 </mapper>
 

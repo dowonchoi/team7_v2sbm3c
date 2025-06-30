@@ -1,50 +1,71 @@
-<!--/* 
-<div th:replace="~{calendar/list_all_com::list_all_fragment}"></div> 
-'/calendar/list_all_com.html' 파일의 list_all_fragment를 가져다 사용
-*/-->
-<div th:fragment="list_all_fragment"> 
-  <table class="table table-hover" style="width: 100%;">
-    <colgroup>
-      <col style='width: 10%;'/>
-      <col style='width: 20%;'/>
-      <col style='width: 20%;'/>
-      <col style='width: 10%;'/>    
-      <col style='width: 15%;'/>
-      <col style='width: 10%;'/>
-      <col style='width: 15%;'/>
-    </colgroup>
-    <thead>
-      <tr>
-        <th class="th_bs">순서</th>
-        <th class="th_bs">출력할 날짜</th>
-        <th class="th_bs">달력에 출력될 레이블</th>
-        <th class="th_bs">출력 순서</th>
-        <th class="th_bs">등록일</th>
-        <th class="th_bs">조회수</th>
-        <th class="th_bs">기타</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr th:each="calendarVO, status:${list}">
-        <td class="td_bs" th:text="|${status.index+1}|"></td>
-        <td class="td_bs">
-          <a th:href="@{|/calendar/read/${calendarVO.calendarno}|}" style="display:block;" th:text="${calendarVO.labeldate}"></a>
-        </td>
-        <td class="td_bs">
-          <a th:href="@{|/calendar/read/${calendarVO.calendarno}|}" style="display:block;" th:text="${calendarVO.label}"></a>
-        </td>
-        <td class="td_bs" th:text="${calendarVO.seqno}"></td>
-        <td class="td_bs" th:text="${calendarVO.regdate.substring(0, 10)}"></td>
-        <td class="td_bs" th:text="${calendarVO.cnt}"></td>
-        <td class="td_bs">
-          <a th:href="@{|/calendar/update_seqno_forward/${calendarVO.calendarno}|}"><img src="/calendar/images/decrease.png" class="icon" title="우선순위 높임"></a>
-          <a th:href="@{|/calendar/update_seqno_backward/${calendarVO.calendarno}|}"><img src="/calendar/images/increase.png" class="icon" title="우선순위 낮춤"></a>
-          <a th:href="@{|/calendar/update/${calendarVO.calendarno}|}"><img src="/calendar/images/update.png" class="icon" title="수정"></a> <!-- /static 기준 -->
-          <a th:href="@{|/calendar/delete/${calendarVO.calendarno}|}"><img src="/calendar/images/delete.png" class="icon" title="삭제"></a> <!--/* /static 기준 */-->
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="list_all_fragment">
+
+<link rel="stylesheet" href="/css/calendar.css">
+
+<!-- ✅ 카테고리 필터 + 보기 전환 -->
+<div id="filter_bar">
+  <select id="cateFilter" onchange="filterByCate()">
+    <option value="all">전체</option>
+    <option th:each="cate : ${cateList}" 
+            th:value="${cate.cateno}" 
+            th:text="${cate.name}">카테고리</option>
+  </select>
+
+  <!-- <div id="viewToggle">
+    <button onclick="changeView('grid')">🛍️ 쇼핑몰형</button>
+  </div> -->
 </div>
 
+<!-- ✅ 일정 목록 카드 -->
+<div id="calendarContainer" class="grid_view">
+
+  <div class="card" th:each="calendar : ${list}" 
+       th:data-cate="${calendar.cateno}">
+    <div class="img_box">
+      <img th:if="${calendar.file1saved != null and calendar.file1saved != ''}"
+           th:src="@{|/calendar/storage/${calendar.file1saved}|}"
+           alt="썸네일">
+      <img th:if="${calendar.file1saved == null or calendar.file1saved == ''}"
+           src="/calendar/images/noimage.png" 
+           alt="No Image">
+    </div>
+    <div class="info">
+      <div class="label" th:text="${calendar.label}">일정 제목</div>
+      <div class="date" th:text="${calendar.labeldate}">2025-07-01</div>
+      <div class="cnt">조회수: <span th:text="${calendar.cnt}">0</span></div>
+      <div class="btns">
+        <a th:href="@{|/calendar/read/${calendar.calendarno}|}">상세</a>
+        <a th:href="@{|/calendar/update/${calendar.calendarno}|}">수정</a>
+        <a th:href="@{|/calendar/delete/${calendar.calendarno}|}"
+           onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ✅ 스크립트 -->
+<script>
+function changeView(view) {
+  const container = document.getElementById('calendarContainer');
+  container.className = view + '_view';
+}
+
+function filterByCate() {
+  const selected = document.getElementById('cateFilter').value;
+  const cards = document.querySelectorAll('#calendarContainer .card');
+  cards.forEach(card => {
+    const cate = card.getAttribute('data-cate');
+    if (selected === 'all' || selected === cate) {
+      card.style.display = 'block';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+</script>
+
+</div>
+</html>

@@ -2,15 +2,15 @@
   
   /* 폰트 선언 */
   @font-face {
-    font-family: 'Cafe24Oneprettynight';
-    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.1/Cafe24Oneprettynight.woff') format('woff');
+    font-family: 'ChosunGu';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@1.0/ChosunGu.woff') format('woff');
     font-weight: normal;
     font-style: normal;
   }
   
   /* 모든 태그에 적용 */
   *{
-     font-family: TTHakgyoansimMonggeulmonggeulR; 
+     font-family: ChosunGu; 
      font-size: 16px; 
      margin: 0px;  /* top right bottom left */
      padding: 0px;

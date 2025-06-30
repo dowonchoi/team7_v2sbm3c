@@ -1,54 +1,88 @@
 <!DOCTYPE html>
+<html layout:decorate="~{layout}">
 
-<html layout:decorate="~{layout}"> <!-- layout.html 상속-->
 <div layout:fragment="content">
-
-  <div class='title_line'>
-    일정 등록
+  <div class="title_line">
+    📅 일정 등록
   </div>
-  
+
   <aside class="aside_right">
     <a th:href="@{|./create|}">등록</a>
-    <span class='menu_divide' >│</span>
+    <span class="menu_divide">│</span>
     <a href="javascript:location.reload();">새로고침</a>
-    <span class='menu_divide' >│</span>
-    <a th:href="@{|./list_all|}">기본 목록형</a>    
+    <span class="menu_divide">│</span>
+    <a th:href="@{|./list_calendar|}">캘린더로 보기</a>
+    <span class="menu_divide">│</span>
+    <a th:href="@{|./list_all|}">목록형 보기</a>
   </aside>
-  
-  <div class='menu_line'></div>
-  
-  <form name='frm' method='post' action='/calendar/create'>   
+
+  <div class="menu_line"></div>
+
+  <form name="frm" method="post" action="/calendar/create" enctype="multipart/form-data">
+    
+    <!-- ✅ 카테고리 선택 -->
     <div>
-      <label>출력할 날짜</label>
-      <input type='date' name='labeldate' value='' required="required" 
-            autofocus="autofocus" class="form-control" style='width: 100%;'>
-    </div>
-    <div>
-      <label>달력에 출력될 레이블</label>
-      <input type='text' name='label' value='1월 1일 휴강' required="required" 
-              autofocus="autofocus" class="form-control" style='width: 100%;'>
-    </div>
-    <div>
-       <label>제목</label>
-       <input type='text' name='title' value='새해복 많이 받으세요.' required="required" 
-                 autofocus="autofocus" class="form-control" style='width: 100%;'>
-    </div>
-    <div>
-       <label>글 내용</label>
-       <textarea name='content' required="required" class="form-control" rows="12" style='width: 100%;'>학원 휴강합니다.</textarea>
-    </div>
-    <div>                
-      <label>출력 순서</label>
-      <input type="number" name="seqno" value="1" min="1" step="1"
-             class="form-control" style="width: 50%;">   
+      <label>카테고리</label>
+      <select name="cateno" class="form-control" style="width: 50%;" required>
+        <option value="">카테고리 선택</option>
+        <th:block th:each="menu : ${cateList}">
+          <optgroup th:label="${menu.grp}">
+            <option th:each="cate : ${menu.list_name}"
+                    th:value="${cate.cateno}"
+                    th:text="${cate.name}">
+            </option>
+          </optgroup>
+        </th:block>
+      </select>
     </div>
 
+    <!-- ✅ 이미지 -->
+    <div>
+      <label>이미지</label>
+      <input type="file" name="file1MF" accept="image/*" class="form-control" style="width: 50%;">
+    </div>
+
+    <!-- ✅ 출력 날짜 -->
+    <div>
+      <label>출력 날짜 (labeldate)</label>
+      <input type="date" name="labeldate" required class="form-control" style="width: 48%;">
+    </div>
+
+    <!-- ✅ 기간 -->
+    <div>
+      <label>기간 (startdate ~ enddate)</label>
+      <div class="form-inline">
+        <input type="date" name="startdate" required class="form-control" style="width: 48%;">
+        ~
+        <input type="date" name="enddate" required class="form-control" style="width: 48%;">
+      </div>
+    </div>
+
+    <!-- ✅ 캘린더 출력 레이블 -->
+    <div>
+      <label>캘린더에 출력될 레이블</label>
+      <input type="text" name="label" placeholder="예) 야시장 행사" required class="form-control" style="width: 100%;">
+    </div>
+
+    <!-- ✅ 제목 -->
+    <div>
+      <label>제목</label>
+      <input type="text" name="title" placeholder="제목을 입력하세요." required class="form-control" style="width: 100%;">
+    </div>
+
+    <!-- ✅ 내용 -->
+    <div>
+      <label>내용</label>
+      <textarea name="content" rows="8" placeholder="일정의 상세 내용을 입력하세요." required class="form-control" style="width: 100%;"></textarea>
+    </div>
+
+    <!-- ✅ 버튼 -->
     <div class="content_body_bottom">
-      <button type="submit" class="btn btn-secondary btn-sm">등록</button>
-      <button type="button" th:attr="onclick=|location.href='./list_all'|" class="btn btn-secondary btn-sm">목록</button>
+      <button type="submit" class="btn btn-primary btn-sm">등록</button>
+      <button type="button" onclick="location.href='./list_calendar'" class="btn btn-secondary btn-sm">캘린더</button>
+      <button type="button" onclick="location.href='./list_all'" class="btn btn-secondary btn-sm">목록</button>
     </div>
-  
   </form>
-
 </div>
 
+</html>
