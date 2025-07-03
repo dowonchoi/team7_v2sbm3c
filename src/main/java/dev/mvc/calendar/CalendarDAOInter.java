@@ -43,6 +43,9 @@ public interface CalendarDAOInter {
   /** ✔ 수정 */
   public int update(CalendarVO calendarVO);
   
+  /** 🔥 수정 (관리자용 - 공개여부 포함) */
+  public int update_admin(CalendarVO calendarVO);
+  
   /** ✔ 삭제 */
   public int delete(int calendarno);
   

@@ -82,7 +82,12 @@ public class CalendarProc implements CalendarProcInter {
 
     @Override
     public int update(CalendarVO calendarVO) {
-        return calendarDAO.update(calendarVO);
+        return this.calendarDAO.update(calendarVO);
+    }
+    
+    @Override
+    public int update_admin(CalendarVO calendarVO) {
+        return this.calendarDAO.update_admin(calendarVO);
     }
 
     @Override

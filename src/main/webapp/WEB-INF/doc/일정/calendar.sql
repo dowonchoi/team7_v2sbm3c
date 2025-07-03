@@ -103,6 +103,9 @@ CREATE INDEX idx_calendar_dates ON calendar (startdate, enddate);
 -- 공개 여부
 ALTER TABLE calendar ADD visible CHAR(1) DEFAULT 'Y';
 
+-- seqno(출력순서) 삭제
+ALTER TABLE calendar DROP COLUMN seqno;
+
 -- 여름 대축제 (기간 이벤트) → 카테고리: 행사 (cateno=1)
 INSERT INTO calendar(calendarno, labeldate, startdate, enddate, label, title, content, cnt, seqno, regdate, memberno, cateno)
 VALUES (calendar_seq.nextval, '2025-06-15', '2025-06-10', '2025-06-20', '여름 대축제', '여름 맞이 트리 10% 할인', '여름 대축제 기간입니다.', 0, 1, sysdate, 1, 1);

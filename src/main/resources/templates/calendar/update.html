@@ -1,11 +1,8 @@
 <!DOCTYPE html>
-
 <html layout:decorate="~{layout}">
 <div layout:fragment="content">
 
-  <div class="title_line">
-    📅 일정 수정
-  </div>
+  <div class="title_line">📅 일정 수정</div>
 
   <aside class="aside_right">
     <a href="javascript:location.reload();">새로고침</a>
@@ -17,61 +14,87 @@
 
   <div class="menu_line"></div>
 
-  <form name="frm" method="post" action="./update" enctype="multipart/form-data">
+  <form method="post" th:action="@{/calendar/update}" enctype="multipart/form-data">
     <input type="hidden" name="calendarno" th:value="${calendarVO.calendarno}">
 
+    <!-- 출력 날짜 -->
     <div>
       <label>출력할 날짜</label>
-      <input type="date" name="labeldate" th:value="${calendarVO.labeldate}" required class="form-control" style="width: 100%;">
+      <input type="date" name="labeldate"
+             th:value="${#strings.substring(calendarVO.labeldate, 0, 10)}"
+             required class="form-control">
     </div>
 
+    <!-- 레이블 -->
     <div>
       <label>달력에 출력될 레이블</label>
-      <input type="text" name="label" th:value="${calendarVO.label}" required class="form-control" style="width: 100%;">
+      <input type="text" name="label" th:value="${calendarVO.label}"
+             required class="form-control">
     </div>
 
+    <!-- 제목 -->
     <div>
       <label>제목</label>
-      <input type="text" name="title" th:value="${calendarVO.title}" required class="form-control" style="width: 100%;">
+      <input type="text" name="title" th:value="${calendarVO.title}"
+             required class="form-control">
     </div>
 
+    <!-- 글 내용 -->
     <div>
       <label>글 내용</label>
-      <textarea name="content" required class="form-control" rows="10" style="width: 100%;" th:text="${calendarVO.content}"></textarea>
+      <textarea name="content" required class="form-control" rows="10"
+                th:text="${calendarVO.content}"></textarea>
     </div>
 
+    <!-- 기간 -->
     <div>
       <label>기간</label>
       <div style="display: flex; gap: 8px;">
-        <input type="date" name="startdate" th:value="${calendarVO.startdate}" required class="form-control">
+        <input type="date" name="startdate"
+               th:value="${#strings.substring(calendarVO.startdate, 0, 10)}"
+               required class="form-control">
         <span>~</span>
-        <input type="date" name="enddate" th:value="${calendarVO.enddate}" required class="form-control">
+        <input type="date" name="enddate"
+               th:value="${#strings.substring(calendarVO.enddate, 0, 10)}"
+               required class="form-control">
       </div>
     </div>
 
-    <div>
+    <!-- 카테고리 (관리자 및 공급자만) -->
+    <div th:if="${isAdmin}"> <!-- 관리자 -->
       <label>카테고리</label>
-      <select name="cateno" class="form-control" style="width: 50%;">
-        <option th:each="cate : ${cateList}" th:value="${cate.cateno}" 
-                th:text="${cate.name}" th:selected="${cate.cateno == calendarVO.cateno}">
-        </option>
+      <select name="cateno" class="form-control">
+        <option value="">카테고리를 선택하세요</option>
+        <optgroup th:each="menu : ${cateList}" th:label="${menu.grp}">
+          <option th:each="cate : ${menu.list_name}"
+                  th:value="${cate.cateno}"
+                  th:text="${cate.name}"
+                  th:selected="${cate.cateno == calendarVO.cateno}">
+          </option>
+        </optgroup>
       </select>
     </div>
 
-    <!-- ✅ 파일 업로드 -->
+    <div th:unless="${isAdmin}">
+      <input type="hidden" name="cateno" th:value="${calendarVO.cateno}">
+    </div>
+
+    <!-- 이미지 업로드 -->
     <div>
       <label>이미지</label>
-      <input type="file" name="file1MF" class="form-control" style="width: 100%;">
+      <input type="file" name="file1MF" class="form-control">
       <div th:if="${calendarVO.file1saved != null and calendarVO.file1saved != ''}">
-        <img th:src="@{|/calendar/storage/${calendarVO.file1saved}|}" style="max-width: 300px; border: 1px solid #ccc; border-radius: 8px;">
-        <div style="font-size: 13px; color: gray;" th:text="'현재 파일: ' + ${calendarVO.file1origin}"></div>
+        <img th:src="@{|/calendar/storage/${calendarVO.file1saved}|}"
+             style="max-width: 300px; border: 1px solid #ccc; border-radius: 8px;">
+        <div style="font-size: 13px; color: gray;" 
+             th:text="'현재 파일: ' + ${calendarVO.file1origin}"></div>
       </div>
       <div th:unless="${calendarVO.file1saved != null and calendarVO.file1saved != ''}">
         <div style="font-size: 13px; color: gray;">등록된 이미지 없음</div>
       </div>
     </div>
 
-    <!-- ✅ 공개 여부 (관리자만 노출) -->
+    <!-- 공개 여부 -->
     <div th:if="${isAdmin}">
       <label>공개 여부</label>
       <select name="visible" class="form-control" style="width: 30%;">
@@ -83,9 +106,11 @@
       <input type="hidden" name="visible" th:value="${calendarVO.visible}">
     </div>
 
+    <!-- 버튼 -->
     <div class="content_body_bottom" style="margin-top: 20px;">
       <button type="submit" class="btn btn-secondary btn-sm">저장</button>
-      <button type="button" th:attr="onclick=|location.href='/calendar/list_all'|" class="btn btn-secondary btn-sm">취소(목록)</button>
+      <button type="button" class="btn btn-secondary btn-sm"
+              th:attr="onclick=|location.href='/calendar/list_all'|">취소(목록)</button>
     </div>
 
   </form>
