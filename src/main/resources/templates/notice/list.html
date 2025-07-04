@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+<head>
+  <title>COMMUNITY</title>
+  <style>
+    .community-title {
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+      margin: 40px 0 30px;
+    }
+
+    .community-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .community-tabs a {
+      text-decoration: none;
+      color: #666;
+      padding: 10px 0;
+      position: relative;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .community-tabs a.active {
+      color: #007bff;
+      font-weight: bold;
+    }
+
+    .community-tabs a.active::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -2px;
+      height: 2px;
+      background-color: #007bff;
+    }
+
+    .community-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .left-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .category-select {
+      padding: 6px 10px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      background-color: #f9f9f9;
+    }
+
+    .search-box {
+      display: flex;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .search-box input {
+      border: none;
+      padding: 8px 12px;
+      outline: none;
+      width: 150px;
+    }
+
+    .search-box button {
+      border: none;
+      background-color: #f2f2f2;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    .btn-write {
+      background-color: #007bff;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 20px;
+      text-decoration: none;
+      font-size: 14px;
+      display: inline-block;
+    }
+
+    .community-section table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 15px;
+    }
+
+    .community-section th, .community-section td {
+      padding: 15px 10px;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .community-section th {
+      font-weight: bold;
+      color: #333;
+    }
+
+    .community-section td:nth-child(1),
+    .community-section th:nth-child(1) {
+      width: 60px;
+      text-align: center;
+    }
+
+    .community-section td:nth-child(4),
+    .community-section th:nth-child(4) {
+      width: 120px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="community-title">COMMUNITY</div>
+
+  <!-- ✅ 탭 메뉴 -->
+  <div class="community-tabs">
+    <a href="#" data-target="noticeSection">NOTICE</a>
+    <a href="#" data-target="faqSection">FAQ</a>
+    <a href="#" data-target="qnaUserSection">Q&A (소비자)</a>
+    <a href="#" data-target="qnaSupplierSection">Q&A (공급자)</a>
+  </div>
+
+  <!-- ✅ 카테고리 + 검색 + 글쓰기 버튼 -->
+  <div class="community-controls">
+    <div class="left-group">
+      <select id="categoryFilter" class="category-select">
+        <option value="">카테고리 선택</option>
+        <option value="공지">공지</option>
+        <option value="이벤트">이벤트</option>
+        <option value="배송안내">배송안내</option>
+        <option value="상품정보">상품정보</option>
+        <option value="자유게시판">자유게시판</option>
+      </select>
+
+      <form class="search-box" onsubmit="searchKeyword(event)">
+        <input type="text" id="searchInput" placeholder="Search">
+        <button type="submit">🔍</button>
+      </form>
+    </div>
+
+    <div id="writeButtonArea"></div>
+  </div>
+
+  <!-- ✅ 게시물 목록 -->
+  <div class="community-section">
+    <table>
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>카테고리</th>
+          <th>제목</th>
+          <th>작성시간</th>
+          <th>조회수</th>
+        </tr>
+      </thead>
+      <tbody id="listArea">
+        <!-- 공지사항 -->
+        <tr th:each="notice, stat : ${noticeList}" class="noticeSection">
+          <td th:text="${stat.count}"></td>
+          <td th:text="${notice.cate}"></td>
+          <td><a th:href="@{'/notice/read?notice_id=' + ${notice.notice_id}}" th:text="${notice.title}"></a></td>
+          <td th:text="${#dates.format(notice.reg_date, 'yyyy-MM-dd HH:mm')}"></td>
+          <td th:text="${notice.view_count}"></td>
+        </tr>
+
+        <!-- FAQ -->
+        <tr th:each="faq, stat : ${faqList}" class="faqSection" style="display:none;">
+          <td th:text="${stat.count}"></td>
+          <td th:text="${faq.cate}"></td>
+          <td><a th:href="@{'/faq/read?faq_id=' + ${faq.faq_id}}" th:text="${faq.title}"></a></td>
+          <td th:text="${#dates.format(faq.reg_date, 'yyyy-MM-dd')}"></td>
+          <td th:text="${faq.view_count}"></td>
+        </tr>
+
+        <!-- Q&A 소비자 -->
+        <tr th:each="qna, stat : ${qnaUserList}" class="qnaUserSection" style="display:none;">
+          <td th:text="${stat.count}"></td>
+          <td th:text="${qna.cate}"></td>
+          <td><a th:href="@{'/qna/read?qna_id=' + ${qna.qna_id}}" th:text="${qna.title}"></a></td>
+          <td th:text="${#dates.format(qna.reg_date, 'yyyy-MM-dd')}"></td>
+          <td th:text="${qna.view_count}"></td>
+        </tr>
+
+        <!-- Q&A 공급자 -->
+        <tr th:each="qna, stat : ${qnaSupplierList}" class="qnaSupplierSection" style="display:none;">
+          <td th:text="${stat.count}"></td>
+          <td th:text="${qna.cate}"></td>
+          <td><a th:href="@{'/qna/read?qna_id=' + ${qna.qna_id}}" th:text="${qna.title}"></a></td>
+          <td th:text="${#dates.format(qna.reg_date, 'yyyy-MM-dd')}"></td>
+          <td th:text="${qna.view_count}"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ✅ 탭 전환 + 검색 스크립트 -->
+  <script>
+    const tabs = document.querySelectorAll('.community-tabs a');
+    const writeButtonArea = document.getElementById('writeButtonArea');
+    let currentTab = 'noticeSection';
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', e => {
+        e.preventDefault();
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        currentTab = tab.getAttribute('data-target');
+
+        // 전체 숨김
+        document.querySelectorAll('#listArea tr').forEach(tr => tr.style.display = 'none');
+        // 선택한 것만 표시
+        document.querySelectorAll(`#listArea .${currentTab}`).forEach(tr => tr.style.display = '');
+
+        // 글쓰기 버튼 변경
+        let buttonHTML = '';
+        if (currentTab === 'noticeSection') {
+          buttonHTML = `<a href="/notice/create" class="btn-write">글쓰기</a>`;
+        } else if (currentTab === 'faqSection') {
+          buttonHTML = `<a href="/faq/create" class="btn-write">글쓰기</a>`;
+        } else if (currentTab === 'qnaUserSection') {
+          buttonHTML = `<a href="/qna/create_user" class="btn-write">글쓰기</a>`;
+        } else if (currentTab === 'qnaSupplierSection') {
+          buttonHTML = `<a href="/qna/create_supplier" class="btn-write">글쓰기</a>`;
+        }
+        writeButtonArea.innerHTML = buttonHTML;
+
+        // ✅ 검색어 초기화
+        document.getElementById('searchInput').value = '';
+      });
+    });
+
+    function searchKeyword(event) {
+      event.preventDefault();
+      const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+      const rows = document.querySelectorAll(`#listArea .${currentTab}`);
+      rows.forEach(row => {
+        const title = row.querySelector('td:nth-child(3) a').innerText.toLowerCase();
+        if (title.includes(keyword)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+
+    // ✅ 초기화 (NOTICE 탭 활성화)
+    tabs[0].click();
+  </script>
+</body>
+</div>
+</html>

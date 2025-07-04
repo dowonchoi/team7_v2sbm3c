@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+<head>
+    <title>공지사항 상세</title>
+    <style>
+      .notice-detail {
+        max-width: 800px;
+        margin: 50px auto;
+        border: 1px solid #ccc;
+        border-radius: 15px;
+        padding: 30px;
+        background-color: #f9f9f9;
+      }
+      .notice-detail h2 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #333;
+      }
+      .notice-detail p {
+        margin-bottom: 15px;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+      .notice-detail strong {
+        display: inline-block;
+        width: 100px;
+        color: #555;
+      }
+      .btn-box {
+        text-align: center;
+        margin-top: 30px;
+      }
+      .btn-box a, .btn-box button {
+        display: inline-block;
+        margin: 0 5px;
+        padding: 10px 18px;
+        background-color: #007bff;
+        color: white;
+        border-radius: 20px;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      .btn-box a:hover, .btn-box button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+</head>
+<body>
+    <div class="notice-detail">
+      <h2>공지사항 상세</h2>
+      <p><strong>번호:</strong> <span th:text="${noticeVO.notice_id}"></span></p>
+      <p><strong>제목:</strong> <span th:text="${noticeVO.title}"></span></p>
+      <p><strong>카테고리:</strong> <span th:text="${noticeVO.cate}"></span></p>
+      <p><strong>내용:</strong> <span th:text="${noticeVO.content}"></span></p>
+      <p><strong>조회수:</strong> <span th:text="${noticeVO.view_count}"></span></p>
+      <p><strong>작성자:</strong> <span th:text="${noticeVO.writer_name}"></span></p>
+      <p><strong>등록일:</strong> 
+        <span th:text="${#dates.format(noticeVO.reg_date, 'yyyy-MM-dd HH:mm')}"></span>
+      </p>
+
+      <!-- ✅ 공지 이미지 -->
+      <div th:if="${noticeVO.image != null}" style="margin: 30px 0; text-align: center;">
+        <img th:src="@{'/uploads/notice/' + ${noticeVO.image}}"
+            alt="공지 이미지"
+            style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+      </div>
+      
+      <div class="btn-box">
+        <!-- ✅ 관리자만 수정/삭제 노출 -->
+        <a th:if="${session.grade == 'admin'}" 
+           th:href="@{/notice/update(notice_id=${noticeVO.notice_id})}">수정</a>
+        <a th:if="${session.grade == 'admin'}" 
+           th:href="@{/notice/delete(notice_id=${noticeVO.notice_id})}" 
+           onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a>
+        
+        <!-- ✅ 목록(뒤로가기) 버튼 -->
+        <button onclick="history.back();">목록으로</button>
+      </div>
+    </div>
+</body>
+</div>
+</html>

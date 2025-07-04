@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+<head>
+  <title>Q&A 상세보기</title>
+  <style>
+    .qna-container {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 30px;
+      border: 1px solid #eee;
+      border-radius: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      background-color: #fff;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .qna-status {
+      background-color: #e9f9ec;
+      color: #28a745;
+      padding: 10px 20px;
+      border-radius: 15px;
+      margin-bottom: 25px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .qna-title {
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 30px;
+    }
+
+    .qna-item {
+      margin-bottom: 25px;
+    }
+
+    .qna-item label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .qna-item .value {
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 15px;
+      background-color: #f9f9f9;
+      font-size: 15px;
+    }
+
+    .answer-box {
+      margin-top: 40px;
+    }
+
+    .answer-box h3 {
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+
+    .answer-box textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 15px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+    }
+
+    .btn-submit {
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 25px;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-submit:hover {
+      background-color: #218838;
+    }
+
+    .btn-box {
+      margin-top: 30px;
+      text-align: right;
+    }
+
+    .btn-box a {
+      padding: 10px 20px;
+      border-radius: 25px;
+      background-color: #333;
+      color: #fff;
+      text-decoration: none;
+      margin-left: 10px;
+    }
+
+    .btn-box a:hover {
+      background-color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="qna-container">
+    <!-- ✅ 답변완료 표시 -->
+    <div class="qna-status" th:if="${commentList != null and !commentList.isEmpty()}">
+      답변이 등록된 글입니다.
+    </div>
+
+    <div class="qna-title">Q&A 상세보기</div>
+
+    <div class="qna-item">
+      <label>제목</label>
+      <div class="value" th:text="${qnaVO.title}"></div>
+    </div>
+
+    <div class="qna-item">
+      <label>카테고리</label>
+      <div class="value" th:text="${qnaVO.cate}"></div>
+    </div>
+
+    <div class="qna-item">
+      <label>내용</label>
+      <div class="value" th:text="${qnaVO.content}"></div>
+    </div>
+
+    <div class="qna-item">
+      <label>작성자</label>
+      <div class="value" th:text="${qnaVO.writer_id}"></div>
+    </div>
+
+    <!-- ✅ 댓글 (관리자만) -->
+    <div class="answer-box" th:if="${grade == 'admin'}">
+      <h3>댓글 등록</h3>
+      <form th:action="@{/qna/comment}" method="post" onsubmit="return confirmComment();">
+        <input type="hidden" name="qna_id" th:value="${qnaVO.qna_id}">
+        <textarea name="comment" rows="4" placeholder="댓글을 입력하세요" required></textarea>
+        <button type="submit" class="btn-submit">등록</button>
+      </form>
+    </div>
+
+    <!-- ✅ 버튼 -->
+    <div class="btn-box">
+      <a th:href="@{/qna/list_user}">목록</a>
+      <a th:if="${grade == 'admin' or id == qnaVO.writer_id}" th:href="@{'/qna/update?qna_id=' + ${qnaVO.qna_id}}">수정</a>
+      <a th:if="${grade == 'admin' or id == qnaVO.writer_id}" th:href="@{'/qna/delete?qna_id=' + ${qnaVO.qna_id}}" onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a>
+    </div>
+  </div>
+
+  <!-- ✅ 댓글 등록 시 알림 팝업 -->
+  <script>
+    function confirmComment() {
+      alert("댓글이 등록되었습니다.");
+      return true;
+    }
+  </script>
+</body>
+</div>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+<head>
+<title>Q&A 수정</title>
+<style>
+  .qna-update-container {
+    max-width: 600px;
+    margin: 60px auto;
+    padding: 30px;
+    border: 1px solid #ccc;
+    border-radius: 20px; /* ✅ 둥글게 */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    background-color: #fafafa;
+    font-family: 'Arial', sans-serif;
+  }
+
+  .qna-update-container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 24px;
+  }
+
+  .qna-update-container label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+  }
+
+  .qna-update-container input[type="text"],
+  .qna-update-container textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 15px; /* ✅ 동글동글 */
+    font-size: 15px;
+    margin-bottom: 20px;
+    background-color: #fff;
+    box-sizing: border-box;
+  }
+
+  .qna-update-container button,
+  .qna-update-container a {
+    display: inline-block;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 25px; /* ✅ 동글동글 */
+    text-decoration: none;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .qna-update-container button {
+    background-color: #28a745;
+    color: #fff;
+    margin-right: 10px;
+  }
+
+  .qna-update-container button:hover {
+    background-color: #218838;
+  }
+
+  .qna-update-container a {
+    background-color: #6c757d;
+    color: #fff;
+  }
+
+  .qna-update-container a:hover {
+    background-color: #5a6268;
+  }
+
+  select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 15px; /* ✅ 둥글게 */
+    background-color: #fff;
+    font-size: 15px;
+  }
+
+</style>
+</head>
+<body>
+  <div class="qna-update-container">
+    <h2>Q&A 수정</h2>
+    <form th:action="@{/qna/update}" method="post">
+      <input type="hidden" name="qna_id" th:value="${qnaVO.qna_id}">
+      <input type="hidden" name="cate" th:value="${param.cate}">
+      <div>
+        <label>제목</label>
+        <input type="text" name="title" th:value="${qnaVO.title}" required>
+      </div>
+      <div>
+        <label>카테고리</label>
+        <select name="cate" required>
+          <option value="문의" th:selected="${qnaVO.cate == '문의'}">문의</option>
+          <option value="질문" th:selected="${qnaVO.cate == '질문'}">질문</option>
+          <option value="자유게시판" th:selected="${qnaVO.cate == '자유게시판'}">자유게시판</option>
+        </select>
+      </div>
+
+      <div>
+        <label>내용</label>
+        <textarea name="content" rows="6" required th:text="${qnaVO.content}"></textarea>
+      </div>
+      <button type="submit">수정</button>
+      <a th:href="@{/qna/read(qna_id=${qnaVO.qna_id})}">취소</a>
+    </form>
+  </div>
+</body>
+</div>
+</html>

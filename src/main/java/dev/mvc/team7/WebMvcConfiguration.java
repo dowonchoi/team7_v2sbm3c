@@ -31,6 +31,9 @@ public class WebMvcConfiguration implements WebMvcConfigurer{
         // 이미지 URL 매핑
         registry.addResourceHandler("/calendar/storage/**")
                 .addResourceLocations("file:///C:/kd/deploy/resort/calendar/storage/");
+        
+        registry.addResourceHandler("/uploads/notice/**")
+                .addResourceLocations("file:///C:/kd/deploy/resort/notice/storage/");
 
         // C:/kd/deploy/team/food/storage ->  /food/storage -> http://localhost:9091/food/storage;
         // registry.addResourceHandler("/food/storage/**").addResourceLocations("file:///" +  Food.getUploadDir());

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+<head>
+  <title>소비자 Q&A 목록</title>
+  <style>
+    .qna-container { max-width: 1000px; margin: 60px auto; }
+    .qna-title { text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 30px; }
+    .qna-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+    .qna-header form { display: flex; gap: 10px; }
+    .qna-header select, .qna-header button { padding: 10px 15px; border-radius: 25px; border: 1px solid #ccc; }
+    .btn-write { background-color: #333; color: #fff; border: none; padding: 10px 25px; border-radius: 25px; text-decoration: none; }
+    .btn-write:hover { background-color: #555; }
+    .qna-table { width: 100%; border-collapse: collapse; border-top: 2px solid #333; }
+    .qna-table th, .qna-table td { border-bottom: 1px solid #ccc; padding: 14px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="qna-container">
+    <div class="qna-title">소비자 Q&A 목록</div>
+    <div class="qna-header">
+      <form th:action="@{/qna/list_user}" method="get">
+        <select name="cate">
+          <option value="">전체 카테고리</option>
+          <option value="문의" th:selected="${param.cate == '문의'}">문의</option>
+          <option value="질문" th:selected="${param.cate == '질문'}">질문</option>
+          <option value="자유게시판" th:selected="${param.cate == '자유게시판'}">자유게시판</option>
+        </select>
+        <button type="submit">검색</button>
+      </form>
+      <a th:href="@{/qna/create}" class="btn-write">글쓰기</a>
+    </div>
+    <table class="qna-table">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>카테고리</th>
+          <th>제목</th>
+          <th>작성일</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="qna, stat : ${qnaUserList}">
+          <td th:text="${stat.count}"></td>
+          <td th:text="${qna.cate}"></td>
+          <td><a th:href="@{/qna/read(qna_id=${qna.qna_id})}" th:text="${qna.title}"></a></td>
+          <td th:text="${#dates.format(qna.reg_date, 'yyyy-MM-dd')}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(qnaUserList)}">
+          <td colspan="4">질문이 없습니다.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</div>
+</html>

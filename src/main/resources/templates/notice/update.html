@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+<head>
+    <title>공지사항 수정</title>
+</head>
+<body>
+    <h2>공지사항 수정</h2>
+    <form th:action="@{/notice/update}" method="post">
+        <input type="hidden" name="notice_id" th:value="${noticeVO.notice_id}">
+        <p>제목: <input type="text" name="title" th:value="${noticeVO.title}" required></p>
+        <p>카테고리: <input type="text" name="cate" th:value="${noticeVO.cate}" required></p>
+        <p>내용: <textarea name="content" rows="5" cols="50" th:text="${noticeVO.content}"></textarea></p>
+        <p>작성자 ID: <input type="text" name="writer_id" th:value="${noticeVO.writer_id}" required></p>
+        <p>작성자 이름: <input type="text" name="writer_name" th:value="${noticeVO.writer_name}" required></p>
+        <button type="submit">수정</button>
+    </form>
+    <a th:href="@{/notice/read(notice_id=${noticeVO.notice_id})}">돌아가기</a>
+</body>
+</html>
