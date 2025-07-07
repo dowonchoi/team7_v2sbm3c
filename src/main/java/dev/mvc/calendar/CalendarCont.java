@@ -63,7 +63,7 @@ public class CalendarCont {
   }
 
   // ✅ 캘린더 월간 데이터
-  @GetMapping("/list_calendar_range")
+  @GetMapping(value = "/list_calendar_range", produces = "application/json; charset=UTF-8")
   @ResponseBody
   public String list_calendar_range(@RequestParam("month") String month) {
       List<CalendarVO> list = calendarProc.list_calendar_range(month);

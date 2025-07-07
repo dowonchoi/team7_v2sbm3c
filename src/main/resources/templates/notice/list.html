@@ -113,23 +113,55 @@
       color: #333;
     }
 
-    .community-section td:nth-child(1),
-    .community-section th:nth-child(1) {
-      width: 60px;
-      text-align: center;
+    .faq-category-buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
     }
-
-    .community-section td:nth-child(4),
-    .community-section th:nth-child(4) {
-      width: 120px;
-      text-align: center;
+    .faq-category-buttons button {
+      padding: 6px 12px;
+      border: none;
+      background-color: #333;
+      color: #fff;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .faq-category-buttons button:hover {
+      background-color: #007bff;
+    }
+    .faq-item {
+      border-bottom: 1px solid #ccc;
+      padding: 10px 0;
+    }
+    .faq-question {
+      cursor: pointer;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+    }
+    .faq-question span:first-child {
+      margin-right: 10px;
+      color: #007bff;
+    }
+    .faq-answer {
+      display: none;
+      padding: 10px 0 10px 30px;
+      background-color: #f9f9f9;
+      border-radius: 6px;
+      margin-top: 5px;
+      color: #666;
+    }
+    .faq-answer span:first-child {
+      margin-right: 10px;
+      color: #007bff;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
   <div class="community-title">COMMUNITY</div>
 
-  <!-- ✅ 탭 메뉴 -->
   <div class="community-tabs">
     <a href="#" data-target="noticeSection">NOTICE</a>
     <a href="#" data-target="faqSection">FAQ</a>
@@ -137,7 +169,6 @@
     <a href="#" data-target="qnaSupplierSection">Q&A (공급자)</a>
   </div>
 
-  <!-- ✅ 카테고리 + 검색 + 글쓰기 버튼 -->
   <div class="community-controls">
     <div class="left-group">
       <select id="categoryFilter" class="category-select">
@@ -158,10 +189,9 @@
     <div id="writeButtonArea"></div>
   </div>
 
-  <!-- ✅ 게시물 목록 -->
   <div class="community-section">
     <table>
-      <thead>
+      <thead id="tableHeader">
         <tr>
           <th>No</th>
           <th>카테고리</th>
@@ -171,7 +201,7 @@
         </tr>
       </thead>
       <tbody id="listArea">
-        <!-- 공지사항 -->
+        <!-- NOTICE -->
         <tr th:each="notice, stat : ${noticeList}" class="noticeSection">
           <td th:text="${stat.count}"></td>
           <td th:text="${notice.cate}"></td>
@@ -181,36 +211,32 @@
         </tr>
 
         <!-- FAQ -->
-        <tr th:each="faq, stat : ${faqList}" class="faqSection" style="display:none;">
-          <td th:text="${stat.count}"></td>
-          <td th:text="${faq.cate}"></td>
-          <td><a th:href="@{'/faq/read?faq_id=' + ${faq.faq_id}}" th:text="${faq.title}"></a></td>
-          <td th:text="${#dates.format(faq.reg_date, 'yyyy-MM-dd')}"></td>
-          <td th:text="${faq.view_count}"></td>
-        </tr>
-
-        <!-- Q&A 소비자 -->
-        <tr th:each="qna, stat : ${qnaUserList}" class="qnaUserSection" style="display:none;">
-          <td th:text="${stat.count}"></td>
-          <td th:text="${qna.cate}"></td>
-          <td><a th:href="@{'/qna/read?qna_id=' + ${qna.qna_id}}" th:text="${qna.title}"></a></td>
-          <td th:text="${#dates.format(qna.reg_date, 'yyyy-MM-dd')}"></td>
-          <td th:text="${qna.view_count}"></td>
-        </tr>
-
-        <!-- Q&A 공급자 -->
-        <tr th:each="qna, stat : ${qnaSupplierList}" class="qnaSupplierSection" style="display:none;">
-          <td th:text="${stat.count}"></td>
-          <td th:text="${qna.cate}"></td>
-          <td><a th:href="@{'/qna/read?qna_id=' + ${qna.qna_id}}" th:text="${qna.title}"></a></td>
-          <td th:text="${#dates.format(qna.reg_date, 'yyyy-MM-dd')}"></td>
-          <td th:text="${qna.view_count}"></td>
+        <tr class="faqSection" style="display:none;">
+          <td colspan="5">
+            <div class="faq-category-buttons">
+              <button onclick="filterFAQ('전체')">전체</button>
+              <button onclick="filterFAQ('배송문의')">배송문의</button>
+              <button onclick="filterFAQ('교환/반품')">교환/반품</button>
+              <button onclick="filterFAQ('회원서비스')">회원서비스</button>
+            </div>
+            <div class="faq-list">
+              <div th:each="faq : ${faqList}" class="faq-item" th:data-cate="${faq.cate}">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                  <span>Q</span>
+                  <span th:text="${faq.question}"></span>
+                </div>
+                <div class="faq-answer">
+                  <span>A</span>
+                  <span th:text="${faq.answer}"></span>
+                </div>
+              </div>
+            </div>
+          </td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <!-- ✅ 탭 전환 + 검색 스크립트 -->
   <script>
     const tabs = document.querySelectorAll('.community-tabs a');
     const writeButtonArea = document.getElementById('writeButtonArea');
@@ -224,12 +250,9 @@
 
         currentTab = tab.getAttribute('data-target');
 
-        // 전체 숨김
         document.querySelectorAll('#listArea tr').forEach(tr => tr.style.display = 'none');
-        // 선택한 것만 표시
         document.querySelectorAll(`#listArea .${currentTab}`).forEach(tr => tr.style.display = '');
 
-        // 글쓰기 버튼 변경
         let buttonHTML = '';
         if (currentTab === 'noticeSection') {
           buttonHTML = `<a href="/notice/create" class="btn-write">글쓰기</a>`;
@@ -242,8 +265,10 @@
         }
         writeButtonArea.innerHTML = buttonHTML;
 
-        // ✅ 검색어 초기화
         document.getElementById('searchInput').value = '';
+
+        // ✅ 헤더 표시/숨김
+        updateHeaderVisibility();
       });
     });
 
@@ -252,8 +277,8 @@
       const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
       const rows = document.querySelectorAll(`#listArea .${currentTab}`);
       rows.forEach(row => {
-        const title = row.querySelector('td:nth-child(3) a').innerText.toLowerCase();
-        if (title.includes(keyword)) {
+        const title = row.querySelector('td:nth-child(3) a');
+        if (title && title.innerText.toLowerCase().includes(keyword)) {
           row.style.display = '';
         } else {
           row.style.display = 'none';
@@ -261,8 +286,42 @@
       });
     }
 
-    // ✅ 초기화 (NOTICE 탭 활성화)
-    tabs[0].click();
+    tabs[0].click();  // 초기 탭 활성화
+    updateHeaderVisibility();  // 초기 헤더 표시/숨김
+
+    function toggleAnswer(element) {
+      const answer = element.nextElementSibling;
+      const isActive = element.classList.contains('active');
+
+      document.querySelectorAll('.faq-answer').forEach(a => a.style.display = 'none');
+      document.querySelectorAll('.faq-question').forEach(q => q.classList.remove('active'));
+
+      if (!isActive) {
+        answer.style.display = 'block';
+        element.classList.add('active');
+      }
+    }
+
+    function filterFAQ(category) {
+      const items = document.querySelectorAll('.faq-item');
+      items.forEach(item => {
+        const itemCate = item.getAttribute('data-cate');
+        if (category === '전체' || itemCate === category) {
+          item.style.display = '';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+
+    function updateHeaderVisibility() {
+      const tableHeader = document.getElementById('tableHeader');
+      if (currentTab === 'faqSection') {
+        tableHeader.style.display = 'none';
+      } else {
+        tableHeader.style.display = '';
+      }
+    }
   </script>
 </body>
 </div>

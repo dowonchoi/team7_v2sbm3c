@@ -9,7 +9,7 @@
     INSERT INTO notice (
       notice_id, title, content, cate, is_fixed, writer_id, writer_name, image
     ) VALUES (
-      notice_seq.nextval, #{title}, #{content}, #{cate}, #{is_fixed, jdbcType=VARCHAR}, #{writer_id}, #{writer_name}, #{image}
+      notice_seq.nextval, #{title}, #{content}, #{cate}, #{is_fixed, jdbcType=VARCHAR}, #{writer_id}, #{writer_name}, #{image, jdbcType=VARCHAR}
     )
   </insert>
 
@@ -41,7 +41,7 @@
     SET title = #{title},
         content = #{content},
         cate = #{cate},
-        is_fixed = #{is_fixed, jdbcType=VARCHAR},
+        is_fixed = #{is_fixed, jdbcType=VARCHAR}, image = #{image, jdbcType=VARCHAR},
         upd_date = SYSDATE
     WHERE notice_id = #{notice_id}
   </update>
