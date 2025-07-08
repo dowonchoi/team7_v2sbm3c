@@ -27,15 +27,12 @@ import com.zaxxer.hikari.HikariDataSource;
                                         "dev.mvc.cart",
                                         "dev.mvc.order",
                                         "dev.mvc.order_item",
-<<<<<<< HEAD
-                                        "dev.mvc.delivery"}) // DAO interface 패키지 등록
-=======
+                                        "dev.mvc.delivery",
                                         "dev.mvc.notice",
                                         "dev.mvc.reply",
                                         "dev.mvc.qna",
                                         "dev.mvc.qnacomment",
                                         "dev.mvc.faq"}) // DAO interface 패키지 등록
->>>>>>> 2b9d48081d3ae3606c8008bc29013f4ac9663555
 public class DatabaseConfiguration {
     
     @Autowired

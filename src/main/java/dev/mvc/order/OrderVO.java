@@ -8,6 +8,8 @@ import lombok.Setter;
 public class OrderVO {
   private int orderno;         // 주문 번호 (PK)
   private int memberno;        // 주문자 회원 번호 (FK)
+  private int deliveryno;  // 배송지 번호 (FK)
+
 
   private String rname;        // 수령자 이름
   private String rtel;         // 수령자 연락처

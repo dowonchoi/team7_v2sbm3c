@@ -59,6 +59,57 @@
     WHERE memberno = #{memberno}
     ORDER BY deliveryno DESC
   </select> -->
+  
+  
+  <select id="list_by_memberno" parameterType="int" resultType="dev.mvc.delivery.DeliveryVO">
+    SELECT * FROM delivery
+    WHERE memberno = #{memberno}
+    ORDER BY deliveryno DESC
+  </select>
+  
+  <!-- 기존 기본 배송지들을 모두 'N'으로 변경 -->
+  <update id="clear_default" parameterType="int">
+    UPDATE delivery
+    SET is_default = 'N'
+    WHERE memberno = #{memberno}
+  </update>
+  
+  <!-- deliveryno를 기준으로 기본 배송지 설정 -->
+  <update id="update_default" parameterType="dev.mvc.delivery.DeliveryVO">
+    UPDATE delivery
+    SET rname = #{rname},
+        rtel = #{rtel},
+        rzipcode = #{rzipcode},
+        raddress1 = #{raddress1},
+        raddress2 = #{raddress2},
+        message = #{message},
+        is_default = 'Y',
+        rdate = SYSDATE
+    WHERE deliveryno = #{deliveryno} AND memberno = #{memberno}
+  </update>
+  
+  <!-- 배송지 수정 (deliveryno 기준) -->
+  <update id="update_by_deliveryno" parameterType="dev.mvc.delivery.DeliveryVO">
+    UPDATE delivery
+    SET rname = #{rname},
+        rtel = #{rtel},
+        rzipcode = #{rzipcode},
+        raddress1 = #{raddress1},
+        raddress2 = #{raddress2},
+        message = #{message},
+        rdate = SYSDATE
+    WHERE deliveryno = #{deliveryno}
+      AND memberno = #{memberno}  <!-- 보안: 본인 배송지만 수정 가능 -->
+  </update>
+  
+  <!-- 배송지 삭제-->
+  <delete id="delete_by_deliveryno" parameterType="int">
+    DELETE FROM delivery
+    WHERE deliveryno = #{deliveryno}
+  </delete>
+
+
+
 
 
 

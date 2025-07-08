@@ -77,6 +77,7 @@
     </div>
     <input type="hidden" name="total" th:value="${total}">
     <input type="hidden" name="point" value="0"><!-- 향후 포인트 적립 계산 가능 -->
+    <input type="hidden" id="deliveryno" name="deliveryno" value="">
 
     <!-- 주문하기 버튼 -->
     <div>
@@ -122,8 +123,10 @@
               ${d.raddress1} ${d.raddress2}<br>
               ${d.rtel}<br>
               ${d.message || ''}<br><br>
-              <button onclick="selectDelivery(${d.deliveryno})">선택</button>
-              <button onclick="editDelivery(${d.deliveryno})">수정</button>`;
+              <button type="button" onclick="selectDelivery(${d.deliveryno})">선택</button>
+              <button type="button" onclick="editDelivery(${d.deliveryno})">수정</button>
+              <button type="button" onclick="deleteDelivery(${d.deliveryno})" class="btn btn-danger">삭제</button>
+            `;
             listDiv.appendChild(card);
           });
           document.getElementById("deliveryModal").style.display = "block";
@@ -178,27 +181,41 @@
     }
 
     function saveDefaultDelivery() {
+      const deliverynoField = document.getElementById('deliveryno');
+      const deliveryno = parseInt(deliverynoField?.value || 0);
+
+      if (deliveryno === 0) {
+        alert("⚠️ 배송지를 먼저 선택해주세요.");
+        return;
+      }
+
       const data = {
-        rname: rname.value, rtel: rtel.value, rzipcode: rzipcode.value,
-        raddress1: raddress1.value, raddress2: raddress2.value,
+        deliveryno,
+        rname: rname.value,
+        rtel: rtel.value,
+        rzipcode: rzipcode.value,
+        raddress1: raddress1.value,
+        raddress2: raddress2.value,
         message: message.value
       };
+
+      console.log("✅ 기본 배송지 저장 요청 데이터:", data);
+
       fetch('/delivery/save_default', {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       })
       .then(res => res.text())
       .then(result => {
         if (result === 'success') {
           alert("✅ 기본 배송지로 저장되었습니다.");
-        } else if (result === 'not_logged_in') {
-          alert("❗ 로그인 후 사용해주세요.");
-          location.href = "/member/login";
         } else {
           alert("⚠️ 저장 중 오류 발생");
         }
       });
     }
+
 
     // 다음 주소 API 실행 - 모달 또는 본문에서 사용
     function execDaumPostcode(prefix = 'r') {
@@ -252,15 +269,7 @@
       fetch(`/delivery/read/${deliveryno}`)
         .then(res => res.json())
         .then(data => {
-          // 1. localStorage에 저장 (추후 새로고침에도 유지됨)
-          localStorage.setItem('rname', data.rname);
-          localStorage.setItem('rtel', data.rtel);
-          localStorage.setItem('rzipcode', data.rzipcode);
-          localStorage.setItem('raddress1', data.raddress1);
-          localStorage.setItem('raddress2', data.raddress2);
-          localStorage.setItem('message', data.message);
-
-          // 2. 본문 입력 필드에 직접 반영
+          // 1. 필드 반영
           document.getElementById('rname').value = data.rname;
           document.getElementById('rtel').value = data.rtel;
           document.getElementById('rzipcode').value = data.rzipcode;
@@ -268,13 +277,99 @@
           document.getElementById('raddress2').value = data.raddress2;
           document.getElementById('message').value = data.message;
 
-          // 3. 모달 닫기
+          // 2. localStorage 저장
+          localStorage.setItem('rname', data.rname);
+          localStorage.setItem('rtel', data.rtel);
+          localStorage.setItem('rzipcode', data.rzipcode);
+          localStorage.setItem('raddress1', data.raddress1);
+          localStorage.setItem('raddress2', data.raddress2);
+          localStorage.setItem('message', data.message);
+
+          // ✅ 자동 제출 방지용: 포커스 제거 + keypress 막기
+          document.activeElement.blur();
+
+          const formEl = document.querySelector("form");
+          if (formEl) {
+            formEl.addEventListener("keydown", function (e) {
+              if (e.key === "Enter") {
+                e.preventDefault(); // 브라우저 기본 제출 막기
+              }
+            }, { once: true });
+          }
+          document.getElementById('deliveryno').value = deliveryno;
+
           closeDeliveryModal();
-        })
-        .catch(err => {
-          console.error("🚫 배송지 불러오기 실패", err);
-          alert("배송지 정보를 가져올 수 없습니다.");
         });
+    }
+    // ✅ 수정 버튼 클릭 시 실행되는 함수
+    function editDelivery(deliveryno) {
+      fetch(`/delivery/read/${deliveryno}`)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("deliveryList").innerHTML = `
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <input type="hidden" id="edit_deliveryno" value="${data.deliveryno}">
+              <input type="text" id="edit_rname" placeholder="이름" value="${data.rname}" required>
+              <input type="text" id="edit_rtel" placeholder="연락처" value="${data.rtel}" required>
+              <div>
+                <input type="text" id="edit_rzipcode" placeholder="우편번호" value="${data.rzipcode}" required style="width:65%;">
+                <button type="button" onclick="loadDaumPostcodeScript(() => execDaumPostcode('edit_'))">검색</button>
+              </div>
+              <input type="text" id="edit_raddress1" placeholder="주소 1" value="${data.raddress1}" required>
+              <input type="text" id="edit_raddress2" placeholder="주소 2" value="${data.raddress2}">
+              <input type="text" id="edit_message" placeholder="배송 메모" value="${data.message}">
+              <button type="button" onclick="updateDelivery()" class="btn btn-warning">수정 완료</button>
+              <button type="button" onclick="openDeliveryModal()" class="btn btn-secondary">취소</button>
+            </div>`;
+        });
+    }
+
+    // ✅ 수정된 내용을 서버에 반영하는 함수
+    function updateDelivery() {
+      const data = {
+        deliveryno: parseInt(document.getElementById('edit_deliveryno').value),
+        rname: document.getElementById('edit_rname').value,
+        rtel: document.getElementById('edit_rtel').value,
+        rzipcode: document.getElementById('edit_rzipcode').value,
+        raddress1: document.getElementById('edit_raddress1').value,
+        raddress2: document.getElementById('edit_raddress2').value,
+        message: document.getElementById('edit_message').value
+      };
+
+      fetch('/delivery/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      .then(res => res.text())
+      .then(result => {
+        if (result === 'success') {
+          alert('✏️ 수정 완료');
+          openDeliveryModal(); // 다시 목록 새로고침
+        } else {
+          alert('❌ 수정 실패');
+        }
+      });
+    }
+
+    // ✅ 배송지 삭제 요청
+    function deleteDelivery(deliveryno) {
+      if (!confirm("정말 이 배송지를 삭제하시겠습니까?")) return;
+
+      fetch("/delivery/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ deliveryno })
+      })
+      .then(res => res.text())
+      .then(result => {
+        if (result === 'success') {
+          alert("🗑️ 삭제되었습니다.");
+          openDeliveryModal();  // 삭제 후 목록 새로고침
+        } else {
+          alert("❌ 삭제 실패");
+        }
+      });
     }
 
 

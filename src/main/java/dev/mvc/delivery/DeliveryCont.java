@@ -35,10 +35,16 @@ public class DeliveryCont {
 
     deliveryVO.setMemberno(memberno);
 
-    int result = deliveryProc.upsert(deliveryVO);
+    // 1. 먼저 기존 기본 배송지를 모두 해제
+    deliveryProc.clear_default(memberno);
+
+    // 2. 현재 배송지를 기본으로 설정 (is_default = 'Y'로 업데이트)
+    deliveryVO.setIs_default("Y");
+    int result = deliveryProc.update_default(deliveryVO);
 
     return result == 1 ? "success" : "fail";
   }
+
   
   @GetMapping(value = "/list", produces = "application/json;charset=UTF-8")
   @ResponseBody
@@ -67,17 +73,57 @@ public class DeliveryCont {
   }
   
   // 배송지 선택 기능
-  @GetMapping("/delivery/read/{deliveryno}")
-  @ResponseBody // JSON 반환
+  @GetMapping("/read/{deliveryno}")
+  @ResponseBody
   public DeliveryVO read(@PathVariable("deliveryno") int deliveryno) {
-   return this.deliveryProc.read(deliveryno);  // deliveryno로 1건 조회
+    return this.deliveryProc.read(deliveryno);
   }
   
-//  @GetMapping("/delivery/read/{deliveryno}")
-//  @ResponseBody
-//  public DeliveryVO read_by_deliveryno(@PathVariable("deliveryno") int deliveryno) {
-//    return this.deliveryProc.read_by_deliveryno(deliveryno);
-//  }
+  /**
+   * 배송지 수정 요청 처리
+   * - deliveryno를 기준으로 해당 배송지 정보 수정
+   * - 로그인 상태 확인
+   * - 수정 성공 시 "success", 실패 시 "fail"
+   */
+  @PostMapping("/update")
+  @ResponseBody
+  public String update(@RequestBody DeliveryVO deliveryVO, HttpSession session) {
+    // 세션에서 로그인된 사용자 번호 가져오기
+    Integer memberno = (Integer) session.getAttribute("memberno");
+
+    // 로그인되지 않은 경우
+    if (memberno == null) {
+      return "not_logged_in";
+    }
+
+    // 해당 배송지가 본인의 것인지 확인하기 위해 memberno 세팅
+    deliveryVO.setMemberno(memberno);
+
+    // 실제 수정 로직 실행 (deliveryno를 기준으로)
+    int result = deliveryProc.update_by_deliveryno(deliveryVO);
+
+    // 결과 반환
+    return result == 1 ? "success" : "fail";
+  }
+
+  /**
+   * 배송지 삭제 요청
+   * - JSON { deliveryno } 전달받아 해당 배송지를 삭제
+   * - 본인 확인은 생략하거나 확장 가능
+   */
+  @PostMapping("/delete")
+  @ResponseBody
+  public String delete(@RequestBody DeliveryVO deliveryVO, HttpSession session) {
+    Integer memberno = (Integer) session.getAttribute("memberno");
+
+    if (memberno == null) return "not_logged_in";
+
+    deliveryVO.setMemberno(memberno); // 확장 대비
+
+    int result = deliveryProc.delete_by_deliveryno(deliveryVO.getDeliveryno());
+    return result == 1 ? "success" : "fail";
+  }
+
 
 
   

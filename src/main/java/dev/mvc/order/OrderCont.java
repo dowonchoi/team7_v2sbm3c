@@ -1,6 +1,7 @@
 package dev.mvc.order;
 
 import dev.mvc.cart.CartVO;
+import dev.mvc.delivery.DeliveryVO;
 import dev.mvc.cart.CartProcInter;
 import dev.mvc.member.MemberVO;
 import dev.mvc.order_item.OrderItemProcInter;
@@ -41,68 +42,79 @@ public class OrderCont {
   @Autowired
   @Qualifier("dev.mvc.products.ProductsProc")
   private ProductsProcInter productsProc;
+  
+  @Autowired
+  @Qualifier("dev.mvc.delivery.DeliveryProc")
+  private dev.mvc.delivery.DeliveryProcInter deliveryProc;
+
 
   /** 주문 입력 폼 */
   @GetMapping("/create")
-  public String create_form(HttpSession session, Model model) {
+  public String create_form(
+    @RequestParam(value = "orderno", required = false) Integer orderno,
+    HttpSession session,
+    Model model) {
+
     Integer memberno = (Integer) session.getAttribute("memberno");
     if (memberno == null) {
-      return "redirect:/member/login";  // 비로그인 → 로그인 유도
+      return "redirect:/member/login";
     }
 
-    // 선택된 장바구니 항목 불러오기
+    // 선택된 장바구니만 불러오기
     List<CartVO> cartList = cartProc.list_selected_by_memberno(memberno);
     model.addAttribute("cartList", cartList);
 
-    // 총액 계산 (할인 적용된 가격들로)
+    // 결제 총액
     int total = cartProc.total_selected_by_memberno(memberno);
     model.addAttribute("total", total);
 
-    return "order/create";  // 배송지 + 결제수단 입력 폼 출력
+    // 주문 완료 후 돌아온 경우 메시지용
+    if (orderno != null) {
+      model.addAttribute("orderno", orderno);
+    }
+
+    return "order/create";  // 주문/결제 폼
   }
 
-  /** 주문 완료 화면 */
-  @GetMapping("/complete")
-  public String complete(@RequestParam("orderno") int orderno, Model model) {
-    model.addAttribute("orderno", orderno);
-    return "/order/complete";
-  }
+
 
   /** 주문 처리 */
   @PostMapping("/create")
   public String create_proc(OrderVO orderVO, HttpSession session) {
-    System.out.println(" [DEBUG] 주문 요청 도달 - 수령자: " + orderVO.getRname());
     Integer memberno = (Integer) session.getAttribute("memberno");
-    System.out.println(" [DEBUG] 주문 요청 도달 - 수령자: " + orderVO.getRname());
-
     if (memberno == null) {
-      System.out.println("[DEBUG] 비로그인 상태로 주문 요청됨.");
       return "redirect:/member/login";
     }
-    
-    List<CartVO> cartList = cartProc.list_selected_by_memberno(memberno);
-    System.out.println("[DEBUG] 선택된 장바구니 수: " + cartList.size());
-    for (CartVO cart : cartList) {
-      System.out.println("[DEBUG] cartno: " + cart.getCartno()
-                         + ", productsno: " + cart.getProductsno()
-                         + ", cnt: " + cart.getCnt()
-                         + ", title: " + (cart.getProductsVO() != null ? cart.getProductsVO().getTitle() : "null"));
-    }
 
-    // 2. 주문 기본 정보 저장
+    // 선택된 장바구니 항목
+    List<CartVO> cartList = cartProc.list_selected_by_memberno(memberno);
+    if (cartList.isEmpty()) {
+      // 선택된 항목이 없다면 실패 처리도 가능
+      return "redirect:/cart/list"; 
+    }
+    
+    DeliveryVO dvo = deliveryProc.read(orderVO.getDeliveryno());
+
+    orderVO.setRname(dvo.getRname());
+    orderVO.setRtel(dvo.getRtel());
+    orderVO.setRzipcode(dvo.getRzipcode());
+    orderVO.setRaddress1(dvo.getRaddress1());
+    orderVO.setRaddress2(dvo.getRaddress2());
+    orderVO.setMessage(dvo.getMessage());
+
+
+    // 주문 기본 정보 저장
     orderVO.setMemberno(memberno);
     orderProc.create(orderVO);
-    int orderno = orderVO.getOrderno();
-    System.out.println("[DEBUG] 주문 등록 완료 - orderno: " + orderno);
-    
-    // 3. 주문 상세로 전환
+    int orderno = orderVO.getOrderno();  // auto-increment된 주문 번호
+
+    // 주문 상세 저장
     for (CartVO cart : cartList) {
-      int productsno = cart.getProductsno();
-      ProductsVO products = productsProc.read(productsno);
+      ProductsVO products = productsProc.read(cart.getProductsno());
 
       OrderItemVO item = new OrderItemVO();
       item.setOrderno(orderno);
-      item.setProductsno(productsno);
+      item.setProductsno(products.getProductsno());
       item.setPname(products.getTitle());
       item.setThumb1(products.getThumb1());
       item.setPrice(products.getPrice());
@@ -111,24 +123,18 @@ public class OrderCont {
       item.setCnt(cart.getCnt());
       item.setPoint(products.getPoint());
 
-      int totalprice = products.getSaleprice() * cart.getCnt();
-      int totalpoint = products.getPoint() * cart.getCnt();
+      item.setTotalprice(products.getSaleprice() * cart.getCnt());
+      item.setTotalpoint(products.getPoint() * cart.getCnt());
 
-      item.setTotalprice(totalprice);
-      item.setTotalpoint(totalpoint);
-
-      orderItemProc.create(item);
-
-      System.out.println("[DEBUG] 주문 상세 등록 - productsno: " + productsno + ", cnt: " + cart.getCnt());
+      orderItemProc.create(item);  // 주문 상세 insert
     }
 
-    // 4. 장바구니 선택 항목 삭제
-    int deleted = cartProc.delete_selected_by_memberno(memberno);
-    System.out.println("[DEBUG] 장바구니 삭제 완료 - 삭제된 항목 수: " + deleted);
+    // 장바구니 선택 항목 삭제
+    cartProc.delete_selected_by_memberno(memberno);
 
-    // 5. 완료 페이지로 이동
-    System.out.println("[DEBUG] 주문 프로세스 완료 - 리디렉션 수행");
-    return "redirect:/order/complete?orderno=" + orderno;
+    // 다시 create 화면으로 이동하면서 주문번호 전달
+    return "redirect:/order/create?orderno=" + orderno;
   }
+
 
 }

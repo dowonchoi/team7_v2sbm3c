@@ -21,5 +21,26 @@ public interface DeliveryProcInter {
   
   /** 배송지 번호로 조회 */
   //public DeliveryVO read_by_deliveryno(int deliveryno);
+  
+  public int clear_default(int memberno);
+  public int update_default(DeliveryVO deliveryVO);
+  
+  /**
+   * 배송지 수정 (deliveryno 기준)
+   * - 사용자가 수정한 배송지 정보를 DB에 반영한다.
+   * @param deliveryVO 수정할 배송지 정보 (deliveryno 포함)
+   * @return 처리된 레코드 수 (1이면 성공)
+   */
+  public int update_by_deliveryno(DeliveryVO deliveryVO);
+  
+  /**
+   * 배송지 삭제
+   * @param deliveryno
+   * @return
+   */
+  public int delete_by_deliveryno(int deliveryno);
+
+  
+
 
 }

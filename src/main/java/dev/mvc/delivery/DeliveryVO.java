@@ -17,4 +17,5 @@ public class DeliveryVO {
   private String raddress2;  // 주소2
   private String message;    // 배송 메모
   private Date rdate;        // 등록일
+  private String is_default; // 기본 배송지 여부: 'Y' 또는 'N'
 }
