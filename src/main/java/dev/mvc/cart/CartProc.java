@@ -111,6 +111,12 @@ public class CartProc implements CartProcInter {
     // 선택된 항목들의 할인가 * 수량을 합산한 총액 반환
     return cartDAO.total_selected_by_memberno(memberno);
   }
+  
+  @Override
+  public int delete_selected_by_memberno(int memberno) {
+    // 선택된 항목들의 삭제
+    return cartDAO.delete_selected_by_memberno(memberno);
+  }
 
 
 

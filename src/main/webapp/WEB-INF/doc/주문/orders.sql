@@ -24,6 +24,8 @@ CREATE TABLE orders (
     REFERENCES member(memberno)
 );
 
+DROP SEQUENCE orders_seq;
+
 -- 주문 번호 생성을 위한 시퀀스
 CREATE SEQUENCE orders_seq
   START WITH 1

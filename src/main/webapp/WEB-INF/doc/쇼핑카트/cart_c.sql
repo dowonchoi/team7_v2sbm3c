@@ -37,3 +37,8 @@ INSERT INTO cart(cartno, memberno, productsno, cnt, rdate)
 VALUES (cart_seq.nextval, 4, 12, 3, SYSDATE);
 
 commit;
+
+SELECT *
+FROM cart
+WHERE memberno = 4;
+

@@ -191,6 +191,8 @@
     const cartno = checkbox.getAttribute('data-cartno');
     const selected = checkbox.checked ? 'Y' : 'N';
 
+    console.log("[DEBUG] updateSelected 실행됨. cartno:", cartno, ", selected:", selected);
+
     fetch('/cart/update_selected', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

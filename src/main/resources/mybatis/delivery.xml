@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dev.mvc.delivery.DeliveryDAOInter">
+
+  <!-- 1. 배송지 등록 -->
+  <insert id="create" parameterType="dev.mvc.delivery.DeliveryVO">
+    INSERT INTO delivery (
+      deliveryno, memberno, rname, rtel, rzipcode, raddress1, raddress2, message, rdate
+    ) VALUES (
+      delivery_seq.NEXTVAL,
+      #{memberno}, #{rname}, #{rtel}, #{rzipcode}, #{raddress1}, #{raddress2}, #{message}, SYSDATE
+    )
+  </insert>
+
+  <!-- 2. 배송지 수정 -->
+  <update id="update" parameterType="dev.mvc.delivery.DeliveryVO">
+    UPDATE delivery
+    SET rname = #{rname},
+        rtel = #{rtel},
+        rzipcode = #{rzipcode},
+        raddress1 = #{raddress1},
+        raddress2 = #{raddress2},
+        message = #{message},
+        rdate = SYSDATE
+    WHERE memberno = #{memberno}
+  </update>
+
+  <!-- 3. 회원번호로 존재 여부 확인 -->
+  <select id="count_by_memberno" resultType="int" parameterType="int">
+    SELECT COUNT(*) FROM delivery WHERE memberno = #{memberno}
+  </select>
+
+  <!-- 4. 회원번호로 배송지 읽기 -->
+  <select id="read_by_memberno" resultType="dev.mvc.delivery.DeliveryVO" parameterType="int">
+    SELECT * FROM delivery WHERE memberno = #{memberno}
+  </select>
+  
+  <select id="read_by_deliveryno" resultType="dev.mvc.delivery.DeliveryVO" parameterType="int">
+    SELECT deliveryno, memberno, rname, rtel, rzipcode, raddress1, raddress2, message, rdate
+    FROM delivery
+    WHERE deliveryno = #{deliveryno}
+  </select>
+
+  
+  <!-- 배송지 선택 기능 -->
+  <select id="read" resultType="dev.mvc.delivery.DeliveryVO" parameterType="int">
+    SELECT deliveryno, memberno, rname, rtel, rzipcode, raddress1, raddress2, message, rdate
+    FROM delivery
+    WHERE deliveryno = #{deliveryno}
+  </select>
+  
+  <!-- 배송지 선택 기능
+  <select id="list_by_memberno" resultType="dev.mvc.delivery.DeliveryVO" parameterType="int">
+    SELECT deliveryno, memberno, rname, rtel, rzipcode, raddress1, raddress2, message, rdate
+    FROM delivery
+    WHERE memberno = #{memberno}
+    ORDER BY deliveryno DESC
+  </select> -->
+
+
+
+
+</mapper>

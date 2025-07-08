@@ -4,46 +4,49 @@
   <h2>주문/결제</h2>
     <form th:action="@{/order/create}" method="post">
 
+    <!-- 배송지 변경 버튼 -->
+    <button type="button" onclick="openDeliveryModal()" class="btn btn-primary" style="float: right;">배송지 변경</button>
+    
     <!-- 수령자 정보 -->
-    <div>
-      <label>수령자 이름</label>
-      <input type="text" name="rname" required>
+    <div><label>수령자 이름</label>
+      <input type="text" name="rname"  id="rname" required>
     </div>
 
-    <div>
-      <label>연락처</label>
-      <input type="text" name="rtel" required>
+    <div><label>연락처</label>
+      <input type="text" name="rtel" id="rtel" required>
     </div>
 
-    <div>
-      <label>우편번호</label>
-      <input type="text" name="rzipcode" required>
+    <div><label>우편번호</label>
+      <input type="text" name="rzipcode" id="rzipcode" required>
+      <!-- 검색 버튼 -->
+      <button type="button" onclick="loadDaumPostcodeScript(() => execDaumPostcode('r'))">검색</button>
     </div>
 
-    <div>
-      <label>주소 1</label>
-      <input type="text" name="raddress1" required>
+    <div><label>주소 1</label>
+      <input type="text" name="raddress1" id="raddress1" required>
     </div>
 
-    <div>
-      <label>주소 2</label>
-      <input type="text" name="raddress2">
+    <div><label>주소 2</label>
+      <input type="text" name="raddress2" id="raddress2" required>
     </div>
 
-    <div>
-      <label>배송 메모</label>
-      <input type="text" name="message" placeholder="문 앞에 두세요 등">
+    <div><label>배송 메모</label>
+      <input type="text" name="message" id="message" required>
     </div>
+
+    <!-- 기본 배송지로 저장 버튼 -->
+    <button type="button" onclick="saveDefaultDelivery()">기본 배송지로 저장</button>
+
 
     <!-- 결제 수단 -->
-    <div>
-      <label>결제수단</label>
+    <div><label>결제수단</label>
       <select name="payment">
         <option value="가상결제">가상결제</option>
         <option value="무통장입금">무통장입금</option>
-        <option value="신용카드">신용카드</option>
+        <option value="신용카드" selected>신용카드</option>
       </select>
     </div>
+
     <!-- 장바구니 선택 항목 목록 출력 -->
     <h3>주문 상품 목록</h3>
     <table>
@@ -67,20 +70,215 @@
         </tr>
       </tbody>
     </table>
+
     <!-- 총 금액 및 포인트 출력 -->
-    <div>
-      <strong>총 결제 금액: </strong>
+    <div><strong>총 결제 금액: </strong>
       <span th:text="${#numbers.formatInteger(total, 3, 'COMMA')} + '원'">0원</span>
     </div>
-
-    <!-- 숨겨서 총액, 포인트 전송 -->
     <input type="hidden" name="total" th:value="${total}">
     <input type="hidden" name="point" value="0"><!-- 향후 포인트 적립 계산 가능 -->
+
     <!-- 주문하기 버튼 -->
     <div>
       <button type="submit">주문하기</button>
     </div>
 
+    <!-- 배송지 리스트 모달창 -->
+    <div id="deliveryModal" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%);
+        background:white; border:2px solid #ccc; padding:20px; z-index:999; width:420px; max-height:80%; overflow-y:auto; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+      <h3>배송지 선택</h3>
+      <div id="deliveryList">
+        <!-- JS로 배송지 카드 반복 삽입 예정 -->
+      </div>
+      <button type="button" onclick="addDeliveryForm()">+ 배송지 추가</button>
+      <button type="button" onclick="closeDeliveryModal()">닫기</button>
+    </div>
+
   </form>
+
+  <!-- 스크립트 삽입 -->
+  <script>
+    window.addEventListener('DOMContentLoaded', function () {
+      ['rname','rtel','rzipcode','raddress1','raddress2','message'].forEach(id => {
+        const val = localStorage.getItem(id);
+        if (val) document.getElementById(id).value = val;
+      });
+    });
+
+    function openDeliveryModal() {
+      fetch('/delivery/list')
+        .then(res => res.json())
+        .then(data => {
+          const listDiv = document.getElementById("deliveryList");
+          listDiv.innerHTML = data.length ? '' : '<p>등록된 배송지가 없습니다.</p>';
+          data.forEach(d => {
+            const card = document.createElement('div');
+            card.className = 'delivery-card';
+            card.style.border = '1px solid #ddd';
+            card.style.padding = '10px';
+            card.style.marginBottom = '10px';
+            card.innerHTML = `
+              <strong>${d.rname}</strong><br>
+              ${d.raddress1} ${d.raddress2}<br>
+              ${d.rtel}<br>
+              ${d.message || ''}<br><br>
+              <button onclick="selectDelivery(${d.deliveryno})">선택</button>
+              <button onclick="editDelivery(${d.deliveryno})">수정</button>`;
+            listDiv.appendChild(card);
+          });
+          document.getElementById("deliveryModal").style.display = "block";
+        });
+    }
+
+    function closeDeliveryModal() {
+      document.getElementById("deliveryModal").style.display = "none";
+    }
+
+    function addDeliveryForm() {
+      document.getElementById("deliveryList").innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <input type="text" id="input_rname" placeholder="이름" required>
+          <input type="text" id="input_rtel" placeholder="연락처" required>
+          <div>
+            <input type="text" id="input_rzipcode" placeholder="우편번호" required style="width:65%;">
+            <button type="button" onclick="loadDaumPostcodeScript(() => execDaumPostcode('input_'))">검색</button>
+          </div>
+          <input type="text" id="input_raddress1" placeholder="주소 1" required>
+          <input type="text" id="input_raddress2" placeholder="주소 2">
+          <input type="text" id="input_message" placeholder="배송 메모">
+          <button type="button" onclick="applyDelivery()" class="btn btn-success">저장</button>
+          <button type="button" onclick="openDeliveryModal()" class="btn btn-secondary">취소</button>
+        </div>`;
+    }
+
+    function applyDelivery() {
+      const data = {
+        rname: input_rname.value, rtel: input_rtel.value,
+        rzipcode: input_rzipcode.value, raddress1: input_raddress1.value,
+        raddress2: input_raddress2.value, message: input_message.value
+      };
+      // localStorage 저장 + 본문 반영
+      for (let key in data) {
+        localStorage.setItem(key.replace('input_', ''), data[key]);
+        document.getElementById(key.replace('input_', '')).value = data[key];
+      }
+      fetch('/delivery/create', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      })
+      .then(res => res.text())
+      .then(result => {
+        if (result === 'success') {
+          alert('📦 배송지 저장 완료');
+          openDeliveryModal();
+        } else {
+          alert('❌ 저장 실패');
+        }
+      });
+    }
+
+    function saveDefaultDelivery() {
+      const data = {
+        rname: rname.value, rtel: rtel.value, rzipcode: rzipcode.value,
+        raddress1: raddress1.value, raddress2: raddress2.value,
+        message: message.value
+      };
+      fetch('/delivery/save_default', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      })
+      .then(res => res.text())
+      .then(result => {
+        if (result === 'success') {
+          alert("✅ 기본 배송지로 저장되었습니다.");
+        } else if (result === 'not_logged_in') {
+          alert("❗ 로그인 후 사용해주세요.");
+          location.href = "/member/login";
+        } else {
+          alert("⚠️ 저장 중 오류 발생");
+        }
+      });
+    }
+
+    // 다음 주소 API 실행 - 모달 또는 본문에서 사용
+    function execDaumPostcode(prefix = 'r') {
+      new daum.Postcode({
+        oncomplete: function(data) {
+          // 각 prefix에 맞는 input ID를 찾는다 (rzipcode, raddress1, raddress2)
+          const zipcodeField = document.getElementById(prefix + 'rzipcode');
+          const address1Field = document.getElementById(prefix + 'raddress1');
+          const address2Field = document.getElementById(prefix + 'raddress2');
+
+          if (!zipcodeField || !address1Field || !address2Field) {
+            console.warn("🚫 주소 필드를 찾을 수 없음: " + prefix);
+            return;
+          }
+
+          // 우편번호 설정
+          zipcodeField.value = data.zonecode;
+
+          // 도로명 / 지번 주소 선택
+          let fullAddr = (data.userSelectedType === 'R') ? data.roadAddress : data.jibunAddress;
+          let extraAddr = '';
+
+          // 추가 주소 정보 (동, 건물명)
+          if (data.bname) extraAddr += data.bname;
+          if (data.buildingName) {
+            extraAddr += (extraAddr ? ', ' + data.buildingName : data.buildingName);
+          }
+          if (extraAddr) {
+            fullAddr += ' (' + extraAddr + ')';
+          }
+
+          address1Field.value = fullAddr;
+          address2Field.focus();
+        }
+      }).open();
+    }
+
+    function loadDaumPostcodeScript(callback) {
+      if (typeof daum === 'undefined' || typeof daum.Postcode === 'undefined') {
+        const script = document.createElement('script');
+        script.src = "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+        script.onload = callback;
+        document.body.appendChild(script);
+      } else {
+        callback();
+      }
+    }
+
+    // 배송지 선택 버튼 클릭 시 호출됨
+    function selectDelivery(deliveryno) {
+      fetch(`/delivery/read/${deliveryno}`)
+        .then(res => res.json())
+        .then(data => {
+          // 1. localStorage에 저장 (추후 새로고침에도 유지됨)
+          localStorage.setItem('rname', data.rname);
+          localStorage.setItem('rtel', data.rtel);
+          localStorage.setItem('rzipcode', data.rzipcode);
+          localStorage.setItem('raddress1', data.raddress1);
+          localStorage.setItem('raddress2', data.raddress2);
+          localStorage.setItem('message', data.message);
+
+          // 2. 본문 입력 필드에 직접 반영
+          document.getElementById('rname').value = data.rname;
+          document.getElementById('rtel').value = data.rtel;
+          document.getElementById('rzipcode').value = data.rzipcode;
+          document.getElementById('raddress1').value = data.raddress1;
+          document.getElementById('raddress2').value = data.raddress2;
+          document.getElementById('message').value = data.message;
+
+          // 3. 모달 닫기
+          closeDeliveryModal();
+        })
+        .catch(err => {
+          console.error("🚫 배송지 불러오기 실패", err);
+          alert("배송지 정보를 가져올 수 없습니다.");
+        });
+    }
+
+
+  </script>
+
 </div>
 </html>

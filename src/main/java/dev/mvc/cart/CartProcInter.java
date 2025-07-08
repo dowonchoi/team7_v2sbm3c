@@ -75,6 +75,9 @@ public interface CartProcInter {
   
   //선택된 장바구니 항목의 총 금액 계산
   public int total_selected_by_memberno(int memberno);
+  
+  //선택된 장바구니 항목의 삭제
+  public int delete_selected_by_memberno(int memberno);
 
 
   

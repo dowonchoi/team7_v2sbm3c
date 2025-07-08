@@ -6,8 +6,9 @@
 
   <!-- 주문 상세 항목 등록 -->
   <insert id="create" parameterType="dev.mvc.order_item.OrderItemVO">
-    INSERT INTO order_item (...)
-    VALUES (...)
+    INSERT INTO order_item (order_itemno,orderno,productsno,pname,thumb1,price,dc,saleprice,cnt,totalprice,point,totalpoint) 
+    VALUES (order_item_seq.NEXTVAL,#{orderno},#{productsno},#{pname},#{thumb1},#{price},#{dc},#{saleprice},#{cnt},#{totalprice},#{point},#{totalpoint})
   </insert>
+
 
 </mapper>

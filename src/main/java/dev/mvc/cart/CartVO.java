@@ -16,6 +16,7 @@ public class CartVO {
   private int productsno;        // 상품 번호 (FK)
   private int cnt;               // 수량
   private Date rdate;            // 등록일
+  
 
   // 출력용 상품 정보 (thumb1, title, saleprice 등)
   private ProductsVO productsVO;
