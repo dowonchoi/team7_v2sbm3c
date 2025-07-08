@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+<head>
+  <title>FAQ 수정</title>
+</head>
+<body>
+  <h2>FAQ 수정</h2>
+  <form th:action="@{/faq/update}" method="post">
+    <input type="hidden" name="faq_id" th:value="${faqVO.faq_id}">
+    <p>카테고리: <input type="text" name="cate" th:value="${faqVO.cate}" required></p>
+    <p>질문: <input type="text" name="question" th:value="${faqVO.question}" required></p>
+    <p>답변: <textarea name="answer" rows="5" th:text="${faqVO.answer}" required></textarea></p>
+    <button type="submit">수정</button>
+  </form>
+</body>
+</div>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+
+<link rel="stylesheet" href="/css/notice_read.css">
+
+<div class="title_line">📢 공지사항 상세</div>
+
+<aside class="aside_right">
+  <th:block th:if="${session.grade == 'admin'}">
+    <a th:href="@{|/notice/update?notice_id=${noticeVO.notice_id}|}">수정</a> │
+    <a th:href="@{|/notice/delete?notice_id=${noticeVO.notice_id}|}" 
+       onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a> │
+    <a th:href="@{/notice/list}">목록</a>
+  </th:block>
+  <th:block th:unless="${session.grade == 'admin'}">
+    <a th:href="@{/notice/list}">목록</a>
+  </th:block>
+</aside>
+
+<div class="menu_line"></div>
+
+<!-- ✅ 메타 정보 -->
+<div class="notice-meta-inline">
+  등록자: <span th:text="${noticeVO.writer_name}"></span> │
+  등록일: <span th:text="${#dates.format(noticeVO.reg_date, 'yyyy-MM-dd HH:mm')}"></span> │
+  조회수: <span th:text="${noticeVO.view_count}"></span> │
+  카테고리: <span th:text="${noticeVO.cate}"></span>
+</div>
+
+<!-- ✅ 상세 영역 -->
+<div class="notice-detail-box">
+
+  <!-- ✅ 제목 -->
+  <div class="notice-title">
+    <h2 th:text="${noticeVO.title}"></h2>
+  </div>
+
+  <!-- ✅ 이미지 -->
+  <div class="notice-image">
+    <th:block th:if="${noticeVO.image != null && noticeVO.image != ''}">
+      <img th:src="@{|/notice/storage/${noticeVO.image}|}" 
+           th:alt="${noticeVO.title}">
+    </th:block>
+    <th:block th:unless="${noticeVO.image != null && noticeVO.image != ''}">
+      <div class="no-image">이미지 없음</div>
+    </th:block>
+  </div>
+
+  <!-- ✅ 본문 내용 -->
+  <div class="notice-content" th:text="${noticeVO.content}"></div>
+
+</div>
+
+</div>
+</html>

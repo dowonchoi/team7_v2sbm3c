@@ -691,13 +691,12 @@ public class MemberCont {
   @PostMapping(value = "/delete_by_admin", produces = "text/plain; charset=UTF-8")
   @ResponseBody
   public String deleteByAdmin(@RequestParam("memberno") int memberno, HttpSession session) {
-      Integer grade = (Integer) session.getAttribute("grade");
-
-      if (grade == null || grade < 1 || grade > 4) {
+      Object gradeObj = session.getAttribute("grade");
+      if (gradeObj == null || !"admin".equals(gradeObj.toString())) {
           return "unauthorized";
       }
 
-      int cnt = this.memberProc.delete(memberno); // 완전 삭제
+      int cnt = this.memberProc.delete(memberno);  // 완전 삭제
       return cnt == 1 ? "success" : "fail";
   }
 

@@ -28,9 +28,6 @@ public class LoginCont {
     @Qualifier("dev.mvc.member.MemberProc")
     private MemberProcInter memberProc;
     
-    
-
-
     // 로그인 내역 목록
     @GetMapping("/mylist")
     public String myList(HttpSession session, Model model) {

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+<head>
+  <title>FAQ 등록</title>
+  <style>
+    .faq-form { max-width: 600px; margin: 30px auto; }
+    .faq-form input, .faq-form textarea { width: 100%; padding: 10px; margin-bottom: 15px; }
+    .faq-form button { padding: 10px 20px; background-color: #007bff; color: #fff; border: none; border-radius: 5px; }
+    .faq-form button:hover { background-color: #0056b3; }
+  </style>
+</head>
+<body>
+  <div class="faq-form">
+    <h2>FAQ 등록</h2>
+    <form th:action="@{/faq/create}" method="post">
+      <input type="text" name="cate" placeholder="카테고리" required>
+      <input type="text" name="question" placeholder="질문" required>
+      <textarea name="answer" rows="5" placeholder="답변을 입력하세요" required></textarea>
+      <button type="submit">등록</button>
+    </form>
+  </div>
+</body>
+</div>
+</html>

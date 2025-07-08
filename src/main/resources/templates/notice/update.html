@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+<head>
+  <title>공지사항 수정</title>
+  <style>
+        .edit-box {
+    width: 95%;
+    max-width: 800px;
+    margin: 40px auto;
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    padding: 30px;
+  }
+  
+  .edit-title {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 25px;
+    text-align: center;
+  }
+  
+  .edit-form p {
+    margin-bottom: 15px;
+    font-size: 15px;
+  }
+  
+  .edit-form input[type="text"],
+  .edit-form textarea,
+  .edit-form select { /* ✅ select 추가 */
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    box-sizing: border-box;
+  }
+  
+  .img-preview {
+    width: 100%;
+    max-width: 240px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin: 15px 0;
+  }
+  
+  .btns {
+    text-align: center;
+    margin-top: 25px;
+  }
+  
+  .btns button,
+  .btns a {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 20px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    margin: 0 5px;
+  }
+  
+  .btns button:hover,
+  .btns a:hover {
+    background-color: #0056b3;
+  }
+  </style>
+</head>
+
+<body>
+  <div class="edit-box">
+    <div class="edit-title">📋 공지사항 수정</div>
+    
+    <form th:action="@{/notice/update}" method="post" enctype="multipart/form-data" class="edit-form">
+        <input type="hidden" name="notice_id" th:value="${noticeVO.notice_id}">
+        
+        <!-- ✅ 핵심! 기존 이미지 값 hidden으로 꼭 넘김 -->
+        <input type="hidden" name="image" th:value="${noticeVO.image}">
+
+        <p>제목:
+          <input type="text" name="title" th:value="${noticeVO.title}" required>
+        </p>
+        
+        <p>카테고리:
+          <select name="cate" required>
+            <option value="">카테고리 선택</option>
+            <option value="공지" th:selected="${noticeVO.cate == '공지'}">공지</option>
+            <option value="이벤트" th:selected="${noticeVO.cate == '이벤트'}">이벤트</option>
+            <option value="배송안내" th:selected="${noticeVO.cate == '배송안내'}">배송안내</option>
+            <option value="상품정보" th:selected="${noticeVO.cate == '상품정보'}">상품정보</option>
+            <option value="자유게시판" th:selected="${noticeVO.cate == '자유게시판'}">자유게시판</option>
+          </select>
+        </p>
+
+        <p>내용:
+          <textarea name="content" rows="6" th:text="${noticeVO.content}"></textarea>
+        </p>
+        <p>작성자 ID:
+          <input type="text" name="writer_id" th:value="${noticeVO.writer_id}" required>
+        </p>
+        <p>작성자 이름:
+          <input type="text" name="writer_name" th:value="${noticeVO.writer_name}" required>
+        </p>
+
+        <!-- ✅ 현재 이미지 미리보기 -->
+        <div th:if="${noticeVO.image != null and noticeVO.image != ''}">
+        <img th:src="@{|/notice/storage/${noticeVO.image}|}" class="img-preview" alt="현재 이미지">
+        <div style="font-size: 13px; color: gray;" 
+            th:text="'현재 파일: ' + ${noticeVO.image}"></div>
+        </div>
+        <div th:unless="${noticeVO.image != null and noticeVO.image != ''}">
+        <div style="font-size: 13px; color: gray;">등록된 이미지 없음</div>
+        </div>
+
+        <!-- 새 이미지 업로드 -->
+        <input type="file" name="uploadImage" class="form-control">
+
+        <div class="btns">
+          <button type="submit">수정 완료</button>
+          <a th:href="@{/notice/read(notice_id=${noticeVO.notice_id})}">돌아가기</a>
+        </div>
+    </form>
+  </div>
+</body>
+</div>
+</html>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dev.mvc.qna.QnaDAOInter">
+    
+  <!-- 사용자 유형별 Q&A 목록 -->
+  <select id="listByUserType" parameterType="string" resultType="dev.mvc.qna.QnaVO">
+    SELECT qna_id, cate, title, reg_date, writer_name, comment_count
+    FROM qna
+    WHERE user_type = #{userType}
+    ORDER BY qna_id DESC
+  </select>
+  
+  <!-- 사용자 유형 + 카테고리별 Q&A 목록 -->
+  <select id="listByUserTypeAndCate" resultType="dev.mvc.qna.QnaVO">
+    SELECT qna_id, cate, title, reg_date, writer_name, comment_count
+    FROM qna
+    WHERE user_type = #{userType} AND cate = #{cate}
+    ORDER BY qna_id DESC
+  </select>
+
+  
+  <!-- Q&A 상세 조회 -->
+  <select id="read" parameterType="int" resultType="dev.mvc.qna.QnaVO">
+      SELECT qna_id, title, content, reg_date, writer_id, comment_count, user_type
+      FROM qna
+      WHERE qna_id = #{qna_id}
+  </select>
+  
+  <insert id="create" parameterType="dev.mvc.qna.QnaVO">
+    INSERT INTO qna (qna_id, cate, title, content, writer_id, writer_name, user_type, reg_date, comment_count)
+    VALUES (qna_seq.nextval, #{cate}, #{title}, #{content}, #{writer_id}, #{writer_name, jdbcType=VARCHAR}, #{user_type}, SYSDATE, 0)
+  </insert>
+  
+  <update id="update" parameterType="dev.mvc.qna.QnaVO">
+    UPDATE qna
+    SET cate = #{cate}, title = #{title}, content = #{content}
+    WHERE qna_id = #{qna_id}
+  </update>
+  
+  <update id="addComment" parameterType="dev.mvc.qna.QnaVO">
+    UPDATE qna
+    SET comment = #{comment}
+    WHERE qna_id = #{qna_id}
+  </update>
+
+</mapper>

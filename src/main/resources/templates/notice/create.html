@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+<head>
+  <title>글쓰기</title>
+  <style>
+    .write-container {
+      max-width: 700px;
+      margin: 50px auto;
+      padding: 30px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      background-color: #fafafa;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .write-container h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .write-container input[type="text"],
+    .write-container select,
+    .write-container textarea {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 15px;
+      font-size: 15px;
+      background-color: #fff;
+      box-sizing: border-box;
+    }
+
+    .write-container input[type="file"] {
+      margin-bottom: 20px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 25px;
+      font-size: 17px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-submit:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="write-container">
+    <h2>글쓰기</h2>
+    <form th:action="@{/notice/create}" method="post" enctype="multipart/form-data">
+      <input type="text" name="title" placeholder="제목을 입력하세요" required>
+
+      <!-- 카테고리 선택 -->
+      <select name="cate" required>
+        <option value="">카테고리 선택</option>
+        <option value="공지">공지</option>
+        <option value="이벤트">이벤트</option>
+        <option value="배송안내">배송안내</option>
+        <option value="상품정보">상품정보</option>
+        <option value="자유게시판">자유게시판</option>
+      </select>
+
+      <textarea name="content" rows="10" placeholder="내용을 입력하세요" required></textarea>
+
+      <!-- 이미지 업로드 추가 -->
+      <input type="file" name="uploadImage" accept="image/*">
+
+      <!-- 중요 공지 고정 체크 -->
+      <div class="checkbox-row">
+        <input type="checkbox" name="is_fixed" value="Y" id="fixedNotice">
+        <label for="fixedNotice">중요 공지로 고정</label>
+      </div>
+
+      <button type="submit" class="btn-submit">등록</button>
+    </form>
+  </div>
+</body>
+</div>
+</html>

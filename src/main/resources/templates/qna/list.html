@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+<head>
+  <title>Q&A 전체 목록</title>
+</head>
+<body>
+  <h2>Q&A 전체 목록</h2>
+
+  <!-- ✅ 사용자 유형별 목록 보기 버튼 -->
+  <p>
+    <a th:href="@{/qna/list(userType='user')}">소비자 Q&A 목록</a> |
+    <a th:href="@{/qna/list(userType='supplier')}">공급자 Q&A 목록</a>
+  </p>
+
+  <table border="1" cellpadding="8" cellspacing="0" style="width: 100%;">
+    <thead>
+      <tr style="background-color: #333; color: #fff;">
+        <th>제목</th>
+        <th>등록일</th>
+        <th>작성자</th>
+        <th>댓글 수</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="qna : ${qnaList}">
+        <td>
+          <a th:href="@{/qna/read(qna_id=${qna.qna_id})}" th:text="${qna.title}"></a>
+        </td>
+        <td th:text="${#dates.format(qna.reg_date, 'yyyy-MM-dd')}"></td>
+        <td th:text="${qna.writer_name}"></td>
+        <td th:text="${qna.comment_count}"></td>
+      </tr>
+      <tr th:if="${#lists.isEmpty(qnaList)}">
+        <td colspan="4" style="text-align: center;">질문이 없습니다.</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</div>
+</html>
