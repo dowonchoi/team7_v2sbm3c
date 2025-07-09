@@ -135,6 +135,20 @@ public class OrderCont {
     // 다시 create 화면으로 이동하면서 주문번호 전달
     return "redirect:/order/create?orderno=" + orderno;
   }
+  
+  //5. OrderCont.java - 주문 목록 조회 기능 추가
+  @GetMapping("/list_by_member")
+  public String list_by_member(HttpSession session, Model model) {
+   Integer memberno = (Integer) session.getAttribute("memberno");
+   if (memberno == null) {
+     return "redirect:/member/login";
+   }
+  
+   List<OrderVO> list = orderProc.list_by_memberno(memberno);
+   model.addAttribute("orderList", list);
+  
+   return "order/list_by_member";  // 템플릿 이름
+  }
 
 
 }

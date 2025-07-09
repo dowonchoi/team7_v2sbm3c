@@ -1,5 +1,7 @@
 package dev.mvc.order;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,11 @@ public class OrderProc implements OrderProcInter {
     System.out.println("[OrderProc] orderDAO.create() 결과: " + result);
 
     return result;  // 마지막에 리턴
+  }
+  
+  @Override
+  public List<OrderVO> list_by_memberno(int memberno) {
+    return orderDAO.list_by_memberno(memberno);
   }
 
   

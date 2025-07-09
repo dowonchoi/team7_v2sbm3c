@@ -59,6 +59,8 @@
               <!-- 소비자용 -->
               <li th:if="${session.grade == 'user'}">
                 <a class="dropdown-item" th:href="@{/productsgood/user_liked_list}">내가 추천한 상품</a>
+                <a class="dropdown-item" th:href="@{/order/list_by_member}">주문 목록</a>
+
               </li>
 
               <!-- 공급자용 -->

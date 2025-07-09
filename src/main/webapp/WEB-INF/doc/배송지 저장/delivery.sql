@@ -10,6 +10,7 @@ CREATE TABLE delivery (
   message      VARCHAR2(200),                          -- 배송 메시지
   rdate        DATE DEFAULT SYSDATE                    -- 등록일
 );
+ALTER TABLE delivery ADD is_default CHAR(1) DEFAULT 'N';
 
 -- deliveryno 시퀀스 생성
 CREATE SEQUENCE delivery_seq

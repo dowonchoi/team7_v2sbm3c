@@ -1,5 +1,7 @@
 package dev.mvc.order;
 
+import java.util.Date;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,5 +24,5 @@ public class OrderVO {
   private int total;           // 총 결제 금액
   private int point;           // 포인트 사용 or 적립
   private String order_state;  // 주문 상태 (예: 결제완료)
-  private String rdate;        // 주문 일자
+  private Date rdate;        // 주문 일자
 }

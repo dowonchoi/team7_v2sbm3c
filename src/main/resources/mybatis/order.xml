@@ -20,6 +20,13 @@
     )
   </insert>
   
+  <!-- 회원별 주문 목록 -->
+  <select id="list_by_memberno" parameterType="int" resultType="dev.mvc.order.OrderVO">
+    SELECT * FROM orders
+    WHERE memberno = #{memberno}
+    ORDER BY orderno DESC
+  </select>
+  
 
 
 </mapper>
