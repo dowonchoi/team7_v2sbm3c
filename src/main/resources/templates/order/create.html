@@ -70,14 +70,14 @@
     </div>
   </form>
 
+  
   <!-- 배송지 모달창은 폼 외부 -->
-  <div id="deliveryModal" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); background:white; border:2px solid #ccc; padding:20px; z-index:999; width:420px; max-height:80%; overflow-y:auto; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
-    <h3>배송지 선택</h3>
+  <div id="deliveryModal" class="order-modal">
+    <h3 class="order-modal-header">배송지 선택</h3>
     <div id="deliveryList"></div>
     <button type="button" onclick="addDeliveryForm()">+ 배송지 추가</button>
     <button type="button" onclick="closeDeliveryModal()">닫기</button>
   </div>
-  
   
 
   <!-- 스크립트 삽입 -->
@@ -97,10 +97,8 @@
           listDiv.innerHTML = data.length ? '' : '<p>등록된 배송지가 없습니다.</p>';
           data.forEach(d => {
             const card = document.createElement('div');
-            card.className = 'delivery-card';
-            card.style.border = '1px solid #ddd';
-            card.style.padding = '10px';
-            card.style.marginBottom = '10px';
+            // card.className = 'delivery-card';
+            card.className = 'order-modal-card';
             card.innerHTML = `
               <strong>${d.rname}</strong><br>
               ${d.raddress1} ${d.raddress2}<br>
@@ -122,7 +120,7 @@
 
     function addDeliveryForm() {
       document.getElementById("deliveryList").innerHTML = `
-        <div style="display:flex; flex-direction:column; gap:6px;">
+        <div class="order-modal-form
           <input type="text" id="input_rname" placeholder="이름" required>
           <input type="text" id="input_rtel" placeholder="연락처" required>
           <div>

@@ -1383,7 +1383,6 @@
   padding: 24px;
   font-size: 14px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  position: sticky;
   top: 100px;
 }
 
@@ -1473,3 +1472,67 @@
   flex: 0 0 320px; /* 기존보다 넓게 */
 }
 
+/* == 배송지 선택 모달 (order 기능 전용) == */
+
+/* 모달 전체 영역 */
+.order-modal {
+  display: none;
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border: 2px solid #ccc;
+  padding: 20px;
+  z-index: 999;
+  width: 420px;
+  max-height: 80%;
+  overflow-y: auto;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+}
+
+/* 모달 제목 헤더 */
+.order-modal-header {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+/* 배송지 카드 */
+.order-modal-card {
+  border: 1px solid #ddd;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  background-color: #fafafa;
+  font-size: 14px;
+}
+
+/* 배송지 카드 내부 버튼 */
+.order-modal-card button {
+  margin-right: 6px;
+  margin-top: 8px;
+}
+
+/* 배송지 입력 폼 (추가/수정) */
+.order-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.order-modal-form input {
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* 버튼 묶음 */
+.order-modal-buttons {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
