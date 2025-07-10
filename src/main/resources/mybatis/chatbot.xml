@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dev.mvc.chatbot.ChatBotDAOInter">
+
+  <!-- 주문 조회 -->
+  <select id="getOrderDetails" resultType="String">
+    SELECT '수령인: ' || rname || ', 총금액: ' || total || ', 상태: ' || order_state
+    FROM orders
+    WHERE orderno = #{orderno}
+  </select>
+
+  <!-- 결제 수단 목록 (orders 테이블에서 조회) -->
+  <select id="getAllPaymentMethods" resultType="String">
+    SELECT DISTINCT payment FROM orders ORDER BY payment
+  </select>
+  
+  <!-- FAQ 질문 목록 -->
+  <select id="getAllFaqQuestions" resultType="String">
+    SELECT question FROM faq ORDER BY faq_id
+  </select>
+
+  <!-- FAQ 답변 조회 -->
+  <select id="getFaqAnswer" resultType="String">
+    SELECT answer FROM faq WHERE question = #{question}
+  </select>
+
+</mapper>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="dev.mvc.shipments.ShipmentsDAOInter">
+
+  <!-- 배송 목록 (전체 조회) -->
+  <select id="list" resultType="dev.mvc.shipments.ShipmentsVO">
+    SELECT * FROM shipments ORDER BY shipmentno DESC
+  </select>
+
+  <!-- 배송 상세 조회 -->
+  <select id="read" resultType="dev.mvc.shipments.ShipmentsVO">
+    SELECT * FROM shipments WHERE shipmentno = #{shipmentno}
+  </select>
+
+  <!-- 배송 상태 수정 -->
+  <update id="updateStatus">
+    UPDATE shipments SET del_status = #{del_status} WHERE shipmentno = #{shipmentno}
+  </update>
+
+  <!-- 배송 등록 -->
+  <insert id="create">
+    INSERT INTO shipments 
+    (shipmentno, ship_method, trackingno, sdate, adate, del_status, memberno, orderno)
+    VALUES 
+    (shipments_seq.NEXTVAL, #{ship_method}, #{trackingno}, #{sdate}, #{adate}, #{del_status}, #{memberno}, #{orderno})
+  </insert>
+
+</mapper>

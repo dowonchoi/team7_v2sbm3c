@@ -32,7 +32,9 @@ import com.zaxxer.hikari.HikariDataSource;
                                         "dev.mvc.reply",
                                         "dev.mvc.qna",
                                         "dev.mvc.qnacomment",
-                                        "dev.mvc.faq"}) // DAO interface 패키지 등록
+                                        "dev.mvc.faq",
+                                        "dev.mvc.shipments",
+                                        "dev.mvc.chatbot"}) // DAO interface 패키지 등록
 public class DatabaseConfiguration {
     
     @Autowired

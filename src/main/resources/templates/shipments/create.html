@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>배송 등록</title>
+</head>
+<body>
+  <h2>배송 등록</h2>
+  <form th:action="@{/shipment/create}" method="post">
+  
+    <!-- 주문번호 (hidden으로 필수!) -->
+    <input type="hidden" name="orderno" th:value="${orderno}" />
+    
+    <label>배송 방식:</label>
+    <input type="text" name="ship_method" required><br><br>
+    
+    <label>운송장 번호:</label>
+    <input type="text" name="trackingno" required><br><br>
+    
+    <label>배송 상태:</label>
+    <select name="del_status" required>
+      <option value="배송준비중">배송준비중</option>
+      <option value="배송중">배송중</option>
+      <option value="배송완료">배송완료</option>
+    </select><br><br>
+    
+    <label>회원 번호:</label>
+    <input type="number" name="memberno" required><br><br>
+    
+    <label>배송 시작일:</label>
+    <input type="date" name="sdate"><br><br>
+    
+    <label>도착 예정일:</label>
+    <input type="date" name="adate"><br><br>
+    
+    <button type="submit">배송 등록</button>
+  </form>
+</body>
+</html>
