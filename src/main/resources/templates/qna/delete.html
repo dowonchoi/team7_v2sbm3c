@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+
+<head>
+<title>Q&A 삭제 확인</title>
+<style>
+  .delete-container {
+      max-width: 500px;
+      margin: 100px auto;
+      padding: 30px;
+      border: 1px solid #ddd;
+      border-radius: 15px;
+      background-color: #fafafa;
+      text-align: center;
+      font-family: Arial, sans-serif;
+  }
+
+  .delete-container h2 {
+      margin-bottom: 20px;
+  }
+
+  .btn-group {
+      margin-top: 30px;
+  }
+
+  .btn-group a,
+  .btn-group form button {
+      display: inline-block;
+      padding: 10px 20px;
+      margin: 0 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      text-decoration: none;
+      color: #fff;
+  }
+
+  .btn-cancel {
+      background-color: #6c757d;
+  }
+
+  .btn-delete {
+      background-color: #dc3545;
+  }
+
+  .btn-delete:hover {
+      background-color: #c82333;
+  }
+
+  .btn-cancel:hover {
+      background-color: #5a6268;
+  }
+</style>
+</head>
+
+<body>
+  <div class="delete-container">
+    <h2>정말 삭제하시겠습니까?</h2>
+    <p th:text="'제목: ' + ${qnaVO.title}"></p>
+
+    <div class="btn-group">
+      <a th:href="@{'/qna/read?qna_id=' + ${qnaVO.qna_id}}" class="btn-cancel">취소</a>
+
+      <form th:action="@{/qna/delete_proc}" method="post" style="display:inline;">
+        <input type="hidden" name="qna_id" th:value="${qnaVO.qna_id}">
+        <button type="submit" class="btn-delete">삭제하기</button>
+      </form>
+    </div>
+  </div>
+</body>
+
+</div>
+</html>

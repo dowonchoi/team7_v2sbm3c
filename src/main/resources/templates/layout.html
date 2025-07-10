@@ -17,7 +17,37 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
+<style>
+  /* 챗봇 버튼 */
+  #chatbotToggle {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    padding: 10px 15px;
+    background-color: #c7ff93;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 9999;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  /* 챗봇 iframe */
+  #chatbotIframe {
+    position: fixed;
+    bottom: 100px;
+    right: 80px;
+    width: 350px;    /* ✅ 여기가 챗봇 너비의 기준 */
+    height: 500px;   /* ✅ 여기가 챗봇 높이의 기준 */
+    border: none;
+    border-radius: 10px;
+    z-index: 9998;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+</style>
 </head>
+
 <body>
 <div class='container_main'>
 
@@ -34,6 +64,18 @@
     <hr>
     Copyright 가비아 첨단산업 · 디지털 핵심 실무인재 양성과정 All rights reserved.
   </div>
+
+  <!-- ✅ 챗봇 토글 버튼 + iframe (모든 화면 공통 표시) -->
+  <button id="chatbotToggle" onclick="toggleChatbot()">💬</button>
+  <iframe id="chatbotIframe" src="/chatbot/index.html"></iframe>
+
+  <script>
+    // 챗봇 열고 닫기 함수
+    function toggleChatbot() {
+      const chatbot = document.getElementById('chatbotIframe');
+      chatbot.style.display = (chatbot.style.display === 'none' || chatbot.style.display === '') ? 'block' : 'none';
+    }
+  </script>
 
   <!-- ✅ 페이지별 script fragment 자리 -->
   <th:block layout:fragment="script"></th:block>

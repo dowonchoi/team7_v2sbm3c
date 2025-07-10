@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 public class QnaProc implements QnaProcInter {
 
   @Autowired
-  private QnaDAOInter qnaDAO;  // ✅ 여기는 그냥 Autowired면 충분
+  private QnaDAOInter qnaDAO;
 
   @Override
   public List<QnaVO> listByUserType(String userType) {
@@ -23,7 +23,11 @@ public class QnaProc implements QnaProcInter {
       return this.qnaDAO.read(qna_id);
   }
   
-  // QnaProc.java
+  @Override
+  public void increaseViewCount(int qna_id) {
+    qnaDAO.increaseViewCount(qna_id);
+  }
+  
   @Override
   public int create(QnaVO qnaVO) {
       return this.qnaDAO.create(qnaVO);
@@ -42,9 +46,26 @@ public class QnaProc implements QnaProcInter {
       qnaDAO.update(qnaVO);
   }
   
+  //QnaProc.java
+  @Override
+  public int delete(int qna_id) {
+     return qnaDAO.delete(qna_id);
+  }
+    
   @Override
   public void addComment(int qna_id, String comment) {
       qnaDAO.addComment(qna_id, comment);
   }
-  
+
+  /** ✅ 공식 답변(reply) 등록/수정 */
+  @Override
+  public int updateReply(QnaVO qnaVO) {
+      return this.qnaDAO.updateReply(qnaVO);
+  }
+
+  /** ✅ 공식 답변(reply) 조회 */
+  @Override
+  public String getReply(int qna_id) {
+      return qnaDAO.getReply(qna_id);
+  }
 }

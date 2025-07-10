@@ -1,163 +1,11 @@
 <!DOCTYPE html>
 <html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
 <div layout:fragment="content">
+
+<link rel="stylesheet" href="/css/list.css">
+
 <head>
   <title>COMMUNITY</title>
-  <style>
-    .community-title {
-      font-size: 24px;
-      font-weight: bold;
-      text-align: center;
-      margin: 40px 0 30px;
-    }
-
-    .community-tabs {
-      display: flex;
-      justify-content: center;
-      gap: 30px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-    }
-
-    .community-tabs a {
-      text-decoration: none;
-      color: #666;
-      padding: 10px 0;
-      position: relative;
-      font-weight: 500;
-      transition: color 0.3s;
-    }
-
-    .community-tabs a.active {
-      color: #007bff;
-      font-weight: bold;
-    }
-
-    .community-tabs a.active::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: -2px;
-      height: 2px;
-      background-color: #007bff;
-    }
-
-    .community-controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .left-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .category-select {
-      padding: 6px 10px;
-      border: 1px solid #ccc;
-      border-radius: 20px;
-      background-color: #f9f9f9;
-    }
-
-    .search-box {
-      display: flex;
-      border: 1px solid #ccc;
-      border-radius: 20px;
-      overflow: hidden;
-    }
-
-    .search-box input {
-      border: none;
-      padding: 8px 12px;
-      outline: none;
-      width: 150px;
-    }
-
-    .search-box button {
-      border: none;
-      background-color: #f2f2f2;
-      padding: 8px 12px;
-      cursor: pointer;
-    }
-
-    .btn-write {
-      background-color: #007bff;
-      color: #fff;
-      padding: 10px 20px;
-      border-radius: 20px;
-      text-decoration: none;
-      font-size: 14px;
-      display: inline-block;
-    }
-
-    .community-section table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-      font-size: 15px;
-    }
-
-    .community-section th, .community-section td {
-      padding: 15px 10px;
-      border-bottom: 1px solid #ccc;
-    }
-
-    .community-section th {
-      font-weight: bold;
-      color: #333;
-    }
-
-    .faq-category-buttons {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    .faq-category-buttons button {
-      padding: 6px 12px;
-      border: none;
-      background-color: #333;
-      color: #fff;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    .faq-category-buttons button:hover {
-      background-color: #007bff;
-    }
-    .faq-item {
-      border-bottom: 1px solid #ccc;
-      padding: 10px 0;
-    }
-    .faq-question {
-      cursor: pointer;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-    }
-    .faq-question span:first-child {
-      margin-right: 10px;
-      color: #007bff;
-    }
-    .faq-answer {
-      display: none;
-      padding: 10px 0 10px 30px;
-      background-color: #f9f9f9;
-      border-radius: 6px;
-      margin-top: 5px;
-      color: #666;
-    }
-    .faq-answer span:first-child {
-      margin-right: 10px;
-      color: #007bff;
-      font-weight: bold;
-    }
-  </style>
 </head>
 <body>
   <div class="community-title">COMMUNITY</div>
@@ -177,7 +25,7 @@
         <option value="이벤트">이벤트</option>
         <option value="배송안내">배송안내</option>
         <option value="상품정보">상품정보</option>
-        <option value="자유게시판">자유게시판</option>
+        <!-- <option value="자유게시판">자유게시판</option> -->
       </select>
 
       <form class="search-box" onsubmit="searchKeyword(event)">
@@ -218,6 +66,7 @@
               <button onclick="filterFAQ('배송문의')">배송문의</button>
               <button onclick="filterFAQ('교환/반품')">교환/반품</button>
               <button onclick="filterFAQ('회원서비스')">회원서비스</button>
+              <button onclick="filterFAQ('기타')">기타</button>
             </div>
             <div class="faq-list">
               <div th:each="faq : ${faqList}" class="faq-item" th:data-cate="${faq.cate}">
@@ -228,11 +77,39 @@
                 <div class="faq-answer">
                   <span>A</span>
                   <span th:text="${faq.answer}"></span>
+                  <div th:if="${session.grade == 'admin'}">
+                    <a th:href="@{'/faq/update?faq_id=' + ${faq.faq_id}}" style="margin-left:10px; color:blue;">수정</a>
+                    <a th:href="@{'/faq/delete?faq_id=' + ${faq.faq_id}}" style="margin-left:10px; color:red;"
+                      onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a>
+                  </div>
                 </div>
               </div>
             </div>
           </td>
         </tr>
+
+        <!-- 소비자 Q&A 목록 -->
+        <tr th:each="qna, stat : ${qnaUserList}" class="qnaUserSection" style="display:none;">
+          <td th:text="${stat.count}"></td>
+          <td th:text="${qna.cate}"></td>
+          <td>
+            <a th:href="@{'/qna/read?qna_id=' + ${qna.qna_id}}" th:text="${qna.title}"></a>
+          </td>
+          <td th:text="${#dates.format(qna.reg_date, 'yyyy-MM-dd HH:mm')}"></td>
+          <td th:text="${qna.view_count}"></td>
+        </tr>
+
+        <!-- 공급자 Q&A 목록 -->
+        <tr th:each="qna, stat : ${qnaSupplierList}" class="qnaSupplierSection" style="display:none;">
+          <td th:text="${stat.count}"></td>
+          <td th:text="${qna.cate}"></td>
+          <td>
+            <a th:href="@{'/qna/read?qna_id=' + ${qna.qna_id}}" th:text="${qna.title}"></a>
+          </td>
+          <td th:text="${#dates.format(qna.reg_date, 'yyyy-MM-dd HH:mm')}"></td>
+          <td th:text="${qna.view_count}"></td>
+        </tr>
+
       </tbody>
     </table>
   </div>

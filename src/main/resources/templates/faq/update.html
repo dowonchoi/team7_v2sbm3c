@@ -3,16 +3,106 @@
 <div layout:fragment="content">
 <head>
   <title>FAQ 수정</title>
+  <style>
+    .faq-form-container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 30px;
+      background-color: #ffffff;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .faq-form-container h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #007bff;
+      font-size: 26px;
+    }
+
+    .faq-form-container label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .faq-form-container input[type="text"],
+    .faq-form-container textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 15px;
+      transition: border-color 0.3s;
+    }
+
+    .faq-form-container input[type="text"]:focus,
+    .faq-form-container textarea:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+
+    .faq-form-container button {
+      width: 100%;
+      padding: 12px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+
+    .faq-form-container button:hover {
+      background-color: #0056b3;
+    }
+
+    .faq-form-container select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 15px;
+      transition: border-color 0.3s;
+    }
+
+    .faq-form-container select:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+
+  </style>
 </head>
 <body>
-  <h2>FAQ 수정</h2>
-  <form th:action="@{/faq/update}" method="post">
-    <input type="hidden" name="faq_id" th:value="${faqVO.faq_id}">
-    <p>카테고리: <input type="text" name="cate" th:value="${faqVO.cate}" required></p>
-    <p>질문: <input type="text" name="question" th:value="${faqVO.question}" required></p>
-    <p>답변: <textarea name="answer" rows="5" th:text="${faqVO.answer}" required></textarea></p>
-    <button type="submit">수정</button>
-  </form>
+  <div class="faq-form-container">
+    <h2>FAQ 수정</h2>
+    <form th:action="@{/faq/update}" method="post">
+      <input type="hidden" name="faq_id" th:value="${faqVO.faq_id}">
+      
+      <label>카테고리</label>
+      <select name="cate" required>
+        <option value="">카테고리 선택</option>
+        <option value="배송" th:selected="${faqVO.cate == '배송'}">배송</option>
+        <option value="교환/반품" th:selected="${faqVO.cate == '교환/반품'}">교환/반품</option>
+        <option value="회원" th:selected="${faqVO.cate == '회원서비스'}">회원서비스</option>
+        <option value="기타" th:selected="${faqVO.cate == '기타'}">기타</option>
+      </select>
+
+      
+      <label>질문</label>
+      <input type="text" name="question" th:value="${faqVO.question}" required>
+      
+      <label>답변</label>
+      <textarea name="answer" rows="5" th:text="${faqVO.answer}" required></textarea>
+      
+      <button type="submit">수정하기</button>
+    </form>
+  </div>
 </body>
 </div>
 </html>

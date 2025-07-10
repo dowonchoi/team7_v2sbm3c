@@ -4,21 +4,104 @@
 <head>
   <title>FAQ 등록</title>
   <style>
-    .faq-form { max-width: 600px; margin: 30px auto; }
-    .faq-form input, .faq-form textarea { width: 100%; padding: 10px; margin-bottom: 15px; }
-    .faq-form button { padding: 10px 20px; background-color: #007bff; color: #fff; border: none; border-radius: 5px; }
-    .faq-form button:hover { background-color: #0056b3; }
+    .faq-form {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 30px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      background-color: #fefefe;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .faq-form h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #333;
+    }
+
+    .faq-form select, .faq-form input, .faq-form textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+      background-color: #fafafa;
+      transition: border-color 0.3s;
+    }
+
+    .faq-form select:focus, .faq-form input:focus, .faq-form textarea:focus {
+      border-color: #007bff;
+      outline: none;
+      background-color: #fff;
+    }
+
+    .faq-form button {
+      width: 100%;
+      padding: 12px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .faq-form button:hover {
+      background-color: #0056b3;
+    }
+
+    .no-access {
+      text-align: center;
+      margin-top: 100px;
+      font-size: 16px;
+      color: #888;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .button-group button {
+      flex: 1;
+    }
+
+    .button-group button:last-child {
+      background-color: #6c757d;
+    }
+
+    .button-group button:last-child:hover {
+      background-color: #5a6268;
+    }
   </style>
 </head>
 <body>
-  <div class="faq-form">
+  <!-- ✅ 관리자만 보이게 설정 -->
+  <div class="faq-form" th:if="${session.grade == 'admin'}">
     <h2>FAQ 등록</h2>
     <form th:action="@{/faq/create}" method="post">
-      <input type="text" name="cate" placeholder="카테고리" required>
+      <select name="cate" required>
+        <option value="">카테고리 선택</option>
+        <option value="배송 문의">배송 문의</option>
+        <option value="교환/반품">교환/반품</option>
+        <option value="회원서비스">회원서비스</option>
+        <!-- <option value="기타">기타</option> -->
+      </select>
       <input type="text" name="question" placeholder="질문" required>
       <textarea name="answer" rows="5" placeholder="답변을 입력하세요" required></textarea>
-      <button type="submit">등록</button>
+      <div class="button-group">
+        <button type="submit">등록</button>
+        <button type="button" onclick="history.back();">취소</button>
+      </div>
     </form>
+  </div>
+
+  <!-- ✅ 비관리자에게는 접근 불가 메시지 -->
+  <div class="no-access" th:if="${session.grade != 'admin'}">
+    <p>접근 권한이 없습니다.</p>
   </div>
 </body>
 </div>

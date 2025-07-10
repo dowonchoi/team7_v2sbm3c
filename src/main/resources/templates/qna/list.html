@@ -26,6 +26,10 @@
       <tr th:each="qna : ${qnaList}">
         <td>
           <a th:href="@{/qna/read(qna_id=${qna.qna_id})}" th:text="${qna.title}"></a>
+          <!-- ✅ 답변 여부 표시 -->
+          <span th:if="${qna.reply != null and !qna.reply.isEmpty()}" style="color: green; font-weight: bold;">
+            [답변 완료]
+          </span>
         </td>
         <td th:text="${#dates.format(qna.reg_date, 'yyyy-MM-dd')}"></td>
         <td th:text="${qna.writer_name}"></td>

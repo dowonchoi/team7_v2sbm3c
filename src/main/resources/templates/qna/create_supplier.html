@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+<head>
+<title>공급자 Q&A 글쓰기</title>
+<style>
+  .write-container {
+    max-width: 700px;
+    margin: 50px auto;
+    padding: 30px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    background-color: #fafafa;
+    font-family: 'Arial', sans-serif;
+  }
+  .write-container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  .write-container select,
+  .write-container input[type="text"],
+  .write-container textarea {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+  }
+  .btn-submit {
+    width: 100%;
+    padding: 14px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    font-size: 17px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <div class="write-container">
+    <h2>공급자 Q&A 글쓰기</h2>
+    <form th:action="@{/qna/create}" method="post">
+      <input type="text" name="title" placeholder="제목" required>
+
+      <select name="cate" required>
+        <option value="">카테고리 선택</option>
+        <option value="상품등록">상품등록</option>
+        <option value="정산">정산</option>
+        <option value="거래문의">거래문의</option>
+        <option value="정책문의">정책문의</option>
+      </select>
+
+      <textarea name="content" rows="10" placeholder="내용을 입력하세요" required></textarea>
+
+      <button type="submit" class="btn-submit">등록</button>
+    </form>
+  </div>
+</body>
+</div>
+</html>

@@ -6,7 +6,7 @@
     
   <!-- 사용자 유형별 Q&A 목록 -->
   <select id="listByUserType" parameterType="string" resultType="dev.mvc.qna.QnaVO">
-    SELECT qna_id, cate, title, reg_date, writer_name, comment_count
+    SELECT qna_id, cate, title, reg_date, writer_name, comment_count, view_count
     FROM qna
     WHERE user_type = #{userType}
     ORDER BY qna_id DESC
@@ -14,18 +14,21 @@
   
   <!-- 사용자 유형 + 카테고리별 Q&A 목록 -->
   <select id="listByUserTypeAndCate" resultType="dev.mvc.qna.QnaVO">
-    SELECT qna_id, cate, title, reg_date, writer_name, comment_count
+    SELECT qna_id, cate, title, reg_date, writer_name, comment_count, view_count
     FROM qna
     WHERE user_type = #{userType} AND cate = #{cate}
     ORDER BY qna_id DESC
   </select>
-
   
+  <update id="increaseViewCount" parameterType="int">
+    UPDATE qna SET view_count = view_count + 1 WHERE qna_id = #{qna_id}
+  </update>
+
   <!-- Q&A 상세 조회 -->
   <select id="read" parameterType="int" resultType="dev.mvc.qna.QnaVO">
-      SELECT qna_id, title, content, reg_date, writer_id, comment_count, user_type
-      FROM qna
-      WHERE qna_id = #{qna_id}
+    SELECT qna_id, cate, title, content, reg_date, writer_id, writer_name, user_type, comment_count, reply, view_count, reply_writer
+    FROM qna
+    WHERE qna_id = #{qna_id}
   </select>
   
   <insert id="create" parameterType="dev.mvc.qna.QnaVO">
@@ -39,10 +42,28 @@
     WHERE qna_id = #{qna_id}
   </update>
   
+  <delete id="delete" parameterType="int">
+    DELETE FROM qna WHERE qna_id = #{qna_id}
+  </delete>
+  
   <update id="addComment" parameterType="dev.mvc.qna.QnaVO">
     UPDATE qna
     SET comment = #{comment}
     WHERE qna_id = #{qna_id}
   </update>
+
+  <!-- ✅ 추가: 공식 답변(reply) 등록/수정 -->
+  <update id="updateReply" parameterType="dev.mvc.qna.QnaVO">
+    UPDATE qna
+    SET reply = #{reply}, reply_writer = #{reply_writer , jdbcType=VARCHAR}
+    WHERE qna_id = #{qna_id}
+  </update>
+
+  <!-- ✅ 추가: 공식 답변(reply) 조회 (별도 조회 시) -->
+  <select id="getReply" parameterType="int" resultType="string">
+    SELECT reply
+    FROM qna
+    WHERE qna_id = #{qna_id}
+  </select>
 
 </mapper>

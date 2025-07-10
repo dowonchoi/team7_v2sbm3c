@@ -47,7 +47,7 @@ public class NoticeCont {
   public String createForm(HttpSession session) {
       String grade = (String) session.getAttribute("grade");
       if (grade == null || !grade.equals("admin")) {
-          return "redirect:/";
+          return "redirect:/notice/list";
       }
       return "/notice/create";
   }

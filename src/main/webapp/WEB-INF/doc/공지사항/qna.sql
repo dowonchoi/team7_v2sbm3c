@@ -43,6 +43,14 @@ ALTER TABLE qna ADD cate VARCHAR2(100);
 
 ALTER TABLE qna ADD comment VARCHAR2(4000);
 
+ALTER TABLE qna ADD reply CLOB;
+
+ALTER TABLE qna ADD reply VARCHAR2(4000);
+
+ALTER TABLE qna ADD view_count NUMBER DEFAULT 0;
+
+ALTER TABLE qna ADD reply_writer VARCHAR2(50);
+
 -- 소비자 Q&A
 INSERT INTO qna (qna_id, title, content, user_type, writer_id, writer_name, cate)
 VALUES (qna_seq.nextval, '배송 문의', '배송이 언제 되나요?', 'user', 'user1', '홍길동', '문의');
