@@ -1922,6 +1922,129 @@
 }
 
 
+/* ========================== */
+/* 주문 목록 전용 CSS 영역 시작 */
+/* ========================== */
+/* 주문 목록 전체 wrapper */
+.order-list-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* 카드 1개 */
+.order-list-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+
+
+/* 상단 헤더 영역 */
+.order-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.order-list-status {
+  color: #0078ff;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* 본문 영역 */
+.order-list-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+/* 상품 썸네일 */
+.order-list-thumb {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.order-list-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.order-list-title {
+  font-size: 15px;
+  font-weight: bold;
+  color: #222;
+}
+
+.order-list-desc {
+  font-size: 13px;
+  color: #666;
+}
+
+.order-list-actions {
+  margin-top: 6px;
+}
+
+.order-list-actions button {
+  margin-top: 4px;
+  padding: 5px 10px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* 버튼 영역 */
+.order-list-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.order-list-controls button {
+  padding: 6px 12px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  background-color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.order-list-controls button:hover {
+  background-color: #f9f9f9;
+}
+
+/* 반응형 대응 */
+@media (max-width: 768px) {
+  .order-list-body {
+    flex-direction: column;
+  }
+
+  .order-list-controls {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+}
+
+/* ========================== */
+/* 주문 목록 전용 CSS 영역 끝 */
+/* ========================== */
 
 
 

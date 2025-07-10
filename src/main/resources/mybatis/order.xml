@@ -32,6 +32,25 @@
     SELECT * FROM orders
     WHERE orderno = #{orderno}
   </select>
+  
+  <!-- 회원별 주문 요약 목록 (대표 상품 포함) -->
+  <select id="list_by_member_summary" resultType="dev.mvc.order.OrderSummaryVO" parameterType="int">
+    SELECT 
+      o.orderno, o.memberno, o.total, o.payment, o.rdate, o.order_state,
+      p.title, p.thumb1, oi.cnt, oi.saleprice, o.status
+    FROM orders o
+    JOIN order_item oi ON o.orderno = oi.orderno
+    JOIN products p ON oi.productsno = p.productsno
+    WHERE o.memberno = #{memberno}
+      AND oi.order_itemno = (
+        SELECT MIN(oi2.order_itemno)
+        FROM order_item oi2
+        WHERE oi2.orderno = o.orderno
+      )
+    ORDER BY o.orderno DESC
+  </select>
+
+
 
   
 

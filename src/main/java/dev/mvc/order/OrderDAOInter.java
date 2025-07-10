@@ -15,5 +15,9 @@ public interface OrderDAOInter {
    
    // 주문번호로 주문 정보 조회
    public OrderVO read(int orderno);  // ✅ DAO에서 실제 SELECT 수행
+   
+   // 내 주문 목록 조인
+   public List<OrderSummaryVO> list_by_member_summary(int memberno);
+
 
 }

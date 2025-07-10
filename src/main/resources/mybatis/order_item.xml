@@ -9,6 +9,15 @@
     INSERT INTO order_item (order_itemno,orderno,productsno,pname,thumb1,price,dc,saleprice,cnt,totalprice,point,totalpoint) 
     VALUES (order_item_seq.NEXTVAL,#{orderno},#{productsno},#{pname},#{thumb1},#{price},#{dc},#{saleprice},#{cnt},#{totalprice},#{point},#{totalpoint})
   </insert>
+  
+    <!-- order_item.xml -->
+  <select id="list_by_orderno" parameterType="int" resultType="dev.mvc.order_item.OrderItemVO">
+    SELECT * FROM order_item
+    WHERE orderno = #{orderno}
+  </select>
+  
+  
+
 
 
 </mapper>

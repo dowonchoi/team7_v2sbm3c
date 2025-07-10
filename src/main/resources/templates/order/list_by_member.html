@@ -2,47 +2,57 @@
 <html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
 <div layout:fragment="content">
 
-  <h2> 내 주문 목록</h2>
+  <h2>내 주문 목록</h2>
 
   <!-- 주문이 없을 경우 메시지 출력 -->
-  <div th:if="${#lists.isEmpty(orderList)}">
-    <p> 주문 내역이 없습니다.</p>
+  <div th:if="${#lists.isEmpty(summaryList)}">
+    <p>주문 내역이 없습니다.</p>
   </div>
 
-  <!-- 주문 목록 출력 -->
-  <div th:each="order : ${orderList}" class="order-card">
-    <div class="order-header">
-      <div class="order-date">
-        <strong th:text="${#dates.format(order.rdate, 'yyyy. M. d')} + ' 주문'">2025. 6. 28 주문</strong>
-      </div>
-      <div class="order-status">
-        <span th:text="${order.status}">배송완료</span>
-      </div>
-    </div>
+  <!-- ✅ 주문 목록 전체 박스 -->
+  <div class="order-list-wrapper">
 
-    <div class="order-body">
-      <img th:src="@{/products/storage/{img}(img=${order.thumb1})}" alt="상품이미지" class="order-thumb" />
+    <!-- ✅ 주문 카드 반복 -->
+    <div th:each="order : ${orderList}" class="order-list-card">
 
-      <div class="order-info">
-        <div class="order-title" th:text="${order.title}">상품명</div>
-        <div class="order-desc">
-          <span th:text="${order.saleprice} + '원'">11,000원</span> / 
-          <span th:text="'수량: ' + ${order.cnt}">1개</span>
+      <!-- ✅ 주문 헤더 -->
+      <div class="order-list-header">
+        <div>
+          <strong th:text="${#dates.format(order.rdate, 'yyyy. M. d')} + ' 주문'"></strong>
         </div>
-        <div class="order-actions">
-          <button>장바구니 담기</button>
+        <div class="order-list-status">
+          <span th:text="${order.status}">결제완료</span>
         </div>
       </div>
 
-      <div class="order-controls">
-        <button>배송조회</button>
-        <button>교환/반품 신청</button>
-        <button>리뷰 작성하기</button>
-        <button>판매자 문의</button>
-      </div>
-    </div>
-  </div>
+      <!-- ✅ 주문 항목 반복 -->
+      <div th:each="item : ${order.items}" class="order-list-body">
 
+        <!-- 상품 이미지 -->
+        <img th:src="@{/products/storage/{img}(img=${item.thumb1})}" alt="상품 이미지" class="order-list-thumb" />
+
+        <!-- 상품 정보 -->
+        <div class="order-list-info">
+          <div class="order-list-title" th:text="${item.pname}">상품명</div>
+          <div class="order-list-desc">
+            <span th:text="${#numbers.formatInteger(item.saleprice, 3, 'COMMA')} + '원'"></span>
+            <span th:text="'수량: ' + ${item.cnt} + '개'"></span>
+          </div>
+
+          <!-- 버튼 영역 -->
+          <div class="order-list-actions">
+            <button>배송조회</button>
+            <button>교환/반품 신청</button>
+            <button>리뷰 작성하기</button>
+            <button>판매자 문의</button>
+          </div>
+        </div>
+
+      </div> <!-- end item -->
+
+    </div> <!-- end order -->
+
+  </div> <!-- end wrapper -->
 
 </div>
 </html>

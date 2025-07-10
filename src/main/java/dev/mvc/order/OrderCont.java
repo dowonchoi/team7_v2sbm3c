@@ -152,16 +152,17 @@ public class OrderCont {
   //5. OrderCont.java - 주문 목록 조회 기능 추가
   @GetMapping("/list_by_member")
   public String list_by_member(HttpSession session, Model model) {
-   Integer memberno = (Integer) session.getAttribute("memberno");
-   if (memberno == null) {
-     return "redirect:/member/login";
-   }
-  
-   List<OrderVO> list = orderProc.list_by_memberno(memberno);
-   model.addAttribute("orderList", list);
-  
-   return "order/list_by_member";  // 템플릿 이름
+    Integer memberno = (Integer) session.getAttribute("memberno");
+    if (memberno == null) {
+      return "redirect:/member/login";
+    }
+
+    List<OrderWithItemsVO> orderList = orderProc.list_with_items_by_member(memberno);
+    model.addAttribute("orderList", orderList);
+    return "order/list_by_member";  // HTML 템플릿
   }
+
+
 
   /** 결제 완료 페이지 */
   @GetMapping("/complete")
