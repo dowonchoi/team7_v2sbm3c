@@ -70,13 +70,18 @@
     </div>
   </form>
 
-  
+  <!-- 모달 배경 추가 -->
+  <div id="deliveryBackdrop" class="order-modal-backdrop" onclick="closeDeliveryModal()"></div>
+
   <!-- 배송지 모달창은 폼 외부 -->
-  <div id="deliveryModal" class="order-modal">
-    <h3 class="order-modal-header">배송지 선택</h3>
-    <div id="deliveryList"></div>
-    <button type="button" onclick="addDeliveryForm()">+ 배송지 추가</button>
-    <button type="button" onclick="closeDeliveryModal()">닫기</button>
+  <div class="order-modal" id="deliveryModal">
+    <div class="order-modal-inner">
+      <div class="order-modal-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <span>배송지 선택</span>
+        <span onclick="closeDeliveryModal()" style="cursor:pointer; font-size:20px;">×</span>
+      </div>
+      <div id="deliveryList"></div>
+    </div>
   </div>
   
 
@@ -95,6 +100,7 @@
         .then(data => {
           const listDiv = document.getElementById("deliveryList");
           listDiv.innerHTML = data.length ? '' : '<p>등록된 배송지가 없습니다.</p>';
+          
           data.forEach(d => {
             const card = document.createElement('div');
             // card.className = 'delivery-card';
@@ -110,30 +116,46 @@
             `;
             listDiv.appendChild(card);
           });
+
+          // 배송지 추가 버튼
+          const addBtnWrapper = document.createElement('div');
+          addBtnWrapper.innerHTML = `
+            <button type="button" onclick="addDeliveryForm()" class="delivery-add-button">
+              + 배송지 추가
+            </button>
+          `;
+          listDiv.appendChild(addBtnWrapper);
+          
           document.getElementById("deliveryModal").style.display = "block";
+          document.getElementById("deliveryBackdrop").style.display = "block";
         });
     }
 
     function closeDeliveryModal() {
       document.getElementById("deliveryModal").style.display = "none";
+      document.getElementById("deliveryBackdrop").style.display = "none";
     }
 
     function addDeliveryForm() {
       document.getElementById("deliveryList").innerHTML = `
-        <div class="order-modal-form
+        <div class="order-modal-form">
           <input type="text" id="input_rname" placeholder="이름" required>
           <input type="text" id="input_rtel" placeholder="연락처" required>
-          <div>
-            <input type="text" id="input_rzipcode" placeholder="우편번호" required style="width:65%;">
-            <button type="button" onclick="loadDaumPostcodeScript(() => execDaumPostcode('input_'))">검색</button>
+          <div style="display: flex; gap: 6px;">
+            <input type="text" id="input_rzipcode" placeholder="우편번호" required style="flex:1;">
+            <button type="button" class="zipcode-search-btn" onclick="loadDaumPostcodeScript(() => execDaumPostcode('input_'))">검색</button>
           </div>
           <input type="text" id="input_raddress1" placeholder="주소 1" required>
           <input type="text" id="input_raddress2" placeholder="주소 2">
           <input type="text" id="input_message" placeholder="배송 메모">
-          <button type="button" onclick="applyDelivery()" class="btn btn-success">저장</button>
-          <button type="button" onclick="openDeliveryModal()" class="btn btn-secondary">취소</button>
-        </div>`;
+          <div class="order-modal-buttons">
+            <button type="button" onclick="applyDelivery()" class="btn-add-save">저장</button>
+            <button type="button" onclick="openDeliveryModal()" class="btn-add-cancel">취소</button>
+          </div>
+        </div>
+      `;
     }
+
 
     function applyDelivery() {
       const data = {
@@ -282,30 +304,33 @@
           closeDeliveryModal();
         });
     }
-    // ✅ 수정 버튼 클릭 시 실행되는 함수
+    // 수정 버튼 클릭 시 실행되는 함수
     function editDelivery(deliveryno) {
       fetch(`/delivery/read/${deliveryno}`)
         .then(res => res.json())
         .then(data => {
           document.getElementById("deliveryList").innerHTML = `
-            <div style="display:flex; flex-direction:column; gap:6px;">
+            <div class="order-modal-form">
               <input type="hidden" id="edit_deliveryno" value="${data.deliveryno}">
               <input type="text" id="edit_rname" placeholder="이름" value="${data.rname}" required>
               <input type="text" id="edit_rtel" placeholder="연락처" value="${data.rtel}" required>
-              <div>
-                <input type="text" id="edit_rzipcode" placeholder="우편번호" value="${data.rzipcode}" required style="width:65%;">
-                <button type="button" onclick="loadDaumPostcodeScript(() => execDaumPostcode('edit_'))">검색</button>
+              <div style="display: flex; gap: 10px;">
+                <input type="text" id="edit_rzipcode" placeholder="우편번호" value="${data.rzipcode}" required style="flex:1;">
+                <button type="button" class="zipcode-search-btn" onclick="loadDaumPostcodeScript(() => execDaumPostcode('edit_'))">검색</button>
               </div>
               <input type="text" id="edit_raddress1" placeholder="주소 1" value="${data.raddress1}" required>
               <input type="text" id="edit_raddress2" placeholder="주소 2" value="${data.raddress2}">
               <input type="text" id="edit_message" placeholder="배송 메모" value="${data.message}">
-              <button type="button" onclick="updateDelivery()" class="btn btn-warning">수정 완료</button>
-              <button type="button" onclick="openDeliveryModal()" class="btn btn-secondary">취소</button>
+              <div class="order-modal-buttons">
+                <button type="button" onclick="updateDelivery()" class="btn-add-save">수정 완료</button>
+                <button type="button" onclick="openDeliveryModal()" class="btn-add-cancel">취소</button>
+              </div>
             </div>`;
         });
     }
 
-    // ✅ 수정된 내용을 서버에 반영하는 함수
+
+    // 수정된 내용을 서버에 반영하는 함수
     function updateDelivery() {
       const data = {
         deliveryno: parseInt(document.getElementById('edit_deliveryno').value),

@@ -1483,7 +1483,7 @@
   transform: translateX(-50%);
   background: white;
   border: 2px solid #ccc;
-  padding: 20px;
+  padding: 0;
   z-index: 999;
   width: 420px;
   max-height: 80%;
@@ -1494,25 +1494,72 @@
 
 /* 모달 제목 헤더 */
 .order-modal-header {
-  font-size: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: white;
+  padding: 20px 20px 16px 20px;  /* 상하 여백 여유있게 */
+  font-size: 19px;
   font-weight: bold;
-  margin-bottom: 16px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+  color: #222;
+  line-height: 1.5;
+
 }
 
 /* 배송지 카드 */
 .order-modal-card {
   border: 1px solid #ddd;
-  padding: 12px;
+  padding: 16px;
   margin-bottom: 12px;
-  border-radius: 6px;
-  background-color: #fafafa;
-  font-size: 14px;
+  border-radius: 10px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  font-size: 15px;
+  line-height: 1.6;
+  position: relative;
+}
+
+/*  첫 번째 카드에만 margin-top 추가 */
+.order-modal-inner .order-modal-card:first-child {
+  margin-top: 10px;  /* ← 원하는 여백 정확히 여기! */
+}
+
+
+.order-modal-inner {
+  padding: 20px;
+  padding-top: 0;
 }
 
 /* 배송지 카드 내부 버튼 */
 .order-modal-card button {
-  margin-right: 6px;
-  margin-top: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  background-color: white;
+  color: #0078ff;
+  border-radius: 5px;
+  margin: 0;
+  cursor: pointer;
+}
+
+/* 닫기 버튼 스타일 */
+.order-modal-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 20px;
+  font-weight: bold;
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.order-modal-close-btn:hover {
+  color: #ff4444;
 }
 
 /* 배송지 입력 폼 (추가/수정) */
@@ -1536,3 +1583,280 @@
   justify-content: flex-end;
   gap: 8px;
 }
+
+/* 수령자 이름 강조 */
+.order-modal-card strong {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 4px;
+  color: #222;
+}
+
+.order-modal-card button:hover {
+  background-color: #f5f7fb;
+  border-color: #0078ff;
+}
+
+/* 삭제 버튼만 빨간색 */
+.order-modal-card .btn-danger {
+  color: red;
+  border-color: red;
+}
+.order-modal-card .btn-danger:hover {
+  background-color: #fff5f5;
+}
+
+/* 버튼 묶음 정렬 */
+.order-modal-card-buttons {
+  display: flex;
+  justify-content: flex-start; /* 왼쪽 정렬 */
+  gap: 8px;                    /* 버튼 간 간격 */
+  margin-top: 10px;            /* 상단과 간격 */
+}
+
+
+/* 모달 외부 배경 (닫기용 배경 포함) */
+.order-modal-backdrop {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.4);
+  z-index: 998;
+}
+
+.delivery-add-button {
+  display: block;
+  width: 100%;
+  padding: 12px 0;
+  margin-top: 10px;
+  background-color: white;
+  color: #007bff;
+  font-size: 16px;
+  font-weight: bold;
+  border: 1px solid #007bff;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.delivery-add-button:hover {
+  background-color: #e6f0ff;
+}
+
+/* 배송지 추가 전용 모달 */
+.order-modal-add {
+  display: none;
+  position: fixed;
+  top: 12%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 420px;
+  background: white;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  z-index: 999;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.order-modal-add-header {
+  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  color: #333;
+  border-bottom: 1px solid #ddd;
+  background-color: #fff;
+}
+
+.order-modal-add-inner {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.order-modal-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.order-modal-add-form input {
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.order-modal-add-form input:focus {
+  outline: none;
+  border-color: #0078ff;
+  box-shadow: 0 0 0 2px rgba(0,120,255,0.1);
+}
+
+/* 우편번호 검색 row */
+.order-modal-add-form div[style*="display:flex"] {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* 검색 input (우편번호) */
+.order-modal-add-form div[style*="display:flex"] input {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 검색 버튼 스타일 개선 */
+.order-modal-add-form div[style*="display:flex"] button {
+  height: 100%;                /* input과 높이 동일하게 */
+  padding: 12px 16px;          /* 내부 여백 */
+  font-size: 14px;
+  background-color: #0078ff;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s ease;
+}
+
+.order-modal-add-form div[style*="display:flex"] button:hover {
+  background-color: #005dc0;
+}
+
+/* 오더 모달 버튼 그룹 */
+
+.order-modal-add-buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.btn-add-save {
+  flex: 1;
+  background-color: #1c8b45;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 0;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.btn-add-cancel {
+  flex: 1;
+  background-color: #676e77;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 0;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.btn-add-cancel:hover {
+  background-color: #5a6168;
+}
+
+/* 입력 필드 공통 스타일 향상 */
+.order-modal-form input,
+.order-modal-add-form input,
+.order-create-form-group input,
+.order-create-form-group select {
+  font-size: 15px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* 포커스 효과 강화 */
+.order-modal-form input:focus,
+.order-modal-add-form input:focus,
+.order-create-form-group input:focus,
+.order-create-form-group select:focus {
+  border-color: #0078ff;
+  box-shadow: 0 0 0 2px rgba(0,120,255,0.2);
+  outline: none;
+}
+
+/* placeholder 색상 통일 */
+.order-modal-form input::placeholder,
+.order-modal-add-form input::placeholder,
+.order-create-form-group input::placeholder {
+  color: #aaa;
+  font-size: 14px;
+}
+
+/* 버튼 공통 스타일 향상 */
+.order-create-btn,
+.btn-add-save,
+.btn-add-cancel {
+  font-weight: bold;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* 저장 버튼 호버 시 */
+.btn-add-save:hover {
+  background-color: #157c3a;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* 취소 버튼 호버 시 */
+.btn-add-cancel:hover {
+  background-color: #4f555c;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* 배송지 카드 시각 효과 향상 */
+.order-modal-card {
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+  transition: box-shadow 0.2s ease;
+}
+
+.order-modal-card:hover {
+  box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+}
+
+/* 배송지 모달 내 버튼 강조 */
+.order-modal-card button {
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+.order-modal-card button:hover {
+  background-color: #eef4ff;
+}
+
+
+.zipcode-search-btn {
+  height: 44px;  /* input과 높이 일치하게 조절 */
+  padding: 0 16px;
+  font-size: 14px;
+  background-color: #4f555c;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s ease;
+}
+.zipcode-search-btn:hover {
+  background-color: #4f555c;
+}
+
