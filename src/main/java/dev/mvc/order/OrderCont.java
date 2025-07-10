@@ -81,20 +81,30 @@ public class OrderCont {
   /** 주문 처리 */
   @PostMapping("/create")
   public String create_proc(OrderVO orderVO, HttpSession session) {
+    System.out.println("✅ 주문 처리 시작");
+
     Integer memberno = (Integer) session.getAttribute("memberno");
     if (memberno == null) {
       return "redirect:/member/login";
     }
 
-    // 선택된 장바구니 항목
+    // 선택된 장바구니 항목 가져오기
     List<CartVO> cartList = cartProc.list_selected_by_memberno(memberno);
     if (cartList.isEmpty()) {
-      // 선택된 항목이 없다면 실패 처리도 가능
-      return "redirect:/cart/list"; 
+      System.out.println("❌ 선택된 장바구니 항목 없음");
+      return "redirect:/cart/list";
     }
-    
-    DeliveryVO dvo = deliveryProc.read(orderVO.getDeliveryno());
 
+    // 📌 배송지 번호 검증 추가
+    int deliveryno = orderVO.getDeliveryno(); // hidden input에서 전달됨
+    DeliveryVO dvo = deliveryProc.read(deliveryno);
+
+    if (dvo == null) {  // <<== 여기 추가된 부분
+      System.out.println("❌ 유효하지 않은 배송지 번호: " + deliveryno);
+      return "redirect:/order/create"; // 또는 에러 메시지 전달
+    }
+
+    // 배송지 정보 설정
     orderVO.setRname(dvo.getRname());
     orderVO.setRtel(dvo.getRtel());
     orderVO.setRzipcode(dvo.getRzipcode());
@@ -102,11 +112,11 @@ public class OrderCont {
     orderVO.setRaddress2(dvo.getRaddress2());
     orderVO.setMessage(dvo.getMessage());
 
-
-    // 주문 기본 정보 저장
+    // 주문 기본 정보 설정 및 저장
     orderVO.setMemberno(memberno);
+    orderVO.setStatus("결제완료");
     orderProc.create(orderVO);
-    int orderno = orderVO.getOrderno();  // auto-increment된 주문 번호
+    int orderno = orderVO.getOrderno();  // 방금 등록된 주문번호
 
     // 주문 상세 저장
     for (CartVO cart : cartList) {
@@ -129,12 +139,15 @@ public class OrderCont {
       orderItemProc.create(item);  // 주문 상세 insert
     }
 
-    // 장바구니 선택 항목 삭제
+    // 장바구니에서 선택된 항목 삭제
     cartProc.delete_selected_by_memberno(memberno);
 
-    // 다시 create 화면으로 이동하면서 주문번호 전달
-    return "redirect:/order/create?orderno=" + orderno;
+    // 다시 주문/결제 페이지로 이동 (orderno 전달하여 성공 메시지 출력용)
+    //return "redirect:/order/create?orderno=" + orderno;
+    return "redirect:/order/complete?orderno=" + orderno;
   }
+
+
   
   //5. OrderCont.java - 주문 목록 조회 기능 추가
   @GetMapping("/list_by_member")
@@ -150,5 +163,11 @@ public class OrderCont {
    return "order/list_by_member";  // 템플릿 이름
   }
 
-
+  /** 결제 완료 페이지 */
+  @GetMapping("/complete")
+  public String order_complete(@RequestParam("orderno") int orderno, Model model) {
+    OrderVO orderVO = orderProc.read(orderno);
+    model.addAttribute("order", orderVO); //  주문 정보 전달
+    return "order/complete"; // 템플릿 파일: /templates/order/complete.html
+  }
 }

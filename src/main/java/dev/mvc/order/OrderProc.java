@@ -30,6 +30,13 @@ public class OrderProc implements OrderProcInter {
   public List<OrderVO> list_by_memberno(int memberno) {
     return orderDAO.list_by_memberno(memberno);
   }
+  
+  // 주문 번호로 주문 정보 조회
+  @Override
+  public OrderVO read(int orderno) {
+    return orderDAO.read(orderno);
+  }
+
 
   
   

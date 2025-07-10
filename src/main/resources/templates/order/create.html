@@ -12,7 +12,7 @@
     </div>
   </div>
 
-  <form th:action="@{/order/create}" method="post" class="order-create-form"></form>
+  <form th:action="@{/order/create}" method="post" class="order-create-form">
   <!-- ✅ form이 좌우를 모두 감싸도록 유지하면서 cart 스타일 유지 -->
     <div class="order-wrapper">
 
@@ -54,19 +54,19 @@
         <!-- 히든 필드 -->
         <input type="hidden" name="total" th:value="${total}">
         <input type="hidden" name="point" value="0">
-        <input type="hidden" id="deliveryno" name="deliveryno" value="">
-      </div>
+        <input type="hidden" id="deliveryno" name="deliveryno" th:value="${deliveryno != null ? deliveryno : 0}" />
 
-      <!-- 우측 요약 -->
-      <div class="order-summary-box">
-        <div class="cart-summary-title">결제 요약</div>
-        <ul class="cart-summary-list">
-          <li><span>총 상품금액</span><span th:text="${#numbers.formatInteger(total, 3, 'COMMA')} + '원'">0원</span></li>
-          <li><span>배송비</span><span>0원</span></li>
-          <li class="total"><span>결제금액</span><span th:text="${#numbers.formatInteger(total, 3, 'COMMA')} + '원'">0원</span></li>
-        </ul>
-        <button type="submit" class="btn-order">주문하기</button>
-      </div>
+    </div>
+
+    <!-- 우측 요약 -->
+    <div class="order-summary-box">
+      <div class="cart-summary-title">결제 요약</div>
+      <ul class="cart-summary-list">
+        <li><span>총 상품금액</span><span th:text="${#numbers.formatInteger(total, 3, 'COMMA')} + '원'">0원</span></li>
+        <li><span>배송비</span><span>0원</span></li>
+        <li class="total"><span>결제금액</span><span th:text="${#numbers.formatInteger(total, 3, 'COMMA')} + '원'">0원</span></li>
+      </ul>
+      <button type="submit" class="btn-order">주문하기</button>
     </div>
   </form>
 
@@ -377,6 +377,18 @@
         }
       });
     }
+
+    // 주문 버튼 클릭 전에 deliveryno가 설정되지 않았으면 제출을 막는다
+    document.addEventListener("DOMContentLoaded", function () {
+      const form = document.querySelector("form.order-create-form");
+      form.addEventListener("submit", function (e) {
+        const deliveryno = document.getElementById("deliveryno").value;
+        if (!deliveryno || parseInt(deliveryno) <= 0) {
+          alert("⚠️ 배송지를 선택해주세요.");
+          e.preventDefault(); // 제출 막음
+        }
+      });
+    });
 
 
   </script>

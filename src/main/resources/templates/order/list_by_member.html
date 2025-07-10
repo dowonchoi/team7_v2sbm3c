@@ -2,44 +2,47 @@
 <html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
 <div layout:fragment="content">
 
-  <h2>🧾 내 주문 목록</h2>
+  <h2> 내 주문 목록</h2>
 
   <!-- 주문이 없을 경우 메시지 출력 -->
   <div th:if="${#lists.isEmpty(orderList)}">
-    <p>❗ 주문 내역이 없습니다.</p>
+    <p> 주문 내역이 없습니다.</p>
   </div>
 
   <!-- 주문 목록 출력 -->
-  <table th:if="${!#lists.isEmpty(orderList)}" class="order-table">
-    <thead>
-      <tr>
-        <th>주문번호</th>
-        <th>수령인</th>
-        <th>연락처</th>
-        <th>주소</th>
-        <th>메모</th>
-        <th>총액</th>
-        <th>결제수단</th>
-        <th>주문일</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr th:each="order : ${orderList}">
-        <td th:text="${order.orderno}">1001</td>
-        <td th:text="${order.rname}">홍길동</td>
-        <td th:text="${order.rtel}">010-1234-5678</td>
-        <td>
-          <span th:text="${order.rzipcode}"></span><br>
-          <span th:text="${order.raddress1}"></span><br>
-          <span th:text="${order.raddress2}"></span>
-        </td>
-        <td th:text="${order.message}">문 앞에 놔주세요</td>
-        <td th:text="${#numbers.formatInteger(order.total, 3, 'COMMA')} + '원'">12,000원</td>
-        <td th:text="${order.payment}">신용카드</td>
-        <td th:text="${#dates.format(order.rdate, 'yyyy-MM-dd HH:mm')}">2025-07-09</td>
-      </tr>
-    </tbody>
-  </table>
+  <div th:each="order : ${orderList}" class="order-card">
+    <div class="order-header">
+      <div class="order-date">
+        <strong th:text="${#dates.format(order.rdate, 'yyyy. M. d')} + ' 주문'">2025. 6. 28 주문</strong>
+      </div>
+      <div class="order-status">
+        <span th:text="${order.status}">배송완료</span>
+      </div>
+    </div>
+
+    <div class="order-body">
+      <img th:src="@{/products/storage/{img}(img=${order.thumb1})}" alt="상품이미지" class="order-thumb" />
+
+      <div class="order-info">
+        <div class="order-title" th:text="${order.title}">상품명</div>
+        <div class="order-desc">
+          <span th:text="${order.saleprice} + '원'">11,000원</span> / 
+          <span th:text="'수량: ' + ${order.cnt}">1개</span>
+        </div>
+        <div class="order-actions">
+          <button>장바구니 담기</button>
+        </div>
+      </div>
+
+      <div class="order-controls">
+        <button>배송조회</button>
+        <button>교환/반품 신청</button>
+        <button>리뷰 작성하기</button>
+        <button>판매자 문의</button>
+      </div>
+    </div>
+  </div>
+
 
 </div>
 </html>

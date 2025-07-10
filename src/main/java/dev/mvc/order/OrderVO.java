@@ -25,4 +25,5 @@ public class OrderVO {
   private int point;           // 포인트 사용 or 적립
   private String order_state;  // 주문 상태 (예: 결제완료)
   private Date rdate;        // 주문 일자
+  private String status; // 결제 완료
 }

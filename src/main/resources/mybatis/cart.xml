@@ -130,12 +130,19 @@
       AND C.selected = 'Y'
   </select>
   
-  <!-- 선택된 장바구니 삭제 -->
+  <!-- 선택된 장바구니 삭제 
   <delete id="delete_selected_by_memberno" parameterType="int">
     DELETE FROM cart
     WHERE memberno = #{memberno}
       AND selected = 'Y'
+  </delete>-->
+  
+  <!-- Order에서 주문하기 버튼 눌렀을 시 Cart/list에서 Y체크된 애들 삭제 -->
+  <delete id="delete_selected_by_memberno" parameterType="int">
+    DELETE FROM cart WHERE memberno = #{memberno} AND selected = 'Y'
   </delete>
+
+  
 
 
 

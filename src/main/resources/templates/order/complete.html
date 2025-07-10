@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+
+  <!-- 경로만 우측에 띄우기 위해 별도 wrapper 추가 -->
+  <div class="cart-header-line">
+    <div class="cart-title-heading">주문완료</div>
+    <div class="cart-path-box">
+      <span>장바구니</span> &gt;
+      <span>주문/결제</span> &gt;
+      <span class="cart-path-active">주문완료</span>
+    </div>
+  </div>
+  
+  <div class="order-complete-box">
+    <h2>결제되었습니다!</h2>
+    <p>주문번호: <span th:text="${order.orderno}">123</span></p>
+    <p>수령인: <span th:text="${order.rname}">홍길동</span></p>
+    <p>총 결제금액: <span th:text="${#numbers.formatInteger(order.total, 3, 'COMMA')} + '원'">0원</span></p>
+
+    <a th:href="@{/order/list_by_member}" class="btn btn-primary">주문내역 보기</a>
+    <a th:href="@{/}" class="btn btn-secondary">메인으로 가기</a>
+  </div>
+
+</div>
+</html>
