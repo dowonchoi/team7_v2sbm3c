@@ -79,7 +79,7 @@ public interface CartProcInter {
   //선택된 장바구니 항목의 삭제
   public int delete_selected_by_memberno(int memberno);
 
-
+  public int countItems(int memberno);
   
 
 

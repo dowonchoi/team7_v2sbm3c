@@ -34,6 +34,7 @@ import com.zaxxer.hikari.HikariDataSource;
                                         "dev.mvc.qnacomment",
                                         "dev.mvc.faq",
                                         "dev.mvc.shipments",
+                                        "dev.mvc.notification",
                                         "dev.mvc.chatbot"}) // DAO interface 패키지 등록
 public class DatabaseConfiguration {
     

@@ -83,3 +83,82 @@
 .navbar-toggler-icon {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' ... %3E");
 }
+
+/* ==================== popup_list CSS (파스텔톤) ==================== */
+.notification-popup {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 10px;
+  width: 320px;
+  border-radius: 12px;
+  background-color: #fff7d6; /* 파스텔 베이지 */
+  color: #5c5c5c; /* 연한 진회색 */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  z-index: 9999;
+}
+
+.notification-header {
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 10px;
+}
+
+.notification-popup-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.notification-popup-list li {
+  padding: 15px 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+.notification-popup-list li:last-child {
+  border-bottom: none;
+}
+
+.notification-popup-message {
+  text-decoration: none;
+  color: #8b5e3c; /* 파스텔 브라운 느낌 */
+  display: block;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.notification-popup-message:hover {
+  text-decoration: underline;
+}
+
+.notification-popup-meta {
+  font-size: 12px;
+  color: #888;
+  margin-top: 8px;
+}
+
+.notification-new {
+  color: #6fcf97; /* 파스텔 민트 느낌 */
+  font-weight: bold;
+}
+
+.notification-read {
+  color: #aaa;
+}
+
+.notification-btn {
+  display: inline-block;
+  padding: 8px 12px;
+  background-color: #f4a261; /* 파스텔 오렌지 */
+  color: #fff;
+  border-radius: 8px;
+  text-decoration: none;
+  margin-top: 10px;
+}
+
+.notification-btn:hover {
+  background-color: #e76f51; /* 짙은 오렌지 */
+}

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import dev.mvc.member.MemberProcInter;
 import dev.mvc.member.MemberVO;
+import dev.mvc.tool.Security;
 import jakarta.servlet.http.HttpSession;
 
 @RequestMapping("/login")
@@ -27,6 +28,10 @@ public class LoginCont {
     @Autowired
     @Qualifier("dev.mvc.member.MemberProc")
     private MemberProcInter memberProc;
+    
+    // 필드 추가
+    @Autowired
+    private Security security;
     
     // 로그인 내역 목록
     @GetMapping("/mylist")
@@ -78,22 +83,21 @@ public class LoginCont {
                             HttpSession session) {
         HashMap<String, Object> map = new HashMap<>();
         map.put("id", id);
-        map.put("passwd", passwd);
+        
+        // ✅ 비밀번호 암호화 추가 (중요)
+        String encryptedPasswd = security.aesEncode(passwd);
+        map.put("passwd", encryptedPasswd);
         
         MemberVO memberVO = memberProc.login(map); // 로그인 인증
         
         if (memberVO != null) {
-            // 세션에 필요한 정보 저장
             session.setAttribute("id", id);
-            session.setAttribute("memberno", memberVO.getMemberno());
-
-            // 등급 → 문자열 변환
+            session.setAttribute("memberno", memberVO.getMemberno());  // 이제 정상 저장됨
             String gradeStr = convertGradeToString(memberVO.getGrade());
             session.setAttribute("grade", gradeStr);
-
-            return "redirect:/"; // 또는 원하는 메인 페이지
+            return "redirect:/";
         } else {
-            return "/member/login_fail"; // 실패 시
+            return "/member/login_fail";
         }
     }
     

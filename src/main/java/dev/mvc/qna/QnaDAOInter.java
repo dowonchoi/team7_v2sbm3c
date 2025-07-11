@@ -55,4 +55,6 @@ public interface QnaDAOInter {
   
   /** ✅ 공식 답변(reply) 조회 (별도로 조회할 때) */
   public String getReply(int qna_id);
+  
+  public int countByMember(int memberno);
 }

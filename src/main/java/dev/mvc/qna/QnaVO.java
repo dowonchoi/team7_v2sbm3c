@@ -12,6 +12,8 @@ public class QnaVO {
     /** Q&A 번호 */
     private int qna_id;
     
+    private int memberno;
+    
     /** 제목 */
     private String title;
     

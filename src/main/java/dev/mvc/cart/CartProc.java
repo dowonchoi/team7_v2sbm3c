@@ -118,6 +118,9 @@ public class CartProc implements CartProcInter {
     return cartDAO.delete_selected_by_memberno(memberno);
   }
 
-
+  @Override
+  public int countItems(int memberno) {
+      return cartDAO.countItems(memberno);
+  }
 
 }

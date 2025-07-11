@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+</head>
+<body>
+
+<ul class="notification-popup-list" th:if="${list != null and !list.isEmpty()}">
+  <li th:each="vo : ${list}">
+    <a th:href="@{/notification/read_and_redirect(notification_id=${vo.notification_id}, url=${vo.url})}"
+    th:text="${vo.message}" class="notification-popup-message"></a>
+    <div class="notification-popup-meta">
+      <span th:text="${#dates.format(vo.created_at, 'yyyy-MM-dd HH:mm')}"></span>
+      <span th:classappend="${vo.is_read == 'Y'} ? 'notification-read' : 'notification-new'" 
+            th:text="${vo.is_read == 'Y' ? '읽음' : '새 알림'}"></span>
+    </div>
+  </li>
+</ul>
+
+<div class="notification-empty" th:if="${list == null or list.isEmpty()}">
+  🔒 로그인 후 확인 가능합니다.<br>
+  <a th:href="@{/member/login}" class="notification-btn">로그인하기</a>
+</div>
+
+</body>
+</html>

@@ -40,4 +40,6 @@ public interface QnaProcInter {
   
   /** ✅ 공식 답변(reply) 조회 */
   public String getReply(int qna_id);
+  
+  public int countByMember(int memberno);
 }

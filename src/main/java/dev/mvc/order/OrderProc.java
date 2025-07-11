@@ -1,5 +1,6 @@
 package dev.mvc.order;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,18 @@ public class OrderProc implements OrderProcInter {
     return orderDAO.read(orderno);
   }
 
+  @Override
+  public List<OrderVO> getRecentOrders(int memberno) {
+    return orderDAO.list_by_memberno(memberno);
+  }
 
-  
-  
+  @Override
+  public int countOrders(int memberno) {
+    return orderDAO.countOrders(memberno);
+  }
+
+  @Override
+  public int countCancelledOrders(int memberno) {
+      return 0; // 임시
+  }
 }

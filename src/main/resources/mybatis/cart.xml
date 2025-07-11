@@ -142,7 +142,10 @@
     DELETE FROM cart WHERE memberno = #{memberno} AND selected = 'Y'
   </delete>
 
-  
+  <!-- 장바구니 건수 조회 -->
+  <select id="countItems" resultType="int" parameterType="int">
+    SELECT COUNT(*) FROM cart WHERE memberno = #{memberno}
+  </select>
 
 
 

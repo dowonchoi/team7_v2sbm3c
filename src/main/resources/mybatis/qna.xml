@@ -26,14 +26,14 @@
 
   <!-- Q&A 상세 조회 -->
   <select id="read" parameterType="int" resultType="dev.mvc.qna.QnaVO">
-    SELECT qna_id, cate, title, content, reg_date, writer_id, writer_name, user_type, comment_count, reply, view_count, reply_writer
+    SELECT qna_id, cate, title, content, reg_date, writer_id, writer_name, user_type, memberno, comment_count, reply, view_count, reply_writer
     FROM qna
     WHERE qna_id = #{qna_id}
   </select>
   
   <insert id="create" parameterType="dev.mvc.qna.QnaVO">
-    INSERT INTO qna (qna_id, cate, title, content, writer_id, writer_name, user_type, reg_date, comment_count)
-    VALUES (qna_seq.nextval, #{cate}, #{title}, #{content}, #{writer_id}, #{writer_name, jdbcType=VARCHAR}, #{user_type}, SYSDATE, 0)
+    INSERT INTO qna (qna_id, cate, title, content, writer_id, writer_name, user_type, memberno, reg_date, comment_count)
+    VALUES (qna_seq.nextval, #{cate}, #{title}, #{content}, #{writer_id}, #{writer_name, jdbcType=VARCHAR}, #{user_type}, #{memberno}, SYSDATE, 0)
   </insert>
   
   <update id="update" parameterType="dev.mvc.qna.QnaVO">
@@ -64,6 +64,11 @@
     SELECT reply
     FROM qna
     WHERE qna_id = #{qna_id}
+  </select>
+  
+  <!-- Q&A 문의 건수 조회 -->
+  <select id="countByMember" resultType="int" parameterType="int">
+    SELECT COUNT(*) FROM qna WHERE memberno = #{memberno}
   </select>
 
 </mapper>

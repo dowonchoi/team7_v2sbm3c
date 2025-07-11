@@ -150,9 +150,10 @@
 
   <!-- 로그인 -->
   <select id="login" resultType="dev.mvc.member.MemberVO" parameterType="map">
-    SELECT * 
-    FROM member 
-    WHERE id = #{id} 
+    SELECT memberno, id, passwd, mname, tel, grade, email, zipcode, address1, address2,
+           mdate, supplier_approved, business_file, business_file_origin
+    FROM member
+    WHERE id = #{id}
       AND passwd = #{passwd}
       AND is_visible = 'Y'
   </select>

@@ -258,6 +258,15 @@
   <select id="getPointByProductsno" parameterType="int" resultType="int">
     SELECT point FROM products WHERE productsno = #{productsno}
   </select>
+  
+  <select id="getRecentlyViewed" resultType="dev.mvc.products.ProductsVO" parameterType="int">
+    SELECT * FROM products
+    WHERE memberno = #{memberno}
+    ORDER BY productsno DESC
+    FETCH FIRST 5 ROWS ONLY
+  </select>
+
+
 
 
 </mapper> 

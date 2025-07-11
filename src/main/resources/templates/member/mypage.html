@@ -57,13 +57,24 @@
         <tr><th>주문일자</th><th>주문번호</th><th>상품명</th><th>결제금액</th><th>상태</th></tr>
       </thead>
       <tbody>
-        <tr th:each="order : ${recentOrders}">
-          <td th:text="${order.orderDate}"></td>
-          <td th:text="${order.orderNo}"></td>
-          <td th:text="${order.productName}"></td>
-          <td th:text="${order.totalAmount}"></td>
+        <!-- 주문 목록 반복 -->
+        <tr th:each="order, stat : ${recentOrders}">
+          <td th:text="${order.rdate}"></td>
+          <td th:text="${order.orderno}"></td>
+
+          <td>
+            <ul>
+              <!-- 주문 상세(상품 목록) 반복 -->
+              <li th:each="item : ${allOrderItems[__${stat.index}__]}">
+                <span th:text="${item.pname}"></span>
+              </li>
+            </ul>
+          </td>
+
+          <td th:text="${order.total}"></td>
           <td th:text="${order.status}"></td>
         </tr>
+
         <tr th:if="${#lists.isEmpty(recentOrders)}">
           <td colspan="5">최근 주문 내역이 없습니다.</td>
         </tr>

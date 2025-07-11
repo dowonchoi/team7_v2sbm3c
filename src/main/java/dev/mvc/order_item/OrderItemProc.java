@@ -1,5 +1,7 @@
 package dev.mvc.order_item;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,5 +23,10 @@ public class OrderItemProc implements OrderItemProcInter {
   @Override
   public int create(OrderItemVO orderItemVO) {
     return orderItemDAO.create(orderItemVO);  // 실제 SQL 실행
+  }
+  
+  @Override
+  public List<OrderItemVO> list_by_orderno(int orderno) {
+    return orderItemDAO.list_by_orderno(orderno);
   }
 }

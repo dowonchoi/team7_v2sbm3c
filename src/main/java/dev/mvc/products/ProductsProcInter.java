@@ -184,4 +184,6 @@ public interface ProductsProcInter {
 
   public ArrayList<ProductsVO> related_scroll(Map<String, Object> map);
 
+  public List<ProductsVO> getRecentlyViewed(int memberno);
+  
 }

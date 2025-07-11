@@ -16,5 +16,9 @@ public interface OrderProcInter {
   // 주문번호로 주문 정보 조회
   public OrderVO read(int orderno); 
 
-
+  public List<OrderVO> getRecentOrders(int memberno);
+  
+  public int countOrders(int memberno);
+  
+  public int countCancelledOrders(int memberno);
 }

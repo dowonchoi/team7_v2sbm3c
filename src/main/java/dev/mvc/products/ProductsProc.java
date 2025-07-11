@@ -293,6 +293,9 @@ public class ProductsProc implements ProductsProcInter {
     return productsDAO.related_scroll(map);
   }
   
-  
+  @Override
+  public List<ProductsVO> getRecentlyViewed(int memberno) {
+      return productsDAO.getRecentlyViewed(memberno);
+  }
 
 }

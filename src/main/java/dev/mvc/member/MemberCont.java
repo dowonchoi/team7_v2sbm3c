@@ -44,12 +44,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import dev.mvc.cart.CartProcInter;
 import dev.mvc.cate.CateProcInter;
 import dev.mvc.cate.CateVOMenu;
 import dev.mvc.login.LoginProcInter;
 import dev.mvc.login.LoginVO;
+import dev.mvc.order.OrderProcInter;
+import dev.mvc.order.OrderVO;
+import dev.mvc.order_item.OrderItemProcInter;
+import dev.mvc.order_item.OrderItemVO;
 import dev.mvc.products.ProductsProc;
+import dev.mvc.products.ProductsProcInter;
 import dev.mvc.products.ProductsVO;
+import dev.mvc.qna.QnaProcInter;
 import dev.mvc.tool.Security;
 import dev.mvc.tool.Tool;
 import jakarta.servlet.http.Cookie;
@@ -69,8 +76,28 @@ public class MemberCont {
   private CateProcInter cateProc;
   
   @Autowired
+  @Qualifier("dev.mvc.products.ProductsProc")
+  private ProductsProcInter productsProc;
+  
+  @Autowired
   @Qualifier("dev.mvc.login.LoginProc") 
   private LoginProcInter loginProc;
+  
+  @Autowired
+  @Qualifier("dev.mvc.order.OrderProc") 
+  private OrderProcInter orderProc;
+  
+  @Autowired
+  @Qualifier("dev.mvc.order_item.OrderItemProc") 
+  private OrderItemProcInter orderItemProc;
+
+  @Autowired
+  @Qualifier("dev.mvc.cart.CartProc") 
+  private CartProcInter cartProc;
+
+  @Autowired
+  @Qualifier("dev.mvc.qna.QnaProc") 
+  private QnaProcInter qnaProc;
   
   @Autowired  // 자동 주입 어노테이션 꼭 붙이기
   private MemberService memberService;
@@ -225,26 +252,36 @@ public class MemberCont {
       MemberVO memberVO = memberProc.read(memberno);
       model.addAttribute("memberVO", memberVO);
 
-//      // 최근 주문 내역
-//      List<OrderVO> recentOrders = orderProc.getRecentOrders(memberno);
-//      model.addAttribute("recentOrders", recentOrders);
+      // 최근 주문 내역
+      List<OrderVO> recentOrders = orderProc.getRecentOrders(memberno);
+      model.addAttribute("recentOrders", recentOrders);
+      
+      // 주문별 주문 상세 목록 조회
+      List<List<OrderItemVO>> allOrderItems = new ArrayList<>();
+      for (OrderVO order : recentOrders) {
+          int orderno = order.getOrderno();  // ✅ 주문번호 가져옴
+          List<OrderItemVO> orderItems = orderItemProc.list_by_orderno(orderno);
+          allOrderItems.add(orderItems);
+      }
+      model.addAttribute("allOrderItems", allOrderItems);
 
-//      // 최근 본 상품
-//      List<ProductsVO> recentViewedProducts = ProductsProc.getRecentlyViewed(memberno);
-//      model.addAttribute("recentViewedProducts", recentViewedProducts);
+      // 최근 본 상품
+      List<ProductsVO> recentViewedProducts = productsProc.getRecentlyViewed(memberno);
+      model.addAttribute("recentViewedProducts", recentViewedProducts);
 
       // 요약 정보
-//      model.addAttribute("orderCount", orderProc.countOrders(memberno));
+      model.addAttribute("orderCount", orderProc.countOrders(memberno));
 //      model.addAttribute("cancelCount", orderProc.countCancelledOrders(memberno));
-//      model.addAttribute("cartCount", cartProc.countItems(memberno));
+      model.addAttribute("cartCount", cartProc.countItems(memberno));
 //      model.addAttribute("couponCount", couponProc.countValidCoupons(memberno));
 //      model.addAttribute("pointAmount", memberProc.getPoint(memberno));
 //      model.addAttribute("reviewCount", reviewProc.countByMember(memberno));
-//      model.addAttribute("qnaCount", qnaProc.countByMember(memberno));
+      model.addAttribute("qnaCount", qnaProc.countByMember(memberno));
 //      model.addAttribute("inquiryCount", inquiryProc.countByMember(memberno));
 
       return "/member/mypage";
   }
+
 
   @GetMapping("/list")
   public String list(

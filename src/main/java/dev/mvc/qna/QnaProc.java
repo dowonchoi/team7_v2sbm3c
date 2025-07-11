@@ -68,4 +68,9 @@ public class QnaProc implements QnaProcInter {
   public String getReply(int qna_id) {
       return qnaDAO.getReply(qna_id);
   }
+  
+  @Override
+  public int countByMember(int memberno) {
+      return qnaDAO.countByMember(memberno);
+  }
 }

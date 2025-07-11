@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import dev.mvc.notification.NotificationProcInter;
+import dev.mvc.notification.NotificationVO;
 import jakarta.servlet.http.HttpSession;
 
 @RequestMapping("/qna")
@@ -20,6 +22,10 @@ public class QnaCont {
   @Autowired
   @Qualifier("dev.mvc.qna.QnaProc")
   private QnaProcInter qnaProc;
+  
+  @Autowired
+  @Qualifier("dev.mvc.notification.NotificationProc")
+  private NotificationProcInter notificationProc;
   
   //✅ 소비자용 글쓰기 폼
   @GetMapping("/create_user")
@@ -54,6 +60,7 @@ public class QnaCont {
 
       qnaVO.setWriter_id(id);
       qnaVO.setWriter_name(name);
+      qnaVO.setMemberno((int) session.getAttribute("memberno"));
 
       if ("supplier".equals(grade)) {
           qnaVO.setUser_type("supplier");
@@ -64,7 +71,7 @@ public class QnaCont {
       }
 
       this.qnaProc.create(qnaVO);
-
+      
       // ✅ 작성 후 COMMUNITY 화면으로 이동
       return "redirect:/notice/list";
   }
@@ -181,16 +188,38 @@ public class QnaCont {
      return "/qna/reply";  // reply.html 로 이동
   }
   
-  //답변 등록/수정 처리
+  //답변 등록/수정 처리 (알림 포함)
   @PostMapping("/reply")
   public String replyProc(QnaVO qnaVO, HttpSession session) {
-     String grade = (String) session.getAttribute("grade");
-     if (!"admin".equals(grade)) {
-         return "redirect:/qna/read?qna_id=" + qnaVO.getQna_id();
-     }
+      String grade = (String) session.getAttribute("grade");
+      if (!"admin".equals(grade)) {
+          return "redirect:/qna/read?qna_id=" + qnaVO.getQna_id();
+      }
   
-     qnaProc.updateReply(qnaVO);
-     return "redirect:/qna/read?qna_id=" + qnaVO.getQna_id();
+      // ✅ 답변 저장
+      qnaProc.updateReply(qnaVO);
+  
+      // ✅ 반드시 원래 질문 글에서 memberno 가져오기 (폼에는 안 넘어옴)
+      QnaVO originalQna = qnaProc.read(qnaVO.getQna_id());
+      int targetMemberno = originalQna.getMemberno();  // 질문 작성자의 memberno
+      String title = originalQna.getTitle();  // ✅ 제목 가져오기
+
+      // ✅ 제목 너무 길면 자르기 (선택)
+      if (title.length() > 20) {
+          title = title.substring(0, 20) + "...";
+      }
+
+      System.out.println("알림 대상 memberno: " + targetMemberno);  // 로그 확인용
+
+      // ✅ 알림 저장
+      NotificationVO notificationVO = new NotificationVO();
+      notificationVO.setMemberno(targetMemberno);
+      notificationVO.setType("qna");
+      notificationVO.setMessage("문의하신 글 [" + title + "]에 답변이 등록되었습니다.");
+      notificationVO.setUrl("/qna/read?qna_id=" + qnaVO.getQna_id());
+      notificationProc.create(notificationVO);
+
+      return "redirect:/qna/read?qna_id=" + qnaVO.getQna_id();
   }
 
 }
