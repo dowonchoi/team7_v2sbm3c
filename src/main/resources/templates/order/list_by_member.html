@@ -5,7 +5,7 @@
   <h2>내 주문 목록</h2>
 
   <!-- 주문이 없을 경우 메시지 출력 -->
-  <div th:if="${#lists.isEmpty(summaryList)}">
+  <div th:if="${#lists.isEmpty(orderList)}">
     <p>주문 내역이 없습니다.</p>
   </div>
 
@@ -26,7 +26,10 @@
       </div>
 
       <!-- ✅ 주문 항목 반복 -->
-      <div th:each="item : ${order.items}" class="order-list-body">
+      <div th:each="item : ${order.items}" 
+           th:attr="onclick=|location.href='/products/read?productsno=${item.productsno}'|"
+           class="order-list-body"
+           style="cursor: pointer;"> <!-- 클릭 가능 + 포인터 커서 -->
 
         <!-- 상품 이미지 -->
         <img th:src="@{/products/storage/{img}(img=${item.thumb1})}" alt="상품 이미지" class="order-list-thumb" />
@@ -41,10 +44,11 @@
 
           <!-- 버튼 영역 -->
           <div class="order-list-actions">
-            <button>배송조회</button>
-            <button>교환/반품 신청</button>
-            <button>리뷰 작성하기</button>
-            <button>판매자 문의</button>
+            <!-- 버튼 클릭 시 부모 클릭 이벤트 막기 -->
+            <button onclick="event.stopPropagation()">배송조회</button>
+            <button onclick="event.stopPropagation()">교환/반품 신청</button>
+            <button onclick="event.stopPropagation()">리뷰 작성하기</button>
+            <button onclick="event.stopPropagation()">판매자 문의</button>
           </div>
         </div>
 

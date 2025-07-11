@@ -52,41 +52,41 @@ public class OrderProc implements OrderProcInter {
     return this.orderDAO.list_by_member_summary(memberno);
   }
 
-  //OrderProc.java
   @Override
   public List<OrderWithItemsVO> list_with_items_by_member(int memberno) {
-   List<OrderVO> orders = orderDAO.list_by_memberno(memberno); // 기본 주문 목록 조회
-   List<OrderWithItemsVO> result = new ArrayList<>();
-  
-   for (OrderVO o : orders) {
-     OrderWithItemsVO vo = new OrderWithItemsVO();
-  
-     // 🔁 주문 정보 복사
-     vo.setOrderno(o.getOrderno());
-     vo.setMemberno(o.getMemberno());
-     vo.setDeliveryno(o.getDeliveryno());
-     vo.setRname(o.getRname());
-     vo.setRtel(o.getRtel());
-     vo.setRzipcode(o.getRzipcode());
-     vo.setRaddress1(o.getRaddress1());
-     vo.setRaddress2(o.getRaddress2());
-     vo.setMessage(o.getMessage());
-     vo.setPayment(o.getPayment());
-     vo.setTotal(o.getTotal());
-     vo.setPoint(o.getPoint());
-     vo.setOrder_state(o.getOrder_state());
-     vo.setStatus(o.getStatus());
-     vo.setRdate(o.getRdate());
-  
-     // 🔁 주문번호로 상품 목록 조회 후 추가
-     List<OrderItemVO> items = orderItemDAO.list_by_orderno(o.getOrderno());
-     vo.setItems(items);
-  
-     result.add(vo);
-   }
-  
-   return result;
+    List<OrderVO> orders = orderDAO.list_by_memberno(memberno);
+    List<OrderWithItemsVO> result = new ArrayList<>();
+
+    for (OrderVO o : orders) {
+      List<OrderItemVO> items = orderItemDAO.list_by_orderno(o.getOrderno());
+
+      if (!items.isEmpty()) {  // ✅ 상품이 있을 경우에만 추가
+        OrderWithItemsVO vo = new OrderWithItemsVO();
+
+        vo.setOrderno(o.getOrderno());
+        vo.setMemberno(o.getMemberno());
+        vo.setDeliveryno(o.getDeliveryno());
+        vo.setRname(o.getRname());
+        vo.setRtel(o.getRtel());
+        vo.setRzipcode(o.getRzipcode());
+        vo.setRaddress1(o.getRaddress1());
+        vo.setRaddress2(o.getRaddress2());
+        vo.setMessage(o.getMessage());
+        vo.setPayment(o.getPayment());
+        vo.setTotal(o.getTotal());
+        vo.setPoint(o.getPoint());
+        vo.setOrder_state(o.getOrder_state());
+        vo.setStatus(o.getStatus());
+        vo.setRdate(o.getRdate());
+
+        vo.setItems(items); // 상품 목록 설정
+        result.add(vo);
+      }
+    }
+
+    return result;
   }
+
 
 
   
