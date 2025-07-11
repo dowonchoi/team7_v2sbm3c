@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+
+  <h3>전체 주문 내역 (관리자 전용)</h3>
+
+  <!-- 주문이 없을 경우 메시지 출력 -->
+  <div th:if="${#lists.isEmpty(orderList)}">
+    <p>주문 내역이 없습니다.</p>
+  </div>
+
+  <!-- 주문 목록 출력 -->
+  <div class="admin-order-wrapper" th:unless="${#lists.isEmpty(orderList)}">
+
+    <!-- 주문 반복 -->
+    <div th:each="order : ${orderList}" class="admin-order-card">
+
+      <!-- 주문 헤더: 날짜 + 상태 -->
+      <div class="admin-order-header">
+        <div>
+          <strong th:text="${#dates.format(order.rdate, 'yyyy. M. d')} + ' 주문'">2025. 7. 11 주문</strong>
+        </div>
+        <div class="admin-order-status">
+          <span th:text="${order.status}">결제완료</span>
+        </div>
+      </div>
+
+      <!-- 주문자 및 배송지 정보 -->
+      <div class="admin-order-buyer">
+        <div><strong>회원번호:</strong> <span th:text="${order.memberno}">1</span></div>
+        <div><strong>수령인:</strong> <span th:text="${order.rname}">홍길동</span></div>
+        <div><strong>연락처:</strong> <span th:text="${order.rtel}">010-1234-5678</span></div>
+        <div><strong>우편번호:</strong> <span th:text="${order.rzipcode}">12345</span></div>
+        <div><strong>주소:</strong> 
+          <span th:text="${order.raddress1}">서울시 강남구</span> 
+          <span th:text="${order.raddress2}">101동 202호</span>
+        </div>
+        <div><strong>배송 메모:</strong> <span th:text="${order.message}">부재 시 경비실</span></div>
+      </div>
+
+      <!-- 주문 상세 항목 반복 -->
+      <div th:each="item : ${order.items}"
+           th:attr="onclick=|location.href='/products/read?productsno=${item.productsno}'|"
+           class="admin-order-item"
+           style="cursor: pointer;">
+
+        <!-- 썸네일 이미지 -->
+        <img th:src="@{/products/storage/{img}(img=${item.thumb1})}" class="admin-order-thumb" />
+
+        <!-- 상품 정보 -->
+        <div class="admin-order-info">
+          <div class="admin-order-title" th:text="${item.pname}">상품명</div>
+          <div class="admin-order-desc">
+            <span th:text="${#numbers.formatInteger(item.saleprice, 3, 'COMMA')} + '원'">9,900원</span>
+            <span th:text="'수량: ' + ${item.cnt} + '개'">수량: 1개</span>
+          </div>
+        </div>
+
+      </div> <!-- end item -->
+
+    </div> <!-- end order -->
+
+  </div> <!-- end wrapper -->
+
+</div>
+</html>

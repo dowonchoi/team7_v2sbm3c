@@ -66,6 +66,7 @@
               <!-- 공급자용 -->
               <li th:if="${session.grade == 'supplier'}">
                 <a class="dropdown-item" th:href="@{/productsgood/supplier_products_liked}">내 상품 추천 내역</a>
+                <a class="dropdown-item" th:href="@{/order/list_by_supplier}">내 상품 주문 내역</a> <!-- ✅ 추가 -->
               </li>
               <li><a class="dropdown-item" th:href="@{/member/logout}">로그아웃</a></li>
             </ul>
@@ -135,6 +136,7 @@
                   <li class="nav-item"><a class="nav-link" th:href="@{|/calendar/create|}">일정 등록</a></li>
                   <li class="nav-item"><a class="nav-link" th:href="@{|/calendar/list_all|}">일정 목록</a></li>
                   <li class="nav-item"><a class="nav-link" th:href="@{|/productsgood/list_all|}">추천 목록</a></li>
+                  <li class="nav-item"><a class="nav-link" th:href="@{/order/list_all}">전체 주문 내역</a></li>
               </ul>
           </li>
           

@@ -1,7 +1,9 @@
 package dev.mvc.order;
 
 import java.util.Date;
+import java.util.List;
 
+import dev.mvc.order_item.OrderItemVO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,4 +28,7 @@ public class OrderVO {
   private String order_state;  // 주문 상태 (예: 결제완료)
   private Date rdate;        // 주문 일자
   private String status; // 결제 완료
+  
+  //주문 상세 항목 리스트
+ private List<OrderItemVO> items;
 }

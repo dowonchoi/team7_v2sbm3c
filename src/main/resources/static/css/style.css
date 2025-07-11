@@ -2057,9 +2057,170 @@
 }
 
 /* ========================== */
-/* 주문 목록 전용 CSS 영역 끝 */
+/* 소비자 주문 목록 전용 CSS 영역 끝 */
 /* ========================== */
 
 
+/* ========================== */
+/* 관리자 주문 목록 전용 CSS 시작 */
+/* ========================== */
 
+/* 전체 wrapper */
+.admin-order-wrapper {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* 카드 1개 */
+.admin-order-card {
+  border: 1px solid #d0d0d0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 30px;
+  background-color: #fdfdfd;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.03);
+}
+
+/* 주문 상단 정보 */
+.admin-order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 17px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.admin-order-status {
+  color: #0085ff;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* 주문자 정보 (수령자 등) */
+.admin-order-buyer {
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 12px;
+}
+
+.admin-order-buyer span {
+  margin-right: 8px;
+}
+
+/* 주문 상품 리스트 */
+.admin-order-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px dashed #ddd;
+}
+
+.admin-order-item:first-child {
+  border-top: none;
+}
+
+.admin-order-thumb {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.admin-order-info {
+  flex: 1;
+}
+
+.admin-order-title {
+  font-weight: bold;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.admin-order-desc {
+  font-size: 14px;
+  color: #666;
+}
+
+/* ========================== */
+/* 관리자 주문 목록 전용 CSS 끝 */
+/* ========================== */
+
+/* ========================== */
+/* 공급자 주문 목록 전용 CSS 시작 */
+/* ========================== */
+.supplier-order-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.supplier-order-card {
+  border: 1px solid #e5e5e5;
+  padding: 20px;
+  margin-bottom: 24px;
+  background-color: #fefefe;
+  border-radius: 10px;
+}
+
+.supplier-order-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.supplier-order-status {
+  color: #0096ff;
+}
+
+.supplier-order-buyer {
+  font-size: 14px;
+  margin-bottom: 10px;
+  color: #444;
+}
+
+.supplier-order-buyer span {
+  margin-right: 10px;
+}
+
+.supplier-order-item {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+  border-top: 1px dashed #ddd;
+  padding-top: 10px;
+}
+
+.supplier-order-thumb {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.supplier-order-info {
+  flex: 1;
+}
+
+.supplier-order-title {
+  font-weight: bold;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.supplier-order-desc {
+  font-size: 14px;
+  color: #666;
+}
+
+/* ========================== */
+/* 공급자 주문 목록 전용 CSS 끝 */
+/* ========================== */
 

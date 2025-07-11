@@ -24,4 +24,6 @@ public class OrderItemProc implements OrderItemProcInter {
   public int create(OrderItemVO orderItemVO) {
     return orderItemDAO.create(orderItemVO);  // 실제 SQL 실행
   }
+  
+  
 }

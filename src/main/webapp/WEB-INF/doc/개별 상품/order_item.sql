@@ -37,4 +37,11 @@ INSERT INTO order_item (
   100, 200
 );
 
+SELECT o.orderno, o.rdate, o.total, o.status
+FROM orders o
+WHERE NOT EXISTS (
+  SELECT 1 FROM order_item i WHERE i.orderno = o.orderno
+);
+
+
 commit;
