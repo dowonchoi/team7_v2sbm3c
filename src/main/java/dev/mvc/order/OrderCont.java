@@ -152,16 +152,17 @@ public class OrderCont {
   //5. OrderCont.java - 주문 목록 조회 기능 추가
   @GetMapping("/list_by_member")
   public String list_by_member(HttpSession session, Model model) {
-   Integer memberno = (Integer) session.getAttribute("memberno");
-   if (memberno == null) {
-     return "redirect:/member/login";
-   }
-  
-   List<OrderVO> list = orderProc.list_by_memberno(memberno);
-   model.addAttribute("orderList", list);
-  
-   return "order/list_by_member";  // 템플릿 이름
+    Integer memberno = (Integer) session.getAttribute("memberno");
+    if (memberno == null) {
+      return "redirect:/member/login";
+    }
+
+    List<OrderWithItemsVO> orderList = orderProc.list_with_items_by_member(memberno);
+    model.addAttribute("orderList", orderList);
+    return "order/list_by_member";  // HTML 템플릿
   }
+
+
 
   /** 결제 완료 페이지 */
   @GetMapping("/complete")
@@ -170,4 +171,61 @@ public class OrderCont {
     model.addAttribute("order", orderVO); //  주문 정보 전달
     return "order/complete"; // 템플릿 파일: /templates/order/complete.html
   }
+  
+  /**
+   *  관리자용 주문 목록 조회
+   * 관리자: 전체 주문 목록 조회
+   * grade: 1~4만 허용
+   */
+  @GetMapping("/list_all")
+  public String list_all(HttpSession session, Model model) {
+    String grade = (String) session.getAttribute("grade");
+
+    System.out.println("🔍 session.getAttribute(\"grade\"): " + grade);
+
+    // 로그인 안 했거나 관리자 등급이 아닌 경우
+    if (grade == null || !grade.equals("admin")) {
+      return "redirect:/member/login_cookie_need";
+    }
+
+    List<OrderVO> orderList = orderProc.list_all();  // 전체 주문 목록
+    model.addAttribute("orderList", orderList);
+
+    return "order/list_all";  // templates/order/list_all.html
+  }
+
+
+  
+  /**
+   * 공급자용 주문 목록 조회
+   * 공급자: 내가 등록한 상품을 소비자가 구매한 주문 목록
+   * grade: 5~15만 허용
+   */
+  /**
+   * 공급자용 주문 목록 조회
+   * 공급자: 내가 등록한 상품이 포함된 주문들만 출력
+   * grade: 5~15만 허용
+   */
+  @GetMapping("/list_by_supplier")
+  public String list_by_supplier(HttpSession session, Model model) {
+    String grade = (String) session.getAttribute("grade");
+    Integer memberno = (Integer) session.getAttribute("memberno");
+
+    if (grade == null || !grade.equals("supplier")) {
+      return "redirect:/member/login_cookie_need";
+    }
+
+    // 🔄 기존: 주문 전체 + 모든 상품
+    // List<OrderVO> orderList = orderProc.list_by_supplier(memberno);
+
+    // ✅ 변경: 주문 + 내 상품만 포함된 VO
+    List<OrderWithItemsVO> orderList = orderProc.list_with_items_by_member(memberno);
+
+    model.addAttribute("orderList", orderList);
+    return "order/list_by_supplier";  // templates/order/list_by_supplier.html
+  }
+
+
+
+
 }

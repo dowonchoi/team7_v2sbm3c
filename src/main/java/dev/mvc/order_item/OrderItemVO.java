@@ -28,6 +28,7 @@ public class OrderItemVO {
 
   private int point;          // 개당 적립 포인트
   private int totalpoint;     // point * cnt
+  private int memberno; // 상품 등록 회원번호
 }
 
 

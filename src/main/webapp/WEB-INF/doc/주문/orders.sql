@@ -44,3 +44,29 @@ INSERT INTO orders (
   '부재시 경비실에 맡겨주세요', '신용카드', 15200, 0, '결제완료'
 );
 
+DELETE FROM orders
+WHERE orderno = 12;  -- 여기에 삭제하려는 주문 번호 입력
+
+SELECT * FROM orders;
+
+-- 최신 주문 순으로 보기:
+SELECT * FROM orders
+ORDER BY rdate DESC;
+
+
+--
+-- 상품이 하나도 없는 주문 제거
+DELETE FROM orders
+WHERE orderno IN (
+  SELECT o.orderno
+  FROM orders o
+  LEFT JOIN order_item i ON o.orderno = i.orderno
+  WHERE i.orderno IS NULL
+);
+
+SELECT o.orderno, o.rdate, o.total, o.status
+FROM orders o
+WHERE NOT EXISTS (
+  SELECT 1 FROM order_item i WHERE i.orderno = o.orderno
+);
+

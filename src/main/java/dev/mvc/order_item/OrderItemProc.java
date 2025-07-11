@@ -3,6 +3,7 @@ package dev.mvc.order_item;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 public class OrderItemProc implements OrderItemProcInter {
 
   @Autowired
+  @Qualifier("dev.mvc.order_item.OrderItemDAO")  // 정확한 이름으로 명시
   private OrderItemDAOInter orderItemDAO;
 
   /**
@@ -29,4 +31,5 @@ public class OrderItemProc implements OrderItemProcInter {
   public List<OrderItemVO> list_by_orderno(int orderno) {
     return orderItemDAO.list_by_orderno(orderno);
   }
+
 }

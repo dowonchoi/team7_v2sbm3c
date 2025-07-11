@@ -115,8 +115,7 @@
             th:text="${#numbers.formatInteger(total, 3, 'COMMA')} + '원'">0원</span></li>
       </ul>
 
-      <form th:action="@{/order/create}" method="get" style="margin-top: 10px;">
-        <!-- 서버에도 넘겨서 GET 파라미터로 사용될 수 있도록 숨겨진 total 값 -->
+      <form th:action="@{/order/create}" method="get" style="margin-top: 10px;" onsubmit="return validateBeforeSubmit()">
         <input type="hidden" name="total" id="orderTotal" th:value="${total}" />
         
         <button type="submit" class="btn-order" id="buy-btn">
@@ -322,6 +321,17 @@
           alert("수량 변경 실패");
         }
       });
+    }
+
+    function validateBeforeSubmit() {
+      const checkedItems = document.querySelectorAll('.cart-checkbox:checked');
+
+      if (checkedItems.length === 0) {
+        alert("선택된 상품이 없습니다.\n상품을 선택해주세요.");
+        return false; // 폼 제출 막기
+      }
+
+      return true; // 정상적으로 구매하기 진행
     }
   </script>
 
