@@ -118,20 +118,18 @@ public class OrderProc implements OrderProcInter {
    */
   @Override
   public List<OrderWithItemsVO> list_with_items_by_member(int memberno) {
-    // 1. 이 공급자의 상품이 포함된 주문 목록 가져오기
-    List<OrderVO> orders = orderDAO.list_by_supplier(memberno);
+    // ✅ 주문자(memberno)의 주문 목록 가져오기
+    List<OrderVO> orders = orderDAO.list_by_memberno(memberno);
 
     List<OrderWithItemsVO> result = new ArrayList<>();
 
     for (OrderVO order : orders) {
-      // 2. 이 주문(orderno) 중에서 이 공급자의 상품만 조회
-      List<OrderItemVO> items = orderItemDAO.list_by_orderno_with_memberno(order.getOrderno(), memberno);
+      // ✅ 해당 주문의 전체 항목 가져오기
+      List<OrderItemVO> items = orderItemDAO.list_by_orderno(order.getOrderno());
 
-      // 3. 상품이 있다면 결과에 추가
       if (!items.isEmpty()) {
         OrderWithItemsVO vo = new OrderWithItemsVO();
 
-        // 주문 정보 복사
         vo.setOrderno(order.getOrderno());
         vo.setMemberno(order.getMemberno());
         vo.setDeliveryno(order.getDeliveryno());
@@ -148,8 +146,7 @@ public class OrderProc implements OrderProcInter {
         vo.setStatus(order.getStatus());
         vo.setRdate(order.getRdate());
 
-        // 자신의 상품 목록만 설정
-        vo.setItems(items);
+        vo.setItems(items); // 🔹 주문한 상품들 전체
 
         result.add(vo);
       }
@@ -157,6 +154,7 @@ public class OrderProc implements OrderProcInter {
 
     return result;
   }
+
 
   @Override
   public List<OrderVO> getRecentOrders(int memberno) {
