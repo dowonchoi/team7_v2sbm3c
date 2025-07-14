@@ -37,6 +37,9 @@ import dev.mvc.cate.CateProcInter;
 import dev.mvc.cate.CateVO;
 import dev.mvc.cate.CateVOMenu;
 import dev.mvc.productsgood.ProductsgoodVO;
+import dev.mvc.review.ReviewMemberVO;
+import dev.mvc.review.ReviewProcInter;
+import dev.mvc.review.ReviewVO;
 import dev.mvc.productsgood.ProductsgoodProcInter;
 import dev.mvc.member.MemberProcInter;
 import dev.mvc.tool.LLMKey;
@@ -58,6 +61,11 @@ public class ProductsCont {
   @Qualifier("dev.mvc.products.ProductsProc") // @Component("dev.mvc.products.ProductsProc")
   private ProductsProcInter productsProc;
 
+  @Autowired
+  @Qualifier("dev.mvc.review.ReviewProc")
+  private ReviewProcInter reviewProc;
+
+  
   @Autowired
   @Qualifier("dev.mvc.productsgood.ProductsgoodProc") // @Component("dev.mvc.productsgood.ProductsgoodProc")
   ProductsgoodProcInter productsgoodProc;
@@ -509,6 +517,8 @@ public class ProductsCont {
     productsVO.setSize3_label(size3_label); // VO에 보기 좋게 가공한 크기 저장
 
     model.addAttribute("productsVO", productsVO); // 상품 정보 View로 전달
+    model.addAttribute("productsno", productsno); // 리뷰 작성용 hidden 필드용
+    
 
     // ---------------------------------------------
     // (3) 현재 상품이 속한 카테고리 정보 가져오기
@@ -517,8 +527,12 @@ public class ProductsCont {
     model.addAttribute("cateVO", cateVO); // 카테고리 정보 View에 전달
     
     // (3-1) 관련 상품 리스트
-    ArrayList<ProductsVO> relatedList = this.productsProc.list_by_cateno_except_self(productsVO.getCateno(), productsno);
-    model.addAttribute("relatedList", relatedList);
+    List<ReviewMemberVO> reviewList = this.reviewProc.list_join_by_productsno(productsno); 
+    model.addAttribute("reviewList", reviewList); 
+    
+    // 세션의 로그인 사용자 번호를 모델에 전달 (Thymeleaf에서 #session 접근 제거 대응)
+    Integer sessionMemberno = (Integer) session.getAttribute("memberno");
+    model.addAttribute("sessionMemberno", sessionMemberno); 
 
     // 조회에서 화면 하단에 출력
     // ArrayList<ReplyVO> reply_list = this.replyProc.list_products(productsno);
@@ -1109,6 +1123,7 @@ public class ProductsCont {
     cateProc.updateMainCnt();
     return "카테고리 cnt 동기화 완료";
   }
+  
   
   
 }

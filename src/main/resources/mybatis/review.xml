@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dev.mvc.review.ReviewDAOInter">
+
+  <!-- ✅ 등록 -->
+  <insert id="create" parameterType="dev.mvc.review.ReviewVO">
+    INSERT INTO review (reviewno, productsno, memberno, content, summary, emotion, rdate)
+    VALUES (review_seq.nextval, #{productsno}, #{memberno}, #{content}, #{summary}, #{emotion}, sysdate)
+  </insert>
+
+  <!-- ✅ 리뷰 목록 -->
+  <select id="list_by_productsno" resultType="dev.mvc.review.ReviewVO">
+    SELECT 
+      r.reviewno,
+      r.productsno,
+      r.memberno,
+      r.content,
+      r.summary,
+      r.emotion,
+      TO_CHAR(r.rdate, 'YYYY-MM-DD') AS rdate,
+      m.mname
+    FROM review r
+    JOIN member m ON r.memberno = m.memberno
+    WHERE r.productsno = #{productsno}
+    ORDER BY r.reviewno DESC
+  </select>
+
+  <select id="list_join_by_productsno" resultType="dev.mvc.review.ReviewMemberVO">
+    SELECT R.*, M.mname
+    FROM review R
+    JOIN member M ON R.memberno = M.memberno
+    WHERE R.productsno = #{productsno}
+    ORDER BY R.reviewno DESC
+  </select>
+
+  <select id="read" resultType="dev.mvc.review.ReviewVO" parameterType="int">
+    SELECT reviewno, memberno, productsno, content, emotion, summary, rdate
+    FROM review
+    WHERE reviewno = #{reviewno}
+  </select>
+  
+  <!-- 리뷰 수정 -->
+  <update id="update" parameterType="dev.mvc.review.ReviewVO">
+    UPDATE review
+    SET content = #{content},
+        emotion = #{emotion},
+        summary = #{summary}
+    WHERE reviewno = #{reviewno}
+  </update>
+  
+  <!-- 리뷰 삭제 (선택) -->
+  <delete id="delete" parameterType="int">
+    DELETE FROM review WHERE reviewno = #{reviewno}
+  </delete>
+  
+  <select id="read_with_member" resultType="dev.mvc.review.ReviewMemberVO">
+    SELECT R.reviewno, R.productsno, R.memberno, R.content,
+           R.emotion, R.summary, R.rdate,
+           M.mname, M.id
+    FROM review R
+    JOIN member M ON R.memberno = M.memberno
+    WHERE R.reviewno = #{reviewno}
+  </select>
+
+
+
+
+
+
+</mapper>

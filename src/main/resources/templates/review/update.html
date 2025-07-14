@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+  <div layout:fragment="content">
+
+    <form th:action="@{/review/update_proc}" method="post" class="order-modal-form">
+
+      <!-- 리뷰 번호: 수정 대상 식별용 -->
+      <input type="hidden" name="reviewno" th:value="${reviewVO.reviewno}" />
+
+      <!-- 작성자: 출력 전용, 수정 불가능 -->
+      <div class="order-modal-field">
+        <label>작성자</label>
+        <input type="text" th:value="${reviewVO.mname + ' (' + reviewVO.id + ')'}" readonly />
+      </div>
+
+      <!-- 리뷰 내용: 유일하게 수정 가능한 항목 -->
+      <div class="order-modal-field">
+        <label>리뷰 내용</label>
+        <textarea name="content" rows="5" required th:text="${reviewVO.content}"></textarea>
+      </div>
+
+      <!-- 버튼: 수정/취소 -->
+      <div class="order-modal-buttons">
+        <button type="submit" class="order-create-btn">수정</button>
+        <a th:href="@{/products/read(productsno=${reviewVO.productsno})}" class="order-cancel-btn">취소</a>
+      </div>
+
+    </form>
+
+  </div>
+</html>

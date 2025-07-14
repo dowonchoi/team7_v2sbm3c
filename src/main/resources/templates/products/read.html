@@ -268,7 +268,19 @@
 
             </div>
             <div id="product-tab-review" class="product-tab-section" style="display: none;">
-              <p>상품평 영역 (추후 추가 예정)</p>
+              <div class="review-box">
+                <h4>상품평</h4>
+
+                <!-- 리뷰 등록 버튼 -->
+                <div class="review-register-btn">
+                  <a th:href="@{/review/create(productsno=${productsVO.productsno})}" class="btn btn-sm btn-outline-primary">
+                    리뷰 작성
+                  </a>
+                </div>
+
+                <!-- 리뷰 목록 include -->
+                <div th:replace="~{review/list :: reviewListFragment(reviewList=${reviewList})}"></div>
+              </div>
             </div>
             <div id="product-tab-qna" class="product-tab-section" style="display: none;">
               <p>상품문의 영역 (추후 추가 예정)</p>

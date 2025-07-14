@@ -70,3 +70,4 @@ WHERE NOT EXISTS (
   SELECT 1 FROM order_item i WHERE i.orderno = o.orderno
 );
 
+commit;
