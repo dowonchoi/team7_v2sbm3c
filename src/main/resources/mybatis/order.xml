@@ -73,6 +73,16 @@
     SELECT COUNT(*) FROM orders WHERE memberno = #{memberno}
   </select>
   
+  <!-- 리뷰에서 -->
+  <select id="count_by_member_products" resultType="int">
+    SELECT COUNT(*) 
+    FROM order_item oi
+    JOIN orders o ON oi.orderno = o.orderno
+    WHERE o.memberno = #{memberno}
+      AND oi.productsno = #{productsno}
+  </select>
+
+  
   
 
 </mapper>

@@ -61,6 +61,9 @@ public class ReviewProc implements ReviewProcInter {
     return this.reviewDAO.read_with_member(reviewno); // DAO 호출
   }
 
+  public int countPurchasedByMember(int memberno, int productsno) {
+    return this.reviewDAO.countPurchasedByMember(memberno, productsno);
+  }
 
   
 

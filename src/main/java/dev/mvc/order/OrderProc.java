@@ -171,6 +171,13 @@ public class OrderProc implements OrderProcInter {
       return 0; // 임시
   }
   
+  //OrderProc.java
+  @Override
+  public int count_by_member_products(int memberno, int productsno) {
+   return orderDAO.count_by_member_products(memberno, productsno);
+}
+
+  
   
   
   

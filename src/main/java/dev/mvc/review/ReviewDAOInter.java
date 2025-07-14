@@ -2,6 +2,8 @@ package dev.mvc.review;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
 public interface ReviewDAOInter {
 
   /**
@@ -26,6 +28,9 @@ public interface ReviewDAOInter {
   public int delete(int reviewno);        // 리뷰 삭제 (선택)
 
   public ReviewMemberVO read_with_member(int reviewno); // 추가
+  
+  public int countPurchasedByMember(@Param("memberno") int memberno, @Param("productsno") int productsno);
+
 
   
 }

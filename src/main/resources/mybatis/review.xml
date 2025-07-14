@@ -65,6 +65,15 @@
     WHERE R.reviewno = #{reviewno}
   </select>
 
+  <select id="countPurchasedByMember" resultType="int">
+    SELECT COUNT(*) 
+    FROM order_item oi
+    JOIN orders o ON oi.orderno = o.orderno
+    WHERE o.memberno = #{memberno}
+      AND oi.productsno = #{productsno}
+      AND o.order_state IN ('결제완료', '배송완료')  <!-- 필요에 따라 상태 추가 -->
+  </select>
+
 
 
 

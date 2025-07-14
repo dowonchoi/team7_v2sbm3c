@@ -8,11 +8,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import dev.mvc.order.OrderProcInter;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/review")
 public class ReviewCont {
+
+  @Autowired
+  @Qualifier("dev.mvc.order.OrderProc")
+  private OrderProcInter orderProc;
 
   @Autowired
   @Qualifier("dev.mvc.review.ReviewProc")
@@ -29,7 +34,13 @@ public class ReviewCont {
     if (memberno == null) {
       return "redirect:/member/login_cookie_need?url=/review/create?productsno=" + productsno;
     }
-
+    // 🔥 구매 이력 확인
+    int count = orderProc.count_by_member_products(memberno, productsno);
+    if (count == 0) {
+      model.addAttribute("code", "review_not_allowed");
+      model.addAttribute("msg", "상품을 구매한 회원만 리뷰를 작성할 수 있습니다.");
+      return "products/msg";  // msg.html 템플릿을 만들어 보여주기
+    }
     model.addAttribute("productsno", productsno);
     return "review/create"; // review/create.html
   }
