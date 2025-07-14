@@ -26,4 +26,6 @@ public interface OrderDAOInter {
    public List<OrderVO> list_by_supplier(int memberno);
 
    public int countOrders(int memberno);
+   
+   
 }

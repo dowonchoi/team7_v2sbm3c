@@ -170,4 +170,8 @@ public class OrderProc implements OrderProcInter {
   public int countCancelledOrders(int memberno) {
       return 0; // 임시
   }
+  
+  
+  
+  
 }

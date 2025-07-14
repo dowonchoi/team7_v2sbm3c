@@ -33,5 +33,8 @@ public interface OrderProcInter {
   /** 공급자: 내 상품이 포함된 주문 목록 조회 */
   public List<OrderVO> list_by_supplier(int memberno);
   
+  public List<OrderWithItemsVO> list_with_items_by_supplier(int memberno);
+
+  
 
 }

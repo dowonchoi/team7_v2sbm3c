@@ -72,5 +72,7 @@
   <select id="countOrders" resultType="int" parameterType="int">
     SELECT COUNT(*) FROM orders WHERE memberno = #{memberno}
   </select>
+  
+  
 
 </mapper>

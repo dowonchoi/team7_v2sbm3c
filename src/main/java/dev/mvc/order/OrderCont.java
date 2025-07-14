@@ -215,15 +215,12 @@ public class OrderCont {
       return "redirect:/member/login_cookie_need";
     }
 
-    // 🔄 기존: 주문 전체 + 모든 상품
-    // List<OrderVO> orderList = orderProc.list_by_supplier(memberno);
-
-    // ✅ 변경: 주문 + 내 상품만 포함된 VO
-    List<OrderWithItemsVO> orderList = orderProc.list_with_items_by_member(memberno);
-
+    List<OrderWithItemsVO> orderList = orderProc.list_with_items_by_supplier(memberno);
     model.addAttribute("orderList", orderList);
-    return "order/list_by_supplier";  // templates/order/list_by_supplier.html
+
+    return "order/list_by_supplier";
   }
+
 
 
 
