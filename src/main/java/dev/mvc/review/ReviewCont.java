@@ -7,8 +7,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import dev.mvc.order.OrderProcInter;
+import dev.mvc.tool.Tool;
+import dev.mvc.tool.Upload;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -47,22 +51,65 @@ public class ReviewCont {
 
   @PostMapping("/create_proc")
   public String create_proc(ReviewVO reviewVO, HttpSession session) {
-    Integer memberno = (Integer) session.getAttribute("memberno");
-    if (memberno == null) {
-      return "redirect:/member/login_cookie_need?url=/review/create?productsno=" + reviewVO.getProductsno();
-    }
+      Integer memberno = (Integer) session.getAttribute("memberno");
+      if (memberno == null) {
+          return "redirect:/member/login_cookie_need?url=/review/create?productsno=" + reviewVO.getProductsno();
+      }
 
-    // 세션에서 작성자 정보 설정
-    reviewVO.setMemberno(memberno);
+      // 1. 작성자 설정
+      reviewVO.setMemberno(memberno);
 
-    // 감정 분석 및 요약 처리 (FastAPI 연동 서비스 호출)
-    reviewLLMService.process(reviewVO);  // 오류가 나더라도 예외 catch로 진행
+      // 2. 업로드 디렉토리
+      String upDir = Review.getUploadDir();
+      //Tool.makeDir(upDir); // 폴더 없으면 생성
 
-    // DB에 리뷰 등록
-    reviewProc.create(reviewVO);
+      // 3. 파일 업로드 처리
+      // ✅ file1
+      MultipartFile mf1 = reviewVO.getFile1MF();
+      String file1 = mf1.getOriginalFilename();
+      String file1saved = "";
+      long size1 = mf1.getSize();
+      if (size1 > 0) {
+          file1saved = Upload.saveFileSpring(mf1, upDir);
+      }
+      reviewVO.setFile1(file1);
+      reviewVO.setFile1saved(file1saved);
+      reviewVO.setSize1(size1);
 
-    return "redirect:/products/read?productsno=" + reviewVO.getProductsno();
+      // ✅ file2
+      MultipartFile mf2 = reviewVO.getFile2MF();
+      String file2 = mf2.getOriginalFilename();
+      String file2saved = "";
+      long size2 = mf2.getSize();
+      if (size2 > 0) {
+          file2saved = Upload.saveFileSpring(mf2, upDir);
+      }
+      reviewVO.setFile2(file2);
+      reviewVO.setFile2saved(file2saved);
+      reviewVO.setSize2(size2);
+
+      // ✅ file3
+      MultipartFile mf3 = reviewVO.getFile3MF();
+      String file3 = mf3.getOriginalFilename();
+      String file3saved = "";
+      long size3 = mf3.getSize();
+      if (size3 > 0) {
+          file3saved = Upload.saveFileSpring(mf3, upDir);
+      }
+      reviewVO.setFile3(file3);
+      reviewVO.setFile3saved(file3saved);
+      reviewVO.setSize3(size3);
+
+      // 4. 감정 분석 & 요약 (FastAPI)
+      reviewLLMService.process(reviewVO);
+
+      // 5. DB 저장
+      reviewProc.create(reviewVO);
+
+      // 6. 상품 상세 페이지로 리다이렉트
+      return "redirect:/products/read?productsno=" + reviewVO.getProductsno();
   }
+
   
   /**
    * 리뷰 수정 폼
@@ -180,6 +227,100 @@ public class ReviewCont {
 
     // 6. 권한 없음
     return "redirect:/member/login_cookie_need";
+  }
+
+  /**
+   * 리뷰 이미지 수정 폼 출력
+   * @param reviewno 리뷰 기본키
+   * @param model Model 객체에 reviewVO 담아 뷰로 전달
+   * @param session 로그인 세션 (권한 확인에 사용 가능)
+   * @return 이미지 수정 페이지 템플릿 이름
+   */
+  @GetMapping("/update_file")
+  public String update_file(@RequestParam("reviewno") int reviewno,
+                            Model model,
+                            HttpSession session) {
+
+    // 🔸 (1) 리뷰 1건 조회 (파일 포함)
+    ReviewVO reviewVO = this.reviewProc.read(reviewno);
+
+    // 🔸 (2) 화면 출력용으로 model에 등록
+    model.addAttribute("reviewVO", reviewVO);
+
+    // 🔸 (3) (선택) 로그인 정보로 본인 확인, 관리자 권한 검사도 가능
+    // Integer memberno = (Integer) session.getAttribute("memberno");
+    // if (memberno != reviewVO.getMemberno()) { ... }
+
+    return "review/update_file";  // ⬅ /templates/review/update_file.html로 이동
+  }
+  
+  /**
+   * 리뷰 이미지 파일 수정 처리
+   * - 기존 이미지 삭제 → 새 이미지 업로드 → DB update
+   * @param reviewVO 폼에서 전달받은 리뷰 객체 (reviewno 포함)
+   * @param ra 리다이렉트 파라미터
+   * @param session 세션 정보
+   * @return 상세보기 리다이렉트
+   */
+  @PostMapping("/update_file_proc")
+  public String update_file_proc(@ModelAttribute ReviewVO reviewVO,
+                                 RedirectAttributes ra,
+                                 HttpSession session) {
+
+    // 1. 기존 리뷰 정보
+    ReviewVO oldVO = this.reviewProc.read(reviewVO.getReviewno());
+
+    // 2. 업로드 경로 확보 (폴더 자동 생성)
+    String upDir = Review.getUploadDir();
+
+    // 3. 기존 파일 삭제
+    Tool.deleteFile(upDir, oldVO.getFile1saved());
+    Tool.deleteFile(upDir, oldVO.getFile2saved());
+    Tool.deleteFile(upDir, oldVO.getFile3saved());
+
+    // 4. 파일 업로드
+    // file1
+    MultipartFile mf1 = reviewVO.getFile1MF();
+    String file1 = mf1.getOriginalFilename();
+    String file1saved = "";
+    long size1 = mf1.getSize();
+    if (size1 > 0) {
+      file1saved = Upload.saveFileSpring(mf1, upDir);
+    }
+    reviewVO.setFile1(file1);
+    reviewVO.setFile1saved(file1saved);
+    reviewVO.setSize1(size1);
+
+    // file2
+    MultipartFile mf2 = reviewVO.getFile2MF();
+    String file2 = mf2.getOriginalFilename();
+    String file2saved = "";
+    long size2 = mf2.getSize();
+    if (size2 > 0) {
+      file2saved = Upload.saveFileSpring(mf2, upDir);
+    }
+    reviewVO.setFile2(file2);
+    reviewVO.setFile2saved(file2saved);
+    reviewVO.setSize2(size2);
+
+    // file3
+    MultipartFile mf3 = reviewVO.getFile3MF();
+    String file3 = mf3.getOriginalFilename();
+    String file3saved = "";
+    long size3 = mf3.getSize();
+    if (size3 > 0) {
+      file3saved = Upload.saveFileSpring(mf3, upDir);
+    }
+    reviewVO.setFile3(file3);
+    reviewVO.setFile3saved(file3saved);
+    reviewVO.setSize3(size3);
+
+    // 5. DB update
+    this.reviewProc.update_file(reviewVO);
+
+    // 6. redirect → 상품 상세
+    ra.addAttribute("productsno", reviewVO.getProductsno());
+    return "redirect:/products/read";
   }
 
 

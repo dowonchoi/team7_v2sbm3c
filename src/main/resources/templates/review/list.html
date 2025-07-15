@@ -1,29 +1,46 @@
 <!-- templates/review/list.html -->
-<!-- layout.html 상속 제거 → fragment로만 사용할 것이기 때문에 -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
   <div th:fragment="reviewListFragment(reviewList)">
-
     <div class="review-list-box">
       <h4>리뷰 목록</h4>
 
-      <!-- 리뷰 없을 경우 -->
+      <!-- ✅ 리뷰가 없을 때 -->
       <div th:if="${#lists.isEmpty(reviewList)}">
         <p>작성된 리뷰가 없습니다.</p>
       </div>
 
-      <!-- 리뷰 반복 출력 -->
+      <!-- ✅ 리뷰 반복 출력 -->
       <div th:each="review : ${reviewList}" class="review-item">
+        
+        <!-- ✅ 작성자 및 날짜 -->
         <div class="review-header">
           <strong th:text="${review.mname}">작성자</strong>
           <span class="review-date" th:text="${#dates.format(review.rdate, 'yyyy.MM.dd')}"></span>
         </div>
 
+        <!-- ✅ 리뷰 본문 + 이미지 -->
         <div class="review-content">
           <p th:text="${review.content}"></p>
+
+          <!-- 이미지 1 -->
+          <div th:if="${review.file1saved != null and review.file1saved != ''}">
+            <img th:src="@{'/review/storage/' + ${review.file1saved}}" alt="리뷰 이미지1" style="max-width:150px; margin: 5px 0;">
+          </div>
+
+          <!-- 이미지 2 -->
+          <div th:if="${review.file2saved != null and review.file2saved != ''}">
+            <img th:src="@{'/review/storage/' + ${review.file2saved}}" alt="리뷰 이미지2" style="max-width:150px; margin: 5px 0;">
+          </div>
+
+          <!-- 이미지 3 -->
+          <div th:if="${review.file3saved != null and review.file3saved != ''}">
+            <img th:src="@{'/review/storage/' + ${review.file3saved}}" alt="리뷰 이미지3" style="max-width:150px; margin: 5px 0;">
+          </div>
         </div>
 
-        <div class="review-emotion-summary">
+        <!-- ✅ 감정 분석 + 요약 -->
+        <div class="review-emotion-summary" style="margin-top: 8px;">
           <span class="review-emotion">
             감정 분석:
             <span th:if="${review.emotion == 1}">😊 긍정</span>
@@ -35,19 +52,19 @@
             요약: <span th:text="${review.summary}"></span>
           </span>
         </div>
-        <!-- 리뷰 하단에 수정/삭제 버튼 -->
-        <div th:if="${sessionMemberno != null and sessionMemberno == review.memberno}">
-          <a th:href="@{'/review/update?reviewno=' + ${review.reviewno}}" class="btn btn-sm">수정</a>
+
+        <!-- ✅ 수정/삭제/이미지 수정 버튼 -->
+        <div th:if="${sessionMemberno != null and sessionMemberno == review.memberno}" style="margin-top: 10px;">
+          <a th:href="@{'/review/update?reviewno=' + ${review.reviewno}}" class="btn btn-sm btn-primary">수정</a>
+          <a th:href="@{'/review/update_file?reviewno=' + ${review.reviewno}}" class="btn btn-sm btn-outline-secondary">이미지 수정</a>
           <form th:action="@{/review/delete_proc}" method="post" style="display:inline;">
             <input type="hidden" name="reviewno" th:value="${review.reviewno}" />
-            <button type="submit" class="btn btn-sm" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
+            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
           </form>
         </div>
-
 
         <hr>
       </div>
     </div>
-
   </div>
 </html>

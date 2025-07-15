@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+
+  <div class="title_line">리뷰 > 이미지 수정</div>
+
+  <div class="menu_line"></div>
+
+  <fieldset class="fieldset_basic">
+    <ul>
+      <li class="li_none">
+        <!-- ✅ 기존 이미지 출력 영역 -->
+        <div style="width: 50%; float: left;">
+          
+          <!-- 기존 이미지 1 -->
+          <div th:if="${reviewVO.file1saved != null}" style="text-align: center;">
+            <img th:src="@{'/review/storage/' + ${reviewVO.file1saved}}" style="width: 90%;">
+          </div>
+          <div th:if="${reviewVO.file1saved == null}" style="text-align: center;">
+            <img src="/review/images/none1.png" style="width: 90%;">
+          </div>
+          <br/>
+
+          <!-- 기존 이미지 2 -->
+          <div th:if="${reviewVO.file2saved != null}" style="text-align: center;">
+            <img th:src="@{'/review/storage/' + ${reviewVO.file2saved}}" style="width: 90%;">
+          </div>
+          <div th:if="${reviewVO.file2saved == null}" style="text-align: center;">
+            <img src="/review/images/none2.png" style="width: 90%;">
+          </div>
+          <br/>
+
+          <!-- 기존 이미지 3 -->
+          <div th:if="${reviewVO.file3saved != null}" style="text-align: center;">
+            <img th:src="@{'/review/storage/' + ${reviewVO.file3saved}}" style="width: 90%;">
+          </div>
+          <div th:if="${reviewVO.file3saved == null}" style="text-align: center;">
+            <img src="/review/images/none3.png" style="width: 90%;">
+          </div>
+
+        </div>
+
+        <!-- ✅ 이미지 수정 폼 영역 -->
+        <div style="width: 45%; float: right; text-align: left;">
+          <form method="post" th:action="@{/review/update_file_proc}" enctype="multipart/form-data">
+
+            <input type="hidden" name="reviewno" th:value="${reviewVO.reviewno}" />
+            <input type="hidden" name="productsno" th:value="${reviewVO.productsno}" />
+
+            변경 이미지 1<br>
+            <input type="file" name="file1MF"><br><br>
+
+            변경 이미지 2<br>
+            <input type="file" name="file2MF"><br><br>
+
+            변경 이미지 3<br>
+            <input type="file" name="file3MF"><br><br>
+
+            <div style="margin-top: 20px; clear: both;">
+              <button type="submit" class="btn btn-primary btn-sm">이미지 변경</button>
+              <a th:href="@{/products/read(productsno=${reviewVO.productsno})}" class="btn btn-secondary btn-sm">취소</a>
+            </div>
+          </form>
+        </div>
+      </li>
+    </ul>
+  </fieldset>
+
+</div>
+</html>

@@ -65,6 +65,15 @@ public class ReviewProc implements ReviewProcInter {
     return this.reviewDAO.countPurchasedByMember(memberno, productsno);
   }
 
+  /**
+   * 리뷰 이미지 파일 정보만 수정
+   * @param reviewVO
+   * @return 1 (성공), 0 (실패)
+   */
+  @Override
+  public int update_file(ReviewVO reviewVO) {
+    return this.reviewDAO.update_file(reviewVO);
+  }
   
 
 }

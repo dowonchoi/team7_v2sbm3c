@@ -18,4 +18,10 @@ public interface ReviewProcInter {
   
   public int countPurchasedByMember(@Param("memberno") int memberno, @Param("productsno") int productsno);
 
+  /**
+   * 리뷰 이미지 파일 정보만 수정
+   * @param reviewVO
+   * @return 수정된 행 수 (1: 성공)
+   */
+  public int update_file(ReviewVO reviewVO);
 }
