@@ -1,7 +1,7 @@
 <!-- templates/review/list.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-  <div th:fragment="reviewListFragment(reviewList)">
+  <div th:fragment="reviewListFragment(reviewList, productsno)">
     <div class="review-list-box">
       <h4>리뷰 목록</h4>
 
@@ -10,61 +10,145 @@
         <p>작성된 리뷰가 없습니다.</p>
       </div>
 
-      <!-- ✅ 리뷰 반복 출력 -->
-      <div th:each="review : ${reviewList}" class="review-item">
-        
-        <!-- ✅ 작성자 및 날짜 -->
-        <div class="review-header">
-          <strong th:text="${review.mname}">작성자</strong>
-          <span class="review-date" th:text="${#dates.format(review.rdate, 'yyyy.MM.dd')}"></span>
-        </div>
-
-        <!-- ✅ 리뷰 본문 + 이미지 -->
-        <div class="review-content">
-          <p th:text="${review.content}"></p>
-
-          <!-- 이미지 1 -->
-          <div th:if="${review.file1saved != null and review.file1saved != ''}">
-            <img th:src="@{'/review/storage/' + ${review.file1saved}}" alt="리뷰 이미지1" style="max-width:150px; margin: 5px 0;">
+       <!-- ✅ 리뷰 목록 컨테이너 -->
+      <div id="review-container">
+        <!-- ✅ 리뷰 반복 출력 -->
+        <div th:each="review : ${reviewList}" class="review-item">
+          
+          <!-- ✅ 작성자 및 날짜 -->
+          <div class="review-header">
+            <strong th:text="${review.mname}">작성자</strong>
+            <span class="review-date" th:text="${#dates.format(review.rdate, 'yyyy.MM.dd')}"></span>
           </div>
 
-          <!-- 이미지 2 -->
-          <div th:if="${review.file2saved != null and review.file2saved != ''}">
-            <img th:src="@{'/review/storage/' + ${review.file2saved}}" alt="리뷰 이미지2" style="max-width:150px; margin: 5px 0;">
+          <!-- ✅ 리뷰 본문 + 이미지 -->
+          <div class="review-content">
+            <p th:text="${review.content}"></p>
+
+            <!-- 이미지 1 -->
+            <div th:if="${review.file1saved != null and review.file1saved != ''}">
+              <img th:src="@{'/review/storage/' + ${review.file1saved}}" alt="리뷰 이미지1" style="max-width:150px; margin: 5px 0;">
+            </div>
+
+            <!-- 이미지 2 -->
+            <div th:if="${review.file2saved != null and review.file2saved != ''}">
+              <img th:src="@{'/review/storage/' + ${review.file2saved}}" alt="리뷰 이미지2" style="max-width:150px; margin: 5px 0;">
+            </div>
+
+            <!-- 이미지 3 -->
+            <div th:if="${review.file3saved != null and review.file3saved != ''}">
+              <img th:src="@{'/review/storage/' + ${review.file3saved}}" alt="리뷰 이미지3" style="max-width:150px; margin: 5px 0;">
+            </div>
+
+            <!-- ✅ 수정/삭제/이미지 수정 버튼 -->
+            <div th:if="${sessionMemberno == review.memberno}">
+            <!-- <div th:if="${sessionMemberno != null and sessionMemberno.equals(review.memberno)}"> -->
+            <!-- <div th:if="${review != null and sessionMemberno != null and sessionMemberno == review.memberno}"> -->
+            <!-- <div th:if="${sessionMemberno != null and sessionMemberno == review.memberno}"> -->
+            <!-- <div th:if="${#httpSession != null and #httpSession.getAttribute('memberno') != null and #httpSession.getAttribute('memberno') == review.memberno}"> -->
+            <!-- <div th:if="${#httpSession.getAttribute('memberno') != null and #httpSession.getAttribute('memberno') == review.memberno}" style="margin-top: 10px;"> -->
+              <a th:href="@{'/review/update?reviewno=' + ${review.reviewno}}" class="btn btn-sm btn-primary">수정</a>
+              <a th:href="@{'/review/update_file?reviewno=' + ${review.reviewno}}" class="btn btn-sm btn-outline-secondary">이미지 수정</a>
+              <form th:action="@{/review/delete_proc}" method="post" style="display:inline;">
+                <input type="hidden" name="reviewno" th:value="${review.reviewno}" />
+                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
+              </form>
+            </div>
           </div>
 
-          <!-- 이미지 3 -->
-          <div th:if="${review.file3saved != null and review.file3saved != ''}">
-            <img th:src="@{'/review/storage/' + ${review.file3saved}}" alt="리뷰 이미지3" style="max-width:150px; margin: 5px 0;">
+          <!-- ✅ 감정 분석 + 요약 -->
+          <div class="review-emotion-summary" style="margin-top: 8px;">
+            <span class="review-emotion">
+              감정 분석:
+              <span th:if="${review.emotion == 1}">😊 긍정</span>
+              <span th:if="${review.emotion == 0}">☹️ 부정</span>
+              <span th:if="${review.emotion == null}">❔ 분석되지 않음</span>
+            </span>
+            <br>
+            <span class="review-summary" th:if="${review.summary != null}">
+              요약: <span th:text="${review.summary}"></span>
+            </span>
           </div>
-        </div>
+          </div>
 
-        <!-- ✅ 감정 분석 + 요약 -->
-        <div class="review-emotion-summary" style="margin-top: 8px;">
-          <span class="review-emotion">
-            감정 분석:
-            <span th:if="${review.emotion == 1}">😊 긍정</span>
-            <span th:if="${review.emotion == 0}">☹️ 부정</span>
-            <span th:if="${review.emotion == null}">❔ 분석되지 않음</span>
-          </span>
-          <br>
-          <span class="review-summary" th:if="${review.summary != null}">
-            요약: <span th:text="${review.summary}"></span>
-          </span>
+          <hr>
         </div>
-
-        <!-- ✅ 수정/삭제/이미지 수정 버튼 -->
-        <div th:if="${sessionMemberno != null and sessionMemberno == review.memberno}" style="margin-top: 10px;">
-          <a th:href="@{'/review/update?reviewno=' + ${review.reviewno}}" class="btn btn-sm btn-primary">수정</a>
-          <a th:href="@{'/review/update_file?reviewno=' + ${review.reviewno}}" class="btn btn-sm btn-outline-secondary">이미지 수정</a>
-          <form th:action="@{/review/delete_proc}" method="post" style="display:inline;">
-            <input type="hidden" name="reviewno" th:value="${review.reviewno}" />
-            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
-          </form>
-        </div>
-
-        <hr>
       </div>
+
+      <!-- 더보기 버튼 -->
+      <div style="text-align:center; margin-top:10px;">
+        <button id="loadMoreBtn" class="btn btn-outline-primary" style="display:none;">더보기</button>
+      </div>
+
+      <!-- ✅ Ajax 스크립트 -->
+      <script th:inline="javascript">
+        let offset = 3;
+        let limit = 3;
+        if (typeof productsno === 'undefined') {
+          var productsno = /*[[${productsno}]]*/ 0;
+        }
+        const sessionMemberno = /*[[${sessionMemberno != null ? sessionMemberno : 0}]]*/ 0;
+        const initialCount = /*[[${reviewList != null ? reviewList.size() : 0}]]*/ 0;
+
+        document.addEventListener("DOMContentLoaded", function() {
+          const btn = document.getElementById("loadMoreBtn");
+          if (initialCount >= 3) btn.style.display = "block";
+
+          btn.addEventListener("click", function() {
+            fetch(`/review/more?productsno=${productsno}&offset=${offset}&limit=${limit}`)
+              .then(response => response.json())
+              .then(data => {
+                if (data.length === 0) {
+                  btn.style.display = "none";
+                  return;
+                }
+
+                const container = document.getElementById("review-container");
+                data.forEach(review => {
+                  const isOwner = sessionMemberno === review.memberno;
+                  const buttonsHtml = isOwner ? `
+                    <div style="margin-top:10px;">
+                      <a href="/review/update?reviewno=${review.reviewno}" class="btn btn-sm btn-primary">수정</a>
+                      <a href="/review/update_file?reviewno=${review.reviewno}" class="btn btn-sm btn-outline-secondary">이미지 수정</a>
+                      <form action="/review/delete_proc" method="post" style="display:inline;">
+                        <input type="hidden" name="reviewno" value="${review.reviewno}">
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
+                      </form>
+                    </div>` : '';
+
+                  const reviewHtml = `
+                    <div class="review-item">
+                      <div class="review-header"><strong>${review.mname}</strong>
+                        <span class="review-date">${formatDate(review.rdate)}</span>
+                      </div>
+                      <div class="review-content">
+                        <p>${review.content}</p>
+                        ${review.file1saved ? `<img src="/review/storage/${review.file1saved}" style="max-width:150px;">` : ''}
+                        ${review.file2saved ? `<img src="/review/storage/${review.file2saved}" style="max-width:150px;">` : ''}
+                        ${review.file3saved ? `<img src="/review/storage/${review.file3saved}" style="max-width:150px;">` : ''}
+                      </div>
+                      <div class="review-emotion-summary">
+                        감정 분석: ${review.emotion === 1 ? '😊 긍정' : review.emotion === 0 ? '☹️ 부정' : '❔ 분석되지 않음'}
+                        <br>${review.summary ? `요약: ${review.summary}` : ''}
+                      </div>
+                      ${buttonsHtml}
+                      <hr>
+                    </div>`;
+                  container.insertAdjacentHTML('beforeend', reviewHtml);
+                });
+                offset += limit;
+              })
+              .catch(error => console.error("리뷰 로딩 실패:", error));
+          });
+        });
+
+        function formatDate(dateStr) {
+          const date = new Date(dateStr);
+          return `${date.getFullYear()}.${(date.getMonth()+1).toString().padStart(2,'0')}.${date.getDate().toString().padStart(2,'0')}`;
+        }
+      </script>
+
     </div>
   </div>
+
 </html>

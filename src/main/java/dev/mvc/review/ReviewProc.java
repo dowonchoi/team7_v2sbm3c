@@ -1,6 +1,8 @@
 package dev.mvc.review;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -74,6 +76,21 @@ public class ReviewProc implements ReviewProcInter {
   public int update_file(ReviewVO reviewVO) {
     return this.reviewDAO.update_file(reviewVO);
   }
+  
+  @Override
+  public List<ReviewMemberVO> list_join_by_productsno_paging(int productsno, int start, int end) {
+      return reviewDAO.list_join_by_productsno_paging(productsno, start, end);
+  }
+  
+  @Override
+  public List<ReviewMemberVO> list_more(int productsno, int offset, int limit) {
+      Map<String, Object> map = new HashMap<>();
+      map.put("productsno", productsno);
+      map.put("offset", offset);
+      map.put("limit", limit);
+      return reviewDAO.list_more(map);
+  }
+
   
 
 }

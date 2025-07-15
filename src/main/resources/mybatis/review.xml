@@ -175,7 +175,44 @@
   </update>
 
 
+  <!-- 리뷰 목록 (페이징, 3개씩 가져오기) -->
+  <select id="list_join_by_productsno_paging" resultType="dev.mvc.review.ReviewMemberVO">
+    SELECT * FROM (
+      SELECT ROWNUM AS rnum, R.* FROM (
+        SELECT 
+          rv.reviewno,
+          rv.productsno,
+          rv.memberno,
+          rv.content,
+          rv.summary,
+          rv.emotion,
+          TO_CHAR(rv.rdate, 'YYYY-MM-DD') AS rdate,
+          rv.file1, rv.file1saved, rv.size1,
+          rv.file2, rv.file2saved, rv.size2,
+          rv.file3, rv.file3saved, rv.size3,
+          m.mname
+        FROM review rv
+        JOIN member m ON rv.memberno = m.memberno
+        WHERE rv.productsno = #{productsno}
+        ORDER BY rv.reviewno DESC
+      ) R
+    )
+    WHERE rnum BETWEEN #{start} AND #{end}
+  </select>
 
+  <select id="list_more" resultType="dev.mvc.review.ReviewMemberVO" parameterType="map">
+      SELECT 
+          R.reviewno, R.productsno, R.memberno, R.content, R.summary, R.emotion, R.rdate,
+          R.file1, R.file1saved, R.size1,
+          R.file2, R.file2saved, R.size2,
+          R.file3, R.file3saved, R.size3,
+          M.mname
+      FROM review R
+      JOIN member M ON R.memberno = M.memberno
+      WHERE R.productsno = #{productsno}
+      ORDER BY R.reviewno DESC
+      OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+  </select>
 
 
 

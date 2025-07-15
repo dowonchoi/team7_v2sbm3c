@@ -1,6 +1,7 @@
 package dev.mvc.review;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 
@@ -39,4 +40,11 @@ public interface ReviewDAOInter {
    */
   public int update_file(ReviewVO reviewVO);
   
+  public List<ReviewMemberVO> list_join_by_productsno_paging(
+      @Param("productsno") int productsno,
+      @Param("start") int start,
+      @Param("end") int end);
+
+  List<ReviewMemberVO> list_more(Map<String, Object> map);
+
 }

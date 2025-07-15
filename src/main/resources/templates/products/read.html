@@ -279,7 +279,7 @@
                 </div>
 
                 <!-- 리뷰 목록 include -->
-                <div th:replace="~{review/list :: reviewListFragment(reviewList=${reviewList})}"></div>
+                <div th:replace="~{review/list :: reviewListFragment(reviewList=${reviewList}, productsno=${productsVO.productsno})}"></div>
               </div>
             </div>
             <div id="product-tab-qna" class="product-tab-section" style="display: none;">
@@ -419,8 +419,14 @@
 
 
               <!-- productsno를 JS 변수로 분리 -->
-              <script th:inline="javascript">
+               <!-- 상품 리뷰 수정 삭제 버튼 안보여서 작업하다가 수정함 -->
+              <!-- <script th:inline="javascript">
                 const productsno = /*[[${productsVO.productsno}]]*/ 0;
+              </script> -->
+              <script th:inline="javascript">
+                if (typeof productsno === 'undefined') {
+                  var productsno = /*[[${productsVO.productsno}]]*/ 0;
+                }
               </script>
 
               <script>

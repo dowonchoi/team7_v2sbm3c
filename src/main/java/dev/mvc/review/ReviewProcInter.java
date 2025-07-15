@@ -24,4 +24,12 @@ public interface ReviewProcInter {
    * @return 수정된 행 수 (1: 성공)
    */
   public int update_file(ReviewVO reviewVO);
+  
+  public List<ReviewMemberVO> list_join_by_productsno_paging(
+      @Param("productsno") int productsno,
+      @Param("start") int start,
+      @Param("end") int end);
+
+  List<ReviewMemberVO> list_more(int productsno, int offset, int limit);
+
 }

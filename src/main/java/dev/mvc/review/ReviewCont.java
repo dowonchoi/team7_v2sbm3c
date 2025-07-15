@@ -324,6 +324,22 @@ public class ReviewCont {
     return "redirect:/products/read";
   }
 
+  @GetMapping("/more")
+  @ResponseBody
+  public List<ReviewMemberVO> loadMoreReviews(
+         @RequestParam("productsno") int productsno,
+         @RequestParam("offset") int offset,
+         @RequestParam(value = "limit", defaultValue = "3") int limit) {
+  
+     System.out.println("[ReviewCont] loadMoreReviews 호출됨 - productsno: " + productsno + ", offset: " + offset + ", limit: " + limit);
+  
+     // Proc → DAO에서 데이터 가져오기
+     List<ReviewMemberVO> reviewList = reviewProc.list_more(productsno, offset, limit);
+  
+     System.out.println("[ReviewCont] 조회된 리뷰 개수: " + reviewList.size());
+     return reviewList; // JSON으로 반환
+  }
+
 
 
   
