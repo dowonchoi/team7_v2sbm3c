@@ -13,7 +13,7 @@
        <!-- ✅ 리뷰 목록 컨테이너 -->
       <div id="review-container">
         <!-- ✅ 리뷰 반복 출력 -->
-        <div th:each="review : ${reviewList}" class="review-item">
+        <div th:each="review, stat : ${reviewList}" th:if="${stat.index < 3}" class="review-item">
           
           <!-- ✅ 작성자 및 날짜 -->
           <div class="review-header">
