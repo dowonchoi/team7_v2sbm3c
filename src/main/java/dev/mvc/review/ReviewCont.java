@@ -43,6 +43,7 @@ public class ReviewCont {
     if (count == 0) {
       model.addAttribute("code", "review_not_allowed");
       model.addAttribute("msg", "상품을 구매한 회원만 리뷰를 작성할 수 있습니다.");
+      model.addAttribute("productsno", productsno);
       return "products/msg";  // msg.html 템플릿을 만들어 보여주기
     }
     model.addAttribute("productsno", productsno);

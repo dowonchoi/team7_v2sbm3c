@@ -21,9 +21,12 @@
             다시 시도해주세요.
           </div>
           
-          <div th:case="review_not_allowed">
+          <div th:if="${code == 'review_not_allowed'}">
             <span class="span_fail">상품을 구매한 회원만 리뷰를 작성할 수 있습니다.</span><br>
+            <a th:href="@{/products/read(productsno=${productsno})}" class="btn btn-primary">상품 상세로 돌아가기</a>
           </div>
+        </li>
+
           <!--/*
           <div th:case="update_success">
             <span class="span_success">카테고리 수정에 성공했습니다.</span><br>
@@ -46,7 +49,8 @@
         </li>
         */-->
 
-        <li class="li_none">
+        <!-- ✅ 나머지 경우에만 전체목록 버튼 출력 -->
+        <li class="li_none" th:if="${code != 'review_not_allowed'}">
           <div th:if="${cnt == 0}">
             <button type="button" onclick="history.back()" class="btn btn-secondary btn-sm">다시 시도</button>
           </div>
