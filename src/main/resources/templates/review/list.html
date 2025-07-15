@@ -1,27 +1,26 @@
-<!-- templates/review/list.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
   <div th:fragment="reviewListFragment(reviewList, productsno)">
     <div class="review-list-box">
       <h4>리뷰 목록</h4>
 
-      <!-- ✅ 리뷰가 없을 때 -->
+      <!-- 리뷰가 없을 때 -->
       <div th:if="${#lists.isEmpty(reviewList)}">
         <p>작성된 리뷰가 없습니다.</p>
       </div>
 
-       <!-- ✅ 리뷰 목록 컨테이너 -->
+       <!-- 리뷰 목록 컨테이너 -->
       <div id="review-container">
-        <!-- ✅ 리뷰 반복 출력 -->
+        <!-- 리뷰 반복 출력 -->
         <div th:each="review, stat : ${reviewList}" th:if="${stat.index < 3}" class="review-item">
           
-          <!-- ✅ 작성자 및 날짜 -->
+          <!-- 작성자 및 날짜 -->
           <div class="review-header">
             <strong th:text="${review.mname}">작성자</strong>
             <span class="review-date" th:text="${#dates.format(review.rdate, 'yyyy.MM.dd')}"></span>
           </div>
 
-          <!-- ✅ 리뷰 본문 + 이미지 -->
+          <!-- 리뷰 본문 + 이미지 -->
           <div class="review-content">
             <p th:text="${review.content}"></p>
 
@@ -40,13 +39,8 @@
               <img th:src="@{'/review/storage/' + ${review.file3saved}}" alt="리뷰 이미지3" style="max-width:150px; margin: 5px 0;">
             </div>
 
-            <!-- ✅ 수정/삭제/이미지 수정 버튼 -->
+            <!-- 수정/삭제/이미지 수정 버튼 -->
             <div th:if="${sessionMemberno == review.memberno}">
-            <!-- <div th:if="${sessionMemberno != null and sessionMemberno.equals(review.memberno)}"> -->
-            <!-- <div th:if="${review != null and sessionMemberno != null and sessionMemberno == review.memberno}"> -->
-            <!-- <div th:if="${sessionMemberno != null and sessionMemberno == review.memberno}"> -->
-            <!-- <div th:if="${#httpSession != null and #httpSession.getAttribute('memberno') != null and #httpSession.getAttribute('memberno') == review.memberno}"> -->
-            <!-- <div th:if="${#httpSession.getAttribute('memberno') != null and #httpSession.getAttribute('memberno') == review.memberno}" style="margin-top: 10px;"> -->
               <a th:href="@{'/review/update?reviewno=' + ${review.reviewno}}" class="btn btn-sm btn-primary">수정</a>
               <a th:href="@{'/review/update_file?reviewno=' + ${review.reviewno}}" class="btn btn-sm btn-outline-secondary">이미지 수정</a>
               <form th:action="@{/review/delete_proc}" method="post" style="display:inline;">
@@ -56,7 +50,7 @@
             </div>
           </div>
 
-          <!-- ✅ 감정 분석 + 요약 -->
+          <!-- 감정 분석 + 요약 -->
           <div class="review-emotion-summary" style="margin-top: 8px;">
             <span class="review-emotion">
               감정 분석:
@@ -78,22 +72,30 @@
       <!-- 더보기 버튼 -->
       <div style="text-align:center; margin-top:10px;">
         <button id="loadMoreBtn" class="btn btn-outline-primary" style="display:none;">더보기</button>
+        <button id="collapseBtn" class="btn btn-outline-secondary" style="display:none;">접기</button>
       </div>
 
-      <!-- ✅ Ajax 스크립트 -->
+      <!-- Ajax 스크립트 -->
       <script th:inline="javascript">
         let offset = 3;
         let limit = 3;
+
+        // productsno JS 변수 보장
         if (typeof productsno === 'undefined') {
           var productsno = /*[[${productsno}]]*/ 0;
         }
+
         const sessionMemberno = /*[[${sessionMemberno != null ? sessionMemberno : 0}]]*/ 0;
         const initialCount = /*[[${reviewList != null ? reviewList.size() : 0}]]*/ 0;
 
         document.addEventListener("DOMContentLoaded", function() {
           const btn = document.getElementById("loadMoreBtn");
+          const collapseBtn = document.getElementById("collapseBtn");
+          const container = document.getElementById("review-container");
+
           if (initialCount >= 3) btn.style.display = "block";
 
+          // ✅ 더보기 버튼 클릭 이벤트
           btn.addEventListener("click", function() {
             fetch(`/review/more?productsno=${productsno}&offset=${offset}&limit=${limit}`)
               .then(response => response.json())
@@ -103,7 +105,6 @@
                   return;
                 }
 
-                const container = document.getElementById("review-container");
                 data.forEach(review => {
                   const isOwner = sessionMemberno === review.memberno;
                   const buttonsHtml = isOwner ? `
@@ -116,8 +117,9 @@
                       </form>
                     </div>` : '';
 
+                  // ✅ .appended 클래스 부여 (나중에 삭제용)
                   const reviewHtml = `
-                    <div class="review-item">
+                    <div class="review-item appended">
                       <div class="review-header"><strong>${review.mname}</strong>
                         <span class="review-date">${formatDate(review.rdate)}</span>
                       </div>
@@ -134,11 +136,32 @@
                       ${buttonsHtml}
                       <hr>
                     </div>`;
+
                   container.insertAdjacentHTML('beforeend', reviewHtml);
                 });
+
                 offset += limit;
+
+                // ✅ 마지막 페이지면 더보기 숨김
+                if (data.length < limit) {
+                  btn.style.display = "none";
+                }
+
+                // ✅ 접기 버튼은 데이터 추가 후 활성화
+                collapseBtn.style.display = "block";
               })
               .catch(error => console.error("리뷰 로딩 실패:", error));
+          });
+
+          // ✅ 접기 버튼 클릭 이벤트
+          collapseBtn.addEventListener("click", function() {
+            // 동적으로 추가된 리뷰 모두 삭제
+            document.querySelectorAll('.review-item.appended').forEach(el => el.remove());
+            offset = 3; // offset 초기화
+            collapseBtn.style.display = "none"; // 접기 숨김
+            if (initialCount > 3) {
+              btn.style.display = "block"; // 다시 더보기 보이도록
+            }
           });
         });
 
@@ -147,6 +170,7 @@
           return `${date.getFullYear()}.${(date.getMonth()+1).toString().padStart(2,'0')}.${date.getDate().toString().padStart(2,'0')}`;
         }
       </script>
+
 
     </div>
   </div>
