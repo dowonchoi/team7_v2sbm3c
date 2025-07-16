@@ -11,4 +11,8 @@ public interface NotificationProcInter {
   public int markNotificationAsRead(int notification_id);
 
   public int create(NotificationVO vo);  // 알림 등록 메서드
+  
+  public int insertNotification(NotificationVO notificationVO);
+  
+  public int delete(int notification_id);
 }

@@ -8,6 +8,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import dev.mvc.notification.NotificationProcInter;
+import dev.mvc.notification.NotificationVO;
+
 @Controller
 @RequestMapping("/inquiry")
 public class InquiryCont {
@@ -15,6 +18,10 @@ public class InquiryCont {
   @Autowired
   @Qualifier("dev.mvc.inquiry.InquiryProc")
   private InquiryProcInter inquiryProc;
+  
+  @Autowired
+  @Qualifier("dev.mvc.notification.NotificationProc")
+  private NotificationProcInter notificationProc;
 
   @GetMapping("/create")
   public String createForm() {
@@ -26,7 +33,7 @@ public class InquiryCont {
       Integer memberno = (Integer) session.getAttribute("memberno");
       String id = (String) session.getAttribute("id");
       String name = (String) session.getAttribute("mname");
-      String grade = (String) session.getAttribute("grade");  // ✅ 문자열로 받아옴
+      String grade = (String) session.getAttribute("grade");
 
       inquiryVO.setMemberno(memberno);
       inquiryVO.setWriter_id(id);
@@ -41,6 +48,23 @@ public class InquiryCont {
       }
 
       inquiryProc.create(inquiryVO);
+
+      // ✅ 문의 제목 자르기 (너무 길면 ...)
+      String title = inquiryVO.getTitle();
+      if (title.length() > 20) {
+          title = title.substring(0, 20) + "...";
+      }
+
+      // ✅ 관리자에게 알림 전송
+      NotificationVO notificationVO = new NotificationVO();
+      notificationVO.setMemberno(1); // 관리자 memberno (고정값)
+      notificationVO.setType("inquiry");
+      notificationVO.setMessage("새로운 1:1 문의 [" + title + "]가 등록되었습니다.");
+      notificationVO.setUrl("/inquiry/list_all");
+      notificationVO.setIs_read("N");
+
+      notificationProc.create(notificationVO);
+
       return "redirect:/inquiry/list_by_member";
   }
 
@@ -142,23 +166,40 @@ public class InquiryCont {
   }
   
   @PostMapping("/reply")
-  public String reply(HttpSession session, InquiryVO inquiryVO) {
+  public String reply(@RequestParam("inquiry_id") int inquiry_id,
+                      @RequestParam("answer") String answer,
+                      HttpSession session) {
       String grade = (String) session.getAttribute("grade");
-      String adminId = (String) session.getAttribute("id");
 
+      // 1. 관리자만 접근 가능
       if (!"admin".equals(grade)) {
           return "redirect:/error/permission";
       }
 
-      // 관리자 정보 설정
-      inquiryVO.setAnswer_admin(adminId);
+      // 2. 기존 문의글 조회 및 답변 등록
+      InquiryVO vo = inquiryProc.read(inquiry_id);
+      vo.setAnswer(answer);
+      inquiryProc.updateAnswer(vo);
 
-      // 답변 등록
-      inquiryProc.updateAnswer(inquiryVO);
+      // 3. 제목 자르기 (optional)
+      String title = vo.getTitle();
+      if (title.length() > 20) {
+          title = title.substring(0, 20) + "...";
+      }
 
-      // ✅ 답변 후 전체 문의 목록으로 이동
-      return "redirect:/inquiry/list_all";
+      // 4. 알림 등록
+      NotificationVO notificationVO = new NotificationVO();
+      notificationVO.setMemberno(vo.getMemberno());  // 문의 남긴 사람
+      notificationVO.setType("inquiry"); // ✅ QnA처럼 type 구분 추천
+      notificationVO.setMessage("문의하신 글 [" + title + "]에 답변이 등록되었습니다.");
+      notificationVO.setUrl("/inquiry/read?inquiry_id=" + inquiry_id);
+      notificationVO.setIs_read("N");
+
+      notificationProc.create(notificationVO);  // insertNotification → create 로 통일
+
+      return "redirect:/inquiry/read?inquiry_id=" + inquiry_id;
   }
+
   
   @PostMapping("/delete_reply")
   public String deleteReply(@RequestParam("inquiry_id") int inquiry_id, HttpSession session) {

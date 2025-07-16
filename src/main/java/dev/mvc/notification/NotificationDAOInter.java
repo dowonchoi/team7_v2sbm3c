@@ -10,5 +10,8 @@ public interface NotificationDAOInter {
   
   public int markNotificationAsRead(int notification_id);
   
-  public int insertNotification(NotificationVO vo);
+  public int insertNotification(NotificationVO notificationVO);
+ 
+  public int delete(int notification_id);
+
 }

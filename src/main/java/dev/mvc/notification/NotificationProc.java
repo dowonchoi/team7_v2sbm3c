@@ -1,10 +1,9 @@
 package dev.mvc.notification;
 
 import java.util.List;
-
+import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.apache.ibatis.session.SqlSession;
 
 @Service("dev.mvc.notification.NotificationProc")
 public class NotificationProc implements NotificationProcInter {
@@ -12,7 +11,7 @@ public class NotificationProc implements NotificationProcInter {
   @Autowired
   private SqlSession sqlSession;
 
-  private static final String NAMESPACE = "dev.mvc.notification.NotificationDAOInter";
+  private final String NAMESPACE = "dev.mvc.notification.NotificationDAOInter";
 
   @Override
   public int countUnreadNotifications(int memberno) {
@@ -30,8 +29,17 @@ public class NotificationProc implements NotificationProcInter {
   }
 
   @Override
-  public int create(NotificationVO vo) {
-    return sqlSession.insert(NAMESPACE + ".insertNotification", vo);
+  public int create(NotificationVO notificationVO) {
+    return sqlSession.insert(NAMESPACE + ".insertNotification", notificationVO);
   }
 
+  @Override
+  public int insertNotification(NotificationVO notificationVO) {
+    return sqlSession.insert(NAMESPACE + ".insertNotification", notificationVO);
+  }
+  
+  @Override
+  public int delete(int notification_id) {
+    return sqlSession.delete(NAMESPACE + ".delete", notification_id);
+  }
 }

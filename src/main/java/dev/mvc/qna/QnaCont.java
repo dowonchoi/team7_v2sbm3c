@@ -71,10 +71,23 @@ public class QnaCont {
       }
 
       this.qnaProc.create(qnaVO);
-      
-      // ✅ 작성 후 COMMUNITY 화면으로 이동
+
+      // ✅ 관리자에게 알림 전송 (관리자 memberno가 1번이라고 가정)
+      NotificationVO notificationVO = new NotificationVO();
+      notificationVO.setMemberno(1);  // 관리자 번호
+      notificationVO.setType("qna");
+      String title = qnaVO.getTitle();
+      if (title.length() > 20) {
+          title = title.substring(0, 20) + "...";
+      }
+      notificationVO.setMessage("새로운 Q&A [" + title + "]가 등록되었습니다.");
+      notificationVO.setUrl("/qna/list");  // 관리자 확인 경로
+      notificationVO.setIs_read("N");
+      notificationProc.create(notificationVO);
+
       return "redirect:/notice/list";
   }
+
 
   // 사용자 유형별 Q&A 목록
   @GetMapping("/list")

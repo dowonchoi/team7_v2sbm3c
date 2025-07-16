@@ -24,12 +24,9 @@ public class NotificationCont {
   public int countUnread(HttpSession session) {
     Integer membernoObj = (Integer) session.getAttribute("memberno");
     if (membernoObj == null) {
-      return 0;  // 로그인 안 했으면 알림 개수 0으로
+      return 0;
     }
     int memberno = membernoObj;
-    // 1. 로그인한 사용자 번호 출력 (popup_list)
-    System.out.println("현재 로그인한 memberno: " + session.getAttribute("memberno"));
-
     return notificationProc.countUnreadNotifications(memberno);
   }
 
@@ -38,25 +35,25 @@ public class NotificationCont {
   public String list(Model model, HttpSession session) {
     Integer membernoObj = (Integer) session.getAttribute("memberno");
     if (membernoObj == null) {
-      return "redirect:/member/login";  // 로그인 안 했으면 로그인 페이지로
+      return "redirect:/member/login";
     }
     int memberno = membernoObj;
     List<NotificationVO> list = notificationProc.selectNotificationsByMemberId(memberno);
     model.addAttribute("list", list);
     return "/notification/list";
   }
-  
+
+  /** 알림 팝업 목록 */
   @GetMapping("/list_popup")
   public String listPopup(Model model, HttpSession session) {
     Integer membernoObj = (Integer) session.getAttribute("memberno");
-    System.out.println("팝업 알림 조회 - 로그인한 memberno: " + membernoObj); // ✅ 꼭 확인
     if (membernoObj == null) {
-        return "notification/popup_list_empty";  // 로그인 안 했을 때
+      return "notification/popup_list_empty";
     }
     int memberno = membernoObj;
     List<NotificationVO> list = notificationProc.selectNotificationsByMemberId(memberno);
     model.addAttribute("list", list);
-    return "notification/popup_list";  // ✅ popup_list.html로 이동
+    return "notification/popup_list";
   }
 
   /** 알림 읽음 처리 */
@@ -66,11 +63,36 @@ public class NotificationCont {
     int cnt = notificationProc.markNotificationAsRead(notification_id);
     return cnt == 1 ? "success" : "fail";
   }
-  
+
+  /** 알림 클릭 후 리디렉션 */
   @GetMapping("/read_and_redirect")
   public String readAndRedirect(@RequestParam("notification_id") int notification_id,
                                 @RequestParam("url") String url) {
-      notificationProc.markNotificationAsRead(notification_id);
-      return "redirect:" + url;
+    notificationProc.markNotificationAsRead(notification_id);
+    return "redirect:" + url;
   }
+
+  // ✅ 알림 생성용 공통 메서드 (컨트롤러에서 직접 호출 가능)
+  public void createNotification(int targetMemberno, String message, String url) {
+    NotificationVO noti = new NotificationVO();
+    noti.setMemberno(targetMemberno);
+    noti.setMessage(message);
+    noti.setUrl(url);
+    notificationProc.create(noti);
+  }
+  
+  /** 알림 삭제 */
+  @PostMapping("/delete")
+  public String delete(@RequestParam("notification_id") int notification_id, HttpSession session) {
+    Integer memberno = (Integer) session.getAttribute("memberno");
+    if (memberno == null) {
+      return "redirect:/member/login";
+    }
+
+    // 🔒 본인 알림인지 확인하는 코드 추가 가능
+    notificationProc.delete(notification_id);
+
+    return "redirect:/inquiry/list_by_member"; // ✅ 알림 삭제 후 문의 목록으로 이동
+  }
+
 }

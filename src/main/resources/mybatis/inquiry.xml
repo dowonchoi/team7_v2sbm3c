@@ -53,7 +53,7 @@
     UPDATE inquiry
     SET answer = #{answer},
         answer_date = SYSDATE,
-        answer_admin = #{answer_admin}
+        answer_admin = #{answer_admin, jdbcType=VARCHAR}
     WHERE inquiry_id = #{inquiry_id}
   </update>
   
