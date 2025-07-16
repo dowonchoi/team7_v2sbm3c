@@ -74,5 +74,13 @@
       AND recom > 0
     ORDER BY recom DESC
   </select>
+  
+  <select id="getProductsgoodByMember" resultType="dev.mvc.products.ProductsVO">
+    SELECT P.*
+    FROM productsgood G
+      JOIN products P ON G.productsno = P.productsno
+    WHERE G.memberno = #{memberno}
+    ORDER BY G.productsno DESC
+  </select>
 
 </mapper>

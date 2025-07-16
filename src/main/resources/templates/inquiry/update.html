@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+
+  <h2>1:1 문의 수정</h2>
+
+  <form th:action="@{/inquiry/update}" method="post">
+    <input type="hidden" name="inquiry_id" th:value="${inquiryVO.inquiry_id}" />
+
+    <div class="mb-3">
+      <label>제목</label>
+      <input type="text" class="form-control" name="title" th:value="${inquiryVO.title}" required />
+    </div>
+
+    <div class="mb-3">
+      <label>내용</label>
+      <textarea class="form-control" name="content" rows="5" th:text="${inquiryVO.content}"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">수정 완료</button>
+    <a th:href="@{/inquiry/list_by_member}" class="btn btn-secondary">취소</a>
+  </form>
+
+</div>
+</html>

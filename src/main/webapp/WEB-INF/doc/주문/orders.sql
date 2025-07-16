@@ -65,8 +65,9 @@ WHERE orderno IN (
 );
 
 SELECT o.orderno, o.rdate, o.total, o.status
-FROM orders o
+FROM orders
 WHERE NOT EXISTS (
   SELECT 1 FROM order_item i WHERE i.orderno = o.orderno
 );
 
+commit;

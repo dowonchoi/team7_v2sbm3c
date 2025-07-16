@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dev.mvc.inquiry.InquiryDAOInter">
+
+  <!-- 1:1 문의 등록 -->
+  <insert id="create" parameterType="dev.mvc.inquiry.InquiryVO">
+    INSERT INTO inquiry (
+      inquiry_id, title, content, writer_id, writer_name, user_type, memberno, reg_date
+    ) VALUES (
+      inquiry_seq.NEXTVAL, #{title}, #{content}, #{writer_id}, #{writer_name}, #{user_type}, #{memberno}, SYSDATE
+    )
+  </insert>
+
+  <!-- 내가 작성한 문의 개수 -->
+  <select id="countByMember" parameterType="int" resultType="int">
+    SELECT COUNT(*) FROM inquiry WHERE memberno = #{memberno}
+  </select>
+
+  <!-- 목록 조회 -->
+  <select id="listByMember" resultType="dev.mvc.inquiry.InquiryVO">
+    SELECT * FROM inquiry WHERE memberno = #{memberno} ORDER BY reg_date DESC
+  </select>
+  
+  <select id="list_all" resultType="dev.mvc.inquiry.InquiryVO">
+    SELECT * FROM inquiry ORDER BY reg_date DESC
+  </select>
+
+  <update id="updateViewCount" parameterType="int">
+    UPDATE inquiry
+    SET view_count = view_count + 1
+    WHERE inquiry_id = #{inquiry_id}
+  </update>
+  
+  <select id="read" parameterType="int" resultType="dev.mvc.inquiry.InquiryVO">
+    SELECT * FROM inquiry WHERE inquiry_id = #{inquiry_id}
+  </select>
+  
+  <update id="update" parameterType="dev.mvc.inquiry.InquiryVO">
+    UPDATE inquiry
+    SET title = #{title},
+        content = #{content}
+    WHERE inquiry_id = #{inquiry_id}
+  </update>
+  
+  <delete id="delete" parameterType="int">
+    DELETE FROM inquiry
+    WHERE inquiry_id = #{inquiry_id}
+  </delete>
+  
+  <update id="updateAnswer" parameterType="dev.mvc.inquiry.InquiryVO">
+    UPDATE inquiry
+    SET answer = #{answer},
+        answer_date = SYSDATE,
+        answer_admin = #{answer_admin}
+    WHERE inquiry_id = #{inquiry_id}
+  </update>
+  
+  <update id="deleteAnswer" parameterType="int">
+    UPDATE inquiry
+    SET answer = NULL,
+        answer_admin = NULL,
+        answer_date = NULL
+    WHERE inquiry_id = #{inquiry_id}
+  </update>
+
+</mapper>

@@ -2,6 +2,7 @@ package dev.mvc.productsgood;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import dev.mvc.products.ProductsVO;
@@ -60,6 +61,8 @@ public interface ProductsgoodDAOInter {
   public ArrayList<ProductsVO> list_user_liked_products(int memberno);
 
   public ArrayList<ProductsVO> list_supplier_products_liked(int memberno);
+  
+  public List<ProductsVO> getProductsgoodByMember(int memberno);
 
 }
 

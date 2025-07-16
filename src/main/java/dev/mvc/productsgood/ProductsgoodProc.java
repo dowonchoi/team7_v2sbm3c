@@ -2,6 +2,7 @@ package dev.mvc.productsgood;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,6 +87,11 @@ public class ProductsgoodProc implements ProductsgoodProcInter {
   @Override
   public ArrayList<ProductsVO> list_supplier_products_liked(int memberno) {
     return this.productsgoodDAO.list_supplier_products_liked(memberno);
+  }
+  
+  @Override
+  public List<ProductsVO> getProductsgoodByMember(int memberno) {
+      return productsgoodDAO.getProductsgoodByMember(memberno);
   }
 
 }

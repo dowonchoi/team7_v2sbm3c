@@ -46,20 +46,34 @@
 
   <div class="section-title">혜택 관리</div>
   <div class="info-boxes">
-    <div class="info-box"><strong>쿠폰</strong><span th:text="${couponCount} + '장'"></span></div>
+    <!-- <div class="info-box"><strong>쿠폰</strong><span th:text="${couponCount} + '장'"></span></div> -->
     <div class="info-box"><strong>포인트</strong><span th:text="${pointAmount} + 'P'"></span></div>
   </div>
 
-  <div class="section-title">최근 주문 내역</div>
+  <div class="section-title">
+    최근 주문 내역
+
+    <!-- 소비자 (grade 16~39) -->
+    <a th:if="${memberVO.grade >= 16 and memberVO.grade <= 39}" 
+      th:href="@{/order/list_by_member}" 
+      class="btn-more" style="float:right; font-size: 14px;">더보기 ➤</a>
+
+    <!-- 공급자 (grade 5~15) -->
+    <a th:if="${memberVO.grade >= 5 and memberVO.grade <= 15}" 
+      th:href="@{/order/list_by_supplier}" 
+      class="btn-more" style="float:right; font-size: 14px;">더보기 ➤</a>
+  </div>
+
   <div class="order-table">
     <table>
       <thead>
         <tr><th>주문일자</th><th>주문번호</th><th>상품명</th><th>결제금액</th><th>상태</th></tr>
       </thead>
       <tbody>
-        <!-- 주문 목록 반복 -->
-        <tr th:each="order, stat : ${recentOrders}">
-          <td th:text="${order.rdate}"></td>
+        <!-- 🔥 최근 주문 내역 3건만 출력 -->
+        <tr th:each="order, stat : ${recentOrders}"
+            th:if="${stat.index < 3}">
+          <td th:text="${#dates.format(order.rdate, 'yyyy-MM-dd HH:mm')}"></td>
           <td th:text="${order.orderno}"></td>
 
           <td>
@@ -82,14 +96,65 @@
     </table>
   </div>
 
-  <div class="section-title">최근 본 상품</div>
-  <div class="recent-products">
-    <table>
-      <tr th:each="product : ${recentViewedProducts}">
-        <td><img th:src="@{'/product/images/' + ${product.image}}" th:alt="${product.name}" /></td>
-      </tr>
-    </table>
+  <!-- 추천 상품 (찜한 상품 기반) -->
+  <div class="section-title">추천 상품
+    <button id="toggleGoodBtn" onclick="toggleGoodProducts()" style="float: right; font-size: 14px;">더보기 ▼</button>
   </div>
+
+  <div id="goodProductsAjax" class="recent-products" style="display: flex; flex-wrap: wrap; gap: 16px;"></div>
+
+  <script>
+    let isGoodExpanded = false;
+
+    function renderGoodProducts(products) {
+      const container = document.getElementById('goodProductsAjax');
+      container.innerHTML = '';
+
+      if (products.length === 0) {
+        container.innerHTML = '<div>추천 상품이 없습니다.</div>';
+        return;
+      }
+
+      products.forEach((product, index) => {
+        const div = document.createElement('div');
+        div.classList.add('product-card');
+        if (index >= 3) div.classList.add('hidden-good-product');
+        div.style.width = '120px';
+        div.style.textAlign = 'center';
+
+        div.innerHTML = `
+          <a href="/products/read?productsno=${product.productsno}">
+            <div>
+              ${product.thumb1
+                ? `<img src="/products/storage/${product.thumb1}" alt="${product.title}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;" />`
+                : `<span>이미지 없음</span>`
+              }
+            </div>
+          </a>
+          <div style="margin-top: 5px; font-size: 14px;">
+            ${product.title}
+          </div>
+        `;
+        container.appendChild(div);
+      });
+
+      document.querySelectorAll('.hidden-good-product').forEach(el => el.style.display = 'none');
+    }
+
+    function toggleGoodProducts() {
+      const hiddenItems = document.querySelectorAll('.hidden-good-product');
+      const toggleBtn = document.getElementById('toggleGoodBtn');
+      hiddenItems.forEach(el => el.style.display = isGoodExpanded ? 'none' : 'block');
+      toggleBtn.innerText = isGoodExpanded ? '더보기 ▼' : '접기 ▲';
+      isGoodExpanded = !isGoodExpanded;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      fetch('/products/good_ajax')
+        .then(res => res.json())
+        .then(data => renderGoodProducts(data));
+    });
+  </script>
 
   <div class="section-title">활동 요약</div>
   <div class="info-boxes">

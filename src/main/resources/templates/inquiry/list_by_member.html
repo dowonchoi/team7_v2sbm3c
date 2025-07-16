@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+
+  <h2>📬 나의 1:1 문의 목록</h2>
+
+  <!-- ✅ 문의 등록 버튼: 테이블 바깥에 위치 -->
+  <div class="text-end mb-2">
+    <a th:href="@{/inquiry/create}" class="btn btn-primary">✍ 문의 등록</a>
+  </div>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>번호</th>
+        <th>제목</th>
+        <th>작성일</th>
+        <th>답변 상태</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="inquiry : ${list}">
+        <td th:text="${inquiry.inquiry_id}"></td> <!-- ✅ 번호 표시 -->
+        <td>
+          <a th:href="@{|/inquiry/read?inquiry_id=${inquiry.inquiry_id}|}"
+             th:text="${inquiry.title}"></a>
+        </td>
+        <td th:text="${#dates.format(inquiry.reg_date, 'yyyy-MM-dd')}"></td>
+        <td th:text="${inquiry.answer != null ? '답변 완료' : '답변 대기'}"
+          th:classappend="${inquiry.answer != null ? 'text-success fw-bold' : 'text-danger fw-bold'}">
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+</html>

@@ -18,7 +18,7 @@
       <!-- ✅ 주문 헤더 -->
       <div class="order-list-header">
         <div>
-          <strong th:text="${#dates.format(order.rdate, 'yyyy. M. d')} + ' 주문'"></strong>
+          <strong th:text="${#dates.format(order.rdate, 'yyyy. M. d')} + ' 주문번호 : ' + ${order.orderno}"></strong>
         </div>
         <div class="order-list-status">
           <span th:text="${order.status}">결제완료</span>

@@ -68,3 +68,5 @@ SELECT * FROM qna WHERE user_type = 'user';
 
 -- 공급자용 Q&A
 SELECT * FROM qna WHERE user_type = 'supplier';
+
+SELECT COUNT(*) FROM qna WHERE memberno = 4;

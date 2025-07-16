@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+
+  <link rel="stylesheet" href="/css/table.css"> <!-- 필요 시 스타일 추가 -->
+
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h2>1:1 문의 목록</h2>
+    <a th:href="@{/inquiry/create}" class="btn btn-primary">문의 등록</a>
+  </div>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>번호</th>
+        <th>제목</th>
+        <th>작성자</th>
+        <th>등록일</th>
+        <th>조회수</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="inquiry : ${inquiryList}">
+        <td th:text="${inquiry.inquiry_id}">1</td>
+        <td>
+          <a th:href="@{/inquiry/read(inquiry_id=${inquiry.inquiry_id})}" 
+             th:text="${inquiry.title}">제목</a>
+        </td>
+        <td th:text="${inquiry.writer_name}">홍길동</td>
+        <td th:text="${#dates.format(inquiry.reg_date, 'yyyy-MM-dd')}">2025-07-14</td>
+        <td th:text="${inquiry.view_count}">0</td>
+      </tr>
+
+      <tr th:if="${#lists.isEmpty(inquiryList)}">
+        <td colspan="5" style="text-align: center;">등록된 문의가 없습니다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+</html>

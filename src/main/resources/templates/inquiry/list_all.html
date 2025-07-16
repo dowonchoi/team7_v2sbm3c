@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+
+  <h2>전체 1:1 문의 목록</h2>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>번호</th>
+        <th>제목</th>
+        <th>작성자</th>
+        <th>유형</th>
+        <th>등록일</th>
+        <th>답변 상태</th>
+        <th>관리</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="vo : ${list}">
+        <td th:text="${vo.inquiry_id}">1</td>
+        <td>
+          <a th:href="@{|/inquiry/read?inquiry_id=${vo.inquiry_id}|}" th:text="${vo.title}">제목</a>
+        </td>
+        <td th:text="${vo.writer_name}">홍길동</td>
+        <td th:text="${vo.user_type}">user</td>
+        <td th:text="${#dates.format(vo.reg_date, 'yyyy-MM-dd HH:mm')}">2025-07-16</td>
+        
+        <!-- ✅ 답변 상태 -->
+        <td th:text="${vo.answer != null ? '답변 완료' : '답변 대기'}"
+            th:classappend="${vo.answer != null ? 'text-success fw-bold' : 'text-danger fw-bold'}">
+        </td>
+        
+        <td>
+          <a th:href="@{|/inquiry/delete?inquiry_id=${vo.inquiry_id}|}" 
+            onclick="return confirm('삭제하시겠습니까?')">삭제</a>
+        </td>
+      </tr>
+    </tbody>
+
+  </table>
+
+</div>
+</html>

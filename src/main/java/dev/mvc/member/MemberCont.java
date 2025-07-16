@@ -47,6 +47,7 @@ import java.nio.file.Paths;
 import dev.mvc.cart.CartProcInter;
 import dev.mvc.cate.CateProcInter;
 import dev.mvc.cate.CateVOMenu;
+import dev.mvc.inquiry.InquiryProcInter;
 import dev.mvc.login.LoginProcInter;
 import dev.mvc.login.LoginVO;
 import dev.mvc.order.OrderProcInter;
@@ -98,6 +99,10 @@ public class MemberCont {
   @Autowired
   @Qualifier("dev.mvc.qna.QnaProc") 
   private QnaProcInter qnaProc;
+  
+  @Autowired
+  @Qualifier("dev.mvc.inquiry.InquiryProc")
+  private InquiryProcInter inquiryProc;
   
   @Autowired  // 자동 주입 어노테이션 꼭 붙이기
   private MemberService memberService;
@@ -277,11 +282,10 @@ public class MemberCont {
 //      model.addAttribute("pointAmount", memberProc.getPoint(memberno));
 //      model.addAttribute("reviewCount", reviewProc.countByMember(memberno));
       model.addAttribute("qnaCount", qnaProc.countByMember(memberno));
-//      model.addAttribute("inquiryCount", inquiryProc.countByMember(memberno));
+      model.addAttribute("inquiryCount", inquiryProc.countByMember(memberno));
 
       return "/member/mypage";
   }
-
 
   @GetMapping("/list")
   public String list(

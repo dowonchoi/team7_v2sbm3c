@@ -1,7 +1,9 @@
 package dev.mvc.products;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -1110,5 +1112,23 @@ public class ProductsCont {
     return "카테고리 cnt 동기화 완료";
   }
   
+  @ResponseBody
+  @GetMapping("/good_ajax")
+  public List<ProductsVO> goodAjax(HttpSession session) {
+      Integer memberno = (Integer) session.getAttribute("memberno");
+      if (memberno == null) {
+          return Collections.emptyList();
+      }
+
+      return productsgoodProc.getProductsgoodByMember(memberno); // 찜한 상품 목록
+  }
   
+  @GetMapping("/detail")
+  public String detail(@RequestParam("productsno") int productsno, Model model) {
+      ProductsVO productsVO = productsProc.read(productsno);  // 상품 정보 조회
+      model.addAttribute("productsVO", productsVO);
+
+      return "/products/detail";  // templates/products/detail.html
+  }
+
 }

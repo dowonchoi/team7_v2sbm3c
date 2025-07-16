@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+
+  <h2>1:1 문의 상세 보기</h2>
+
+  <table class="table">
+    <tr>
+      <th>제목</th>
+      <td th:text="${inquiryVO.title}">제목</td>
+    </tr>
+    <tr>
+      <th>내용</th>
+      <td th:text="${inquiryVO.content}">내용</td>
+    </tr>
+    <tr>
+      <th>작성자</th>
+      <td th:text="${inquiryVO.writer_name}">홍길동</td>
+    </tr>
+    <tr>
+      <th>등록일</th>
+      <td th:text="${#dates.format(inquiryVO.reg_date, 'yyyy-MM-dd HH:mm')}">2025-07-14</td>
+    </tr>
+    <!-- <tr>
+      <th>조회수</th>
+      <td th:text="${inquiryVO.view_count}">0</td>
+    </tr> -->
+  </table>
+
+  <!-- 수정/삭제/목록 버튼: 공통 영역 -->
+  <div class="mt-4 d-flex justify-content-start gap-2">
+
+    <!-- 소비자/공급자 전용 수정/삭제 버튼 -->
+    <a th:if="${session.grade != 'admin'}"
+      th:href="@{/inquiry/update(inquiry_id=${inquiryVO.inquiry_id})}" 
+      class="btn btn-warning">수정</a>
+
+    <a th:if="${session.grade != 'admin'}"
+      th:href="@{/inquiry/delete(inquiry_id=${inquiryVO.inquiry_id})}" 
+      class="btn btn-danger" 
+      onclick="return confirm('정말 삭제하시겠습니까?')">삭제</a>
+
+    <!-- 목록 버튼: 등급에 따라 경로 다르게 -->
+    <a th:href="@{${session.grade == 'admin'} ? '/inquiry/list_all' : '/inquiry/list_by_member'}" 
+      class="btn btn-secondary">목록</a>
+
+  </div>
+
+  <!-- 관리자 전용 답변 작성 / 수정 / 삭제 -->
+<div th:if="${session.grade == 'admin'}" class="mt-5 p-4 border rounded bg-light">
+  <h4>📢 관리자 답변 작성</h4>
+
+  <!-- 답변 등록/수정 form -->
+  <form th:action="@{/inquiry/reply}" method="post">
+    <input type="hidden" name="inquiry_id" th:value="${inquiryVO.inquiry_id}" />
+
+    <div class="mb-3">
+      <label for="answer" class="form-label">답변 내용</label>
+      <textarea id="answer" name="answer" class="form-control" rows="5"
+                th:text="${inquiryVO.answer}"></textarea>
+    </div>
+
+    <!-- ✅ 수정/삭제 버튼을 같은 라인에 배치 -->
+    <div class="d-flex gap-2">
+      <!-- 등록/수정 버튼 -->
+      <button type="submit" class="btn btn-success">
+        <span th:text="${inquiryVO.answer != null ? '💬 답변 수정' : '💬 답변 등록'}">💬 답변 등록</span>
+      </button>
+
+      <!-- 답변이 있을 경우에만 삭제 버튼 표시 -->
+      <button th:if="${inquiryVO.answer != null}" 
+              type="submit" 
+              form="deleteReplyForm" 
+              class="btn btn-outline-danger"
+              onclick="return confirm('정말 답변을 삭제하시겠습니까?');">
+        🗑️ 답변 삭제
+      </button>
+    </div>
+  </form>
+
+  <!-- ✅ 삭제용 form은 숨겨두고 submit만 트리거 -->
+  <form id="deleteReplyForm" th:action="@{/inquiry/delete_reply}" method="post">
+    <input type="hidden" name="inquiry_id" th:value="${inquiryVO.inquiry_id}" />
+  </form>
+</div>
+
+
+</div>
+</html>

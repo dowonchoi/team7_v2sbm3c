@@ -35,7 +35,8 @@ import com.zaxxer.hikari.HikariDataSource;
                                         "dev.mvc.faq",
                                         "dev.mvc.shipments",
                                         "dev.mvc.notification",
-                                        "dev.mvc.chatbot"}) // DAO interface 패키지 등록
+                                        "dev.mvc.chatbot",
+                                        "dev.mvc.inquiry"}) // DAO interface 패키지 등록
 public class DatabaseConfiguration {
     
     @Autowired

@@ -39,6 +39,11 @@
             </a>
           </li>
 
+          <!-- ✅ 1:1 문의 메뉴 -->
+          <li class="nav-item" th:if="${session.memberno != null and session.grade != 'admin'}">
+            <a class="nav-link" th:href="@{/inquiry/list_by_member}">문의</a>
+          </li>
+          
           <!-- 기존 관리자, 회원 메뉴 아래에 추가할 부분 -->
           <li class="nav-item dropdown" th:if="${session.memberno != null}">
             <a class="nav-link dropdown-toggle" href="#" id="userMenuDropdown"
@@ -146,6 +151,7 @@
                   <li class="nav-item"><a class="nav-link" th:href="@{|/calendar/list_all|}">일정 목록</a></li>
                   <li class="nav-item"><a class="nav-link" th:href="@{|/productsgood/list_all|}">추천 목록</a></li>
                   <li class="nav-item"><a class="nav-link" th:href="@{/order/list_all}">전체 주문 내역</a></li>
+                  <li class="nav-item"><a class="nav-link" th:href="@{/inquiry/list_all}">전체 문의 관리</a></li>
               </ul>
           </li>
           
