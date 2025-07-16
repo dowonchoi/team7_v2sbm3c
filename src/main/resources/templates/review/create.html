@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+
+  <div class="review-create-box">
+    <h3>리뷰 작성</h3>
+
+    <!-- ✅ 파일 업로드 위해 enctype 추가 -->
+    <form th:action="@{/review/create_proc}" method="post" enctype="multipart/form-data">
+      <!-- 상품 번호 hidden -->
+      <input type="hidden" name="productsno" th:value="${productsno}"/>
+
+      <!-- 리뷰 내용 -->
+      <div class="form-group">
+        <label for="content">내용</label>
+        <textarea id="content" name="content" rows="5" required class="form-control"></textarea>
+      </div>
+
+      <!-- ✅ 이미지 업로드 필드 -->
+      <div class="form-group">
+        <label>이미지 첨부 (최대 3장)</label>
+        <input type="file" name="file1MF" class="form-control mb-2">
+        <input type="file" name="file2MF" class="form-control mb-2">
+        <input type="file" name="file3MF" class="form-control mb-2">
+      </div>
+
+      <!-- 버튼 -->
+      <div class="form-group mt-3">
+        <button type="submit" class="btn btn-primary">등록</button>
+        <a th:href="@{/products/read(productsno=${productsno})}" class="btn btn-secondary">취소</a>
+      </div>
+    </form>
+  </div>
+
+</div>
+</html>

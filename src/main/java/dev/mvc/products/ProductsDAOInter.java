@@ -176,8 +176,10 @@ public interface ProductsDAOInter {
   //제품 번호(productsno)를 기반으로, 해당 상품의 개당 포인트(point)를 조회하는 메서드
   public int getPointByProductsno(int productsno);
 
-  //ProductsDAOInter.java
   public List<ProductsVO> getRecentlyViewed(int memberno);
+  
+  public int countPurchasedByMember(@Param("memberno") int memberno, @Param("productsno") int productsno);
+
 }
  
  

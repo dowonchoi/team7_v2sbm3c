@@ -16,13 +16,22 @@
     WHERE orderno = #{orderno}
   </select>
   
-  <select id="list_by_orderno_with_memberno" resultType="dev.mvc.order_item.OrderItemVO">
+  <!-- <select id="list_by_orderno_with_memberno" resultType="dev.mvc.order_item.OrderItemVO">
     SELECT oi.*
     FROM order_item oi
       JOIN products p ON oi.productsno = p.productsno
     WHERE oi.orderno = #{orderno}
       AND p.memberno = #{memberno}
+  </select>-->
+  
+  <select id="list_by_orderno_with_memberno" resultType="dev.mvc.order_item.OrderItemVO" parameterType="map">
+    SELECT oi.*
+    FROM order_item oi
+    JOIN products p ON oi.productsno = p.productsno
+    WHERE oi.orderno = #{orderno}
+      AND p.memberno = #{memberno}
   </select>
+
 
 
 </mapper>

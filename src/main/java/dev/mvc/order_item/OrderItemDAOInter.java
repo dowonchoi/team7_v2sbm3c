@@ -19,4 +19,6 @@ public interface OrderItemDAOInter {
     public List<OrderItemVO> list_by_orderno(int orderno);
 
     public List<OrderItemVO> list_by_orderno_with_memberno(@Param("orderno") int orderno, @Param("memberno") int memberno);
+
+    
 }

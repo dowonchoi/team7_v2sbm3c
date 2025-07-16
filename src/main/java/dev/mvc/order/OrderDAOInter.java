@@ -2,6 +2,8 @@ package dev.mvc.order;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
 public interface OrderDAOInter {
   /**
    * 주문 생성
@@ -26,4 +28,14 @@ public interface OrderDAOInter {
    public List<OrderVO> list_by_supplier(int memberno);
 
    public int countOrders(int memberno);
+   
+   /**
+    * 특정 회원이 특정 상품을 주문한 적 있는지 확인
+    * @param memberno
+    * @param productsno
+    * @return 1 이상이면 주문함
+    */
+   public int count_by_member_products(@Param("memberno") int memberno, @Param("productsno") int productsno);
+
+   
 }

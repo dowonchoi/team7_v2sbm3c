@@ -186,4 +186,5 @@ public interface ProductsProcInter {
 
   public List<ProductsVO> getRecentlyViewed(int memberno);
   
+  
 }
