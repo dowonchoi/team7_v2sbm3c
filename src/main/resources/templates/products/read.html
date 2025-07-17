@@ -269,13 +269,15 @@
             </div>
             <div id="product-tab-review" class="product-tab-section" style="display: none;">
               <div class="review-box">
-                <h4>상품평</h4>
-
-                <!-- 리뷰 등록 버튼 -->
-                <div class="review-register-btn">
-                  <a th:href="@{/review/create(productsno=${productsVO.productsno})}" class="btn btn-sm btn-outline-primary">
-                    리뷰 작성
-                  </a>
+                <!-- 제목 + 버튼 한 줄 -->
+                <!-- ✅ 리뷰 목록 + 작성 버튼 같은 줄 -->
+                <div class="review-header-top">
+                  <h4 class="review-title">리뷰 목록</h4>
+                  <div class="review-btn-right">
+                    <a th:href="@{/review/create(productsno=${productsVO.productsno})}" class="btn btn-sm btn-primary">
+                      리뷰 작성
+                    </a>
+                  </div>
                 </div>
 
                 <!-- 리뷰 목록 include -->
