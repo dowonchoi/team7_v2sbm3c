@@ -84,6 +84,11 @@
   </form>
 </div>
 
+<!-- 일반 사용자에게 관리자 답변 보여주기 -->
+<div th:if="${session.grade != 'admin'} and ${inquiryVO.answer != null}" class="mt-5">
+  <h4>📌 관리자 답변</h4>
+  <div class="border p-3 rounded bg-white" th:text="${inquiryVO.answer}">관리자 답변 내용</div>
+</div>
 
 </div>
 </html>

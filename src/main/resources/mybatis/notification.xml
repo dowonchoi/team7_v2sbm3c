@@ -30,8 +30,13 @@
   
   <!-- 4. 알림 등록 -->
   <insert id="insertNotification" parameterType="dev.mvc.notification.NotificationVO">
-    INSERT INTO notification (notification_id, memberno, type, message, url )
-    VALUES ( notification_seq.NEXTVAL, #{memberno}, #{type}, #{message}, #{url} )
+    INSERT INTO notification (notification_id, memberno, type, message, url, is_read, created_at)
+    VALUES ( notification_seq.NEXTVAL, #{memberno}, #{type}, #{message}, #{url}, #{is_read}, SYSDATE)
   </insert>
+  
+  <delete id="delete" parameterType="int">
+    DELETE FROM notification WHERE notification_id = #{notification_id}
+  </delete>
+
 
 </mapper>

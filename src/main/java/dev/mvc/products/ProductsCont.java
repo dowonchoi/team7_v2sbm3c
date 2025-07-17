@@ -1113,7 +1113,6 @@ public class ProductsCont {
 
     return json.toString();  // 🔥 필수 리턴
   }
-
   
   /*
    * 20250619 추가 
@@ -1136,7 +1135,10 @@ public class ProductsCont {
 
       return productsgoodProc.getProductsgoodByMember(memberno); // 찜한 상품 목록
   }
+<<<<<<< HEAD
   
+=======
+>>>>>>> b652b6ea5cb7d9c7506dfe384e107291056f79e5
 
   @GetMapping("/detail")
   public String detail(@RequestParam("productsno") int productsno, Model model) {
@@ -1145,6 +1147,9 @@ public class ProductsCont {
 
       return "/products/detail";  // templates/products/detail.html
   }
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> b652b6ea5cb7d9c7506dfe384e107291056f79e5
 }

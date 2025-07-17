@@ -1,26 +1,31 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta charset="UTF-8">
-</head>
-<body>
-
 <ul class="notification-popup-list" th:if="${list != null and !list.isEmpty()}">
-  <li th:each="vo : ${list}">
+  <li th:each="vo : ${list}" style="margin-bottom: 10px; position: relative;">
+
+    <!-- ✅ 알림 본문 -->
     <a th:href="@{/notification/read_and_redirect(notification_id=${vo.notification_id}, url=${vo.url})}"
-    th:text="${vo.message}" class="notification-popup-message"></a>
+       class="notification-popup-message" style="margin-right: 40px; display: inline-block;">
+      
+      <span class="noti-icon" th:if="${vo.type == 'inquiry'}">📩</span>
+      <span class="noti-icon" th:if="${vo.type == 'qna'}">❓</span>
+      <span class="noti-icon" th:if="${vo.type == 'system'}">⚙️</span>
+      
+      <span th:text="${vo.message}">알림 내용</span>
+    </a>
+
+    <!-- ✅ 삭제 버튼 (폼으로 처리) -->
+    <form th:action="@{/notification/delete}" method="post" 
+          style="position: absolute; top: 0; right: 0;"
+          onsubmit="return confirm('이 알림을 삭제하시겠습니까?');">
+      <input type="hidden" name="notification_id" th:value="${vo.notification_id}" />
+      <button type="submit" style="border: none; background: transparent; color: red; font-size: 1.2em;">❌</button>
+    </form>
+
+    <!-- ✅ 메타 정보 -->
     <div class="notification-popup-meta">
-      <span th:text="${#dates.format(vo.created_at, 'yyyy-MM-dd HH:mm')}"></span>
+      <span th:if="${vo.created_at != null}"
+            th:text="${#dates.format(vo.created_at, 'yyyy-MM-dd HH:mm')}"></span>
       <span th:classappend="${vo.is_read == 'Y'} ? 'notification-read' : 'notification-new'" 
             th:text="${vo.is_read == 'Y' ? '읽음' : '새 알림'}"></span>
     </div>
   </li>
 </ul>
-
-<div class="notification-empty" th:if="${list == null or list.isEmpty()}">
-  🔒 로그인 후 확인 가능합니다.<br>
-  <a th:href="@{/member/login}" class="notification-btn">로그인하기</a>
-</div>
-
-</body>
-</html>
