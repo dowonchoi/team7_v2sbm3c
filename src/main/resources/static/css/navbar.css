@@ -1,17 +1,14 @@
 /* ==================== 상단 라벨 ==================== */
 .top_menu_label {
   font-size: 38px;
-  font-weight: 900; /* ✔️ 더 굵게 */
+  font-weight: 900;
   padding: 5px 14px;
-
   background: linear-gradient(90deg, #20c997, #f39c12);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
-
-  letter-spacing: -0.5px; /* ✔️ 자간 좁게 (글자가 더 동글하게) */
-
+  letter-spacing: -0.5px;
   display: inline-block;
   transition: all 0.3s ease;
 }
@@ -57,7 +54,7 @@
 /* ==================== 드롭다운 메뉴 ==================== */
 .dropdown-menu {
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: none;
   padding: 10px 0;
 }
@@ -84,7 +81,7 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' ... %3E");
 }
 
-/* ==================== popup_list CSS (파스텔톤) ==================== */
+/* ==================== 알림 팝업 ==================== */
 .notification-popup {
   position: absolute;
   top: 100%;
@@ -92,8 +89,8 @@
   margin-top: 10px;
   width: 320px;
   border-radius: 12px;
-  background-color: #fff7d6; /* 파스텔 베이지 */
-  color: #5c5c5c; /* 연한 진회색 */
+  background-color: #fff7d6;
+  color: #5c5c5c;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
   padding: 20px;
   z-index: 9999;
@@ -124,7 +121,7 @@
 
 .notification-popup-message {
   text-decoration: none;
-  color: #8b5e3c; /* 파스텔 브라운 느낌 */
+  color: #8b5e3c;
   display: block;
   font-size: 15px;
   font-weight: bold;
@@ -141,7 +138,7 @@
 }
 
 .notification-new {
-  color: #6fcf97; /* 파스텔 민트 느낌 */
+  color: #6fcf97;
   font-weight: bold;
 }
 
@@ -152,7 +149,7 @@
 .notification-btn {
   display: inline-block;
   padding: 8px 12px;
-  background-color: #f4a261; /* 파스텔 오렌지 */
+  background-color: #f4a261;
   color: #fff;
   border-radius: 8px;
   text-decoration: none;
@@ -160,5 +157,28 @@
 }
 
 .notification-btn:hover {
-  background-color: #e76f51; /* 짙은 오렌지 */
+  background-color: #e76f51;
+}
+
+/* ==================== 알림 배지 (🔔 옆 숫자) ==================== */
+#notificationCount {
+  font-size: 12px;
+  padding: 2px 6px;
+  position: absolute;
+  top: 2px;
+  right: -4px;
+  border-radius: 10px;
+  background-color: #dc3545;
+  color: white;
+}
+
+/* ==================== 반응형 (모바일 대응) ==================== */
+@media (max-width: 768px) {
+  .navbar-nav {
+    gap: 12px;
+  }
+  .nav-link {
+    font-size: 14px;
+    padding: 8px 10px;
+  }
 }
