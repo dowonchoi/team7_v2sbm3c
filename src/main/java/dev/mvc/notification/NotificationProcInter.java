@@ -15,4 +15,7 @@ public interface NotificationProcInter {
   public int insertNotification(NotificationVO notificationVO);
   
   public int delete(int notification_id);
+  
+  /** 알림 1건 조회 */
+  public NotificationVO read(int notification_id);
 }

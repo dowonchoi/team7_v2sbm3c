@@ -42,4 +42,11 @@ public class NotificationProc implements NotificationProcInter {
   public int delete(int notification_id) {
     return sqlSession.delete(NAMESPACE + ".delete", notification_id);
   }
+  
+  /** 알림 1건 조회 */
+  @Override
+  public NotificationVO read(int notification_id) {
+    return sqlSession.selectOne(NAMESPACE + ".read", notification_id);
+  }
+
 }

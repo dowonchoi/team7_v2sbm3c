@@ -38,3 +38,5 @@ WHERE inquiry_id = 1;
 COMMIT;
 
 SELECT COUNT(*) FROM inquiry WHERE memberno = 4;
+
+SELECT inquiry_id, title, memberno FROM inquiry ORDER BY reg_date DESC;

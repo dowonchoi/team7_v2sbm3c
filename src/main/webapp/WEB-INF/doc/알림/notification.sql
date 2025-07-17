@@ -38,3 +38,5 @@ ORDER BY created_at DESC;
 UPDATE notification
 SET is_read = 'Y'
 WHERE notification_id = #{notification_id};
+
+SELECT * FROM notification ORDER BY created_at DESC;

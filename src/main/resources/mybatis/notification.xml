@@ -31,12 +31,16 @@
   <!-- 4. 알림 등록 -->
   <insert id="insertNotification" parameterType="dev.mvc.notification.NotificationVO">
     INSERT INTO notification (notification_id, memberno, type, message, url, is_read, created_at)
-    VALUES ( notification_seq.NEXTVAL, #{memberno}, #{type}, #{message}, #{url}, #{is_read}, SYSDATE)
+    VALUES ( notification_seq.NEXTVAL, #{memberno}, #{type}, #{message}, #{url}, #{is_read, jdbcType=VARCHAR}, SYSDATE)
   </insert>
   
   <delete id="delete" parameterType="int">
     DELETE FROM notification WHERE notification_id = #{notification_id}
   </delete>
+
+  <select id="read" resultType="dev.mvc.notification.NotificationVO">
+    SELECT * FROM notification WHERE notification_id = #{notification_id}
+  </select>
 
 
 </mapper>

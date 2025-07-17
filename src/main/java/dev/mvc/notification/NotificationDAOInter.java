@@ -14,4 +14,5 @@ public interface NotificationDAOInter {
  
   public int delete(int notification_id);
 
+  public NotificationVO read(int notification_id);
 }
