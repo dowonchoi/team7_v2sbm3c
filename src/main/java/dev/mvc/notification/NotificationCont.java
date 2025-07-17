@@ -66,8 +66,7 @@ public class NotificationCont {
 
   /** 알림 클릭 후 리디렉션 */
   @GetMapping("/read_and_redirect")
-  public String readAndRedirect(@RequestParam("notification_id") int notification_id,
-                                @RequestParam("url") String url) {
+  public String readAndRedirect(@RequestParam("notification_id") int notification_id, @RequestParam("url") String url) {
     notificationProc.markNotificationAsRead(notification_id);
     return "redirect:" + url;
   }
@@ -80,7 +79,7 @@ public class NotificationCont {
     noti.setUrl(url);
     notificationProc.create(noti);
   }
-  
+
   /** 알림 삭제 */
   @PostMapping("/delete")
   public String delete(@RequestParam("notification_id") int notification_id, HttpSession session) {
@@ -89,10 +88,35 @@ public class NotificationCont {
       return "redirect:/member/login";
     }
 
-    // 🔒 본인 알림인지 확인하는 코드 추가 가능
+    // 🔎 삭제 전 알림 조회
+    NotificationVO noti = notificationProc.read(notification_id); // ← 해당 알림 가져오기
+
+    // 🔐 본인 알림인지 확인 로직 추가 가능 (memberno 비교)
+
+    // 삭제 수행
     notificationProc.delete(notification_id);
 
-    return "redirect:/inquiry/list_by_member"; // ✅ 알림 삭제 후 문의 목록으로 이동
+    // 세션에서 등급 확인
+    String grade = (String) session.getAttribute("grade");
+
+    // ✅ 알림 타입에 따라 분기
+    if ("qna".equals(noti.getType())) {
+      if ("admin".equals(grade)) {
+        return "redirect:/notice/list"; // 관리자: 전체 Q&A
+      } else if ("user".equals(grade)) {
+        return "redirect:/qna/list_user"; // 소비자: 소비자 Q&A
+      } else if ("supplier".equals(grade)) {
+        return "redirect:/qna/list_supplier"; // 공급자: 공급자 Q&A
+      } else {
+        return "redirect:/member/login"; // 예외 처리
+      }
+    } else {
+      if ("admin".equals(grade)) {
+        return "redirect:/inquiry/list_all"; // 관리자: 전체 문의
+      } else {
+        return "redirect:/inquiry/list_by_member"; // 소비자/공급자: 본인 문의
+      }
+    }
   }
 
 }
