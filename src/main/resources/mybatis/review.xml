@@ -5,11 +5,6 @@
 
 <mapper namespace="dev.mvc.review.ReviewDAOInter">
 
-  <!--  파일 업데이트 등록 전
-  <insert id="create" parameterType="dev.mvc.review.ReviewVO">
-    INSERT INTO review (reviewno, productsno, memberno, content, summary, emotion, rdate)
-    VALUES (review_seq.nextval, #{productsno}, #{memberno}, #{content}, #{summary}, #{emotion}, sysdate)
-  </insert> -->
   
   <!-- 리뷰 등록 (이미지 3개 포함 버전) -->
   <insert id="create" parameterType="dev.mvc.review.ReviewVO">

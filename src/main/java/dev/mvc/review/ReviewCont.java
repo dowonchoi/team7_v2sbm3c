@@ -1,6 +1,8 @@
 package dev.mvc.review;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,9 +29,11 @@ public class ReviewCont {
   @Qualifier("dev.mvc.review.ReviewProc")
   private ReviewProcInter reviewProc;
   
+//  @Autowired
+//  private ReviewLLMService reviewLLMService; // FastAPI 연동 서비스
+
   @Autowired
   private ReviewLLMService reviewLLMService; // FastAPI 연동 서비스
-
 
   @GetMapping("/create")
   public String create_form(@RequestParam("productsno") int productsno, Model model, HttpSession session) {
@@ -38,7 +42,7 @@ public class ReviewCont {
     if (memberno == null) {
       return "redirect:/member/login_cookie_need?url=/review/create?productsno=" + productsno;
     }
-    // 🔥 구매 이력 확인
+    // 구매 이력 확인
     int count = orderProc.count_by_member_products(memberno, productsno);
     if (count == 0) {
       model.addAttribute("code", "review_not_allowed");
@@ -50,6 +54,9 @@ public class ReviewCont {
     return "review/create"; // review/create.html
   }
 
+  /**
+   *  리뷰 작성 처리 + LLM 감정 분석/요약
+   */
   @PostMapping("/create_proc")
   public String create_proc(ReviewVO reviewVO, HttpSession session) {
       Integer memberno = (Integer) session.getAttribute("memberno");
@@ -65,7 +72,7 @@ public class ReviewCont {
       //Tool.makeDir(upDir); // 폴더 없으면 생성
 
       // 3. 파일 업로드 처리
-      // ✅ file1
+      // file1
       MultipartFile mf1 = reviewVO.getFile1MF();
       String file1 = mf1.getOriginalFilename();
       String file1saved = "";
@@ -77,7 +84,7 @@ public class ReviewCont {
       reviewVO.setFile1saved(file1saved);
       reviewVO.setSize1(size1);
 
-      // ✅ file2
+      // file2
       MultipartFile mf2 = reviewVO.getFile2MF();
       String file2 = mf2.getOriginalFilename();
       String file2saved = "";
@@ -89,7 +96,7 @@ public class ReviewCont {
       reviewVO.setFile2saved(file2saved);
       reviewVO.setSize2(size2);
 
-      // ✅ file3
+      // file3
       MultipartFile mf3 = reviewVO.getFile3MF();
       String file3 = mf3.getOriginalFilename();
       String file3saved = "";
@@ -101,10 +108,10 @@ public class ReviewCont {
       reviewVO.setFile3saved(file3saved);
       reviewVO.setSize3(size3);
 
-      // 4. 감정 분석 & 요약 (FastAPI)
+      // ✅ AI 감정 분석 & 요약
       reviewLLMService.process(reviewVO);
 
-      // 5. DB 저장
+      // DB 저장
       reviewProc.create(reviewVO);
 
       // 6. 상품 상세 페이지로 리다이렉트
@@ -151,14 +158,9 @@ public class ReviewCont {
 
     // 3. 작성자 본인만 수정 가능 (또는 관리자는 가능)
     if (sessionMemberno.equals(dbVO.getMemberno()) || grade.equals("admin")) {
-
-      // 4. 감정 분석 및 요약 처리
-      reviewLLMService.process(reviewVO); // 감정 분석 결과 및 요약 결과 reviewVO에 반영됨
-
-      // 5. DB 반영
-      int result = this.reviewProc.update(reviewVO);
-
-      // 6. 성공 시 해당 상품 상세 페이지로 이동
+      // ✅ 본문 수정 시 다시 분석
+      reviewLLMService.process(reviewVO);
+      reviewProc.update(reviewVO);
       return "redirect:/products/read?productsno=" + dbVO.getProductsno();
     }
 
@@ -338,6 +340,16 @@ public class ReviewCont {
   
      System.out.println("[ReviewCont] 조회된 리뷰 개수: " + reviewList.size());
      return reviewList; // JSON으로 반환
+  }
+
+  @GetMapping("/analysis_ajax")
+  @ResponseBody
+  public Map<String, Object> getReviewAnalysis(@RequestParam("reviewno") int reviewno) {
+      ReviewVO reviewVO = reviewProc.read(reviewno);
+      Map<String, Object> result = new HashMap<>();
+      result.put("emotion", reviewVO.getEmotion());
+      result.put("summary", reviewVO.getSummary());
+      return result;
   }
 
 

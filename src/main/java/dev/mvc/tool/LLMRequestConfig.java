@@ -10,9 +10,16 @@ public class LLMRequestConfig {
       System.out.println("-> LLMRequestConfig created.");  
     }
     
+    //@Bean
+    //public RestTemplate restTemplate() {
+    //    return new RestTemplate();
+    // }
+    
+ // ✅ LLM 전용 RestTemplate Bean 추가
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
+
 }
 

@@ -24,6 +24,9 @@ ALTER TABLE review ADD file3saved VARCHAR2(200);
 ALTER TABLE review ADD size3 NUMBER;
 
 
+SELECT reviewno, memberno FROM review ORDER BY reviewno DESC;
+
+
 CREATE SEQUENCE review_seq START WITH 1 INCREMENT BY 1;
 
 ALTER TABLE review ADD CONSTRAINT fk_review_products FOREIGN KEY (productsno) REFERENCES products(productsno);

@@ -53,16 +53,17 @@
           <!-- 감정 분석 + 요약 -->
           <div class="review-emotion-summary" style="margin-top: 8px;">
             <span class="review-emotion">
-              감정 분석:
-              <span th:if="${review.emotion == 1}">😊 긍정</span>
-              <span th:if="${review.emotion == 0}">☹️ 부정</span>
+              <strong>감정 분석:</strong>
+              <span th:if="${review.emotion == 1}">😊 긍정적인 상품후기입니다.</span>
+              <span th:if="${review.emotion == 0}">☹️ 부정적인 상품후기입니다.</span>
               <span th:if="${review.emotion == null}">❔ 분석되지 않음</span>
             </span>
             <br>
             <span class="review-summary" th:if="${review.summary != null}">
-              요약: <span th:text="${review.summary}"></span>
+              <strong>요약:</strong> <span th:text="${review.summary}"></span>
             </span>
           </div>
+
           </div>
 
           <hr>
@@ -80,7 +81,7 @@
         let offset = 3;
         let limit = 3;
 
-        // productsno JS 변수 보장
+        // ✅ productsno JS 변수 보장 (Thymeleaf)
         if (typeof productsno === 'undefined') {
           var productsno = /*[[${productsno}]]*/ 0;
         }
@@ -106,7 +107,23 @@
                 }
 
                 data.forEach(review => {
+                  // ✅ 본인 글인지 확인
                   const isOwner = sessionMemberno === review.memberno;
+
+                  // ✅ emotion 문구 처리
+                  let emotionText = '';
+                  if (review.emotion === 1) {
+                    emotionText = '😊 긍정적인 상품후기입니다.';
+                  } else if (review.emotion === 0) {
+                    emotionText = '☹️ 부정적인 상품후기입니다.';
+                  } else {
+                    emotionText = '❔ 분석되지 않음';
+                  }
+
+                  // ✅ summary 문구 처리
+                  let summaryText = review.summary ? `요약: ${review.summary}` : '';
+
+                  // ✅ 버튼 HTML
                   const buttonsHtml = isOwner ? `
                     <div style="margin-top:10px;">
                       <a href="/review/update?reviewno=${review.reviewno}" class="btn btn-sm btn-primary">수정</a>
@@ -117,25 +134,33 @@
                       </form>
                     </div>` : '';
 
-                  // ✅ .appended 클래스 부여 (나중에 삭제용)
+                  // ✅ HTML 생성
                   const reviewHtml = `
                     <div class="review-item appended">
-                      <div class="review-header"><strong>${review.mname}</strong>
+                      <!-- 작성자 + 날짜 -->
+                      <div class="review-header">
+                        <strong>${review.mname}</strong>
                         <span class="review-date">${formatDate(review.rdate)}</span>
                       </div>
+
+                      <!-- 본문 + 이미지 -->
                       <div class="review-content">
                         <p>${review.content}</p>
-                        ${review.file1saved ? `<img src="/review/storage/${review.file1saved}" style="max-width:150px;">` : ''}
-                        ${review.file2saved ? `<img src="/review/storage/${review.file2saved}" style="max-width:150px;">` : ''}
-                        ${review.file3saved ? `<img src="/review/storage/${review.file3saved}" style="max-width:150px;">` : ''}
+                        ${review.file1saved ? `<div><img src="/review/storage/${review.file1saved}" style="max-width:150px; margin: 5px 0;"></div>` : ''}
+                        ${review.file2saved ? `<div><img src="/review/storage/${review.file2saved}" style="max-width:150px; margin: 5px 0;"></div>` : ''}
+                        ${review.file3saved ? `<div><img src="/review/storage/${review.file3saved}" style="max-width:150px; margin: 5px 0;"></div>` : ''}
+                        ${buttonsHtml}
                       </div>
-                      <div class="review-emotion-summary">
-                        감정 분석: ${review.emotion === 1 ? '😊 긍정' : review.emotion === 0 ? '☹️ 부정' : '❔ 분석되지 않음'}
-                        <br>${review.summary ? `요약: ${review.summary}` : ''}
+
+                      <!-- ✅ 감정 + 요약 -->
+                      <div class="review-emotion-summary" style="margin-top: 8px;">
+                        감정 분석: ${emotionText}
+                        <br>
+                        ${summaryText}
                       </div>
-                      ${buttonsHtml}
                       <hr>
-                    </div>`;
+                    </div>
+                  `;
 
                   container.insertAdjacentHTML('beforeend', reviewHtml);
                 });
@@ -147,7 +172,7 @@
                   btn.style.display = "none";
                 }
 
-                // ✅ 접기 버튼은 데이터 추가 후 활성화
+                // ✅ 접기 버튼 보이기
                 collapseBtn.style.display = "block";
               })
               .catch(error => console.error("리뷰 로딩 실패:", error));
@@ -155,16 +180,16 @@
 
           // ✅ 접기 버튼 클릭 이벤트
           collapseBtn.addEventListener("click", function() {
-            // 동적으로 추가된 리뷰 모두 삭제
             document.querySelectorAll('.review-item.appended').forEach(el => el.remove());
-            offset = 3; // offset 초기화
-            collapseBtn.style.display = "none"; // 접기 숨김
+            offset = 3; // 초기화
+            collapseBtn.style.display = "none";
             if (initialCount > 3) {
-              btn.style.display = "block"; // 다시 더보기 보이도록
+              btn.style.display = "block"; // 더보기 다시 보이기
             }
           });
         });
 
+        // ✅ 날짜 포맷
         function formatDate(dateStr) {
           const date = new Date(dateStr);
           return `${date.getFullYear()}.${(date.getMonth()+1).toString().padStart(2,'0')}.${date.getDate().toString().padStart(2,'0')}`;

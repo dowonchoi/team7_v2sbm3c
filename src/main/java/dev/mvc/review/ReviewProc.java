@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 /**
@@ -17,19 +18,14 @@ public class ReviewProc implements ReviewProcInter {
   private ReviewDAOInter reviewDAO;
 
   @Autowired
-  private ReviewLLMService reviewLLMService;
+  private ReviewLLMService reviewLLMService; 
 
   @Override
   public int create(ReviewVO reviewVO) {
-    String content = reviewVO.getContent();
+ // (1) LLM 분석 → VO에 emotion & summary 세팅
+    reviewLLMService.process(reviewVO);
 
-    // 감정 분석 & 요약
-    int emotion = reviewLLMService.analyzeEmotion(content);
-    String summary = reviewLLMService.summarizeContent(content);
-
-    reviewVO.setEmotion(emotion);
-    reviewVO.setSummary(summary);
-
+    // (2) DB 저장
     return reviewDAO.create(reviewVO);
   }
 
@@ -48,9 +44,18 @@ public class ReviewProc implements ReviewProcInter {
     return this.reviewDAO.read(reviewno);
   }
   
+  /**
+   *  리뷰 수정
+   * 1. LLM 호출 (수정된 content 기반)
+   * 2. DB 반영
+   */
   @Override
   public int update(ReviewVO reviewVO) {
-    return this.reviewDAO.update(reviewVO);
+    // (1) LLM 분석 → VO 업데이트
+    reviewLLMService.process(reviewVO);
+
+    // (2) DB 업데이트
+    return reviewDAO.update(reviewVO);
   }
   
   @Override
@@ -90,6 +95,7 @@ public class ReviewProc implements ReviewProcInter {
       map.put("limit", limit);
       return reviewDAO.list_more(map);
   }
+  
 
   
 
