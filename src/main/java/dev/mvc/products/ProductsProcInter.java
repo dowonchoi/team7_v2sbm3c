@@ -186,5 +186,18 @@ public interface ProductsProcInter {
 
   public List<ProductsVO> getRecentlyViewed(int memberno);
   
+  public List<ProductsVO> search(String keyword);
+  
+  public List<ProductsVO> listBest();
+
+  public List<ProductsVO> listNew();
+
+  public List<ProductsVO> listSoonExpire();
+
+//  public List<ProductsVO> listFreeShipping();
+
+  public List<ProductsVO> listEvent();
+
+
   
 }

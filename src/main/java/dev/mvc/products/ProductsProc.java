@@ -297,5 +297,36 @@ public class ProductsProc implements ProductsProcInter {
   public List<ProductsVO> getRecentlyViewed(int memberno) {
       return productsDAO.getRecentlyViewed(memberno);
   }
+  
+  @Override
+  public List<ProductsVO> search(String keyword) {
+    return productsDAO.search(keyword);
+  }
+  
+  @Override
+  public List<ProductsVO> listBest() {
+    return this.productsDAO.listBest();
+  }
+
+  @Override
+  public List<ProductsVO> listNew() {
+    return this.productsDAO.listNew();
+  }
+
+  @Override
+  public List<ProductsVO> listSoonExpire() {
+    return this.productsDAO.listSoonExpire();
+  }
+
+//  @Override
+//  public List<ProductsVO> listFreeShipping() {
+//    return this.productsDAO.listFreeShipping();
+//  }
+
+  @Override
+  public List<ProductsVO> listEvent() {
+    return this.productsDAO.listEvent();
+  }
+
 
 }

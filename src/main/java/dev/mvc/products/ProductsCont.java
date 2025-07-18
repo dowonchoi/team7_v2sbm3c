@@ -1135,10 +1135,6 @@ public class ProductsCont {
 
       return productsgoodProc.getProductsgoodByMember(memberno); // 찜한 상품 목록
   }
-<<<<<<< HEAD
-=======
-
->>>>>>> 1dbc876d4b5295545210b6000c86d98f1b723db2
 
   @GetMapping("/detail")
   public String detail(@RequestParam("productsno") int productsno, Model model) {
@@ -1147,8 +1143,84 @@ public class ProductsCont {
 
       return "/products/detail";  // templates/products/detail.html
   }
-<<<<<<< HEAD
-=======
 
->>>>>>> 1dbc876d4b5295545210b6000c86d98f1b723db2
+  // 검색
+  @GetMapping("/search")
+  public String search(@RequestParam("keyword") String keyword, Model model) {
+      List<ProductsVO> list = productsProc.search(keyword);
+      model.addAttribute("list", list);
+      model.addAttribute("keyword", keyword);
+
+      // ✅ 전체 카테고리 메뉴 추가
+      List<CateVOMenu> menu = cateProc.menu();
+      model.addAttribute("menu", menu);
+
+      return "/products/list_by_keyword"; // 검색 결과 페이지
+  }
+  
+  @GetMapping("/best")
+  public String best(Model model) {
+    List<ProductsVO> list = productsProc.listBest();
+    model.addAttribute("list", list);
+    model.addAttribute("title", "베스트 상품");
+    
+ // ✅ 전체 카테고리 메뉴 추가
+    List<CateVOMenu> menu = cateProc.menu();
+    model.addAttribute("menu", menu);
+    
+    return "/products/list_best";
+  }
+
+  @GetMapping("/new")
+  public String newest(Model model) {
+    List<ProductsVO> list = productsProc.listNew();
+    model.addAttribute("list", list);
+    model.addAttribute("title", "NEW 상품");
+    
+ // ✅ 전체 카테고리 메뉴 추가
+    List<CateVOMenu> menu = cateProc.menu();
+    model.addAttribute("menu", menu);
+    
+    return "/products/list_new";
+  }
+
+  @GetMapping("/soon_expire")
+  public String soonExpire(Model model) {
+    List<ProductsVO> list = productsProc.listSoonExpire();
+    model.addAttribute("list", list);
+    model.addAttribute("title", "임박 특가");
+    
+ // ✅ 전체 카테고리 메뉴 추가
+    List<CateVOMenu> menu = cateProc.menu();
+    model.addAttribute("menu", menu);
+    
+    return "/products/list_soon_expire";
+  }
+
+//  @GetMapping("/free_shipping")
+//  public String freeShipping(Model model) {
+//    List<ProductsVO> list = productsProc.listFreeShipping();
+//    model.addAttribute("list", list);
+//    model.addAttribute("title", "무료 배송관");
+//    
+// // ✅ 전체 카테고리 메뉴 추가
+//    List<CateVOMenu> menu = cateProc.menu();
+//    model.addAttribute("menu", menu);
+//    
+//    return "/products/list_free_shipping";
+//  }
+
+  @GetMapping("/event")
+  public String event(Model model) {
+    List<ProductsVO> list = productsProc.listEvent();
+    model.addAttribute("list", list);
+    model.addAttribute("title", "기획전");
+    
+ // ✅ 전체 카테고리 메뉴 추가
+    List<CateVOMenu> menu = cateProc.menu();
+    model.addAttribute("menu", menu);
+    
+    return "/products/list_event";
+  }
+
 }

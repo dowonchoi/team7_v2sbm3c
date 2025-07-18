@@ -1,6 +1,8 @@
 package dev.mvc.order;
 
 import dev.mvc.cart.CartVO;
+import dev.mvc.cate.CateProcInter;
+import dev.mvc.cate.CateVOMenu;
 import dev.mvc.delivery.DeliveryVO;
 import dev.mvc.cart.CartProcInter;
 import dev.mvc.member.MemberVO;
@@ -38,6 +40,10 @@ public class OrderCont {
   @Autowired
   @Qualifier("dev.mvc.cart.CartProc")
   private CartProcInter cartProc;
+  
+  @Autowired
+  @Qualifier("dev.mvc.cate.CateProc")
+  private CateProcInter cateProc;
 
   @Autowired
   @Qualifier("dev.mvc.products.ProductsProc")
@@ -156,6 +162,10 @@ public class OrderCont {
     if (memberno == null) {
       return "redirect:/member/login";
     }
+    
+ // ✅ 전체 카테고리 메뉴 추가
+    List<CateVOMenu> menu = cateProc.menu();
+    model.addAttribute("menu", menu);
 
     List<OrderWithItemsVO> orderList = orderProc.list_with_items_by_member(memberno);
     model.addAttribute("orderList", orderList);

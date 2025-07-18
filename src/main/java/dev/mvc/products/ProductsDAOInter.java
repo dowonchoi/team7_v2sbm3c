@@ -180,6 +180,18 @@ public interface ProductsDAOInter {
   
   public int countPurchasedByMember(@Param("memberno") int memberno, @Param("productsno") int productsno);
 
+  public List<ProductsVO> search(String keyword);
+  
+  public List<ProductsVO> listBest();
+  
+  public List<ProductsVO> listNew();
+  
+  public List<ProductsVO> listSoonExpire();
+  
+//  public List<ProductsVO> listFreeShipping();
+  
+  public List<ProductsVO> listEvent();
+
 }
  
  
