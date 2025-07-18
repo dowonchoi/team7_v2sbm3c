@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content" class="container mt-4">
+
+  <h2 class="fw-bold mb-4">🔥 베스트 상품</h2>
+
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+    <div class="col" th:each="vo : ${list}">
+      <div class="card h-100 shadow-sm">
+        <a th:href="@{|/products/read?productsno=${vo.productsno}|}">
+          <img th:src="@{|/products/storage/${vo.thumb1}|}" class="card-img-top" alt="상품 이미지" style="object-fit: cover; height: 200px;">
+        </a>
+        <div class="card-body">
+          <h5 class="card-title text-truncate">
+            <a th:href="@{|/products/read?productsno=${vo.productsno}|}" th:text="${vo.title}" class="text-dark text-decoration-none">상품명</a>
+          </h5>
+          <p class="card-text text-danger fw-bold" th:text="${#numbers.formatInteger(vo.saleprice, 3, 'COMMA') + '원'}">가격</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</html>

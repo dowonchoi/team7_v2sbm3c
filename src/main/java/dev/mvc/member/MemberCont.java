@@ -256,6 +256,10 @@ public class MemberCont {
 
       MemberVO memberVO = memberProc.read(memberno);
       model.addAttribute("memberVO", memberVO);
+      
+   // ✅ 전체 카테고리 메뉴 추가
+      List<CateVOMenu> menu = cateProc.menu();
+      model.addAttribute("menu", menu);
 
       // 최근 주문 내역
       List<OrderVO> recentOrders = orderProc.getRecentOrders(memberno);

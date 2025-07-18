@@ -14,10 +14,15 @@
 <link href="/css/style.css" rel="stylesheet" type="text/css">
 <link rel="stylesheet" th:href="@{/css/review_list.css}"> <!-- ✅ 여기에 추가 -->
 
-
 <!-- Swiper CSS & JS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+<!-- Google Fonts: 쇼핑몰 감성 폰트 -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
+
+<!-- Bootstrap Icons CDN 추가 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
 <style>
   /* 챗봇 버튼 */
@@ -40,8 +45,8 @@
     position: fixed;
     bottom: 100px;
     right: 80px;
-    width: 350px;    /* ✅ 여기가 챗봇 너비의 기준 */
-    height: 500px;   /* ✅ 여기가 챗봇 높이의 기준 */
+    width: 350px;
+    height: 500px;
     border: none;
     border-radius: 10px;
     z-index: 9998;
@@ -54,7 +59,7 @@
 <div class='container_main'>
 
   <!-- 상단 네비게이션 -->
-  <nav th:replace="~{navbar::navbarFragment}"></nav>
+  <nav th:replace="~{navbar::navbarFragment}" th:with="menu=${menu}"></nav>
 
   <!-- 본문 컨텐츠 -->
   <div class='content_body'>
@@ -72,7 +77,6 @@
   <iframe id="chatbotIframe" src="/chatbot/index.html" style="display: none;"></iframe>
 
   <script>
-    // 챗봇 열고 닫기 함수
     function toggleChatbot() {
       const chatbot = document.getElementById('chatbotIframe');
       chatbot.style.display = (chatbot.style.display === 'none' || chatbot.style.display === '') ? 'block' : 'none';
@@ -82,6 +86,23 @@
   <!-- ✅ 페이지별 script fragment 자리 -->
   <th:block layout:fragment="script"></th:block>
 
-</div> <!-- container_main 종료 -->
+</div>
+
+<!-- ✅ 메인 메뉴 기능 스크립트 추가 -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const links = document.querySelectorAll('.navbar-nav .nav-link');
+    links.forEach(link => {
+      link.addEventListener('click', function(e) {
+        const href = link.getAttribute('href');
+        if (href === '#') {
+          e.preventDefault();
+          alert('해당 페이지는 현재 준비 중입니다.');
+        }
+      });
+    });
+  });
+</script>
+
 </body>
 </html>

@@ -1,217 +1,151 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
 <div th:fragment="navbarFragment">
-  <div class="top_menu_img">
-    <div class="top_menu_label">SoOn 마켓</div>
-
-    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+  <!-- ✅ 상단 유틸 메뉴 -->
+  <div class="top-util d-flex justify-content-between px-4 py-1 bg-white border-bottom small text-secondary" style="font-size: 13px;">
+    <div>
+      <a class="me-3 text-decoration-none text-secondary">판매자센터</a>
+      <a th:href="@{/notice/list}" class="me-3 text-decoration-none text-secondary">공지사항</a>
+    </div>
+    <div>
+      <th:block th:if="${session.memberno == null}">
+        <a th:href="@{/member/create}" class="me-3 text-decoration-none text-secondary">회원가입</a>
+        <a th:href="@{/member/login}" class="me-3 text-decoration-none text-secondary">로그인</a>
+      </th:block>
+      <th:block th:if="${session.memberno != null}">
+        <a th:href="@{/member/mypage}" class="me-3 text-dark text-decoration-none" th:text="${session.mname + ' 님'}"></a>
+        <a th:href="@{/member/logout}" class="me-3 text-decoration-none text-secondary">로그아웃</a>
+      </th:block>
+      <a th:href="@{/inquiry/list_by_member}" class="text-decoration-none text-primary fw-bold">1:1 문의하기</a>
+    </div>
   </div>
-  
-  <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+
+  <!-- ✅ 메인 네비게이션 -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm sticky-top">
     <div class="container-fluid">
-      <a class="navbar-brand" href="/">HOME</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
-          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-        
-      <!-- 메뉴 시작 -->
-      <div class="collapse navbar-collapse" id="navbarNavDropdown">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item dropdown" th:each="cateVOMenu:${menu}"> <!--/* 대분류 */-->
-            <!--/* 대분류명(카테고리 그룹) 출력, private String genre; */-->
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" 
-                  role="button" data-bs-toggle="dropdown" aria-expanded="false" th:text="${cateVOMenu.grp}">                                                            
-            </a>
 
-            <!--/* 중분류명(카테고리) 출력, private ArrayList<CateVO> list_name; */-->
-            <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                <li th:each="cateVO:${cateVOMenu.list_name}">
-                  <a class="dropdown-item" th:href="@{|/products/list_by_cateno_grid?cateno=${cateVO.cateno}|}" th:text="${cateVO.name}"></a>
-                </li>
-            </ul>              
-          </li>
+      <!-- ✅ 로고 (좌측 상단) -->
+      <a th:href="@{/}" class="navbar-brand d-flex align-items-center" style="height: 60px; margin-right: 12px;">
+        <img th:src="@{/images/SoOn.png}" alt="SoOn 마켓"
+            style="height: 100%; width: auto; object-fit: contain; display: block;">
+      </a>
 
-          <li class="nav-item"><a class="nav-link" th:href="@{|/calendar/list_calendar|}">월간 일정</a></li>
-
-          <!-- 공지사항 (강조 + 아이콘) -->
-          <li class="nav-item">
-            <a class="nav-link fw-bold text-primary" th:href="@{|/notice/list|}">
-              <i class="bi bi-megaphone"></i> 게시판
-            </a>
-          </li>
-
-          <!-- ✅ 1:1 문의 메뉴 -->
-          <li class="nav-item" th:if="${session.memberno != null and session.grade != 'admin'}">
-            <a class="nav-link" th:href="@{/inquiry/list_by_member}">문의</a>
-          </li>
-          
-          <!-- 기존 관리자, 회원 메뉴 아래에 추가할 부분 -->
-          <li class="nav-item dropdown" th:if="${session.memberno != null}">
-            <a class="nav-link dropdown-toggle" href="#" id="userMenuDropdown"
-              role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <span th:text="|${session.mname} 님|"></span>
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="userMenuDropdown">
-              <li><a class="dropdown-item" th:href="@{/member/mypage}">마이페이지</a></li>
-              <!-- <li><a class="dropdown-item" th:href="@{/member/passwd_update}">비밀번호 변경</a></li> -->
-              <!-- <li><a class="dropdown-item" th:href="@{/login/mylist}">내 로그인 내역</a></li> -->
-              <!-- <li><a class="dropdown-item" th:href="@{/cart/list}">장바구니</a></li> -->
-
-              <!-- 관리자만 비밀번호 변경 -->
-              <li th:if="${session.grade == 'admin'}">
-                  <a class="dropdown-item" th:href="@{/member/passwd_update}">비밀번호 변경</a>
+      <!-- 전체카테고리 드롭다운 -->
+      <div class="dropdown">
+        <a class="btn btn-link text-dark fw-bold dropdown-toggle me-3" href="#" id="dropdownCategory" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none;">
+          <i class="bi bi-list"></i> 전체카테고리
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="dropdownCategory">
+          <li th:each="cateVOMenu : ${menu}">
+            <div class="dropdown-header fw-bold ps-3" th:text="${cateVOMenu.grp}">카테고리그룹</div>
+            <ul class="list-unstyled ps-2" th:if="${cateVOMenu != null and cateVOMenu.list_name != null}">
+              <li th:each="cateVO : ${cateVOMenu.list_name}">
+                <a class="dropdown-item ps-4" th:href="@{|/products/list_by_cateno_grid?cateno=${cateVO.cateno}|}" th:text="${cateVO.name}">카테고리</a>
               </li>
-
-              <!-- 소비자용 -->
-              <li th:if="${session.grade == 'user'}">
-                <a class="dropdown-item" th:href="@{/productsgood/user_liked_list}">내가 추천한 상품</a>
-                <a class="dropdown-item" th:href="@{/order/list_by_member}">주문 목록</a>
-
-              </li>
-
-              <!-- 공급자용 -->
-              <li th:if="${session.grade == 'supplier'}">
-                <a class="dropdown-item" th:href="@{/productsgood/supplier_products_liked}">내 상품 추천 내역</a>
-                <a class="dropdown-item" th:href="@{/order/list_by_supplier}">내 상품 주문 내역</a> <!-- ✅ 추가 -->
-              </li>
-              <li><a class="dropdown-item" th:href="@{/member/logout}">로그아웃</a></li>
             </ul>
-
-          <li class="nav-item dropdown" th:if="${session.memberno == null}">
-            <a class="nav-link dropdown-toggle" href="#" id="guestMenuDropdown"
-              role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              계정
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="guestMenuDropdown">
-              <li><a class="dropdown-item" th:href="@{/member/login}">로그인</a></li>
-              <li><a class="dropdown-item" th:href="@{/member/create}">회원가입</a></li>
-            </ul>
+            <hr class="dropdown-divider" />
           </li>
-
-          <!-- ✅ navbar.html (알림 팝업 최적화 완성본) -->
-          <li class="nav-item" style="position: relative;">
-            <a class="nav-link" href="javascript:void(0);" onclick="toggleNotificationPopup()">
-              🔔
-              <span id="notificationCount" class="badge bg-danger" style="display:none;">0</span>
-            </a>
-          </li>
-
-          <!-- 아이디 찾기 (별도 nav-item)
-          <li class="nav-item" th:if="${session.memberno == null}">
-            <a class="nav-link" th:href="@{/member/find_id}">아이디 찾기</a>
-          </li>
-
-          비밀번호 찾기 (별도 nav-item)
-          <li class="nav-item" th:if="${session.memberno == null}">
-            <a class="nav-link" th:href="@{/member/find_passwd}">비밀번호 찾기</a>
-          </li> -->
-          
-          <!-- <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" 
-                  role="button" data-bs-toggle="dropdown" aria-expanded="false" th:text="회원">                                                            
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                  <li class="nav-item">
-                      <a class="nav-link" th:href="@{|/member/create|}">회원 가입</a>
-                  </li>
-                  <li class="nav-item" th:if="${session.memberno != null}">
-                      <a class="nav-link" th:href="@{|/member/passwd_update|}">비밀 번호 변경</a>
-                  </li>  
-              </ul>
-          </li> -->
-
-          <!-- <li class="nav-item dropdown" th:if="${session.grade=='admin'}">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" 
-                      role="button" data-bs-toggle="dropdown" aria-expanded="false" th:text="공급자 AI 서비스">                                                            
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                  <li class="nav-item"><a class="nav-link" th:href="@{|/openai/translator|}">번역 서비스</a></li>
-                  <li class="nav-item"><a class="nav-link" th:href="@{|/openai/movie|}">영화 추천</a></li>
-                  <li class="nav-item"><a class="nav-link" th:href="@{|/openai/genre|}">나의 관심 분야 알기</a></li>
-                  <li class="nav-item"><a class="nav-link" th:href="@{|/openai/summary|}">요약 서비스</a></li>
-                  <li class="nav-item"><a class="nav-link" th:href="@{|/openai/emotion|}">감정 분석</a></li>
-                  <li class="nav-item"><a class="nav-link" th:href="@{|/openai/member_img|}">이미지 생성 서비스</a></li>
-                  <li class="nav-item"><a class="nav-link" th:href="@{|/openai/flower|}">꽃병 상품 등록</a></li>
-                  <li class="nav-item"><a class="nav-link" th:href="@{|/openai/rabbit|}">Rabbit 상품 등록</a></li>
-                  <li class="nav-item"><a class="nav-link" th:href="@{|/mail/form|}">메일 쓰기</a></li>
-                  <li class="nav-item"><a class="nav-link" th:href="@{|/mail/form_file|}">첨부 파일메일 쓰기</a></li>
-                  <li class="nav-item"><a class="nav-link" th:href="@{|/mail/form_openai|}">번역 기능 지원 메일 쓰기</a></li>
-              </ul>
-         </li>
-           -->
-
-          <li class="nav-item dropdown" th:if="${session.grade=='admin'}">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" 
-                      role="button" data-bs-toggle="dropdown" aria-expanded="false" th:text="관리자메뉴">                                                            
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                  <li class="nav-item"><a class="nav-link" th:href="@{|/cate/list_search?word=${word}|}">카테고리 목록</a></li>
-                  <li class="nav-item"><a class="nav-link" th:href="@{|/member/list|}">회원 목록</a></li>
-                  <li class="nav-item"><a class="nav-link" th:href="@{|/products/list_all|}">전체 글 목록</a></li>
-                  <li class="nav-item"><a class="nav-link" th:href="@{|/calendar/create|}">일정 등록</a></li>
-                  <li class="nav-item"><a class="nav-link" th:href="@{|/calendar/list_all|}">일정 목록</a></li>
-                  <li class="nav-item"><a class="nav-link" th:href="@{|/productsgood/list_all|}">추천 목록</a></li>
-                  <li class="nav-item"><a class="nav-link" th:href="@{/order/list_all}">전체 주문 내역</a></li>
-                  <li class="nav-item"><a class="nav-link" th:href="@{/inquiry/list_all}">전체 문의 관리</a></li>
-              </ul>
-          </li>
-          
-          <li class="nav-item">
-            <span th:if="${session.memberno == null}"><a class="nav-link" href="/member/login" th:text="로그인"></a></span>
-            <span th:if="${session.memberno != null}"><a class="nav-link" href="/member/logout" th:text="|${session.id} 로그아웃|"></a></span>
-          </li>                
         </ul>
       </div>
-      <!-- 메뉴 종료 -->
-          
-    </div>  
+
+      <!-- 메인 메뉴 -->
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link fw-bold" th:href="@{/}">홈</a></li>
+        <li class="nav-item"><a class="nav-link fw-bold" th:href="@{/products/best}">베스트</a></li>
+        <li class="nav-item"><a class="nav-link fw-bold" th:href="@{/products/new}">NEW</a></li>
+        <li class="nav-item"><a class="nav-link fw-bold" th:href="@{/products/soon_expire}">임박특가</a></li>
+        <li class="nav-item"><a class="nav-link fw-bold" th:href="@{/products/event}">기획전</a></li>
+      </ul>
+
+      <!-- ✅ 검색창: 아이콘으로 제출 -->
+      <form class="position-relative me-4" th:action="@{/products/search}" method="get" style="max-width: 400px; width: 100%;">
+        <input class="form-control pe-5" type="search" name="keyword" placeholder="검색어를 입력해 주세요" aria-label="Search">
+        
+        <!-- 🔍 검색 아이콘 -->
+        <button type="submit" class="position-absolute top-50 end-0 translate-middle-y me-2 border-0 bg-transparent">
+          <i class="bi bi-search" style="font-size: 18px; color: #888;"></i>
+        </button>
+      </form>
+
+
+      <!-- 아이콘 영역 -->
+      <div class="d-flex align-items-center">
+        <th:block th:if="${session.memberno != null}">
+          <a href="#" class="me-3 text-dark position-relative" onclick="toggleNotificationPopup()">
+            <i class="bi bi-bell" style="font-size: 22px;"></i>
+            <span id="notificationCount" class="badge bg-danger position-absolute top-0 start-100 translate-middle" style="display:none; font-size: 10px;">0</span>
+          </a>
+          <a th:href="@{/member/mypage}" class="me-3 text-dark"><i class="bi bi-person" style="font-size: 22px;"></i></a>
+          <a th:href="@{/cart/list}" class="text-dark"><i class="bi bi-cart" style="font-size: 22px;"></i></a>
+        </th:block>
+      </div>
+    </div>
   </nav>
 
-  <!-- ✅ JavaScript: 알림 팝업을 동적으로 생성 -->
+  <!-- ✅ 알림 팝업 스크립트 -->
   <script>
-  function toggleNotificationPopup() {
-    const container = document.querySelector('.nav-item[style*="position: relative;"]');
-    let popup = container.querySelector('#notificationPopup');
+    function toggleNotificationPopup() {
+      const container = document.querySelector('.bi-bell').closest('a');
+      let popup = document.querySelector('#notificationPopup');
 
-    if (!popup) {
-      popup = document.createElement('div');
-      popup.id = 'notificationPopup';
-      popup.classList.add('notification-popup');
-      popup.style.position = 'absolute';
-      popup.style.top = '100%';
-      popup.style.right = '0';
-      popup.style.backgroundColor = '#fff7d6';
-      popup.style.width = '320px';
-      popup.style.borderRadius = '12px';
-      popup.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.5)';
-      popup.style.padding = '20px';
-      popup.style.marginTop = '10px';
-      popup.style.zIndex = '9999';
-      container.appendChild(popup);
-    }
-
-    // 토글
-    popup.style.display = (popup.style.display === 'none' || popup.style.display === '') ? 'block' : 'none';
-
-    if (popup.style.display === 'block') {
-      fetch('/notification/list_popup')
-        .then(response => response.text())
-        .then(html => {
-          popup.innerHTML = html;
-        });
-    }
-  }
-
-  // 알림 개수 가져오기
-  fetch('/notification/count')
-    .then(response => response.text())
-    .then(count => {
-      const badge = document.getElementById('notificationCount');
-      if (parseInt(count) > 0) {
-        badge.textContent = count;
-        badge.style.display = 'inline-block';
-      } else {
-        badge.style.display = 'none';
+      if (!popup) {
+        popup = document.createElement('div');
+        popup.id = 'notificationPopup';
+        popup.classList.add('notification-popup');
+        popup.style.position = 'absolute';
+        popup.style.top = '60px';
+        popup.style.right = '40px';
+        popup.style.backgroundColor = '#fff7d6';
+        popup.style.width = '320px';
+        popup.style.borderRadius = '12px';
+        popup.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.5)';
+        popup.style.padding = '20px';
+        popup.style.zIndex = '9999';
+        popup.style.overflow = 'auto';
+        popup.style.maxHeight = '400px';
+        document.body.appendChild(popup);
       }
-    });
-</script>
+
+      if (popup.style.display === 'block') {
+        popup.style.display = 'none';
+      } else {
+        popup.innerHTML = '';
+
+        const closeBtn = document.createElement('span');
+        closeBtn.innerHTML = '&times;';
+        closeBtn.style.position = 'absolute';
+        closeBtn.style.top = '6px';
+        closeBtn.style.right = '10px';
+        closeBtn.style.cursor = 'pointer';
+        closeBtn.style.fontSize = '32px';
+        closeBtn.style.fontWeight = 'bold';
+        closeBtn.style.color = '#333';
+        closeBtn.onclick = () => popup.style.display = 'none';
+        popup.appendChild(closeBtn);
+
+        fetch('/notification/list_popup')
+          .then(response => response.text())
+          .then(html => {
+            const content = document.createElement('div');
+            content.innerHTML = html;
+            popup.appendChild(content);
+          });
+
+        popup.style.display = 'block';
+      }
+    }
+
+    fetch('/notification/count')
+      .then(response => response.text())
+      .then(count => {
+        const badge = document.getElementById('notificationCount');
+        if (parseInt(count) > 0) {
+          badge.textContent = count;
+          badge.style.display = 'inline-block';
+        } else {
+          badge.style.display = 'none';
+        }
+      });
+  </script>
 </div>
+</html>

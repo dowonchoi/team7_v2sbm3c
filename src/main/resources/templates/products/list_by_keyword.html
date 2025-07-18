@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}">
+<div layout:fragment="content" class="container mt-4">
+
+  <h2 th:text="'검색 결과 - ' + ${keyword}">검색 결과</h2>
+
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mt-3">
+    <div class="col" th:each="vo : ${list}">
+      <div class="card h-100 shadow-sm position-relative">
+
+        <!-- ✅ 이미지 클릭 시 상세보기 -->
+        <a th:href="@{|/products/read?productsno=${vo.productsno}|}">
+          <img th:src="@{|/products/storage/${vo.thumb1}|}" class="card-img-top" alt="상품 이미지" style="object-fit: cover; height: 200px;">
+        </a>
+
+        <div class="card-body">
+          <!-- ✅ 상품명 -->
+          <h5 class="card-title">
+            <a th:href="@{|/products/read?productsno=${vo.productsno}|}" th:text="${vo.title}" class="text-decoration-none text-dark">상품명</a>
+          </h5>
+
+          <!-- ✅ 가격 -->
+          <div class="card-text mb-1">
+            <span class="text-danger fw-bold"
+                  th:if="${vo.saleprice > 0}"
+                  th:text="${#numbers.formatInteger(vo.saleprice, 3, 'COMMA') + '원'}">할인가</span>
+
+            <span class="text-muted text-decoration-line-through ms-2"
+                  th:if="${vo.saleprice > 0}"
+                  th:text="${#numbers.formatInteger(vo.price, 3, 'COMMA') + '원'}">정가</span>
+
+            <span class="text-success fw-bold"
+                  th:if="${vo.saleprice == 0 or vo.saleprice == vo.price}"
+                  th:text="${#numbers.formatInteger(vo.price, 3, 'COMMA') + '원'}">정가</span>
+          </div>
+
+          <!-- ✅ 등록일 -->
+          <p class="card-text small text-muted" th:text="${vo.rdate.substring(0, 10)}">2025-07-18</p>
+        </div>
+
+        <!-- ✅ Hover 시 설명 표시 -->
+        <div class="card-footer bg-white border-top text-truncate text-muted small p-2"
+             th:title="${vo.content}" 
+             style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+          <i class="bi bi-info-circle"></i> 
+          <span th:text="${vo.content}">간단한 설명</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+</html>

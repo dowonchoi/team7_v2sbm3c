@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import dev.mvc.cate.CateProcInter;
+import dev.mvc.cate.CateVOMenu;
 import dev.mvc.faq.FaqProcInter;
 import dev.mvc.faq.FaqVO;
 import dev.mvc.qna.QnaProcInter;
@@ -41,6 +43,10 @@ public class NoticeCont {
   @Autowired
   @Qualifier("dev.mvc.qna.QnaProc")
   private QnaProcInter qnaProc;
+  
+  @Autowired
+  @Qualifier("dev.mvc.cate.CateProc") // @Component("dev.mvc.cate.CateProc")
+  private CateProcInter cateProc;
 
   // 공지사항 등록 폼
   @GetMapping("/create")
@@ -82,6 +88,11 @@ public class NoticeCont {
      model.addAttribute("faqList", faqProc.list());
      model.addAttribute("qnaUserList", qnaProc.listByUserType("user"));
      model.addAttribute("qnaSupplierList", qnaProc.listByUserType("supplier"));
+     
+  // ✅ 전체 카테고리 메뉴 추가
+     List<CateVOMenu> menu = cateProc.menu();
+     model.addAttribute("menu", menu);
+     
      return "/notice/list";  // COMMUNITY 탭형 메인 화면
   }
 

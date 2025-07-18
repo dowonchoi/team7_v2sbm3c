@@ -107,6 +107,9 @@ CREATE SEQUENCE products_seq
   CACHE 2                        -- 2번은 메모리에서만 계산
   NOCYCLE;                      -- 다시 1부터 생성되는 것을 방지
 
+SELECT productsno, title, price_before, saleprice, dc
+FROM products
+WHERE title LIKE '%토마토%';
 
 -- 판매자 2번, 제철/채소
 INSERT INTO products (productsno, memberno, cateno, title, content, passwd, rdate, price, dc, saleprice, point, salecnt, visible)
