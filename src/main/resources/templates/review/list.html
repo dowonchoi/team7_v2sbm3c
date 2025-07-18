@@ -1,57 +1,40 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+  <link rel="stylesheet" href="@{/css/review_list.css}">
+  
   <div th:fragment="reviewListFragment(reviewList, productsno)">
     <div class="review-list-box">
-      <h4>리뷰 목록</h4>
 
       <!-- 리뷰가 없을 때 -->
-      <div th:if="${#lists.isEmpty(reviewList)}">
+      <div class="review-empty" th:if="${#lists.isEmpty(reviewList)}">
         <p>작성된 리뷰가 없습니다.</p>
       </div>
 
-       <!-- 리뷰 목록 컨테이너 -->
-      <div id="review-container">
-        <!-- 리뷰 반복 출력 -->
+      <!-- 리뷰 목록 컨테이너 -->
+      <div id="review-container" class="review-container">
         <div th:each="review, stat : ${reviewList}" th:if="${stat.index < 3}" class="review-item">
           
-          <!-- 작성자 및 날짜 -->
+          <!-- 작성자 + 날짜 + 수정버튼 -->
           <div class="review-header">
-            <strong th:text="${review.mname}">작성자</strong>
-            <span class="review-date" th:text="${#dates.format(review.rdate, 'yyyy.MM.dd')}"></span>
-          </div>
-
-          <!-- 리뷰 본문 + 이미지 -->
-          <div class="review-content">
-            <p th:text="${review.content}"></p>
-
-            <!-- 이미지 1 -->
-            <div th:if="${review.file1saved != null and review.file1saved != ''}">
-              <img th:src="@{'/review/storage/' + ${review.file1saved}}" alt="리뷰 이미지1" style="max-width:150px; margin: 5px 0;">
+            <!-- 왼쪽: 이름 + 날짜 -->
+            <div class="review-user-info">
+              <strong class="review-author" th:text="${review.mname}">작성자</strong>
+              <span class="review-date" th:text="${#dates.format(review.rdate, 'yyyy.MM.dd')}"></span>
             </div>
-
-            <!-- 이미지 2 -->
-            <div th:if="${review.file2saved != null and review.file2saved != ''}">
-              <img th:src="@{'/review/storage/' + ${review.file2saved}}" alt="리뷰 이미지2" style="max-width:150px; margin: 5px 0;">
-            </div>
-
-            <!-- 이미지 3 -->
-            <div th:if="${review.file3saved != null and review.file3saved != ''}">
-              <img th:src="@{'/review/storage/' + ${review.file3saved}}" alt="리뷰 이미지3" style="max-width:150px; margin: 5px 0;">
-            </div>
-
-            <!-- 수정/삭제/이미지 수정 버튼 -->
-            <div th:if="${sessionMemberno == review.memberno}">
-              <a th:href="@{'/review/update?reviewno=' + ${review.reviewno}}" class="btn btn-sm btn-primary">수정</a>
-              <a th:href="@{'/review/update_file?reviewno=' + ${review.reviewno}}" class="btn btn-sm btn-outline-secondary">이미지 수정</a>
+            <!-- 오른쪽: 버튼 -->
+            <div class="review-btn-group" th:if="${sessionMemberno == review.memberno}">
+              <a th:href="@{'/review/update?reviewno=' + ${review.reviewno}}" class="btn btn-sm review-btn">수정</a>
+              <a th:href="@{'/review/update_file?reviewno=' + ${review.reviewno}}" class="btn btn-sm review-btn">이미지 수정</a>
               <form th:action="@{/review/delete_proc}" method="post" style="display:inline;">
                 <input type="hidden" name="reviewno" th:value="${review.reviewno}" />
-                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
+                <button type="submit" class="btn btn-sm review-btn-danger" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
               </form>
             </div>
           </div>
 
+
           <!-- 감정 분석 + 요약 -->
-          <div class="review-emotion-summary" style="margin-top: 8px;">
+          <div class="review-emotion-summary">
             <span class="review-emotion">
               <strong>감정 분석:</strong>
               <span th:if="${review.emotion == 1}">😊 긍정적인 상품후기입니다.</span>
@@ -64,24 +47,43 @@
             </span>
           </div>
 
+          <!-- ✅ 본문 (간격 확보) -->
+          <p class="review-text" style="margin-top: 12px;" th:text="${review.content}"></p>
+
+
+          <!-- 이미지 리스트 -->
+          <div class="review-images">
+            <div th:if="${review.file1saved != null and review.file1saved != ''}">
+              <img class="review-image" th:src="@{'/review/storage/' + ${review.file1saved}}" alt="리뷰 이미지1">
+            </div>
+            <div th:if="${review.file2saved != null and review.file2saved != ''}">
+              <img class="review-image" th:src="@{'/review/storage/' + ${review.file2saved}}" alt="리뷰 이미지2">
+            </div>
+            <div th:if="${review.file3saved != null and review.file3saved != ''}">
+              <img class="review-image" th:src="@{'/review/storage/' + ${review.file3saved}}" alt="리뷰 이미지3">
+            </div>
           </div>
 
-          <hr>
+          <hr class="review-divider">
+        </div>
+        <!-- ✅ 클릭 시 보여줄 이미지 모달 -->
+        <div id="imageModal" class="image-modal">
+          <span class="image-modal-close" onclick="closeModal()">&times;</span>
+          <img id="modalImage" src="" alt="확대 이미지">
         </div>
       </div>
 
       <!-- 더보기 버튼 -->
-      <div style="text-align:center; margin-top:10px;">
+      <div class="review-more-btn-box">
         <button id="loadMoreBtn" class="btn btn-outline-primary" style="display:none;">더보기</button>
         <button id="collapseBtn" class="btn btn-outline-secondary" style="display:none;">접기</button>
       </div>
 
-      <!-- Ajax 스크립트 -->
+      <!-- Ajax 스크립트 동일 -->
       <script th:inline="javascript">
         let offset = 3;
         let limit = 3;
 
-        // ✅ productsno JS 변수 보장 (Thymeleaf)
         if (typeof productsno === 'undefined') {
           var productsno = /*[[${productsno}]]*/ 0;
         }
@@ -96,7 +98,6 @@
 
           if (initialCount >= 3) btn.style.display = "block";
 
-          // ✅ 더보기 버튼 클릭 이벤트
           btn.addEventListener("click", function() {
             fetch(`/review/more?productsno=${productsno}&offset=${offset}&limit=${limit}`)
               .then(response => response.json())
@@ -107,10 +108,7 @@
                 }
 
                 data.forEach(review => {
-                  // ✅ 본인 글인지 확인
                   const isOwner = sessionMemberno === review.memberno;
-
-                  // ✅ emotion 문구 처리
                   let emotionText = '';
                   if (review.emotion === 1) {
                     emotionText = '😊 긍정적인 상품후기입니다.';
@@ -120,84 +118,87 @@
                     emotionText = '❔ 분석되지 않음';
                   }
 
-                  // ✅ summary 문구 처리
                   let summaryText = review.summary ? `요약: ${review.summary}` : '';
-
-                  // ✅ 버튼 HTML
                   const buttonsHtml = isOwner ? `
-                    <div style="margin-top:10px;">
-                      <a href="/review/update?reviewno=${review.reviewno}" class="btn btn-sm btn-primary">수정</a>
-                      <a href="/review/update_file?reviewno=${review.reviewno}" class="btn btn-sm btn-outline-secondary">이미지 수정</a>
+                    <div class="review-btn-group">
+                      <a href="/review/update?reviewno=${review.reviewno}" class="btn btn-sm review-btn">수정</a>
+                      <a href="/review/update_file?reviewno=${review.reviewno}" class="btn btn-sm review-btn">이미지 수정</a>
                       <form action="/review/delete_proc" method="post" style="display:inline;">
                         <input type="hidden" name="reviewno" value="${review.reviewno}">
-                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
+                        <button type="submit" class="btn btn-sm review-btn-danger" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
                       </form>
-                    </div>` : '';
+                    </div>
+                  ` : '';
 
-                  // ✅ HTML 생성
+
                   const reviewHtml = `
                     <div class="review-item appended">
-                      <!-- 작성자 + 날짜 -->
                       <div class="review-header">
-                        <strong>${review.mname}</strong>
-                        <span class="review-date">${formatDate(review.rdate)}</span>
-                      </div>
-
-                      <!-- 본문 + 이미지 -->
-                      <div class="review-content">
-                        <p>${review.content}</p>
-                        ${review.file1saved ? `<div><img src="/review/storage/${review.file1saved}" style="max-width:150px; margin: 5px 0;"></div>` : ''}
-                        ${review.file2saved ? `<div><img src="/review/storage/${review.file2saved}" style="max-width:150px; margin: 5px 0;"></div>` : ''}
-                        ${review.file3saved ? `<div><img src="/review/storage/${review.file3saved}" style="max-width:150px; margin: 5px 0;"></div>` : ''}
+                        <div class="review-user-info">
+                          <strong class="review-author">${review.mname}</strong>
+                          <span class="review-date">${formatDate(review.rdate)}</span>
+                        </div>
                         ${buttonsHtml}
                       </div>
-
-                      <!-- ✅ 감정 + 요약 -->
-                      <div class="review-emotion-summary" style="margin-top: 8px;">
-                        감정 분석: ${emotionText}
-                        <br>
-                        ${summaryText}
+                      <div class="review-emotion-summary">
+                        감정 분석: ${emotionText}<br>${summaryText}
                       </div>
-                      <hr>
+                      <p class="review-text" style="margin-top: 12px;">${review.content}</p>
+                      <div class="review-images">
+                        ${review.file1saved ? `<div><img class="review-image" src="/review/storage/${review.file1saved}"></div>` : ''}
+                        ${review.file2saved ? `<div><img class="review-image" src="/review/storage/${review.file2saved}"></div>` : ''}
+                        ${review.file3saved ? `<div><img class="review-image" src="/review/storage/${review.file3saved}"></div>` : ''}
+                      </div>
+                      <hr class="review-divider">
                     </div>
                   `;
-
                   container.insertAdjacentHTML('beforeend', reviewHtml);
                 });
 
                 offset += limit;
-
-                // ✅ 마지막 페이지면 더보기 숨김
-                if (data.length < limit) {
-                  btn.style.display = "none";
-                }
-
-                // ✅ 접기 버튼 보이기
+                if (data.length < limit) btn.style.display = "none";
                 collapseBtn.style.display = "block";
               })
               .catch(error => console.error("리뷰 로딩 실패:", error));
           });
 
-          // ✅ 접기 버튼 클릭 이벤트
           collapseBtn.addEventListener("click", function() {
             document.querySelectorAll('.review-item.appended').forEach(el => el.remove());
-            offset = 3; // 초기화
+            offset = 3;
             collapseBtn.style.display = "none";
             if (initialCount > 3) {
-              btn.style.display = "block"; // 더보기 다시 보이기
+              btn.style.display = "block";
             }
           });
         });
 
-        // ✅ 날짜 포맷
         function formatDate(dateStr) {
           const date = new Date(dateStr);
           return `${date.getFullYear()}.${(date.getMonth()+1).toString().padStart(2,'0')}.${date.getDate().toString().padStart(2,'0')}`;
         }
+
+        // ✅ 이미지 클릭 시 모달 열기
+        document.addEventListener('click', function(e) {
+          if (e.target.classList.contains('review-image')) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.style.display = 'flex';
+            modalImg.src = e.target.src; // 클릭한 이미지 경로
+          }
+        });
+
+        // ✅ 모달 닫기
+        function closeModal() {
+          document.getElementById('imageModal').style.display = 'none';
+        }
+
+        // ✅ 배경 클릭 시 닫기
+        document.getElementById('imageModal').addEventListener('click', function(e) {
+          if (e.target === this) {
+            closeModal();
+          }
+        });
       </script>
-
-
     </div>
   </div>
-
 </html>

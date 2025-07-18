@@ -1135,6 +1135,10 @@ public class ProductsCont {
 
       return productsgoodProc.getProductsgoodByMember(memberno); // 찜한 상품 목록
   }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1dbc876d4b5295545210b6000c86d98f1b723db2
 
   @GetMapping("/detail")
   public String detail(@RequestParam("productsno") int productsno, Model model) {
@@ -1143,4 +1147,8 @@ public class ProductsCont {
 
       return "/products/detail";  // templates/products/detail.html
   }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1dbc876d4b5295545210b6000c86d98f1b723db2
 }
