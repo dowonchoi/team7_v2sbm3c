@@ -59,6 +59,15 @@ dependencies {
   // https://mvnrepository.com/artifact/javax.activation/activation
   // implementation 'javax.activation:activation:1.1.1'
   implementation 'org.springframework.boot:spring-boot-starter-mail'
+  
+  
+    // SMS
+  implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+  //https://mvnrepository.com/artifact/com.squareup.okhttp/okhttp
+  implementation 'com.google.code.gson:gson:2.9.0' //https://github.com/google/gson
+  
+  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
 }
 
 tasks.named('test') {

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>영화 추천 받기</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+
+  <style>
+    /* 이미지 기본 CSS */
+    .img {
+      width: 150px;
+      height: 120px;
+    }
+
+    /* 빨간색 포커스 */
+    .selected {
+      border: 3px solid #770000;
+    }
+
+    /* 밝게하기 */
+    .brighten {
+      filter: brightness(140%);
+    }
+
+  </style>
+
+  <script>
+    function applyCSS(event) {
+      const img = event.target; // event" click을 한 태그
+      img.classList.toggle('selected'); // selected class가 적용되었으면 해제, 없으면 적용
+      img.classList.toggle('brighten'); // brighten class가 적용되었으면 해제, 없으면 적용 
+
+      let sw = img.getAttribute("data-value"); // data-
+      if(sw == 0) {
+        img.setAttribute("data-value", 1); // 선택
+      } else {
+        img.setAttribute("data-value", 0);
+      }
+
+      // document.getElementById
+
+    }
+
+    window.onload = () => { // window.onload = function() {...}
+      let tags = document.querySelectorAll("[name='recommend']"); // 다수의 태그 검색
+      let send_tag = document.getElementById('send');
+      let result_animation_tag = document.getElementById('result_animation');
+      let result_tag = document.getElementById('result');
+
+      send.addEventListener('click', async function() {
+        let values = [];
+        let cnt = 0; // 선택한 이미지 갯수
+
+        for (let i=0; i < tags.length; i++) {
+          let tag = tags[i]; // 태그 추출
+          let pick = tag.getAttribute("data-value");
+          values.push(pick);
+
+          if(pick == "1") {
+            cnt++;
+          }
+        }
+
+        if (cnt < 5) {
+          result_tag.innerHTML = "이미지 5개를 선택해야합니다, 이미지가 부족합니다. 현재 선택: " + cnt + "개";
+          result_animation_tag.innerHTML = "";
+          return;
+        } else if (cnt > 5) {
+          result_tag.innerHTML = "이미지 5개를 선택해야합니다, 이미지가 많습니다. 현재 선택: " + cnt + "개";
+          result_animation_tag.innerHTML = "";
+          return;
+        }
+
+        // console.log('-> values: ' + values);
+        // {
+        //   "movie": "0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0"
+        // }
+        let movie = values.join(",");
+        // console.log('-> movie: ' + movie);
+
+        fetch("/movie", {  
+          method: 'post',  // get, post
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({movie}) // {"movie": movie}
+        })
+        .then((response) => response.json())
+        .then((data) => {
+          // console.log("-> data['res']:", data['res']);
+          // -> data['res']: ['A Quiet Place Part II (2021)', 'The Conjuring: The Devil Made Me Do It (2021)', 'The Nun (2018)', 'It Chapter Two (2019)', 'The Invisible Man (2020)']
+
+          result_tag.innerHTML = data['res'];
+          result_animation_tag.innerHTML = "";
+        });
+
+        // 응답 오기전에 실행 코드
+        result_animation_tag.innerHTML = "<img src='/static/images/progress.gif' style='width: 20px;'>";
+        result_animation_tag.style.textAlign = 'left';
+
+      })
+
+  }    
+
+  </script>
+</head>
+<body>
+  <div style="width: 90%; margin: 30px auto; text-align: center;">
+      <h3>ChatGPT 기반의 영화 추천 시스템</h3>
+      <b>관심있는 이미지를 5개를 선택하세요.</b>
+  </div>
+
+  <div style="width: 90%; margin: 30px auto; text-align: center;">
+      {% for filename in filenames %}
+        <img id="{{loop.index}}" name="recommend" src="/static/movie/images/{{filename}}.jpg" 
+             class="img" onclick="applyCSS(event)" data-value="0"> <!-- data-: 개발자 추가 속성 -->
+      {% endfor %}
+
+      <br><br>
+      <div id="result"></div>
+  </div>
+  <div style="margin: 0px 44% 20px 46%;"> <!-- margin: top right bottom left -->
+    <button type="button" id="send" class="btn btn-info btn-sm">추천 받기</button>
+    <span id='result_animation' style="width: 20px;"></span>
+  </div>
+</body>
+</html>
+

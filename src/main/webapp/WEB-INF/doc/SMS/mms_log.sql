@@ -1,0 +1,10 @@
+CREATE TABLE mms_log (
+    id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    prompt VARCHAR2(500),
+    text CLOB,
+    image_path VARCHAR2(500),
+    status VARCHAR2(20),  -- WAITING, SENT
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+commit;

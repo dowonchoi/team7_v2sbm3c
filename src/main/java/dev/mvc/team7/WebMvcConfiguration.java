@@ -38,6 +38,10 @@ public class WebMvcConfiguration implements WebMvcConfigurer{
         // 리뷰용 이미지
         registry.addResourceHandler("/review/storage/**")
                 .addResourceLocations("file:///C:/kd/deploy/team/review/storage/");
+        
+        // ✅ 외부 폴더(C:/kd/deploy/team/member_img/storage)를 /member_img/storage/** URL로 매핑
+        registry.addResourceHandler("/member_img/storage/**")
+                .addResourceLocations("file:///C:/kd/deploy/team/member_img/storage/");
 
 
         // C:/kd/deploy/team/food/storage ->  /food/storage -> http://localhost:9091/food/storage;

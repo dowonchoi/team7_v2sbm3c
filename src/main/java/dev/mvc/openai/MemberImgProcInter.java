@@ -1,0 +1,8 @@
+package dev.mvc.openai;
+
+import java.util.List;
+
+public interface MemberImgProcInter { 
+    int create(MemberImgVO vo);
+    List<MemberImgVO> list_by_member(int memberno);
+}

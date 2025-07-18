@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>MMS 준비</title></head>
+<body>
+<h2>MMS 이미지 생성</h2>
+<form th:action="@{/mms/prepare}" method="post">
+    <label>프롬프트:</label>
+    <input type="text" name="prompt" required>
+    <button type="submit">이미지 생성</button>
+</form>
+</body>
+</html>
+

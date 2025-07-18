@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChatGPT 번역기</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+  // JAVA: DecimalFormat
+  // Python: print(format(1500, ','))
+  function comma(su) {
+    // 정수가 4자리이상인 경우 오른쪽기준 숫자 3자리식 분리하여 ','를 포함하는 정규 표현식
+    // /: 정규 표현식 시작, \B: 중간 단어를 찾음, (?=): 일치하는 패턴을 찾음, (\d{3}): 연속 숫자 3개
+    // (\d{3})+: 연속 숫자 3개가 1번이상 등장하는 패턴 찾음
+    // (?!\d): 더이상 숫자가 없는 패턴, /g: 문자열 전체에서 해당 패턴을 모두 찾음
+    // 숫자를 3개씩 그룹화하면서 시작 숫자가 숫자들의 중간에 존재하면 ',' 출력
+    return su.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  window.onload = () => { // window.onload = function() {...}
+    let sentence_tag = document.getElementById('sentence');
+    let language_tag = document.getElementById('language');
+    let age_tag = document.getElementById('age');
+    let send_tag = document.getElementById('send');
+    let result_animation_tag = document.getElementById('result_animation');
+    let result_tag = document.getElementById('result');
+
+    send.addEventListener('click', async function() {
+      let sentence = sentence_tag.value;
+      let language = language_tag.value;
+      let age = age_tag.value;
+
+      console.log('-> sentence: ' + sentence);
+
+      fetch("/translator", {  
+        method: 'post',  // get, post
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({sentence, language, age})
+      })
+      .then((response) => response.json())
+      .then((data) => {
+        result_tag.value = data['res'];
+        result_animation_tag.innerHTML = "";
+      });
+
+      // 응답 오기전에 실행 코드
+      result_animation_tag.innerHTML = "<img src='/static/images/progress.gif' style='width: 10%;'>";
+      result_animation_tag.style.textAlign = 'left';
+
+    })
+
+  }
+
+  </script> 
+</head>
+<body>
+  <div style="margin: 30px auto; width: 80%;">
+    <h3>ChatGPT 번역</h3>
+    <textarea id="sentence" style="width: 100%; height: 200px;">안녕하세요.</textarea>  <br />
+ 
+    어느 언어로 번역하겠습니까? <br />
+    <div class="d-flex justify-content-start">
+      <select id="language" style='margin-right: 5px;'>
+        <option value="한글" selected>한글</option>
+        <option value="영어" selected>영어</option>
+        <option value="일본어">일본어</option>
+        <option value="프랑스어">프랑스어</option>
+      </select>
+      <select id="age" style='margin-right: 5px;'>
+        <option value="5" selected='selected'>5살 수준</option>
+        <option value="15">15살 수준</option>
+        <option value="25">25살 수준</option>
+      </select>
+      <button id="send" class="btn btn-primary btn-sm" style='margin-right: 5px;'>번역하기</button> 
+      <span id='result_animation'></span>
+    </div>
+    <br />
+    결과물 보기 <br />
+    <textarea id="result" style="width: 100%; height: 200px;"></textarea>
+  </div>
+</body>
+</html>
+

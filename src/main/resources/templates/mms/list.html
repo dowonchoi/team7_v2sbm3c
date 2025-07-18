@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>MMS 승인 대기</title></head>
+<body>
+<h2>MMS 승인 대기 목록</h2>
+<table border="1">
+    <tr>
+        <th>ID</th><th>프롬프트</th><th>이미지</th><th>상태</th><th>승인</th>
+    </tr>
+    <tr th:each="log : ${logs}">
+        <td th:text="${log.id}"></td>
+        <td th:text="${log.prompt}"></td>
+        <td><img th:src="@{'file:///' + ${log.imagePath}}" width="100"/></td>
+        <td th:text="${log.status}"></td>
+        <td>
+            <form th:action="@{'/mms/approve/' + ${log.id}}" method="post">
+                <input type="text" name="phone" placeholder="전화번호 입력" required>
+                <button type="submit">승인 및 발송</button>
+            </form>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

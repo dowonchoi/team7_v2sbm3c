@@ -33,3 +33,5 @@ ALTER TABLE review ADD CONSTRAINT fk_review_products FOREIGN KEY (productsno) RE
 ALTER TABLE review ADD CONSTRAINT fk_review_member FOREIGN KEY (memberno) REFERENCES member(memberno);
 
 commit;
+
+DESC review;

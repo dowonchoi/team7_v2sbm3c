@@ -6,15 +6,27 @@ import java.awt.image.BufferedImage;
 import java.awt.image.PixelGrabber;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Objects;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
+
+import com.google.gson.Gson;
+
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class Tool {
   //  상수 선언
@@ -514,6 +526,42 @@ public class Tool {
 
     return path;
   }
+  
+  public static final String SMS_OAUTH_TOKEN_URL = "https://sms.gabia.com/oauth/token"; // ACCESS
+  //TOKEN 발급 API URL 입니다.
+  
+  public static String getSMSToken() throws IOException {
+    String smsId = "simh0619sms"; // SMS ID 를 입력해 주세요.
+    String apiKey = "6e30ef95ecf78dfec600d2071896c264"; // SMS 관리툴에서 발급받은 API KEY 를 입력해 주세요.
+    String authValue =
+    Base64.getEncoder().encodeToString(String.format("%s:%s", smsId,
+    apiKey).getBytes(StandardCharsets.UTF_8)); // Authorization Header 에 입력할 값입니다.
+
+    // 사용자 인증 API 를 호출합니다.
+    OkHttpClient client = new OkHttpClient();
+
+    RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
+    .addFormDataPart("grant_type", "client_credentials")
+    //.addHeader("expires_in", "7200")
+    .build();
+
+    Request request = new Request.Builder()
+    .url(SMS_OAUTH_TOKEN_URL)
+    .post(requestBody)
+    .addHeader("Content-Type", "application/x-www-form-urlencoded")
+    .addHeader("Authorization", "Basic " + authValue)
+    .addHeader("cache-control", "no-cache")
+    .build();
+
+    // Response 를 key, value 로 확인하실 수 있습니다.
+    Response response = client.newCall(request).execute();
+    HashMap<String, String> result = new Gson().fromJson(Objects.requireNonNull(response.body()).string(), HashMap.class);
+    //for(String key : result.keySet()) {
+    //  System.out.printf("%s: %s%n", key, result.get(key));
+   // }
+    return result.get("access_token");
+}
+
   
   /**
    * 문자열을 SHA-256 방식으로 암호화

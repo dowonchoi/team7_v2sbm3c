@@ -37,17 +37,18 @@ public class MMSImage {
 
         // 출력할 멀티라인 문자열
         StringBuilder sb = new StringBuilder();
-        sb.append("여름 계곡 트레킹 안내\n\n");
+        sb.append("BBBBBBAAAAABBBBYYY!!!!!");
+     // sb.append("여름 계곡 트레킹 안내\n\n");
         
-        sb.append("한여름 무더위를 맞아\n");
-        sb.append("시원한 계곡 트레킹을 준비했습니다.\n");
-        sb.append("많은 참여 부탁드립니다.\n\n");
+     // sb.append("한여름 무더위를 맞아\n");
+     // sb.append("시원한 계곡 트레킹을 준비했습니다.\n");
+     // sb.append("많은 참여 부탁드립니다.\n\n");
         
-        sb.append("일시: 2025년 7월 1일 화요일 10시\n");
-        sb.append("장소: 관악산\n");
-        sb.append("준비물: 등산화, 편한 복장\n");
-        sb.append("식사: 삼겹살, 비빔밥\n");
-        sb.append("회비: 10,000 원");
+     // sb.append("일시: 2025년 7월 1일 화요일 10시\n");
+     // sb.append("장소: 관악산\n");
+     // sb.append("준비물: 등산화, 편한 복장\n");
+     // sb.append("식사: 삼겹살, 비빔밥\n");
+     // sb.append("회비: 10,000 원");
         String[] lines = sb.toString().split("\n");
 
         // 전체 텍스트 블록 높이 계산

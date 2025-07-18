@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChatGPT 요약 서비스</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // window.onload = function() {
+    window.onload = () => {
+      let article_tag = document.getElementById('article');
+      let send_tag = document.getElementById('send');
+      let clear_tag = document.getElementById('clear');
+      let result_animation_tag = document.getElementById('result_animation');
+      let result_tag = document.getElementById('result');
+
+      // async: 비동기 통신, 일단 요청을 하고 응답이 즉시 안와도 에러가 발생 안됨, 응답이 오면 그때 이어서 처리. 
+      send_tag.addEventListener("click", async function() {
+        let article = article_tag.value;
+        result_tag.style.display='none'; // 태그 숨김
+
+        fetch("http://127.0.0.1:5000/summary", {
+          "method": "post", 
+          "headers": {"Content-Type": "application/json"},
+          body: JSON.stringify({article}) // {"article": article}
+        })
+        .then((response) => response.json())
+        .then((data) => {
+          result_tag.value = data['res'];
+          result_animation_tag.style.display = 'none';
+          result_tag.style.display='block'; // block: 출력
+        });
+
+        result_animation_tag.innerHTML = '<img src="/static/images/progress.gif" style="width: 5%; margin-top: 0px;">';
+        result_animation_tag.style.display='block'; // block: 출력
+      });
+
+      clear_tag.addEventListener("click", function() {
+        article_tag.value='';
+        article_tag.focus();
+
+      })
+    }
+  </script>
+
+</head>
+<body>
+  <div style="margin: 10px auto; width: 90%;">
+    <h3>ChatGPT 요약</h3>
+    <textarea id="article" name="article" style="width: 100%; height: 500px;">
+      [앵커]
+      지하철과 버스 등 서울 대중교통의 기본 요금 인상이 오늘 결정됐습니다.
+      버스는 당장 다음 달부터 교통카드 기준 300원이, 지하철은 10월부터 우선 150원이 오르게 됩니다.
+      김민혁 기자의 보도입니다.
+      [리포트]
+      서울시는 대중교통 요금조정안이 오늘(12일) 서울시 물가대책위원회 심의를 통과했다고 밝혔습니다.
+      조정안에 따르면, 다음 달부터 서울시 버스의 기본요금은 300원 오르게 됩니다.
+      간·지선 버스의 경우 현행 1,200원에서 1,500원으로, 순환·차등 버스의 경우 현행 1,100원에서 1,400원으로 오릅니다.
+      마을버스는 900원에서 300원 올라 1,200원이 됩니다.
+      광역버스의 경우 2,300원에서 700원 올라 3,000원, 심야버스의 경우 2,150원에서 350원 올라 2,500원으로 인상됩니다.
+      지하철은 순차적으로 오릅니다.
+      우선 오는 10월부터 현행 1,250원에서 150원 오른 1,400원으로 조정되고, 내년에 150원이 추가로 인상될 예정입니다.
+      서울시는 당초 시내버스 인상과 함께 지하철도 300원 인상을 검토했지만, 서민 경제 상황과 정부 물가시책 협조, 그리고 인천 경기 등 지하철이 운행되는 다른 수도권 지역과의 협의 등을 이유로 순차 인상을 결정했습니다.
+      서울 버스는 다음 달 12일 토요일 첫차부터, 지하철은 코레일, 인천·경기 등과 협의를 거쳐 10월 7일 토요일 첫차부터 인상된 요금이 적용될 계획입니다.
+      서울 대중교통 요금 인상은 2015년 이후 8년 1개월 만입니다.
+      청소년과 어린이의 현재 요금 할인 비율은 인상 뒤에도 그대로 유지됩니다.
+      또, 조조할인과 지하철 정기권 요금도 조정되는 기본요금에 현재 할인 비율을 그대로 적용하기로 했습니다.
+    </textarea>  <br />
+  
+    <button id="send" class="btn btn-primary btn-sm">요약 하기</button> 
+    <button id="clear" class="btn btn-primary btn-sm">내용 삭제하기</button> <br />
+    <div id="result_animation" style="margin-top: 10px; width: 100%; height: 50px; text-align: center; display: none;"></div>
+    <textarea id="result" style="margin-top: 10px; width: 100%; height: 100px; display: none;"></textarea>
+
+  </div>
+
+</body>
+</html>
+
