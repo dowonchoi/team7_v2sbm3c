@@ -10,7 +10,8 @@ public class MMSImage {
 
     public static void main(String[] args) throws IOException, FontFormatException {
         // 원본 이미지 불러오기
-        File input = new File("C:\\kd\\ws_python\\openai\\static\\member_img\\20250701104746_777.jpg");
+        File input = new File("C:\\kd\\ws_java\\team7_v2sbm3c\\src\\main\\resources\\static\\member_img\\sample_img.jpg");
+        //File input = new File("C:\\kd\\ws_python\\openai\\static\\member_img\\20250701104746_777.jpg");
         BufferedImage originalImage = ImageIO.read(input);
 
         // 새로운 크기 설정
@@ -77,7 +78,7 @@ public class MMSImage {
         g2d.dispose();
 
         // 결과 저장C:\kd\ws_python\openai\static\member_img
-        File output = new File("C:\\kd\\deploy\\mms\\storage\\mms_output.jpg");
+        File output = new File("C:\\kd\\deploy\\mms\\storage\\20250719.jpg");
         ImageIO.write(resizedImage, "jpg", output);
         System.out.println("이미지 저장 완료: " + output.getAbsolutePath());
     }

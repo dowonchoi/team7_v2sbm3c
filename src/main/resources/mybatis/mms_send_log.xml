@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dev.mvc.mms_img.MmsSendLogDAOInter">
+
+    <insert id="create" parameterType="dev.mvc.mms_img.MmsSendLogVO">
+        <selectKey keyProperty="mslogno" resultType="int" order="BEFORE">
+            SELECT mms_send_log_seq.NEXTVAL FROM dual
+        </selectKey>
+        INSERT INTO mms_send_log (
+            mslogno, mimgno, memberno, phone_number, send_status
+        ) VALUES (
+            #{mslogno}, #{mimgno}, #{memberno}, #{phone_number}, #{send_status}
+        )
+    </insert>
+    
+    
+
+    <select id="listByImgno" parameterType="int" resultType="dev.mvc.mms_img.MmsSendLogVO">
+        SELECT mslogno, mimgno, memberno, phone_number, send_status,
+               TO_CHAR(send_time, 'YYYY-MM-DD HH24:MI') as send_time
+        FROM mms_send_log
+        WHERE mimgno = #{mimgno}
+        ORDER BY mslogno DESC
+    </select>
+</mapper>
+

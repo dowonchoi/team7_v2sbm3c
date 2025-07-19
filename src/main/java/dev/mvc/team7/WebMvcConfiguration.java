@@ -42,6 +42,9 @@ public class WebMvcConfiguration implements WebMvcConfigurer{
         // ✅ 외부 폴더(C:/kd/deploy/team/member_img/storage)를 /member_img/storage/** URL로 매핑
         registry.addResourceHandler("/member_img/storage/**")
                 .addResourceLocations("file:///C:/kd/deploy/team/member_img/storage/");
+        
+        registry.addResourceHandler("/mms_img/**")
+                .addResourceLocations("file:///C:/kd/deploy/mms/storage/");
 
 
         // C:/kd/deploy/team/food/storage ->  /food/storage -> http://localhost:9091/food/storage;

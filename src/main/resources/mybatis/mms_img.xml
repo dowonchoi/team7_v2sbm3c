@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dev.mvc.mms_img.MmsImgMapper">
+
+    <!-- MMS 이미지 생성
+    <insert id="create" parameterType="dev.mvc.mms_img.MmsImgVO">
+        INSERT INTO mms_img (
+            mimgno, memberno, prompt, original_filename, filepath, status
+        ) VALUES (
+            mms_img_seq.NEXTVAL, #{memberno}, #{prompt}, #{original_filename}, #{filepath}, 'created'
+        )
+    </insert>-->
+    
+    <insert id="create" parameterType="dev.mvc.mms_img.MmsImgVO">
+        <!-- ✅ PK 생성 -->
+        <selectKey keyProperty="mimgno" resultType="int" order="BEFORE">
+            SELECT mms_img_seq.NEXTVAL FROM dual
+        </selectKey>
+    
+        <!-- ✅ INSERT 실행 -->
+        INSERT INTO mms_img (
+            mimgno, memberno, prompt, original_filename, filepath, status, rdate
+        ) VALUES (
+            #{mimgno}, #{memberno}, #{prompt}, #{original_filename}, #{filepath}, #{status}, SYSDATE
+        )
+    </insert>
+
+
+    <!-- MMS 이미지 상세 조회 -->
+    <select id="read" parameterType="int" resultType="dev.mvc.mms_img.MmsImgVO">
+        SELECT mimgno, memberno, prompt, message_text, original_filename, final_filename,
+               filepath, status, TO_CHAR(rdate, 'YYYY-MM-DD') as rdate
+        FROM mms_img
+        WHERE mimgno = #{mimgno}
+    </select>
+
+    <!-- MMS 이미지 목록 -->
+    <select id="list" resultType="dev.mvc.mms_img.MmsImgVO">
+        SELECT mimgno, memberno, prompt, original_filename, final_filename, status,
+               TO_CHAR(rdate, 'YYYY-MM-DD') as rdate
+        FROM mms_img
+        ORDER BY mimgno DESC
+    </select>
+
+    <!-- ✅ 텍스트 + 최종 이미지 업데이트 -->
+    <update id="updateTextAndFinalImage" parameterType="dev.mvc.mms_img.MmsImgVO">
+        UPDATE mms_img
+        SET message_text = #{message_text},
+            final_filename = #{final_filename},
+            status = 'text_added'
+        WHERE mimgno = #{mimgno}
+    </update>
+    
+    
+   
+    <!-- 이미지 삭제 -->
+    <delete id="delete" parameterType="int">
+        DELETE FROM mms_img WHERE mimgno = #{mimgno}
+    </delete>
+
+</mapper>

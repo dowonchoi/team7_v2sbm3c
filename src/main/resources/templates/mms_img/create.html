@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>MMS 이미지 생성 및 텍스트 합성</title>
+    <style>
+        .preview { margin-top: 20px; }
+        img { max-width: 300px; border: 1px solid #ddd; margin-bottom: 10px; }
+        .btn { margin: 5px; padding: 8px 15px; background: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+        .btn:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+<h2>MMS 이미지 생성 및 텍스트 합성</h2>
+
+<!-- ✅ Step 1: 프롬프트 입력 -->
+<form id="createForm" onsubmit="return false;">
+    <label>프롬프트:</label><br>
+    <input type="text" id="prompt" name="prompt" style="width:300px;" placeholder="이미지 설명 입력">
+    <button type="button" class="btn" onclick="createImage()">이미지 생성</button>
+</form>
+
+<!-- ✅ 이미지 미리보기 + 텍스트 입력 영역 동적 추가 -->
+<div class="preview" id="preview"></div>
+
+<script>
+let currentMimgno = null; // ✅ 전역 변수: 현재 생성된 이미지 PK 저장
+
+// ✅ Step 1: 이미지 생성
+function createImage() {
+    const prompt = document.getElementById('prompt').value.trim();
+    if (!prompt) {
+        alert("프롬프트를 입력하세요.");
+        return;
+    }
+
+    fetch('/mms/create', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: 'prompt=' + encodeURIComponent(prompt)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("서버 응답:", data);
+        if (data.success) {
+            currentMimgno = data.mimgno; // ✅ 이미지 PK 저장
+
+            // ✅ 이미지 미리보기 + 텍스트 입력 + 버튼 추가
+            document.getElementById('preview').innerHTML = `
+                <p>이미지 생성 완료:</p>
+                <img src="/mms_img/${data.filename}" alt="생성 이미지"><br>
+                <input type="text" id="messageText" placeholder="합성할 텍스트 입력" style="width:300px;">
+                <button class="btn" onclick="addText()">텍스트 합성</button>
+                <div id="finalResult"></div>
+            `;
+        } else {
+            alert("오류: " + data.error);
+        }
+    })
+    .catch(err => alert("요청 실패: " + err));
+}
+
+// ✅ Step 2: 텍스트 합성
+function addText() {
+    const messageText = document.getElementById('messageText').value.trim();
+    if (!messageText) {
+        alert("텍스트를 입력하세요.");
+        return;
+    }
+
+    const formData = new URLSearchParams();
+    formData.append("mimgno", currentMimgno);
+    formData.append("message_text", messageText);
+
+    fetch('/mms/text', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: formData.toString()
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("합성 결과:", data);
+        if (data.success) {
+            // ✅ 합성된 이미지 출력 + 발송 버튼 추가
+            document.getElementById('finalResult').innerHTML = `
+                <p>텍스트 합성 완료:</p>
+                <img src="/mms_img/${data.finalFileName}" alt="최종 이미지"><br>
+                <input type="text" id="phoneNumber" placeholder="휴대폰 번호 입력" style="width:200px;">
+                <button class="btn" onclick="sendMMS()">MMS 발송</button>
+            `;
+        } else {
+            alert("합성 오류: " + data.error);
+        }
+    })
+    .catch(err => alert("요청 실패: " + err));
+}
+
+// ✅ Step 3: MMS 발송
+function sendMMS() {
+    const phoneNumber = document.getElementById('phoneNumber').value.trim();
+    if (!phoneNumber) {
+        alert("전화번호를 입력하세요.");
+        return;
+    }
+
+    const formData = new URLSearchParams();
+    formData.append("mimgno", currentMimgno);
+    formData.append("phone_number", phoneNumber);
+
+    fetch('/mms/send', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: formData.toString()
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("발송 결과:", data);
+        if (data.success) {
+            alert("✅ 발송 성공! 상태: " + data.status);
+        } else {
+            alert("발송 실패: " + data.error);
+        }
+    })
+    .catch(err => alert("요청 실패: " + err));
+}
+</script>
+</body>
+</html>
