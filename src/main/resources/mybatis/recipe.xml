@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dev.mvc.openai.RecipeDAOInter">
+
+    <!--  레시피 저장 -->
+    <insert id="create" parameterType="dev.mvc.openai.RecipeVO">
+        INSERT INTO recipe (recipeno, memberno, prompt, content, rdate)
+        VALUES (recipe_seq.NEXTVAL, #{memberno}, #{prompt}, #{content}, SYSDATE)
+    </insert>
+
+    <!--  특정 회원 레시피 목록 -->
+    <select id="list_by_member" resultType="dev.mvc.openai.RecipeVO">
+        SELECT recipeno, memberno, prompt, content, rdate
+        FROM recipe
+        WHERE memberno = #{memberno}
+        ORDER BY recipeno DESC
+    </select>
+
+    <!--  전체 레시피 목록 -->
+    <select id="list_all" resultType="dev.mvc.openai.RecipeVO">
+        SELECT recipeno, memberno, prompt, content, rdate
+        FROM recipe
+        ORDER BY recipeno DESC
+    </select>
+
+</mapper>
