@@ -7,13 +7,13 @@
 
     <!--  레시피 저장 -->
     <insert id="create" parameterType="dev.mvc.openai.RecipeVO">
-        INSERT INTO recipe (recipeno, memberno, prompt, content, rdate)
-        VALUES (recipe_seq.NEXTVAL, #{memberno}, #{prompt}, #{content}, SYSDATE)
+        INSERT INTO recipe(recipeno, memberno, foodBinary, content, rdate)
+        VALUES (recipe_seq.NEXTVAL, #{memberno}, #{foodBinary}, #{content}, sysdate)
     </insert>
 
     <!--  특정 회원 레시피 목록 -->
-    <select id="list_by_member" resultType="dev.mvc.openai.RecipeVO">
-        SELECT recipeno, memberno, prompt, content, rdate
+    <select id="list_by_member" parameterType="int" resultType="dev.mvc.openai.RecipeVO">
+        SELECT recipeno, memberno, foodBinary, content, TO_CHAR(rdate, 'YYYY-MM-DD') as rdate
         FROM recipe
         WHERE memberno = #{memberno}
         ORDER BY recipeno DESC

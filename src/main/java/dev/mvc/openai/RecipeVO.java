@@ -7,7 +7,7 @@ import lombok.Setter;
 public class RecipeVO {
     private int recipeno;
     private int memberno;
-    private String prompt;
+    private String foodBinary; 
     private String content;
     private String rdate;
 }

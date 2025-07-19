@@ -30,7 +30,10 @@ public class OpenAICont {
   @Qualifier("dev.mvc.openai.MemberImgProc")
   private MemberImgProcInter memberImgProc;
 
-
+    @Autowired
+    @Qualifier("dev.mvc.openai.RecipeProc")
+    private RecipeProcInter recipeProc;
+  
     @Autowired
     @Qualifier("dev.mvc.member.MemberProc")
     private MemberProcInter memberProc;
@@ -68,6 +71,9 @@ public class OpenAICont {
                 "우유", "달걀", "치즈", "버터", "두부"
         };
         model.addAttribute("foods", foods);
+        
+        // 추가: 사용자 레시피 내역
+        model.addAttribute("recipeList", recipeProc.list_by_member(memberno));
 
         return "openai/recipe"; // /templates/openai/recipe.html
     }
@@ -77,7 +83,8 @@ public class OpenAICont {
      */
     @PostMapping("/recipe_ajax")
     @ResponseBody
-    public Map<String, Object> recommendRecipe(@RequestParam("food") String foodBinary, HttpSession session) {
+    public Map<String, Object> recommendRecipe(@RequestParam("food") String foodBinary, 
+                                                                   HttpSession session) {
         Map<String, Object> result = new HashMap<>();
 
         // ✅ 로그인 체크
@@ -101,6 +108,13 @@ public class OpenAICont {
             // ✅ FastAPI 호출
             String response = restTemplate.postForObject(FASTAPI_FOOD_URL, requestEntity, String.class);
             System.out.println("[OpenAICont] FastAPI Response: " + response);
+            
+            // ✅ DB 저장
+            RecipeVO vo = new RecipeVO();
+            vo.setMemberno(memberno);
+            vo.setFoodBinary(foodBinary);
+            vo.setContent(response);
+            recipeProc.create(vo);
 
             // ✅ JSON 그대로 반환 (프론트에서 처리)
             result.put("success", true);

@@ -20,8 +20,4 @@ public class RecipeProc implements RecipeProcInter {
         return recipeDAO.list_by_member(memberno);
     }
 
-    @Override
-    public List<RecipeVO> list_all() {
-        return recipeDAO.list_all();
-    }
 }

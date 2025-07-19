@@ -19,4 +19,6 @@ public interface RecipeDAOInter {
      * 전체 레시피 목록 (관리자용)
      */
     public List<RecipeVO> list_all();
+    
+    
 }
