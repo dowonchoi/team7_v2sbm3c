@@ -4,19 +4,22 @@
     <meta charset="UTF-8">
     <title>MMS 원툴 테스트</title>
     <style>
-        .container { max-width: 700px; margin: auto; padding: 20px; }
+        .container { max-width: 800px; margin: auto; padding: 20px; }
         .preview { margin-top: 15px; border: 1px solid #ccc; padding: 10px; text-align: center; }
         img { max-width: 100%; height: auto; }
         button { margin-top: 10px; padding: 10px; width: 100%; }
+        .options { display: flex; gap: 10px; margin-top: 10px; }
+        .options label { font-size: 14px; }
+        .options input { width: 100%; }
     </style>
 </head>
 <body>
 <div class="container">
-    <h2>MMS 원툴 테스트</h2>
+    <h2>MMS 이미지 원툴</h2>
 
     <!-- STEP 1 -->
     <div>
-        <h3>STEP 1: 배경 이미지 생성</h3>
+        <h3>STEP 1: AI 이미지 생성</h3>
         <input type="text" id="prompt" placeholder="프롬프트 입력" style="width: 100%;">
         <button onclick="createImage()">이미지 생성</button>
     </div>
@@ -26,7 +29,26 @@
     <!-- STEP 2 -->
     <div>
         <h3>STEP 2: 텍스트 합성</h3>
-        <input type="text" id="messageText" placeholder="메시지 입력" style="width: 100%;">
+        <textarea id="messageText" placeholder="메시지 입력 (줄바꿈 가능)" style="width: 100%; height: 60px;"></textarea>
+
+        <div class="options">
+            <label>폰트:
+                <input type="text" id="fontName" value="Malgun Gothic">
+            </label>
+            <label>크기(px):
+                <input type="number" id="fontSize" value="60">
+            </label>
+        </div>
+
+        <div class="options">
+            <label>텍스트 색상:
+                <input type="color" id="textColor" value="#FFFFFF">
+            </label>
+            <label>그림자 색상:
+                <input type="color" id="shadowColor" value="#000000">
+            </label>
+        </div>
+
         <button onclick="addText()">텍스트 추가</button>
     </div>
 
@@ -39,9 +61,10 @@
 </div>
 
 <script>
-    let fileName = '';
-    let finalFileName = '';
+    let fileName = ''; // ✅ AI 생성된 이미지 파일명 저장
+    let finalFileName = ''; // ✅ 텍스트 합성 후 최종 이미지 파일명 저장
 
+    // ✅ STEP 1: AI 이미지 생성
     function createImage() {
         const prompt = document.getElementById('prompt').value;
         fetch('/mms_tool/create', {
@@ -50,7 +73,7 @@
             body: `prompt=${encodeURIComponent(prompt)}`
         }).then(res => res.json()).then(data => {
             if (data.success) {
-                fileName = data.fileName;
+                fileName = data.fileName; // ✅ 저장
                 document.getElementById('imagePreview').innerHTML =
                     `<img src="${data.filePath}" alt="AI 이미지">`;
             } else {
@@ -59,15 +82,21 @@
         });
     }
 
+    // ✅ STEP 2: 텍스트 합성
     function addText() {
         const messageText = document.getElementById('messageText').value;
+        const fontName = document.getElementById('fontName').value;
+        const fontSize = document.getElementById('fontSize').value;
+        const textColor = document.getElementById('textColor').value;
+        const shadowColor = document.getElementById('shadowColor').value;
+
         fetch('/mms_tool/text', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `fileName=${encodeURIComponent(fileName)}&messageText=${encodeURIComponent(messageText)}`
+            body: `fileName=${encodeURIComponent(fileName)}&messageText=${encodeURIComponent(messageText)}&fontName=${encodeURIComponent(fontName)}&fontSize=${fontSize}&textColor=${encodeURIComponent(textColor)}&shadowColor=${encodeURIComponent(shadowColor)}`
         }).then(res => res.json()).then(data => {
             if (data.success) {
-                finalFileName = data.finalFileName;
+                finalFileName = data.finalFileName; // ✅ 최종 파일명 저장
                 document.getElementById('imagePreview').innerHTML =
                     `<img src="${data.filePath}" alt="최종 이미지">`;
             } else {
@@ -76,6 +105,7 @@
         });
     }
 
+    // ✅ STEP 3: MMS 발송
     function sendMMS() {
         const phoneNumber = document.getElementById('phoneNumber').value;
         fetch('/mms_tool/send', {
@@ -83,7 +113,7 @@
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `phoneNumber=${encodeURIComponent(phoneNumber)}&finalFileName=${encodeURIComponent(finalFileName)}`
         }).then(res => res.json()).then(data => {
-            alert(data.success ? 'MMS 발송 성공!' : '실패: ' + data.error);
+            alert(data.success ? '✅ MMS 발송 성공!' : '❌ 실패: ' + data.error);
         });
     }
 </script>

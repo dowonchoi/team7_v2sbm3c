@@ -1,5 +1,6 @@
 package dev.mvc.mms_img;
 
+import dev.mvc.tool.LLMKey;
 import dev.mvc.tool.Tool;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +53,7 @@ public class MmsToolCont {
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             Map<String, Object> body = new HashMap<>();
-            body.put("SpringBoot_FastAPI_KEY", "YOUR_FASTAPI_KEY");
+            body.put("SpringBoot_FastAPI_KEY", new LLMKey().getSpringBoot_FastAPI_KEY());
             body.put("prompt", prompt);
 
             HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
@@ -75,19 +76,41 @@ public class MmsToolCont {
         return result;
     }
 
-    /**
-     * ✅ STEP 2: 텍스트 합성 (Java)
-     */
     @PostMapping("/text")
     @ResponseBody
     public Map<String, Object> addText(@RequestParam("fileName") String fileName,
-                                       @RequestParam("messageText") String messageText) {
+                                       @RequestParam("messageText") String messageText,
+                                       @RequestParam(value = "fontName", required = false) String fontName,
+                                       @RequestParam(value = "fontSize", required = false) Integer fontSize,
+                                       @RequestParam(value = "textColor", required = false) String textColor,
+                                       @RequestParam(value = "shadowColor", required = false) String shadowColor) {
         Map<String, Object> result = new HashMap<>();
         try {
+            // ✅ 기본값 처리
+            if (fontName == null || fontName.trim().isEmpty()) {
+                fontName = "Malgun Gothic";
+            }
+            if (fontSize == null || fontSize <= 0) {
+                fontSize = 60;
+            }
+            if (textColor == null || textColor.trim().isEmpty()) {
+                textColor = "#FFFFFF";
+            }
+            if (shadowColor == null || shadowColor.trim().isEmpty()) {
+                shadowColor = "#000000";
+            }
+
             String inputPath = "C:/kd/deploy/mms/storage/" + fileName;
 
-            // ✅ 텍스트 합성 & 압축
-            String finalFileName = mmsImageService.addTextToImage(inputPath, messageText);
+            // ✅ 서비스 호출 (옵션 전달)
+            String finalFileName = mmsImageService.addTextToImage(
+                    inputPath,
+                    messageText.replace("\\n", "\n"), // 줄바꿈 처리
+                    fontName,
+                    fontSize,
+                    textColor,
+                    shadowColor
+            );
 
             result.put("success", true);
             result.put("finalFileName", finalFileName);
@@ -99,6 +122,7 @@ public class MmsToolCont {
         }
         return result;
     }
+
 
     /**
      * ✅ STEP 3: MMS 발송 (Gabia API)

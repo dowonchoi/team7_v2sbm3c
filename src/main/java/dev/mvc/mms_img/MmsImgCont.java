@@ -60,7 +60,7 @@ public class MmsImgCont {
 
         // ✅ 권한 체크: admin만 접근 가능
         if (grade == null || !"admin".equals(grade)) {
-            return "redirect:/member/login_cookie_need?url=/mms/create";
+            return "redirect:/member/login_cookie_need?url=/mms/tool";
         }
 
         // ✅ 관리자 본인 이미지 목록 표시 (참고용)
@@ -147,42 +147,61 @@ public class MmsImgCont {
     @ResponseBody
     public Map<String, Object> addText(
             @RequestParam("mimgno") int mimgno,
-            @RequestParam("message_text") String messageText) {
+            @RequestParam("message_text") String messageText,
+            @RequestParam(value = "fontName", required = false) String fontName,
+            @RequestParam(value = "fontSize", required = false) Integer fontSize,
+            @RequestParam(value = "textColor", required = false) String textColor,
+            @RequestParam(value = "shadowColor", required = false) String shadowColor) {
 
         Map<String, Object> result = new HashMap<>();
-        System.out.println("[DEBUG] /mms/text 요청 - mimgno: " + mimgno + ", messageText: " + messageText);
+        System.out.println("[DEBUG] /mms/text 요청");
+        System.out.println("mimgno: " + mimgno);
+        System.out.println("messageText: " + messageText);
+        System.out.println("fontName: " + fontName + ", fontSize: " + fontSize);
+        System.out.println("textColor: " + textColor + ", shadowColor: " + shadowColor);
 
         try {
-            // ✅ 줄바꿈 변환 (\n → 실제 줄바꿈)
+            // ✅ 줄바꿈 처리 (\n → 실제 줄바꿈)
             messageText = messageText.replace("\\n", "\n");
+
+            // ✅ 옵션 값 기본 처리
+            if (fontName == null || fontName.trim().isEmpty()) {
+                fontName = "Malgun Gothic";  // 기본 폰트
+            }
+            if (fontSize == null || fontSize <= 0) {
+                fontSize = 60;  // 기본 크기
+            }
+            if (textColor == null || textColor.trim().isEmpty()) {
+                textColor = "#FFFFFF";  // 기본 텍스트 색상 (흰색)
+            }
+            if (shadowColor == null || shadowColor.trim().isEmpty()) {
+                shadowColor = "#000000";  // 기본 그림자 색상 (검정)
+            }
 
             // ✅ 1. DB에서 원본 이미지 읽기
             MmsImgVO vo = mmsImgProc.read(mimgno);
-            System.out.println("[DEBUG] 원본 이미지: " + vo.getOriginal_filename());
-
-            // ✅ 2. 원본 이미지 절대경로
             String inputPath = "C:/kd/deploy/mms/storage/" + vo.getOriginal_filename();
             System.out.println("[DEBUG] 입력 경로: " + inputPath);
 
-            // ✅ 3. 합성 이미지 생성 (옵션 포함)
+            // ✅ 2. 옵션 기반 이미지 합성
             String finalFileName = mmsImageService.addTextToImage(
                     inputPath,
-                    messageText,           // ✅ 줄바꿈 적용 후
-                    "Malgun Gothic",       // ✅ 폰트명
-                    60,                    // ✅ 폰트 크기
-                    "#FFFFFF",             // ✅ 텍스트 색상
-                    "#000000"              // ✅ 그림자 색상
+                    messageText,
+                    fontName,
+                    fontSize,
+                    textColor,
+                    shadowColor
             );
             System.out.println("[DEBUG] 최종 파일명: " + finalFileName);
 
-            // ✅ 4. DB 업데이트
+            // ✅ 3. DB 업데이트
             vo.setMessage_text(messageText);
             vo.setFinal_filename(finalFileName);
             vo.setStatus("text_added");
             int updated = mmsImgProc.updateTextAndFinalImage(vo);
             System.out.println("[DEBUG] DB 업데이트 결과: " + updated);
 
-            // ✅ 5. JSON 응답
+            // ✅ 4. 응답 데이터
             result.put("success", true);
             result.put("mimgno", vo.getMimgno());
             result.put("finalFileName", finalFileName);
@@ -200,8 +219,6 @@ public class MmsImgCont {
 
         return result;
     }
-
-
 
 
     @PostMapping("/send")
@@ -253,6 +270,18 @@ public class MmsImgCont {
         return result;
     }
 
+ // ✅ MMS Tool 테스트 페이지
+    @GetMapping("/tool")
+    public String tool(HttpSession session) {
+        String grade = (String) session.getAttribute("grade");
+
+        // ✅ 권한 확인 (관리자만)
+        if (grade == null || !"admin".equals(grade)) {
+            return "redirect:/member/login_cookie_need?url=/mms/tool";
+        }
+
+        return "mms_img/mms_tool"; // ✅ templates/mms_img/mms_tool.html
+    }
 
 
 }
