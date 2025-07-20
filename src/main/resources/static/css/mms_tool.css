@@ -1,0 +1,174 @@
+/* 기본 레이아웃 */
+body {
+    font-family: "Noto Sans KR", sans-serif;
+    background-color: #f4f6f8;
+    margin: 0;
+    padding: 0;
+}
+
+.mms-tool-container {
+    max-width: 900px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    position: relative;
+}
+
+.mms-tool-title {
+    text-align: center;
+    color: #4CAF50;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.mms-tool-step-title {
+    font-size: 18px;
+    color: #333;
+    margin-top: 25px;
+    border-left: 4px solid #4CAF50;
+    padding-left: 8px;
+}
+
+/* 입력 필드 */
+.mms-tool-container input[type="text"],
+.mms-tool-container textarea,
+.mms-tool-container input[type="number"],
+.mms-tool-container input[type="color"] {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 14px;
+    margin-top: 8px;
+    transition: 0.3s;
+}
+
+.mms-tool-container input:focus,
+.mms-tool-container textarea:focus {
+    border-color: #4CAF50;
+    outline: none;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+}
+
+/* 버튼 */
+.mms-tool-btn {
+    width: 100%;
+    background: #4CAF50;
+    color: #fff;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.3s;
+}
+
+.mms-tool-btn:hover {
+    background: #43a047;
+    transform: scale(1.03);
+}
+
+.mms-tool-btn:active {
+    transform: scale(0.97);
+}
+
+/* 옵션 라인 */
+.mms-tool-options {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.mms-tool-options label {
+    flex: 1;
+    font-size: 14px;
+}
+
+/* 이미지 프리뷰 */
+.mms-tool-preview {
+    margin-top: 15px;
+    border: 2px dashed #ccc;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    min-height: 220px;
+    background: #fafafa;
+}
+
+.mms-tool-preview img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 로딩 스피너 */
+.mms-tool-spinner {
+    display: none;
+    text-align: center;
+    margin-top: 15px;
+}
+
+.mms-tool-spinner div {
+    width: 35px;
+    height: 35px;
+    border: 4px solid #4CAF50;
+    border-top: 4px solid transparent;
+    border-radius: 50%;
+    margin: auto;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .mms-tool-container {
+        padding: 20px;
+    }
+
+    .mms-tool-options {
+        flex-direction: column;
+    }
+}
+
+/* 서브 텍스트 (예시 문구) */
+.mms-tool-sub-text {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* 폰트 안내 */
+.mms-tool-font-guide {
+    display: block;
+    font-size: 12px;
+    color: #aaa;
+    margin-top: 4px;
+}
+
+/* 색상 선택 개선 */
+.mms-tool-color {
+    width: 100%;
+    height: 40px; /* 크게 */
+    padding: 2px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.mms-tool-color:hover {
+    border-color: #4CAF50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+}
