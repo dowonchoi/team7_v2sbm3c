@@ -1,82 +1,84 @@
 <!DOCTYPE html>
-
-<html layout:decorate="~{layout}"> <!-- layout.html 상속-->
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
 <div layout:fragment="content">
 
-  <div class='title_line'>
-    <span th:text="${cateVO.grp}" class="title_line_text"></span >
-    > <span th:text="${cateVO.name}" class="title_line_text"></span >
+  <div class="title_line">
+    <span th:text="${cateVO.grp}" class="title_line_text"></span>
+    > <span th:text="${cateVO.name}" class="title_line_text"></span>
     <span th:if="${word != ''}" th:text="|> ${word} (${search_count} 건)|" class="title_line_text"></span>
   </div>
 
   <aside class="aside_right">
-    <!-- <span th:if="${session.grade == 'admin'}"> -->
     <span th:if="${session.grade == 'admin' or session.grade == 'supplier'}">
       <a th:href="@{|/products/create?cateno=${cateVO.cateno}|}">등록</a>
-      <span class="menu_devide">│</span>    
+      <span class="menu_devide">│</span>
     </span>
-    
     <a href="javascript:location.reload();">새로고침</a>
-    <span class='menu_divide' >│</span>    
-    <!-- <a th:href="@{|./list_by_cateno?cateno=${cateVO.cateno }&word=${word }&now_page=${now_page}|}">목록형</a>    
-    <span class='menu_divide' >│</span> -->
-    <!-- 쇼핑몰을 갤러리 형으로만 유지 결정. 목록형은 지움. -->
-    <!-- <a th:href="@{|./list_by_cateno_grid?cateno=${cateVO.cateno }&word=${word }&now_page=${now_page}|}">목록</a>     -->
-    <a th:href="@{|./list_by_cateno_grid?cateno=${cateVO.cateno }|}">목록</a>
-  </aside> 
+    <span class="menu_divide">│</span>
+    <a th:href="@{|./list_by_cateno_grid?cateno=${cateVO.cateno}|}">목록</a>
+  </aside>
 
-  <!-- /products/list_search_com.html 파일의 list_search_fragment import -->
-  <!-- 0625 바꿈 -->
-  <!-- <div th:replace="~{products/list_search_com::list_search_fragment}"></div> -->
+  <!-- 검색 영역 -->
   <div th:replace="~{products/list_search_com::list_search_locationfragment}"></div>
 
-     
-  <div class='menu_line'></div>
-       
-  <div style='width: 100%;'> <!-- 갤러리 Layout  시작 -->
-    <div th:if="${list.size() > 0}" th:each="productsVO, status:${list}" 
-         th:attr="onclick=|location.href='/products/read?productsno=${productsVO.productsno}&word=${word}&now_page=${now_page}'|"
-         style='width: 24%; height: 200px; float: left; margin: 0.5%; padding: 0.5%; background-color: #EEEFFF; text-align: left; cursor: pointer;'>
+  <div class="menu_line"></div>
 
-      <div th:if="${productsVO.file1.endsWith('jpg') or productsVO.file1.endsWith('png') or productsVO.file1.endsWith('gif') or productsVO.file1.endsWith('jpeg')}"
-             style="width: 100%; height: 100px;">
-        <img th:src="@{|/products/storage/${productsVO.thumb1}|}" style="width: 100%; height: 100%;">
-      </div>
-
-      <div th:if="${((productsVO.file1.endsWith('jpg') or productsVO.file1.endsWith('png')  or productsVO.file1.endsWith('gif') or productsVO.file1.endsWith('jpeg')) == false) and (productsVO.size1 > 0)}"
-             style="width: 100%; height: 100px;">
-        <span th:text="${productsVO.file1}"></span>
-      </div>
-
-      <!-- <div th:if="${productsVO.size1 == 0}" style="width: 100%; height: 100px;">
-        <img src="/products/images/default_thumb.png" style="width: 100%; height: 100%;">
-      </div> -->
-      <div>
-        <span th:if="${productsVO.title.length() > 16 }" 
-                  th:text="|${productsVO.title.substring(0, 16) }...|" style="font-weight: bold;"></span>
-        <span th:if="${productsVO.title.length() <= 16 }" 
-                  th:text="|${productsVO.title}|" style="font-weight: bold;"></span>
-        <br>
-        
-        <span th:if="${productsVO.content.length() > 36 }" 
-                  th:text="|${productsVO.content.substring(0, 36) }...|"></span>
-        <span th:if="${productsVO.content.length() <= 36 }" 
-                  th:text="|${productsVO.content}|"></span>
-      </div>
-      
-      <div style="width: 100%; text-align: right;">♡</div>
-      
-    </div>
+  <!-- ✅ 카드형 레이아웃 -->
+  <div class="list-grid-container">
     
-    <div th:if="${list.size() == 0}" style="text-align: center; padding: 50px 0px;">
-      <span>관련 글이 등록되지 않았습니다.</span>
-    </div> 
-  </div>  <!-- 갤러리 Layout  종료 -->
-   
-  <!-- 페이지 버튼 목록 출력 시작 -->
+    <!-- 상품 목록 -->
+    <div th:if="${list.size() > 0}" th:each="productsVO : ${list}"
+         class="list-grid-card"
+         th:attr="data-link=@{'/products/read'(productsno=${productsVO.productsno}, word=${word}, now_page=${now_page})}"
+         onclick="navigateTo(this)">
+
+      <!-- 이미지 -->
+      <div class="list-grid-img-box">
+        <img th:if="${productsVO.file1 != null and productsVO.file1 != ''}"
+             th:src="@{|/products/storage/${productsVO.thumb1}|}" alt="상품 이미지">
+        <img th:if="${productsVO.file1 == null or productsVO.file1 == ''}"
+             src="/products/images/default_thumb.png" alt="기본 이미지">
+      </div>
+
+      <!-- 상품 제목 -->
+      <div class="list-grid-title" th:text="${productsVO.title}"></div>
+
+      <!-- 가격 & 할인 -->
+      <div class="list-grid-price-box">
+        <span class="list-grid-dc" th:text="${productsVO.dc + '%'}"></span>
+        <span class="list-grid-saleprice"
+              th:text="${#numbers.formatInteger(productsVO.saleprice, 3, 'COMMA')} + '원'"></span>
+      </div>
+
+      <!-- 포인트 -->
+      <div class="list-grid-point" th:text="'포인트: ' + ${productsVO.point} + '점'"></div>
+
+      <!-- 소비기한 -->
+      <div class="list-grid-expdate">
+        소비기한: <span th:text="${#dates.format(productsVO.expdate, 'yyyy.MM.dd')}"></span>
+      </div>
+
+      <!-- 무료배송 -->
+      <div class="list-grid-delivery">무료배송</div>
+    </div> <!-- ✅ 반복문 닫는 위치 -->
+
+    <!-- 상품이 없을 때 -->
+    <div th:if="${list.size() == 0}" class="list-grid-empty">
+      관련 글이 등록되지 않았습니다.
+    </div>
+
+  </div> <!-- list-grid-container 끝 -->
+
+  <!-- 페이지네이션 -->
   <div class="bottom_menu" th:utext="${paging}"></div>
-  <!-- 페이지 버튼 목록 출력 종료 --> 
+
+  <!-- ✅ JS 네비게이션 -->
+  <script>
+    function navigateTo(element) {
+      const url = element.getAttribute('data-link');
+      if (url) location.href = url;
+    }
+  </script>
 
 </div>
 </html>
-

@@ -26,7 +26,7 @@
   
   <!-- 특정 카테고리의 등록된 글목록 (Admin 과 일반 회원(소비자))-->
   <select id="list_by_cateno" resultType="dev.mvc.products.ProductsVO" parameterType="int">
-    SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate,
+    SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate, dc, saleprice, point,
               LOWER(file1) as file1, file1saved, thumb1, size1, mp4, file2, file2saved, size2, file3, file3saved, size3, expdate, fileAd, fileAdsaved, sizeAd, item, maker, makedate, importyn, keep, counsel_tel, sizeinfo, origin, detail, pack, safe
     FROM products 
     WHERE cateno = #{cateno}
@@ -66,7 +66,7 @@
 
   <!-- 카테고리별 검색 목록 -->
   <select id="list_by_cateno_search" resultType="dev.mvc.products.ProductsVO" parameterType="HashMap">
-    SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, word, rdate,
+    SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, word, rdate, dc, saleprice, point,
             file1, file1saved, thumb1, size1, map, youtube, file2, file2saved, size2, file3, file3saved, size3, expdate, fileAd, fileAdsaved, sizeAd, item, maker, makedate, importyn, keep, counsel_tel, sizeinfo, origin, detail, pack, safe
     FROM products
     <choose>
@@ -100,11 +100,11 @@
 
   <!-- 카테고리별 검색 + 페이징 목록 -->
   <select id="list_by_cateno_search_paging" resultType="dev.mvc.products.ProductsVO" parameterType="HashMap">
-   SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate, file1, file1saved, thumb1, size1, map, youtube, r, file2, file2saved, size2, file3, file3saved, size3, expdate, fileAd, fileAdsaved, sizeAd, item, maker, makedate, importyn, keep, counsel_tel, sizeinfo, origin, detail, pack, safe
+   SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate, file1, file1saved, thumb1, size1, map, youtube, r, file2, file2saved, size2, file3, file3saved, size3, expdate, fileAd, fileAdsaved, sizeAd, item, maker, makedate, importyn, keep, counsel_tel, sizeinfo, origin, detail, pack, safe, dc, saleprice, point
    FROM (
-              SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate, file1, file1saved, thumb1, size1, map, youtube, rownum as r, file2, file2saved, size2, file3, file3saved, size3, expdate, fileAd, fileAdsaved, sizeAd, item, maker, makedate, importyn, keep, counsel_tel, sizeinfo, origin, detail, pack, safe
+              SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate, file1, file1saved, thumb1, size1, map, youtube, rownum as r, file2, file2saved, size2, file3, file3saved, size3, expdate, fileAd, fileAdsaved, sizeAd, item, maker, makedate, importyn, keep, counsel_tel, sizeinfo, origin, detail, pack, safe, dc, saleprice, point
               FROM (
-                        SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate, file1, file1saved, thumb1, size1, map, youtube, file2, file2saved, size2, file3, file3saved, size3, expdate, fileAd, fileAdsaved, sizeAd, item, maker, makedate, importyn, keep, counsel_tel, sizeinfo, origin, detail, pack, safe
+                        SELECT productsno, memberno, cateno, title, content, recom, cnt, replycnt, rdate, file1, file1saved, thumb1, size1, map, youtube, file2, file2saved, size2, file3, file3saved, size3, expdate, fileAd, fileAdsaved, sizeAd, item, maker, makedate, importyn, keep, counsel_tel, sizeinfo, origin, detail, pack, safe, dc, saleprice, point
                         FROM products
                         <choose>
                           <when test="word == null or word == ''"> <!-- 검색하지 않는 경우 -->
