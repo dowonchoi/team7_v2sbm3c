@@ -153,6 +153,9 @@ public class MmsImgCont {
         System.out.println("[DEBUG] /mms/text 요청 - mimgno: " + mimgno + ", messageText: " + messageText);
 
         try {
+            // ✅ 줄바꿈 변환 (\n → 실제 줄바꿈)
+            messageText = messageText.replace("\\n", "\n");
+
             // ✅ 1. DB에서 원본 이미지 읽기
             MmsImgVO vo = mmsImgProc.read(mimgno);
             System.out.println("[DEBUG] 원본 이미지: " + vo.getOriginal_filename());
@@ -161,8 +164,15 @@ public class MmsImgCont {
             String inputPath = "C:/kd/deploy/mms/storage/" + vo.getOriginal_filename();
             System.out.println("[DEBUG] 입력 경로: " + inputPath);
 
-            // ✅ 3. 합성 이미지 생성
-            String finalFileName = mmsImageService.addTextToImage(inputPath, messageText);
+            // ✅ 3. 합성 이미지 생성 (옵션 포함)
+            String finalFileName = mmsImageService.addTextToImage(
+                    inputPath,
+                    messageText,           // ✅ 줄바꿈 적용 후
+                    "Malgun Gothic",       // ✅ 폰트명
+                    60,                    // ✅ 폰트 크기
+                    "#FFFFFF",             // ✅ 텍스트 색상
+                    "#000000"              // ✅ 그림자 색상
+            );
             System.out.println("[DEBUG] 최종 파일명: " + finalFileName);
 
             // ✅ 4. DB 업데이트
@@ -190,6 +200,8 @@ public class MmsImgCont {
 
         return result;
     }
+
+
 
 
     @PostMapping("/send")

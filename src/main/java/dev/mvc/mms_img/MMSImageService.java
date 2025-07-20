@@ -17,8 +17,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class MMSImageService {
 
-    // ✅ 텍스트를 이미지에 합성 후 압축 저장
-    public String addTextToImage(String inputPath, String messageText) throws IOException {
+    /**
+     * ✅ 옵션형 텍스트 합성 (중앙 정렬 + 줄바꿈 지원 + 그림자 + 압축)
+     *
+     * @param inputPath    원본 이미지 경로
+     * @param messageText  합성할 텍스트 (줄바꿈 "\n")
+     * @param fontName     폰트명 (예: "Malgun Gothic")
+     * @param fontSize     글자 크기 (예: 48)
+     * @param textColor    텍스트 색상 (예: "#FFFFFF")
+     * @param shadowColor  그림자 색상 (예: "#000000")
+     * @return 저장된 파일명
+     */
+    public String addTextToImage(String inputPath, String messageText,
+                                 String fontName, int fontSize,
+                                 String textColor, String shadowColor) throws IOException {
         File input = new File(inputPath);
         BufferedImage originalImage = ImageIO.read(input);
 
@@ -26,23 +38,40 @@ public class MMSImageService {
         int height = originalImage.getHeight();
 
         Graphics2D g2d = originalImage.createGraphics();
-        g2d.setFont(new Font("Malgun Gothic", Font.BOLD, 24));
-        g2d.setColor(Color.WHITE);
+        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-        // ✅ 가운데 정렬
+        // ✅ 폰트 및 색상
+        g2d.setFont(new Font(fontName, Font.BOLD, fontSize));
+        Color mainColor = Color.decode(textColor);
+        Color shadow = Color.decode(shadowColor);
+
         FontMetrics fm = g2d.getFontMetrics();
-        int textWidth = fm.stringWidth(messageText);
-        int x = (width - textWidth) / 2;
-        int y = height - 50;
+        String[] lines = messageText.split("\n");
+        int lineHeight = fm.getHeight();
+        int totalTextHeight = lineHeight * lines.length;
+        int startY = (height - totalTextHeight) / 2 + fm.getAscent();
 
-        // ✅ 그림자
-        g2d.setColor(Color.BLACK);
-        g2d.drawString(messageText, x + 2, y + 2);
-        g2d.setColor(Color.WHITE);
-        g2d.drawString(messageText, x, y);
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i];
+            int textWidth = fm.stringWidth(line);
+            int x = (width - textWidth) / 2;
+            int y = startY + (i * lineHeight);
+
+            // ✅ 그림자 (사방)
+            g2d.setColor(shadow);
+            g2d.drawString(line, x - 2, y - 2);
+            g2d.drawString(line, x + 2, y - 2);
+            g2d.drawString(line, x - 2, y + 2);
+            g2d.drawString(line, x + 2, y + 2);
+
+            // ✅ 본문
+            g2d.setColor(mainColor);
+            g2d.drawString(line, x, y);
+        }
+
         g2d.dispose();
 
-        // ✅ 압축 후 저장
+        // ✅ 압축 저장
         String outputFileName = "final_" + System.currentTimeMillis() + ".jpg";
         String outputPath = "C:/kd/deploy/mms/storage/" + outputFileName;
 
@@ -55,7 +84,7 @@ public class MMSImageService {
 
             ImageWriteParam param = writer.getDefaultWriteParam();
             param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-            param.setCompressionQuality(0.7f); // 70% 품질
+            param.setCompressionQuality(0.7f);
 
             writer.write(null, new IIOImage(originalImage, null, null), param);
             writer.dispose();
