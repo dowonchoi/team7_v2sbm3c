@@ -555,8 +555,10 @@ public class Tool {
 
     // Response 를 key, value 로 확인하실 수 있습니다.
     Response response = client.newCall(request).execute();
-    HashMap<String, String> result = new Gson().fromJson(Objects.requireNonNull(response.body()).string(), HashMap.class);
-    //for(String key : result.keySet()) {
+    String responseBody = Objects.requireNonNull(response.body()).string();
+    System.out.println("Gabia Raw Response: " + responseBody);
+
+    HashMap<String, String> result = new Gson().fromJson(responseBody, HashMap.class);    //for(String key : result.keySet()) {
     //  System.out.printf("%s: %s%n", key, result.get(key));
    // }
     return result.get("access_token");
@@ -595,6 +597,15 @@ public class Tool {
     }
   }
 
+  public static void main(String[] args) {
+    try {
+        String token = getSMSToken();
+        System.out.println("✅ Gabia Access Token: " + token);
+    } catch (IOException e) {
+        e.printStackTrace();
+        System.out.println("❌ 토큰 발급 실패: " + e.getMessage());
+    }
+}
 
 
   
