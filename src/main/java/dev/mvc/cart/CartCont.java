@@ -38,13 +38,14 @@ public class CartCont {
                     Model model) {
 
     // 등급 체크
-    String grade = (String) session.getAttribute("grade");
+    String gradeStr = (String) session.getAttribute("gradeStr"); // ✅ 올바른 변수 사용
     Integer memberno = (Integer) session.getAttribute("memberno");
 
-    if (grade == null || memberno == null || 
-        "withdrawn".equals(grade) || "supplier".equals(grade)) {
-      return "redirect:/member/login_cookie_need?url=/products/read?productsno=" + productsno;
+    if (gradeStr == null || memberno == null || 
+        "withdrawn".equals(gradeStr) || "supplier".equals(gradeStr)) {
+        return "redirect:/member/login_cookie_need?url=/products/read?productsno=" + productsno;
     }
+
 
     CartVO cartVO = new CartVO();
     cartVO.setMemberno(memberno);
@@ -60,12 +61,13 @@ public class CartCont {
   /** 장바구니 목록 */
   @GetMapping("/list")
   public String list(HttpSession session, Model model) {
-    String grade = (String) session.getAttribute("grade");
+    String gradeStr = (String) session.getAttribute("gradeStr");
     Integer memberno = (Integer) session.getAttribute("memberno");
 
-    if (grade == null || memberno == null || "withdrawn".equals(grade)) {
+    if (gradeStr == null || memberno == null || "withdrawn".equals(gradeStr) || "supplier".equals(gradeStr)) {
       return "redirect:/member/login_cookie_need?url=/cart/list";
-    }
+  }
+
 
     // 상단 메뉴
     ArrayList<CateVOMenu> menu = this.cateProc.menu();
@@ -182,9 +184,9 @@ public class CartCont {
       Map<String, Object> response = new HashMap<>();
 
       Integer memberno = (Integer) session.getAttribute("memberno");
-      String grade = (String) session.getAttribute("grade");
+      String gradeStr = (String) session.getAttribute("gradeStr"); // ✅ 수정
 
-      if (memberno == null || "withdrawn".equals(grade) || "supplier".equals(grade)) {
+      if (memberno == null || "withdrawn".equals(gradeStr) || "supplier".equals(gradeStr)) {
           response.put("success", false);
           response.put("message", "로그인이 필요합니다.");
           return response;
