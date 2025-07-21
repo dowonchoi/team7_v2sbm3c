@@ -8,12 +8,17 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import dev.mvc.products.ProductsDAOInter;
 import dev.mvc.products.ProductsVO;
 
 @Component("dev.mvc.productsgood.ProductsgoodProc")
 public class ProductsgoodProc implements ProductsgoodProcInter {
   @Autowired
   ProductsgoodDAOInter productsgoodDAO;
+  
+  @Autowired
+  private ProductsDAOInter productsDAO;
+
   
   @Override
   public int create(ProductsgoodVO productsgoodVO) {
@@ -94,6 +99,10 @@ public class ProductsgoodProc implements ProductsgoodProcInter {
       return productsgoodDAO.getProductsgoodByMember(memberno);
   }
 
+  @Override
+  public List<ProductsVO> search(String word) {
+      return productsDAO.search(word);
+  }
 }
 
 

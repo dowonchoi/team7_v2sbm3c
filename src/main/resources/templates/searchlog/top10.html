@@ -1,0 +1,6 @@
+<h3>인기 검색어 TOP 10</h3>
+<ul>
+    <li th:each="item : ${list}">
+        <span th:text="${item.keyword}"></span> (<span th:text="${item.cnt}"></span>)
+    </li>
+</ul>

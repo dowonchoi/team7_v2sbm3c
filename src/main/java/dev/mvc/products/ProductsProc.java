@@ -327,6 +327,11 @@ public class ProductsProc implements ProductsProcInter {
   public List<ProductsVO> listEvent() {
     return this.productsDAO.listEvent();
   }
+  
+  public interface ProductsProcInter {
+    public List<ProductsVO> search(String word);
+}
+
 
 
 }

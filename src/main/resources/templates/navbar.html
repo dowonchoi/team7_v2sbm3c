@@ -6,6 +6,10 @@
     <div>
       <a class="me-3 text-decoration-none text-secondary">판매자센터</a>
       <a th:href="@{/notice/list}" class="me-3 text-decoration-none text-secondary">공지사항</a>
+      <!-- ✅ 관리자 전용 MMS 메뉴 -->
+      <th:block th:if="${session.grade == 'admin'}">
+        <a th:href="@{/mms/tool}" class="me-3 text-decoration-none text-danger fw-bold">MMS 문자 전송</a>
+      </th:block>
     </div>
     <div>
       <th:block th:if="${session.memberno == null}">
@@ -16,7 +20,9 @@
         <a th:href="@{/member/mypage}" class="me-3 text-dark text-decoration-none" th:text="${session.mname + ' 님'}"></a>
         <a th:href="@{/member/logout}" class="me-3 text-decoration-none text-secondary">로그아웃</a>
       </th:block>
-      <a th:href="@{/inquiry/list_by_member}" class="text-decoration-none text-primary fw-bold">1:1 문의하기</a>
+      <a th:href="@{/inquiry/list_by_member}" 
+       class="text-decoration-none fw-bold" 
+       style="color: #4aad2c;">1:1 문의하기</a>
     </div>
   </div>
 

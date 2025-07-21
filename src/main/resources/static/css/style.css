@@ -2377,3 +2377,23 @@
   transition: transform 0.2s ease;
 }
 
+.ai-banner-link {
+  display: block;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ai-banner-link:hover {
+  transform: scale(1.03);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+}
+
+.ai-banner-img {
+  width: 100%;
+  height: auto; /* 이미지 비율 유지 */
+  display: block;
+}
+
+

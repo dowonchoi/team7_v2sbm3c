@@ -41,4 +41,5 @@ commit;
 SELECT *
 FROM cart
 WHERE memberno = 4;
-
+ALTER TABLE cart MODIFY selected VARCHAR2(1) DEFAULT 'Y' NOT NULL;
+commit;

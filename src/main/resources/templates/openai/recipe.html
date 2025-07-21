@@ -1,220 +1,156 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 기반 레시피 추천</title>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org" lang="ko">
+<div layout:fragment="content">
+    <div class="container-box">
+        <h3 class="text-success mb-2">AI 기반 레시피 추천</h3>
+        <p class="text-muted mb-4">사용할 식재료를 선택하세요 (최대 <b>5개</b>)</p>
 
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- ✅ 식재료 체크박스 -->
+        <div class="food-list">
+            <div th:each="food, iterStat : ${foods}" class="food-item">
+                <input type="checkbox" th:value="${iterStat.index}" name="food" style="margin-right: 8px;">
+                <span th:text="${food}"></span>
+            </div>
+        </div>
 
+        <!-- ✅ 버튼 -->
+        <button id="send" class="btn btn-green mt-3 w-100">레시피 추천 받기</button>
+        <div id="loading" class="mt-3 text-center" style="display:none;">
+            <div class="spinner-border text-success" role="status"></div>
+            <p class="text-success">레시피 생성 중...</p>
+        </div>
+
+        <!-- ✅ 추천 레시피 -->
+        <div id="result" class="row mt-4"></div>
+
+        <!-- ✅ 내가 추천받은 레시피 -->
+        <div class="history-box">
+            <h5 class="mt-4">내가 추천받은 레시피</h5>
+            <div th:if="${#lists.isEmpty(recipeList)}" class="text-muted">추천받은 내역이 없습니다.</div>
+            <div th:each="recipe : ${recipeList}" class="history-card">
+                <h6 class="mb-2">추천 날짜: <span th:text="${recipe.rdate}"></span></h6>
+                <button class="btn btn-outline-success btn-sm"
+                        th:attr="data-content=${recipe.content}, data-food=${recipe.foodBinary}"
+                        onclick="showRecipeDetail(this)">
+                    상세 보기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ 모달 -->
+    <div class="modal fade" id="recipeModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">추천 레시피 상세</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="recipeDetail"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ 페이지 전용 CSS -->
     <style>
-        body { font-family: "Noto Sans KR", sans-serif; background-color: #f4f6f8; }
         .container-box { max-width: 1200px; margin: 40px auto; background: #fff; border-radius: 16px; padding: 30px; box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
-
         .food-list { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 20px; }
         .food-item { border: 1px solid #ddd; padding: 10px; border-radius: 8px; width: 130px; text-align: center; background: #fff; cursor: pointer; transition: 0.3s; }
         .food-item:hover { background: #e8f8f2; border-color: #4CAF50; }
-
         .btn-green { background-color: #4CAF50; color: #fff; font-weight: bold; }
-
         .history-card { border: 1px solid #ddd; border-radius: 10px; padding: 15px; margin-bottom: 15px; background: #fafafa; }
-
-        /* ✅ 모달 스타일 (스크롤 문제 해결) */
-        .modal-dialog {
-            max-width: 800px;
-        }
-        .modal-body {
-            max-height: 80vh;  /* 화면 80% 높이까지만 */
-            overflow-y: auto;  /* 내부 스크롤 */
-        }
-        .modal-header h5 {
-            color: #4CAF50;
-            font-weight: bold;
-        }
+        .modal-dialog { max-width: 800px; }
+        .modal-body { max-height: 80vh; overflow-y: auto; }
+        .modal-header h5 { color: #4CAF50; font-weight: bold; }
     </style>
-</head>
-<body>
-<div class="container-box">
-    <h3 class="text-success mb-2">AI 기반 레시피 추천</h3>
-    <p class="text-muted mb-4">사용할 식재료를 선택하세요 (최대 <b>5개</b>)</p>
 
-    <!-- ✅ 식재료 체크박스 -->
-    <div class="food-list">
-        <div th:each="food, iterStat : ${foods}" class="food-item">
-            <input type="checkbox" th:value="${iterStat.index}" name="food" style="margin-right: 8px;">
-            <span th:text="${food}"></span>
-        </div>
-    </div>
-
-    <!-- ✅ 버튼 -->
-    <button id="send" class="btn btn-green mt-3 w-100">레시피 추천 받기</button>
-    <div id="loading" class="mt-3 text-center" style="display:none;">
-        <div class="spinner-border text-success" role="status"></div>
-        <p class="text-success">레시피 생성 중...</p>
-    </div>
-
-    <!-- ✅ 추천 레시피 -->
-    <div id="result" class="row mt-4"></div>
-
-    <!-- ✅ 내가 추천받은 레시피 -->
-    <div class="history-box">
-        <h5 class="mt-4">내가 추천받은 레시피</h5>
-        <div th:if="${#lists.isEmpty(recipeList)}" class="text-muted">추천받은 내역이 없습니다.</div>
-        <div th:each="recipe : ${recipeList}" class="history-card">
-            <h6 class="mb-2">추천 날짜: <span th:text="${recipe.rdate}"></span></h6>
-            <button class="btn btn-outline-success btn-sm"
-                    th:attr="data-content=${recipe.content}, data-food=${recipe.foodBinary}"
-                    onclick="showRecipeDetail(this)">
-                상세 보기
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- ✅ 모달 (Bootstrap 표준 구조) -->
-<div class="modal fade" id="recipeModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">추천 레시피 상세</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body" id="recipeDetail"></div>
-        </div>
-    </div>
-</div>
-
-<script>
-    const maxSelection = 5;
-
-    // ✅ 체크박스 선택 제한
-    document.querySelectorAll("input[name='food']").forEach(cb => {
-        cb.addEventListener('change', function () {
-            const checkedCount = document.querySelectorAll("input[name='food']:checked").length;
-            if (checkedCount > maxSelection) {
-                this.checked = false;
-                alert("최대 5개까지만 선택 가능합니다.");
-            }
-        });
-    });
-
-    // ✅ 레시피 추천 요청
-    document.getElementById('send').addEventListener('click', async function () {
-        const checkboxes = document.querySelectorAll("input[name='food']");
-        const resultDiv = document.getElementById('result');
-        const loadingDiv = document.getElementById('loading');
-
-        let values = Array(checkboxes.length).fill(0);
-        checkboxes.forEach((cb, index) => { if (cb.checked) values[index] = 1; });
-
-        if (!values.includes(1)) {
-            alert("식재료를 최소 1개 이상 선택하세요.");
-            return;
-        }
-
-        const foodBinary = values.join(",");
-        loadingDiv.style.display = "block";
-        resultDiv.innerHTML = "";
-
-        try {
-            const response = await fetch("/openai/recipe_ajax", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: new URLSearchParams({ food: foodBinary })
+    <!-- ✅ 페이지 전용 JS -->
+    <script>
+        const maxSelection = 5;
+        document.querySelectorAll("input[name='food']").forEach(cb => {
+            cb.addEventListener('change', function () {
+                const checkedCount = document.querySelectorAll("input[name='food']:checked").length;
+                if (checkedCount > maxSelection) {
+                    this.checked = false;
+                    alert("최대 5개까지만 선택 가능합니다.");
+                }
             });
-
-            const res = await response.json();
-            if (res.success) {
-                const jsonData = JSON.parse(res.response);
-                const recipes = jsonData.recipes;
-
-                let html = `<h4 class="mb-4">추천 레시피</h4>`;
-                recipes.forEach((r, idx) => {
-                    const collapseId = `collapse${idx}`;
-                    html += `
-                        <div class="col-md-4 mb-3">
-                            <div class="card shadow-sm">
-                                <div class="card-header">${r.name}</div>
-                                <div class="card-body">
-                                    <p>${r.desc}</p>
-                                    <ul class="list-unstyled">
-                                        <li>⏱ ${r.time}</li>
-                                        <li>난이도: ${r.level}</li>
-                                        <li>칼로리: ${r.calories}</li>
-                                    </ul>
-                                    <a class="btn btn-link text-success p-0" data-bs-toggle="collapse" href="#${collapseId}">
-                                        상세 보기 ▼
-                                    </a>
-                                    <div class="collapse mt-2" id="${collapseId}">
-                                        <h6>재료</h6>
-                                        <p>${r.ingredients}</p>
-                                        <h6>조리 단계</h6>
-                                        <p>${r.steps.replace(/Step\s*\d+\)/g, '<br>Step ')}</p>
+        });
+        document.getElementById('send').addEventListener('click', async function () {
+            const checkboxes = document.querySelectorAll("input[name='food']");
+            const resultDiv = document.getElementById('result');
+            const loadingDiv = document.getElementById('loading');
+            let values = Array(checkboxes.length).fill(0);
+            checkboxes.forEach((cb, index) => { if (cb.checked) values[index] = 1; });
+            if (!values.includes(1)) { alert("식재료를 최소 1개 이상 선택하세요."); return; }
+            const foodBinary = values.join(",");
+            loadingDiv.style.display = "block";
+            resultDiv.innerHTML = "";
+            try {
+                const response = await fetch("/openai/recipe_ajax", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams({ food: foodBinary })
+                });
+                const res = await response.json();
+                if (res.success) {
+                    const jsonData = JSON.parse(res.response);
+                    const recipes = jsonData.recipes;
+                    let html = `<h4 class="mb-4">추천 레시피</h4>`;
+                    recipes.forEach((r, idx) => {
+                        const collapseId = `collapse${idx}`;
+                        html += `
+                            <div class="col-md-4 mb-3">
+                                <div class="card shadow-sm">
+                                    <div class="card-header">${r.name}</div>
+                                    <div class="card-body">
+                                        <p>${r.desc}</p>
+                                        <ul class="list-unstyled">
+                                            <li>⏱ ${r.time}</li>
+                                            <li>난이도: ${r.level}</li>
+                                            <li>칼로리: ${r.calories}</li>
+                                        </ul>
+                                        <a class="btn btn-link text-success p-0" data-bs-toggle="collapse" href="#${collapseId}">
+                                            상세 보기 ▼
+                                        </a>
+                                        <div class="collapse mt-2" id="${collapseId}">
+                                            <h6>재료</h6>
+                                            <p>${r.ingredients}</p>
+                                            <h6>조리 단계</h6>
+                                            <p>${r.steps.replace(/Step\s*\d+\)/g, '<br>Step ')}</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>`;
-                });
-                resultDiv.innerHTML = html;
-            } else {
-                resultDiv.innerHTML = `<p class="text-danger">${res.error}</p>`;
+                            </div>`;
+                    });
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = `<p class="text-danger">${res.error}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="text-danger">오류 발생: ${error.message}</p>`;
+            } finally {
+                loadingDiv.style.display = "none";
             }
-        } catch (error) {
-            resultDiv.innerHTML = `<p class="text-danger">오류 발생: ${error.message}</p>`;
-        } finally {
-            loadingDiv.style.display = "none";
+        });
+        function showRecipeDetail(btn) {
+            try {
+                const content = btn.getAttribute('data-content');
+                const foodBinary = btn.getAttribute('data-food');
+                const data = JSON.parse(content);
+                const recipes = data.recipes;
+                const foods = ["배추","무","대파","양파","오이","사과","배","귤","바나나","딸기","고등어","갈치","새우","홍합","오징어","소고기","돼지고기","닭가슴살","닭날개","닭다리","우유","달걀","치즈","버터","두부"];
+                const selectedNames = foodBinary.split(',').map((v, i) => v === "1" ? foods[i] : null).filter(v => v !== null).join(", ");
+                let html = `<p><b>선택한 재료:</b> ${selectedNames}</p><hr>`;
+                recipes.forEach(r => {
+                    html += `<div class="mb-3"><h5 class="text-success">${r.name}</h5><p>${r.desc.trim()}</p><ul><li>⏱ ${r.time}</li><li>난이도: ${r.level}</li><li>칼로리: ${r.calories}</li></ul><h6>재료</h6><p>${r.ingredients.replace(/\n+/g, ' ')}</p><h6>조리 단계</h6><p>${r.steps.replace(/\n+/g, '<br>')}</p><hr></div>`;
+                });
+                document.getElementById("recipeDetail").innerHTML = html;
+            } catch (e) {
+                document.getElementById("recipeDetail").textContent = "레시피 데이터를 불러올 수 없습니다.";
+            }
+            new bootstrap.Modal(document.getElementById("recipeModal")).show();
         }
-    });
-
-    // ✅ 모달 상세 보기 (내가 추천받은 레시피)
-    function showRecipeDetail(btn) {
-        try {
-            const content = btn.getAttribute('data-content');
-            const foodBinary = btn.getAttribute('data-food');
-
-            const data = JSON.parse(content);
-            const recipes = data.recipes;
-
-            const foods = [
-                "배추", "무", "대파", "양파", "오이",
-                "사과", "배", "귤", "바나나", "딸기",
-                "고등어", "갈치", "새우", "홍합", "오징어",
-                "소고기", "돼지고기", "닭가슴살", "닭날개", "닭다리",
-                "우유", "달걀", "치즈", "버터", "두부"
-            ];
-            const selectedNames = foodBinary.split(',')
-                .map((v, i) => v === "1" ? foods[i] : null)
-                .filter(v => v !== null)
-                .join(", ");
-
-            let html = `<p><b>선택한 재료:</b> ${selectedNames}</p><hr>`;
-
-            recipes.forEach(r => {
-                html += `
-                <div class="mb-3">
-                    <h5 class="text-success">${r.name}</h5>
-                    <p>${r.desc.trim()}</p>
-                    <ul>
-                        <li>⏱ ${r.time}</li>
-                        <li>난이도: ${r.level}</li>
-                        <li>칼로리: ${r.calories}</li>
-                    </ul>
-                    <h6>재료</h6>
-                    <p>${r.ingredients.replace(/\n+/g, ' ')}</p>
-                    <h6>조리 단계</h6>
-                    <p>${r.steps.replace(/\n+/g, '<br>')}</p>
-                    <hr>
-                </div>`;
-            });
-            document.getElementById("recipeDetail").innerHTML = html;
-        } catch (e) {
-            document.getElementById("recipeDetail").textContent = "레시피 데이터를 불러올 수 없습니다.";
-        }
-
-        new bootstrap.Modal(document.getElementById("recipeModal")).show();
-    }
-</script>
-</body>
+    </script>
+</div>
 </html>

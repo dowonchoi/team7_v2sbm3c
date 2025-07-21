@@ -1,125 +1,126 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>MMS 원툴 테스트</title>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org" lang="ko">
+<div layout:fragment="content">
+
+    <!-- ✅ MMS 툴 전용 CSS -->
     <link rel="stylesheet" href="/css/mms_tool.css">
-</head>
-<body>
-<div class="mms-tool-container">
-    <h2 class="mms-tool-title">MMS 이미지 원툴</h2>
 
-    <!-- STEP 1 -->
-    <div>
-        <h3 class="mms-tool-step-title">STEP 1: AI 이미지 생성</h3>
-        <p class="mms-tool-sub-text">
-            예시: 중앙은 완전히 비어 있는 하얀색 배경 이미지, 베리들이 일정한 간격으로 깔끔하게 배열된 심플한 프레임, 일러스트는 단순
-        </p>
-        <input type="text" id="prompt" placeholder="프롬프트 입력">
-        <button class="mms-tool-btn" onclick="createImage()">이미지 생성</button>
-        <div class="mms-tool-spinner" id="loadingStep1"><div></div><p>이미지 생성 중...</p></div>
-    </div>
+    <div class="mms-tool-container">
+        <h2 class="mms-tool-title">MMS 이미지 원툴</h2>
 
-    <div class="mms-tool-preview" id="imagePreview"></div>
-
-    <!-- STEP 2 -->
-    <div>
-        <h3 class="mms-tool-step-title">STEP 2: 텍스트 합성</h3>
-        <p class="mms-tool-sub-text">예시: SoOn 마켓!  BIG SALE  최대 70% 할인</p>
-        <textarea id="messageText" placeholder="메시지 입력 (줄바꿈 가능)" style="height: 60px;"></textarea>
-
-        <div class="mms-tool-options">
-            <label>폰트:
-                <input type="text" id="fontName" value="Malgun Gothic">
-                <span class="mms-tool-font-guide">사용 가능: Malgun Gothic, Arial, Verdana, Nanum Gothic</span>
-            </label>
-            <label>크기(px):
-                <input type="number" id="fontSize" value="60">
-            </label>
+        <!-- STEP 1 -->
+        <div>
+            <h3 class="mms-tool-step-title">STEP 1: AI 이미지 생성</h3>
+            <p class="mms-tool-sub-text">
+                예시: 중앙은 완전히 비어 있는 하얀색 배경 이미지, 베리들이 일정한 간격으로 깔끔하게 배열된 심플한 프레임, 일러스트는 단순
+            </p>
+            <input type="text" id="prompt" placeholder="프롬프트 입력">
+            <button class="mms-tool-btn" onclick="createImage()">이미지 생성</button>
+            <div class="mms-tool-spinner" id="loadingStep1"><div></div><p>이미지 생성 중...</p></div>
         </div>
 
-        <div class="mms-tool-options">
-            <label>텍스트 색상:
-                <input type="color" id="textColor" value="#FFFFFF" class="mms-tool-color">
-            </label>
-            <label>그림자 색상:
-                <input type="color" id="shadowColor" value="#000000" class="mms-tool-color">
-            </label>
+        <div class="mms-tool-preview" id="imagePreview"></div>
+
+        <!-- STEP 2 -->
+        <div>
+            <h3 class="mms-tool-step-title">STEP 2: 텍스트 합성</h3>
+            <p class="mms-tool-sub-text">예시: SoOn 마켓!  BIG SALE  최대 70% 할인</p>
+            <textarea id="messageText" placeholder="메시지 입력 (줄바꿈 가능)" style="height: 60px;"></textarea>
+
+            <div class="mms-tool-options">
+                <label>폰트:
+                    <input type="text" id="fontName" value="Malgun Gothic">
+                    <span class="mms-tool-font-guide">사용 가능: Malgun Gothic, Arial, Verdana, Nanum Gothic</span>
+                </label>
+                <label>크기(px):
+                    <input type="number" id="fontSize" value="60">
+                </label>
+            </div>
+
+            <div class="mms-tool-options">
+                <label>텍스트 색상:
+                    <input type="color" id="textColor" value="#FFFFFF" class="mms-tool-color">
+                </label>
+                <label>그림자 색상:
+                    <input type="color" id="shadowColor" value="#000000" class="mms-tool-color">
+                </label>
+            </div>
+
+            <button class="mms-tool-btn" onclick="addText()">텍스트 추가</button>
+            <div class="mms-tool-spinner" id="loadingStep2"><div></div><p>텍스트 합성 중...</p></div>
         </div>
 
-        <button class="mms-tool-btn" onclick="addText()">텍스트 추가</button>
-        <div class="mms-tool-spinner" id="loadingStep2"><div></div><p>텍스트 합성 중...</p></div>
+        <!-- STEP 3 -->
+        <div>
+            <h3 class="mms-tool-step-title">STEP 3: MMS 발송</h3>
+            <input type="text" id="phoneNumber" placeholder="수신자 번호">
+            <button class="mms-tool-btn" onclick="sendMMS()">MMS 발송</button>
+            <div class="mms-tool-spinner" id="loadingStep3"><div></div><p>MMS 발송 중...</p></div>
+        </div>
     </div>
 
-    <!-- STEP 3 -->
-    <div>
-        <h3 class="mms-tool-step-title">STEP 3: MMS 발송</h3>
-        <input type="text" id="phoneNumber" placeholder="수신자 번호">
-        <button class="mms-tool-btn" onclick="sendMMS()">MMS 발송</button>
-        <div class="mms-tool-spinner" id="loadingStep3"><div></div><p>MMS 발송 중...</p></div>
-    </div>
+    <!-- ✅ 페이지 전용 JS -->
+    <script>
+        let fileName = '';
+        let finalFileName = '';
+
+        function showLoading(stepId, show) {
+            document.getElementById(stepId).style.display = show ? 'block' : 'none';
+        }
+
+        function createImage() {
+            const prompt = document.getElementById('prompt').value;
+            showLoading('loadingStep1', true);
+            fetch('/mms_tool/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `prompt=${encodeURIComponent(prompt)}`
+            }).then(res => res.json()).then(data => {
+                if (data.success) {
+                    fileName = data.fileName;
+                    document.getElementById('imagePreview').innerHTML =
+                        `<img src="${data.filePath}" alt="AI 이미지">`;
+                } else {
+                    alert('이미지 생성 실패: ' + data.error);
+                }
+            }).finally(() => showLoading('loadingStep1', false));
+        }
+
+        function addText() {
+            const messageText = document.getElementById('messageText').value;
+            const fontName = document.getElementById('fontName').value;
+            const fontSize = document.getElementById('fontSize').value;
+            const textColor = document.getElementById('textColor').value;
+            const shadowColor = document.getElementById('shadowColor').value;
+
+            showLoading('loadingStep2', true);
+            fetch('/mms_tool/text', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `fileName=${encodeURIComponent(fileName)}&messageText=${encodeURIComponent(messageText)}&fontName=${encodeURIComponent(fontName)}&fontSize=${fontSize}&textColor=${encodeURIComponent(textColor)}&shadowColor=${encodeURIComponent(shadowColor)}`
+            }).then(res => res.json()).then(data => {
+                if (data.success) {
+                    finalFileName = data.finalFileName;
+                    document.getElementById('imagePreview').innerHTML =
+                        `<img src="${data.filePath}" alt="최종 이미지">`;
+                } else {
+                    alert('텍스트 합성 실패: ' + data.error);
+                }
+            }).finally(() => showLoading('loadingStep2', false));
+        }
+
+        function sendMMS() {
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            showLoading('loadingStep3', true);
+            fetch('/mms_tool/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `phoneNumber=${encodeURIComponent(phoneNumber)}&finalFileName=${encodeURIComponent(finalFileName)}`
+            }).then(res => res.json()).then(data => {
+                alert(data.success ? '✅ MMS 발송 성공!' : '❌ 실패: ' + data.error);
+            }).finally(() => showLoading('loadingStep3', false));
+        }
+    </script>
+
 </div>
-
-<script>
-    let fileName = '';
-    let finalFileName = '';
-
-    function showLoading(stepId, show) {
-        document.getElementById(stepId).style.display = show ? 'block' : 'none';
-    }
-
-    function createImage() {
-        const prompt = document.getElementById('prompt').value;
-        showLoading('loadingStep1', true);
-        fetch('/mms_tool/create', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `prompt=${encodeURIComponent(prompt)}`
-        }).then(res => res.json()).then(data => {
-            if (data.success) {
-                fileName = data.fileName;
-                document.getElementById('imagePreview').innerHTML =
-                    `<img src="${data.filePath}" alt="AI 이미지">`;
-            } else {
-                alert('이미지 생성 실패: ' + data.error);
-            }
-        }).finally(() => showLoading('loadingStep1', false));
-    }
-
-    function addText() {
-        const messageText = document.getElementById('messageText').value;
-        const fontName = document.getElementById('fontName').value;
-        const fontSize = document.getElementById('fontSize').value;
-        const textColor = document.getElementById('textColor').value;
-        const shadowColor = document.getElementById('shadowColor').value;
-
-        showLoading('loadingStep2', true);
-        fetch('/mms_tool/text', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `fileName=${encodeURIComponent(fileName)}&messageText=${encodeURIComponent(messageText)}&fontName=${encodeURIComponent(fontName)}&fontSize=${fontSize}&textColor=${encodeURIComponent(textColor)}&shadowColor=${encodeURIComponent(shadowColor)}`
-        }).then(res => res.json()).then(data => {
-            if (data.success) {
-                finalFileName = data.finalFileName;
-                document.getElementById('imagePreview').innerHTML =
-                    `<img src="${data.filePath}" alt="최종 이미지">`;
-            } else {
-                alert('텍스트 합성 실패: ' + data.error);
-            }
-        }).finally(() => showLoading('loadingStep2', false));
-    }
-
-    function sendMMS() {
-        const phoneNumber = document.getElementById('phoneNumber').value;
-        showLoading('loadingStep3', true);
-        fetch('/mms_tool/send', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `phoneNumber=${encodeURIComponent(phoneNumber)}&finalFileName=${encodeURIComponent(finalFileName)}`
-        }).then(res => res.json()).then(data => {
-            alert(data.success ? '✅ MMS 발송 성공!' : '❌ 실패: ' + data.error);
-        }).finally(() => showLoading('loadingStep3', false));
-    }
-</script>
-</body>
 </html>

@@ -316,5 +316,5 @@
       AND word LIKE '%기획전%'
   </select>
 
-  
+
 </mapper> 

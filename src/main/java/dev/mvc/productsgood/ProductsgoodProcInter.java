@@ -77,6 +77,8 @@ public interface ProductsgoodProcInter {
   
   public List<ProductsVO> getProductsgoodByMember(int memberno);
 
+  public List<ProductsVO> search(String word);
+  
 }
 
 
