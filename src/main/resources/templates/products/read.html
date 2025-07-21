@@ -49,6 +49,38 @@
     .products_read_content_separate {
       margin-top: 30px;
     }
+    
+    .shipping-info-container {
+      font-size: 14px;
+      color: #333;
+      line-height: 1.6;
+    }
+    
+    .shipping-info-container h4 {
+      margin: 20px 0 10px;
+      font-size: 16px;
+      font-weight: bold;
+      border-bottom: 2px solid #000;
+      padding-bottom: 5px;
+    }
+    
+    .shipping-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    
+    .shipping-table th,
+    .shipping-table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+    }
+    
+    .shipping-table th {
+      background: #f9f9f9;
+      width: 20%;
+    }
+
   </style>
 
   <div class='title_line'>
@@ -219,7 +251,10 @@
         <div class="product-tab-box">
           <ul class="product-tab-menu">
             <li class="product-tab-item active" onclick="showProductTab('detail')">상품상세</li>
-            <li class="product-tab-item" onclick="showProductTab('review')"> 상품평(<span>0</span>) </li>
+            <li class="product-tab-item" onclick="showProductTab('review')">
+              상품평(<span th:text="${#lists.size(reviewList) ?: 0}">0</span>)
+            </li>
+
             <li class="product-tab-item" onclick="showProductTab('qna')">상품문의</li>
             <li class="product-tab-item" onclick="showProductTab('shipping')">배송/교환/반품 안내</li>
           </ul>
@@ -288,8 +323,73 @@
               <p>상품문의 영역 (추후 추가 예정)</p>
             </div>
             <div id="product-tab-shipping" class="product-tab-section" style="display: none;">
-              <p>배송/교환/반품 안내 영역 (추후 추가 예정)</p>
+              <div class="shipping-info-container">
+            
+                <h4>배송정보</h4>
+                <table class="shipping-table">
+                  <tr>
+                    <th>배송방법</th>
+                    <td>신선/상온/냉동</td>
+                    <th>배송비</th>
+                    <td>무료배송</td>
+                  </tr>
+                  <tr>
+                    <th>배송사</th>
+                    <td>로젠택배</td>
+                    <th>배송불가</th>
+                    <td>도서산간 지역 배송불가</td>
+                  </tr>
+                  <tr>
+                    <th>묶음배송 여부</th>
+                    <td colspan="3">불가능</td>
+                  </tr>
+                </table>
+            
+                <h4>교환/반품 안내</h4>
+                <p>
+                  - 고객님의 단순 변심에 의한 상품 교환/반품은 판매자와 협의하여 진행합니다.<br>
+                  - 단, 상품 하자/오배송 등 판매자 귀책사유인 경우는 동일한 상품으로 교환 가능합니다.
+                </p>
+                <table class="shipping-table">
+                  <tr>
+                    <th>반품 배송비</th>
+                    <td colspan="3">3,500원</td>
+                  </tr>
+                  <tr>
+                    <th>교환 배송비</th>
+                    <td colspan="3">왕복 7,000원</td>
+                  </tr>
+                </table>
+            
+                <h4>교환/반품 제한사항</h4>
+                <ul>
+                  <li>상품/포장 훼손 및 사용의 흔적이 있는 경우</li>
+                  <li>밀봉포장이 개봉된 경우</li>
+                  <li>상품 가치가 훼손된 경우</li>
+                </ul>
+            
+                <h4>판매자 정보</h4>
+                <table class="shipping-table">
+                  <tr>
+                    <th>상호명</th>
+                    <td>와이메이커스</td>
+                    <th>사업자등록번호</th>
+                    <td>123-45-67890</td>
+                  </tr>
+                  <tr>
+                    <th>대표자명</th>
+                    <td>서길원</td>
+                    <th>대표번호</th>
+                    <td>010-3666-2206</td>
+                  </tr>
+                  <tr>
+                    <th>주소</th>
+                    <td colspan="3">전라남도 담양군 담양읍 객사길 2-5 1층</td>
+                  </tr>
+                </table>
+              </div>
             </div>
+
           </div>
         </div>
         <br>
