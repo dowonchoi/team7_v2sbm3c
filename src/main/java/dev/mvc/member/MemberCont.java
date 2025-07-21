@@ -303,7 +303,7 @@ public class MemberCont {
       model.addAttribute("orderCount", orderProc.countOrders(memberno));
       model.addAttribute("cancelCount", cancelProc.countByMember(memberno));
       model.addAttribute("cartCount", cartProc.countItems(memberno));
-//      model.addAttribute("pointAmount", memberProc.getPoint(memberno));
+      model.addAttribute("pointAmount", memberProc.getPoint(memberno));
       model.addAttribute("reviewCount", reviewProc.countByMember(memberno));
       model.addAttribute("qnaCount", qnaProc.countByMember(memberno));
       model.addAttribute("inquiryCount", inquiryProc.countByMember(memberno));
