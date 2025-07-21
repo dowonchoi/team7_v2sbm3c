@@ -124,5 +124,6 @@ public interface MemberProcInter {
    */
   public int sum_total_point(int memberno);
 
+  public int getPoint(int memberno);
 
 }

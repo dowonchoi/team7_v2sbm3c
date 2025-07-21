@@ -5,15 +5,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service("dev.mvc.cart.CartProc")
 public class CartProc implements CartProcInter {
 
   @Autowired
-  private CartDAOInter cartDAO;
+  private CartDAOInter cartDAO;  // ✅ Mapper 인터페이스 주입
   
+  @Autowired
+  private SqlSession sqlSession;  // ✅ MyBatis 세션 주입
+
   @Autowired
   private CartDAOInter cartDAOInter;  // ✅ 이 필드가 있어야 함
   
@@ -131,4 +136,23 @@ public class CartProc implements CartProcInter {
       return this.cartDAOInter.count_by_member(memberno);
   }
 
+  @Override
+  public int countByMemberProduct(Integer memberno, int productsno) {
+      Map<String, Object> map = new HashMap<>();
+      map.put("memberno", memberno);
+      map.put("productsno", productsno);
+      return this.sqlSession.selectOne("cart.countByMemberProduct", map);
+  }
+
+  @Override
+  public int updateCnt(CartVO cartVO) {
+      return this.sqlSession.update("cart.updateCnt", cartVO);
+  }
+
+  @Override
+  public int countByMember(Integer memberno) {
+      return this.sqlSession.selectOne("cart.countByMember", memberno);
+  }
+
+  
 }

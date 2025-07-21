@@ -266,7 +266,24 @@
   <select id="sum_total_point" resultType="int" parameterType="int">
     SELECT NVL(SUM(point), 0) FROM cart WHERE memberno = #{memberno}
   </select>
-
+  
+  <!-- 현재 보유 포인트 조회 -->
+  <select id="getPoint" resultType="int">
+      SELECT NVL(point, 0) FROM member WHERE memberno = #{memberno}
+  </select>
 
   
 </mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+

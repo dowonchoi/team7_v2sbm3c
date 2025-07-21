@@ -346,6 +346,11 @@ public class MemberProc implements MemberProcInter {
       return this.memberDAO.sum_total_point(memberno);
   }
 
+  @Override
+  public int getPoint(int memberno) {
+      return memberDAO.getPoint(memberno);
+  }
+
 }
 
 

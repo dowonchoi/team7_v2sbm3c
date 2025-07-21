@@ -131,10 +131,11 @@ public class OpenAICont {
     
     @GetMapping("/member_img")
     public String memberImgPage(HttpSession session, Model model) {
-        String grade = (String) session.getAttribute("grade");
-        if (grade == null || (!"admin".equals(grade) && !"supplier".equals(grade))) {
-            return "redirect:/member/login_cookie_need?url=/openai/member_img";
-        }
+      // ✅ 문자열 등급으로 확인 (gradeStr 사용)
+      String gradeStr = (String) session.getAttribute("gradeStr");
+      if (gradeStr == null || (!"admin".equals(gradeStr) && !"supplier".equals(gradeStr))) {
+          return "redirect:/member/login_cookie_need?url=/openai/member_img";
+      }
 
         Integer memberno = (Integer) session.getAttribute("memberno");
         if (memberno != null) {

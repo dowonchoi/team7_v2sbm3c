@@ -83,8 +83,15 @@ public interface CartProcInter {
   
   /** 특정 회원의 장바구니 상품 개수 */
   public int count_by_member(int memberno);
+  
+  /** 회원 + 상품별 장바구니 개수 */
+  public int countByMemberProduct(Integer memberno, int productsno);
 
+  /** 장바구니 수량 업데이트 */
+  public int updateCnt(CartVO cartVO);
 
+  /** 회원별 장바구니 전체 개수 */
+  public int countByMember(Integer memberno);
 
 
 }

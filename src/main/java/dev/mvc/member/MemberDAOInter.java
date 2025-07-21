@@ -186,6 +186,7 @@ public interface MemberDAOInter {
 
   //포인트 합계 조회
   public int sum_total_point(int memberno);
-
+  
+  public int getPoint(@Param("memberno") int memberno); 
 
 }

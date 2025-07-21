@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import dev.mvc.member.MemberProcInter;
 import dev.mvc.order_item.OrderItemDAOInter;
 import dev.mvc.order_item.OrderItemVO;
+import jakarta.transaction.Transactional;
 
 @Service("dev.mvc.order.OrderProc")
 public class OrderProc implements OrderProcInter {
@@ -17,22 +19,42 @@ public class OrderProc implements OrderProcInter {
   private OrderDAOInter orderDAO;
   
   @Autowired
+  @Qualifier("dev.mvc.member.MemberProc")
+  private MemberProcInter memberProc;
+
+  @Autowired
   @Qualifier("dev.mvc.order_item.OrderItemDAO")
   private OrderItemDAOInter orderItemDAO; // 🔹 주문 상세 DAO 주입
 
   /**
-   * 주문 등록
-   * @param orderVO 주문 정보
-   * @return 등록 결과 (1: 성공)
+   * ✅ 주문 생성 + 상세 저장 + 포인트 적립
    */
   @Override
-  public int create(OrderVO orderVO) {
-    System.out.println("[OrderProc] create() 실행됨 - 수령자: " + orderVO.getRname());
+  @Transactional
+  public int create(OrderVO orderVO, List<OrderItemVO> orderItems) {
+    System.out.println("[OrderProc] 주문 생성 시작");
 
-    int result = orderDAO.create(orderVO);  // result 변수 선언 + 결과 저장
-    System.out.println("[OrderProc] orderDAO.create() 결과: " + result);
+    // 1. 주문 생성
+    int cnt = orderDAO.create(orderVO);
+    int orderno = orderVO.getOrderno(); // MyBatis에서 keyProperty="orderno" 필요
+    System.out.println("[OrderProc] 주문번호: " + orderno);
 
-    return result;  // 마지막에 리턴
+    // 2. 상세 항목 저장 + 포인트 합계 계산
+    int totalPoint = 0;
+    for (OrderItemVO item : orderItems) {
+      item.setOrderno(orderno);
+      orderItemDAO.create(item); // 주문 상세 추가
+      totalPoint += item.getPoint() * item.getCnt();
+    }
+
+    // 3. 포인트 적립
+    if (totalPoint > 0) {
+      memberProc.addPoint(orderVO.getMemberno(), totalPoint);
+      orderVO.setPoint(totalPoint); // ✅ 주문 객체에 적립 포인트 저장
+      System.out.println("[OrderProc] 포인트 적립: " + totalPoint);
+    }
+
+    return cnt;
   }
   
   @Override
