@@ -94,21 +94,36 @@
     <span class='menu_divide'>│</span>
     <a th:href="@{|./list_by_cateno_grid?cateno=${cateVO.cateno}&word=${word}&now_page=${now_page}|}">목록</a>
     <span class='menu_divide'>│</span>
-    <a th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}"
+
+    <!-- 글 수정 -->
+    <a th:if="${session.grade >= 1 and session.grade <= 4 or (session.grade >= 5 and session.grade <= 15 and session.memberno == productsVO.memberno)}"
       th:href="@{|/products/update_text?productsno=${productsVO.productsno}&now_page=${now_page}&word=${word}|}">글 수정</a>
-    <span class='menu_divide' th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}">│</span>
-    <a th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}"
+    <span class='menu_divide'
+          th:if="${session.grade >= 1 and session.grade <= 4 or (session.grade >= 5 and session.grade <= 15 and session.memberno == productsVO.memberno)}">│</span>
+
+    <!-- 파일 수정 -->
+    <a th:if="${session.grade >= 1 and session.grade <= 4 or (session.grade >= 5 and session.grade <= 15 and session.memberno == productsVO.memberno)}"
       th:href="@{|./update_file?productsno=${productsVO.productsno}&word=${word}&now_page=${now_page}|}">파일 수정</a>
-    <span class='menu_divide' th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}">│</span>
-    <a th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}"
+    <span class='menu_divide'
+          th:if="${session.grade >= 1 and session.grade <= 4 or (session.grade >= 5 and session.grade <= 15 and session.memberno == productsVO.memberno)}">│</span>
+
+    <!-- 지도 -->
+    <a th:if="${session.grade >= 1 and session.grade <= 4 or (session.grade >= 5 and session.grade <= 15 and session.memberno == productsVO.memberno)}"
       th:href="@{|/products/map?cateno=${productsVO.cateno}&productsno=${productsVO.productsno}|}">지도</a>
-    <span class='menu_divide' th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}">│</span>
-    <a th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}"
+    <span class='menu_divide'
+          th:if="${session.grade >= 1 and session.grade <= 4 or (session.grade >= 5 and session.grade <= 15 and session.memberno == productsVO.memberno)}">│</span>
+
+    <!-- Youtube -->
+    <a th:if="${session.grade >= 1 and session.grade <= 4 or (session.grade >= 5 and session.grade <= 15 and session.memberno == productsVO.memberno)}"
       th:href="@{|/products/youtube?cateno=${productsVO.cateno}&productsno=${productsVO.productsno}&word=${word}&now_page=${now_page}|}">Youtube</a>
-    <span class='menu_divide' th:if="${session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)}">│</span>
-    <a th:if="${(session.grade == 'admin' or (session.grade == 'supplier' and session.memberno == productsVO.memberno)) and productsVO.cateno != null}"
+    <span class='menu_divide'
+          th:if="${session.grade >= 1 and session.grade <= 4 or (session.grade >= 5 and session.grade <= 15 and session.memberno == productsVO.memberno)}">│</span>
+
+    <!-- 삭제 -->
+    <a th:if="${(session.grade >= 1 and session.grade <= 4 or (session.grade >= 5 and session.grade <= 15 and session.memberno == productsVO.memberno)) and productsVO.cateno != null}"
       th:href="@{|./delete?productsno=${productsVO.productsno}&word=${word}&now_page=${now_page}&cateno=${productsVO.cateno}|}">삭제</a>
   </aside>
+
 
   <div class='menu_line'></div>
 

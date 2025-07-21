@@ -105,7 +105,6 @@ public class ProductsCont {
 
     return url; // forward 방식으로 지정된 페이지로 이동, /templates/products/msg.html
   }
-
   
   // 등록 폼, products 테이블은 FK로 cateno를 사용함.
   // http://localhost:9093/products/create X
@@ -113,28 +112,27 @@ public class ProductsCont {
   // http://localhost:9093/products/create?cateno=2
   // http://localhost:9093/products/create?cateno=5
   @GetMapping(value = "/create")
-  public String create(HttpSession session, Model model, 
-                            @ModelAttribute("productsVO") ProductsVO productsVO, 
-                            @RequestParam(name="cateno", defaultValue="0") int cateno,
-                            RedirectAttributes ra) {
-    // 등급 체크
-    String grade = (String) session.getAttribute("grade");
-    if (!"admin".equals(grade) && !"supplier".equals(grade)) {
+  public String create(HttpSession session, Model model,
+                       @ModelAttribute("productsVO") ProductsVO productsVO,
+                       @RequestParam(name="cateno", defaultValue="0") int cateno,
+                       RedirectAttributes ra) {
+    
+    Object gradeObj = session.getAttribute("grade");
+    int grade = (gradeObj != null) ? (Integer) gradeObj : 0;
+
+    if (grade < 1 || grade > 15) { // 관리자/공급자가 아닌 경우
       ra.addFlashAttribute("code", "no_permission");
       ra.addFlashAttribute("url", "/products/create?cateno=" + cateno);
-      return "redirect:/member/login_cookie_need"; // msg.html 또는 권한 요청 페이지로
+      return "redirect:/member/login_cookie_need";
     }
-    
-    // 상단 카테고리 메뉴 출력용 데이터
+
     ArrayList<CateVOMenu> menu = this.cateProc.menu();
     model.addAttribute("menu", menu);
 
-    // 현재 선택한 카테고리의 정보를 화면에 출력하기 위해 가져옴
-    CateVO cateVO = this.cateProc.read(cateno); // 카테고리 정보를 출력하기위한 목적
+    CateVO cateVO = this.cateProc.read(cateno);
     model.addAttribute("cateVO", cateVO);
 
-    return "products/create"; // /templates/products/create.html
-    //return "products/create_ai"; // /templates/products/create_ai.html
+    return "products/create";
   }
   
   /**
@@ -143,18 +141,16 @@ public class ProductsCont {
    * @return
    */
   @PostMapping(value = "/create")
-  public String create_proc(HttpServletRequest request, 
-                                    HttpSession session, 
-                                    Model model, 
-                                    @ModelAttribute("productsVO") ProductsVO productsVO,
-                                    RedirectAttributes ra) {
+  public String create_proc(HttpServletRequest request,
+                            HttpSession session,
+                            Model model,
+                            @ModelAttribute("productsVO") ProductsVO productsVO,
+                            RedirectAttributes ra) {
 
-    String grade = (String) session.getAttribute("grade");
-    if ("admin".equals(grade) || "supplier".equals(grade)) { // 관리자로 로그인한경우
-      // ------------------------------------------------------------------------------
-      // 파일 전송 코드 시작
-      // =============== (1) 파일 업로드 처리 시작 ===============
-      // ------------------------------------------------------------------------------
+    Object gradeObj = session.getAttribute("grade");
+    int grade = (gradeObj != null) ? (Integer) gradeObj : 0;
+
+    if (grade >= 1 && grade <= 15) { // 관리자 또는 공급자
 
       String upDir = Products.getUploadDir(); 
       System.out.println("-> upDir: " + upDir);
@@ -170,85 +166,62 @@ public class ProductsCont {
         if (Tool.isImage(file1saved)) {
           thumb1 = Tool.preview(upDir, file1saved, 100, 150);
         }
-        productsVO.setFile1(file1);
-        productsVO.setFile1saved(file1saved);
-        productsVO.setThumb1(thumb1);
-        productsVO.setSize1(size1);
       } else {
-     // ❗ 업로드하지 않은 경우 → 기본 이미지 복사
         String defaultDir = "C:/kd/ws_java/team7_v2sbm3c/src/main/resources/static/products/images/";
         String targetDir = upDir;
-
         Tool.copyFile(defaultDir + "default.png", targetDir + "default.png");
         Tool.copyFile(defaultDir + "default_thumb.png", targetDir + "default_thumb.png");
-
         file1 = "default.png";
         file1saved = "default.png";
         thumb1 = "default_thumb.png";
         size1 = 0L;
-
-        productsVO.setFile1(file1);
-        productsVO.setFile1saved(file1saved);
-        productsVO.setThumb1(thumb1);
-        productsVO.setSize1(size1);
       }
+      productsVO.setFile1(file1);
+      productsVO.setFile1saved(file1saved);
+      productsVO.setThumb1(thumb1);
+      productsVO.setSize1(size1);
 
       // ---------------------- file2 처리 ----------------------
-   // ---------------------- file2 처리 ----------------------
       MultipartFile mf2 = productsVO.getFile2MF();
       String file2 = mf2.getOriginalFilename();
       String file2saved = "";
       long size2 = mf2.getSize();
 
       if (size2 > 0 && Tool.checkUploadFile(file2)) {
-        file2saved = Upload.saveFileSpring(mf2, upDir); // 썸네일 생성 X
-        productsVO.setFile2(file2);
-        productsVO.setFile2saved(file2saved);
-        productsVO.setSize2(size2);
+        file2saved = Upload.saveFileSpring(mf2, upDir);
       } else {
         String defaultDir = "C:/kd/ws_java/team7_v2sbm3c/src/main/resources/static/products/images/";
         String targetDir = upDir;
-
         Tool.copyFile(defaultDir + "default.png", targetDir + "default.png");
-
         file2 = "default.png";
         file2saved = "default.png";
         size2 = 0L;
-
-        productsVO.setFile2(file2);
-        productsVO.setFile2saved(file2saved);
-        productsVO.setSize2(size2);
       }
-      //---------------------------------------------
-   // ---------------------- file3 처리 ----------------------
+      productsVO.setFile2(file2);
+      productsVO.setFile2saved(file2saved);
+      productsVO.setSize2(size2);
+
+      // ---------------------- file3 처리 ----------------------
       MultipartFile mf3 = productsVO.getFile3MF();
       String file3 = mf3.getOriginalFilename();
       String file3saved = "";
       long size3 = mf3.getSize();
 
       if (size3 > 0 && Tool.checkUploadFile(file3)) {
-        file3saved = Upload.saveFileSpring(mf3, upDir); // 썸네일 생성 X
-        productsVO.setFile3(file3);
-        productsVO.setFile3saved(file3saved);
-        productsVO.setSize3(size3);
+        file3saved = Upload.saveFileSpring(mf3, upDir);
       } else {
         String defaultDir = "C:/kd/ws_java/team7_v2sbm3c/src/main/resources/static/products/images/";
         String targetDir = upDir;
-
         Tool.copyFile(defaultDir + "default.png", targetDir + "default.png");
-
         file3 = "default.png";
         file3saved = "default.png";
         size3 = 0L;
-
-        productsVO.setFile3(file3);
-        productsVO.setFile3saved(file3saved);
-        productsVO.setSize3(size3);
       }
+      productsVO.setFile3(file3);
+      productsVO.setFile3saved(file3saved);
+      productsVO.setSize3(size3);
 
-
-
-   // ---------------------- fileAd 처리 ----------------------
+      // ---------------------- fileAd 처리 ----------------------
       MultipartFile mfAd = productsVO.getFileAdMF();
       String fileAd = mfAd.getOriginalFilename();
       String fileAdsaved = "";
@@ -256,65 +229,45 @@ public class ProductsCont {
 
       if (sizeAd > 0 && Tool.checkUploadFile(fileAd)) {
         fileAdsaved = Upload.saveFileSpring(mfAd, upDir);
-        // 썸네일은 필요 없다면 생략 가능
-        productsVO.setFileAd(fileAd);
-        productsVO.setFileAdsaved(fileAdsaved);
-        productsVO.setSizeAd(sizeAd);
       } else {
-        // ❗ 업로드하지 않은 경우 → 기본 광고 이미지 복사
         String defaultDir = "C:/kd/ws_java/team7_v2sbm3c/src/main/resources/static/products/images/";
         String targetDir = upDir;
-
         Tool.copyFile(defaultDir + "default_ad.png", targetDir + "default_ad.png");
-
         fileAd = "default_ad.png";
         fileAdsaved = "default_ad.png";
         sizeAd = 0L;
-
-        productsVO.setFileAd(fileAd);
-        productsVO.setFileAdsaved(fileAdsaved);
-        productsVO.setSizeAd(sizeAd);
       }
-      // ------------------------------------------------------------------------------
-      // 파일 전송 코드 종료
-      // ------------------------------------------------------------------------------
-      
-      // =============== (2) 상품 DB 등록 처리 ===============
-      // 로그인한 사용자의 memberno를 설정 (작성자 정보)
-      // Call By Reference: 메모리 공유, Hashcode 전달
-      int memberno = (int) session.getAttribute("memberno"); // memberno FK
+      productsVO.setFileAd(fileAd);
+      productsVO.setFileAdsaved(fileAdsaved);
+      productsVO.setSizeAd(sizeAd);
+
+      // 회원번호 설정
+      int memberno = (int) session.getAttribute("memberno");
       productsVO.setMemberno(memberno);
-      // expdate 값 확인
-      System.out.println("expdate: " + productsVO.getExpdate());
-      // DB에 상품 등록
+
+      // ✅ 분류 항목 null 처리
+      if (productsVO.getIs_best() == null) productsVO.setIs_best("N");
+      if (productsVO.getIs_new() == null) productsVO.setIs_new("N");
+      if (productsVO.getIs_event() == null) productsVO.setIs_event("N");
+
       int cnt = this.productsProc.create(productsVO);
-      
-      // 20250619 cnt 갱신 추가
-      this.cateProc.updateMidCnt();   // 중분류: products 기준
-      this.cateProc.updateMainCnt();  // 대분류: 중분류 합산 기준
-      // =============== (2) DB 등록 처리 종료 ===============
-      
-      // =============== (3) 결과 처리 ===============
-      if (cnt == 1) { // 등록 성공
-        
-        // 등록한 카테고리로 다시 목록 페이지 이동
-        ra.addAttribute("cateno", productsVO.getCateno()); // controller -> controller: O
+      this.cateProc.updateMidCnt();
+      this.cateProc.updateMainCnt();
+
+      if (cnt == 1) {
+        ra.addAttribute("cateno", productsVO.getCateno());
         return "redirect:/products/list_by_cateno_grid";
-
-
-      } else { // 등록 실패
-        ra.addFlashAttribute("code", Tool.CREATE_FAIL); // DBMS 등록 실패
-        ra.addFlashAttribute("cnt", 0); // 업로드 실패
-        ra.addFlashAttribute("url", "/products/msg"); // msg.html, redirect parameter 적용
-        return "redirect:/products/msg"; // Post -> Get - param...
-        // =============== (3) 결과 처리 종료 ===============
+      } else {
+        ra.addFlashAttribute("code", Tool.CREATE_FAIL);
+        ra.addFlashAttribute("cnt", 0);
+        ra.addFlashAttribute("url", "/products/msg");
+        return "redirect:/products/msg";
       }
-    } else { // 로그인 실패 한 경우
 
-      return "redirect:/member/login_cookie_need?url=/products/create?cateno=" + productsVO.getCateno(); 
+    } else {
+      return "redirect:/member/login_cookie_need?url=/products/create?cateno=" + productsVO.getCateno();
     }
-  }  
-
+  }
 
   /**
    * 0620 수정 후
@@ -735,14 +688,15 @@ public class ProductsCont {
                                    @RequestParam(name="productsno", defaultValue = "0") int productsno, 
                                    @RequestParam(name="word", defaultValue = "") String word,
                                    @RequestParam(name="now_page", defaultValue = "1") int now_page) {
-    
+
     ArrayList<CateVOMenu> menu = this.cateProc.menu();
     model.addAttribute("menu", menu);
 
     model.addAttribute("word", word);
     model.addAttribute("now_page", now_page);
 
-    String grade = (String) session.getAttribute("grade");
+    Integer gradeObj = (Integer) session.getAttribute("grade");
+    int grade = (gradeObj != null) ? gradeObj : 99;
     Integer memberno = (Integer) session.getAttribute("memberno");
 
     ProductsVO productsVO = this.productsProc.read(productsno);
@@ -751,19 +705,11 @@ public class ProductsCont {
     CateVO cateVO = this.cateProc.read(productsVO.getCateno());
     model.addAttribute("cateVO", cateVO);
 
-    if ("admin".equals(grade)) {
+    if (grade >= 1 && grade <= 4) {
       return "products/update_text";
-
-    } else if ("supplier".equals(grade)) {
-      if (productsVO.getMemberno() == memberno) {
-        return "products/update_text";
-      } else {
-        // 다른 사람이 올린 상품은 수정 불가
-        return "redirect:/products/list_by_cateno?cateno=" + productsVO.getCateno();
-      }
-
+    } else if (grade >= 5 && grade <= 15 && productsVO.getMemberno() == memberno) {
+      return "products/update_text";
     } else {
-      // 게스트 또는 비로그인 사용자
       return "redirect:/member/login_cookie_need?url=/products/update_text?productsno=" + productsno;
     }
   }
@@ -772,14 +718,14 @@ public class ProductsCont {
   public String update_text_proc(HttpSession session, Model model, ProductsVO productsVO, RedirectAttributes ra,
                                           @RequestParam(name="search_word", defaultValue = "") String search_word,
                                           @RequestParam(name="now_page", defaultValue = "1") int now_page) {
-    
+
     ra.addAttribute("word", search_word);
     ra.addAttribute("now_page", now_page);
 
-    String grade = (String) session.getAttribute("grade");
+    Integer gradeObj = (Integer) session.getAttribute("grade");
+    int grade = (gradeObj != null) ? gradeObj : 99;
     Integer sessionMemberno = (Integer) session.getAttribute("memberno");
 
-    // 비밀번호 확인
     HashMap<String, Object> map = new HashMap<>();
     map.put("productsno", productsVO.getProductsno());
     map.put("passwd", productsVO.getPasswd());
@@ -791,33 +737,29 @@ public class ProductsCont {
       return "redirect:/products/post2get";
     }
 
-    // 권한 확인
     ProductsVO dbVO = this.productsProc.read(productsVO.getProductsno());
 
-    if ("admin".equals(grade) || ("supplier".equals(grade) && dbVO.getMemberno() == sessionMemberno)) {
+    if ((grade >= 1 && grade <= 4) || (grade >= 5 && grade <= 15 && dbVO.getMemberno() == sessionMemberno)) {
       int cnt = this.productsProc.update_text(productsVO);
       ra.addAttribute("productsno", productsVO.getProductsno());
       ra.addAttribute("cateno", productsVO.getCateno());
       return "redirect:/products/read";
     }
 
-    // 그 외는 수정 불가
     return "redirect:/products/list_by_cateno_search_paging?cateno=" + productsVO.getCateno() + "&now_page=" + now_page + "&word=" + search_word;
   }
 
-  
   @GetMapping(value = "/update_file")
   public String update_file(HttpSession session, Model model, 
                                   @RequestParam(name="productsno", defaultValue = "0") int productsno, 
                                   @RequestParam(name="word", defaultValue = "") String word,
                                   @RequestParam(name="now_page", defaultValue = "1") int now_page) {
-    
-    String grade = (String) session.getAttribute("grade");
+
+    Integer gradeObj = (Integer) session.getAttribute("grade");
+    int grade = (gradeObj != null) ? gradeObj : 99;
     Integer memberno = (Integer) session.getAttribute("memberno");
 
-    // 상단 메뉴
     model.addAttribute("menu", this.cateProc.menu());
-
     model.addAttribute("word", word);
     model.addAttribute("now_page", now_page);
 
@@ -827,12 +769,10 @@ public class ProductsCont {
     CateVO cateVO = this.cateProc.read(productsVO.getCateno());
     model.addAttribute("cateVO", cateVO);
 
-    if ("admin".equals(grade)) {
+    if (grade >= 1 && grade <= 4) {
       return "products/update_file";
-
-    } else if ("supplier".equals(grade) && memberno != null && memberno.equals(productsVO.getMemberno())) {
+    } else if (grade >= 5 && grade <= 15 && memberno != null && memberno.equals(productsVO.getMemberno())) {
       return "products/update_file";
-
     } else {
       return "redirect:/member/login_cookie_need?url=/products/update_file?productsno=" + productsno;
     }
@@ -844,16 +784,17 @@ public class ProductsCont {
       @RequestParam(name="word", defaultValue = "") String word,
       @RequestParam(name="now_page", defaultValue = "1") int now_page
   ) {
-    String grade = (String) session.getAttribute("grade");
+    Integer gradeObj = (Integer) session.getAttribute("grade");
+    int grade = (gradeObj != null) ? gradeObj : 99;
     Integer sessionMemberno = (Integer) session.getAttribute("memberno");
 
     ProductsVO productsVO_old = this.productsProc.read(productsVO.getProductsno());
 
     boolean authorized = false;
 
-    if ("admin".equals(grade)) {
+    if (grade >= 1 && grade <= 4) {
       authorized = true;
-    } else if ("supplier".equals(grade) && sessionMemberno != null && sessionMemberno.equals(productsVO_old.getMemberno())) {
+    } else if (grade >= 5 && grade <= 15 && sessionMemberno != null && sessionMemberno.equals(productsVO_old.getMemberno())) {
       authorized = true;
     }
 
@@ -863,25 +804,17 @@ public class ProductsCont {
     }
 
     String upDir = Products.getUploadDir();
-    
-    // 기존 파일 삭제 - file1
-    String file1saved = productsVO_old.getFile1saved();
-    String thumb1 = productsVO_old.getThumb1();
-    Tool.deleteFile(upDir, file1saved);
-    Tool.deleteFile(upDir, thumb1);
-    
-    // 기존 파일 삭제 - file2
-    String file2saved = productsVO_old.getFile2saved();
-    Tool.deleteFile(upDir, file2saved);
 
-    // 기존 파일 삭제 - file3
-    String file3saved = productsVO_old.getFile3saved();
-    Tool.deleteFile(upDir, file3saved);
+    Tool.deleteFile(upDir, productsVO_old.getFile1saved());
+    Tool.deleteFile(upDir, productsVO_old.getThumb1());
+    Tool.deleteFile(upDir, productsVO_old.getFile2saved());
+    Tool.deleteFile(upDir, productsVO_old.getFile3saved());
 
-    // 새 파일 업로드
     MultipartFile mf = productsVO.getFile1MF();
     String file1 = mf.getOriginalFilename();
     long size1 = mf.getSize();
+    String file1saved = "";
+    String thumb1 = "";
 
     if (size1 > 0) {
       file1saved = Upload.saveFileSpring(mf, upDir);
@@ -890,8 +823,6 @@ public class ProductsCont {
       }
     } else {
       file1 = "";
-      file1saved = "";
-      thumb1 = "";
       size1 = 0;
     }
 
@@ -899,67 +830,54 @@ public class ProductsCont {
     productsVO.setFile1saved(file1saved);
     productsVO.setThumb1(thumb1);
     productsVO.setSize1(size1);
-    //-----------------------------------------------
-    // 새 파일 업로드 및 설정: file2
-    //-----------------------------------------------
+
     MultipartFile mf2 = productsVO.getFile2MF();
     String file2 = mf2.getOriginalFilename();
     long size2 = mf2.getSize();
-  
+    String file2saved = "";
+
     if (size2 > 0) {
       file2saved = Upload.saveFileSpring(mf2, upDir);
     } else {
       file2 = "";
-      file2saved = "";
       size2 = 0;
     }
     productsVO.setFile2(file2);
     productsVO.setFile2saved(file2saved);
-    productsVO.setSize2(size2);  // ✅ thumb2 제거
-  
-    //-----------------------------------------------
-    // 새 파일 업로드 및 설정: file3
-    //-----------------------------------------------
+    productsVO.setSize2(size2);
+
     MultipartFile mf3 = productsVO.getFile3MF();
     String file3 = mf3.getOriginalFilename();
     long size3 = mf3.getSize();
-  
+    String file3saved = "";
+
     if (size3 > 0) {
       file3saved = Upload.saveFileSpring(mf3, upDir);
     } else {
       file3 = "";
-      file3saved = "";
       size3 = 0;
     }
     productsVO.setFile3(file3);
     productsVO.setFile3saved(file3saved);
-    productsVO.setSize3(size3);  //  thumb3 제거
+    productsVO.setSize3(size3);
 
-   
-    // 기존 광고 이미지 삭제 - fileAd
-    String fileAdsaved = productsVO_old.getFileAdsaved();
-    Tool.deleteFile(upDir, fileAdsaved);
-    //-----------------------------------------------
-    // 새 파일 업로드 및 설정: fileAd (광고 이미지)
-    //-----------------------------------------------
+    Tool.deleteFile(upDir, productsVO_old.getFileAdsaved());
+
     MultipartFile mfAd = productsVO.getFileAdMF();
     String fileAd = mfAd.getOriginalFilename();
     long sizeAd = mfAd.getSize();
-    
+    String fileAdsaved = "";
+
     if (sizeAd > 0 && Tool.checkUploadFile(fileAd)) {
       fileAdsaved = Upload.saveFileSpring(mfAd, upDir);
     } else {
       fileAd = "";
-      fileAdsaved = "";
       sizeAd = 0;
     }
     productsVO.setFileAd(fileAd);
     productsVO.setFileAdsaved(fileAdsaved);
     productsVO.setSizeAd(sizeAd);
 
-
-
-    
     this.productsProc.update_file(productsVO);
 
     ra.addAttribute("productsno", productsVO.getProductsno());
@@ -969,7 +887,6 @@ public class ProductsCont {
 
     return "redirect:/products/read";
   }
-
 
   @GetMapping(value = "/delete")
   public String delete(HttpSession session, Model model, RedirectAttributes ra,
@@ -1035,7 +952,6 @@ public class ProductsCont {
     // 광고 이미지 삭제
     Tool.deleteFile(upDir, productsVO_read.getFileAdsaved());
     
-
     // 2. DB 삭제
     this.productsProc.delete(productsno);
     this.cateProc.updateMidCnt();
@@ -1196,19 +1112,6 @@ public class ProductsCont {
     
     return "/products/list_soon_expire";
   }
-
-//  @GetMapping("/free_shipping")
-//  public String freeShipping(Model model) {
-//    List<ProductsVO> list = productsProc.listFreeShipping();
-//    model.addAttribute("list", list);
-//    model.addAttribute("title", "무료 배송관");
-//    
-// // ✅ 전체 카테고리 메뉴 추가
-//    List<CateVOMenu> menu = cateProc.menu();
-//    model.addAttribute("menu", menu);
-//    
-//    return "/products/list_free_shipping";
-//  }
 
   @GetMapping("/event")
   public String event(Model model) {

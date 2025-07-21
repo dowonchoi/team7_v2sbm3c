@@ -51,6 +51,10 @@ ALTER TABLE products ADD origin VARCHAR2(200);     -- 원산지
 ALTER TABLE products ADD detail VARCHAR2(200);     -- 품목군별 표시사항
 ALTER TABLE products ADD pack VARCHAR2(200);       -- 상품 구성
 ALTER TABLE products ADD safe VARCHAR2(200);       -- 소비자 안전 주의사항
+ALTER TABLE products ADD is_best CHAR(1) DEFAULT 'N';
+ALTER TABLE products ADD is_new CHAR(1) DEFAULT 'N';
+ALTER TABLE products ADD is_event CHAR(1) DEFAULT 'N';
+ALTER TABLE products ADD expire_date DATE;
 
 COMMENT ON TABLE products is '상품';
 COMMENT ON COLUMN products.productsno is '상품 번호';

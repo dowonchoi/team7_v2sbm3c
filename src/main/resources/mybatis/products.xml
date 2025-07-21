@@ -6,9 +6,9 @@
   <!-- 등록한 레코드 갯수 1 리턴, #{memberno}: public int getAdminno() 호출됨 -->
   <insert id="create" parameterType="dev.mvc.products.ProductsVO">
     INSERT INTO products(productsno, memberno, cateno, title, content, passwd, word,
-                                     file1, file1saved, thumb1, size1, rdate, price, dc, saleprice, point, salecnt, file2, file2saved, size2, file3, file3saved, size3, expdate, fileAd, fileAdsaved, sizeAd, item, maker, makedate, importyn, keep, counsel_tel, sizeinfo, origin, detail, pack, safe)
+                                     file1, file1saved, thumb1, size1, rdate, price, dc, saleprice, point, salecnt, file2, file2saved, size2, file3, file3saved, size3, expdate, is_best, is_new, is_event, fileAd, fileAdsaved, sizeAd, item, maker, makedate, importyn, keep, counsel_tel, sizeinfo, origin, detail, pack, safe)
     VALUES(products_seq.nextval, #{memberno}, #{cateno}, #{title}, #{content}, #{passwd}, #{word},
-                #{file1}, #{file1saved}, #{thumb1}, #{size1}, sysdate, #{price}, #{dc}, #{saleprice}, #{point}, #{salecnt}, #{file2}, #{file2saved}, #{size2}, #{file3}, #{file3saved}, #{size3}, #{expdate}, #{fileAd}, #{fileAdsaved}, #{sizeAd}, #{item}, #{maker}, #{makedate}, #{importyn}, #{keep}, #{counsel_tel}, #{sizeinfo}, #{origin}, #{detail}, #{pack}, #{safe})
+                #{file1}, #{file1saved}, #{thumb1}, #{size1}, sysdate, #{price}, #{dc}, #{saleprice}, #{point}, #{salecnt}, #{file2}, #{file2saved}, #{size2}, #{file3}, #{file3saved}, #{size3}, #{expdate}, #{is_best}, #{is_new}, #{is_event}, #{fileAd}, #{fileAdsaved}, #{sizeAd}, #{item}, #{maker}, #{makedate}, #{importyn}, #{keep}, #{counsel_tel}, #{sizeinfo}, #{origin}, #{detail}, #{pack}, #{safe})
   </insert>
 
   <!-- 모든 카테고리의 등록된 글목록 -->
@@ -275,46 +275,26 @@
     ORDER BY p.rdate DESC
   </select>
   
-  <!-- 베스트 상품: 판매량(salecnt) 높은 순 -->
+  <!-- 베스트 상품 -->
   <select id="listBest" resultType="dev.mvc.products.ProductsVO">
-    SELECT *
-    FROM products
-    WHERE visible = 'Y'
-    ORDER BY salecnt DESC
+    SELECT * FROM products WHERE is_best = 'Y' ORDER BY productsno DESC
   </select>
   
-  <!-- NEW 상품: 최신 등록일 순 -->
+  <!-- NEW 상품 -->
   <select id="listNew" resultType="dev.mvc.products.ProductsVO">
-    SELECT *
-    FROM products
-    WHERE visible = 'Y'
-    ORDER BY rdate DESC
+    SELECT * FROM products WHERE is_new = 'Y' ORDER BY productsno DESC
   </select>
   
-  <!-- 임박특가: 유통기한 가까운 순 (expdate 기준) -->
+  <!-- 임박 특가 -->
   <select id="listSoonExpire" resultType="dev.mvc.products.ProductsVO">
-    SELECT *
-    FROM products
-    WHERE visible = 'Y'
-      AND expdate IS NOT NULL
-    ORDER BY expdate ASC
+    SELECT * FROM products 
+    WHERE expire_date BETWEEN SYSDATE AND SYSDATE + 3
+    ORDER BY expire_date ASC
   </select>
   
-  <!-- 무료배송: 배송비가 없는 상품 (예: point 또는 배송비 관련 컬럼이 있다면 조건 수정)
-  <select id="listFreeShipping" resultType="dev.mvc.products.ProductsVO">
-    SELECT *
-    FROM products
-    WHERE visible = 'Y'
-      AND point = 0 
-  </select>  -->
-  
-  <!-- 기획전: word 컬럼에 '기획전' 키워드 포함 -->
+  <!-- 기획전 -->
   <select id="listEvent" resultType="dev.mvc.products.ProductsVO">
-    SELECT *
-    FROM products
-    WHERE visible = 'Y'
-      AND word LIKE '%기획전%'
+    SELECT * FROM products WHERE is_event = 'Y' ORDER BY productsno DESC
   </select>
-
 
 </mapper> 

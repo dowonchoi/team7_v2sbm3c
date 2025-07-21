@@ -340,7 +340,12 @@ public class ProductsVO {
       this.size3 = size3;
     }
     
+    private String is_best;
     
-
+    private String is_new;
+    
+    private String is_event;
+    
+    private Date expire_date;
 
 }

@@ -9,7 +9,7 @@
   </div>
 
   <aside class="aside_right">
-    <span th:if="${session.grade == 'admin' or session.grade == 'supplier'}">
+    <span th:if="${session.grade >= 1 and session.grade <= 15}">
       <a th:href="@{|/products/create?cateno=${cateVO.cateno}|}">등록</a>
       <span class="menu_devide">│</span>
     </span>
