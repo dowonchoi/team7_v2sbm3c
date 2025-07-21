@@ -906,28 +906,30 @@ public class ProductsCont {
       @RequestParam(name = "word", defaultValue = "") String word,
       @RequestParam(name = "now_page", defaultValue = "1") int now_page) {
 
-    String grade = (String) session.getAttribute("grade");
-    Integer sessionMemberno = (Integer) session.getAttribute("memberno");
+      Integer gradeObj = (Integer) session.getAttribute("grade");
+      int grade = (gradeObj != null) ? gradeObj : 99; // 기본값: 비회원
+      Integer sessionMemberno = (Integer) session.getAttribute("memberno");
 
-    ProductsVO productsVO = this.productsProc.read(productsno);
-    int ownerMemberno = productsVO.getMemberno();
+      ProductsVO productsVO = this.productsProc.read(productsno);
+      int ownerMemberno = productsVO.getMemberno();
 
-    boolean authorized = "admin".equals(grade) || 
-                         ("supplier".equals(grade) && sessionMemberno != null && sessionMemberno == ownerMemberno);
+      boolean authorized = (grade >= 1 && grade <= 4) || 
+                           ((grade >= 5 && grade <= 15) && sessionMemberno != null && sessionMemberno == ownerMemberno);
 
-    if (authorized) {
-      model.addAttribute("cateno", cateno);
-      model.addAttribute("word", word);
-      model.addAttribute("now_page", now_page);
-      model.addAttribute("menu", this.cateProc.menu());
-      model.addAttribute("productsVO", productsVO);
-      model.addAttribute("cateVO", this.cateProc.read(productsVO.getCateno()));
+      if (authorized) {
+          model.addAttribute("cateno", cateno);
+          model.addAttribute("word", word);
+          model.addAttribute("now_page", now_page);
+          model.addAttribute("menu", this.cateProc.menu());
+          model.addAttribute("productsVO", productsVO);
+          model.addAttribute("cateVO", this.cateProc.read(productsVO.getCateno()));
 
-      return "products/delete"; // forward
-    } else {
-      return "redirect:/member/login_cookie_need?url=/products/delete?productsno=" + productsno;
-    }
+          return "products/delete"; // forward
+      } else {
+          return "redirect:/member/login_cookie_need?url=/products/delete?productsno=" + productsno;
+      }
   }
+
 
   @PostMapping(value = "/delete")
   public String delete_proc(HttpSession session, RedirectAttributes ra,
