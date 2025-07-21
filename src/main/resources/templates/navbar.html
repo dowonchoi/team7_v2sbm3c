@@ -82,7 +82,19 @@
             <span id="notificationCount" class="badge bg-danger position-absolute top-0 start-100 translate-middle" style="display:none; font-size: 10px;">0</span>
           </a>
           <a th:href="@{/member/mypage}" class="me-3 text-dark"><i class="bi bi-person" style="font-size: 22px;"></i></a>
-          <a th:href="@{/cart/list}" class="text-dark"><i class="bi bi-cart" style="font-size: 22px;"></i></a>
+          <!-- <a th:href="@{/cart/list}" class="text-dark"><i class="bi bi-cart" style="font-size: 22px;"></i></a> -->
+          <!-- <a th:href="@{/cart/list}" class="text-dark position-relative">
+              <i class="bi bi-cart" style="font-size: 22px;"></i>
+              <span class="navbar-cart-badge" th:if="${cartCount > 0}" th:text="${cartCount}"></span>
+          </a> -->
+          <a th:href="@{/cart/list}" class="text-dark position-relative" style="display: inline-block;">
+              <i class="bi bi-cart" style="font-size: 22px;"></i>
+              <!-- ✅ 장바구니 개수 뱃지 -->
+              <span id="cart-count" class="navbar-cart-badge" style="display: none;">0</span>
+          </a>
+
+
+
         </th:block>
       </div>
     </div>
@@ -152,6 +164,22 @@
           badge.style.display = 'none';
         }
       });
+
+      document.addEventListener("DOMContentLoaded", function() {
+          fetch("/cart/count")
+              .then(response => response.text())
+              .then(count => {
+                  const badge = document.getElementById("cart-count");
+                  if (parseInt(count) > 0) {
+                      badge.textContent = count;
+                      badge.style.display = "inline-block"; // 보이게
+                  } else {
+                      badge.style.display = "none"; // 0이면 숨김
+                  }
+              })
+              .catch(error => console.error("장바구니 개수 로딩 실패:", error));
+      });
+      
   </script>
 </div>
 </html>

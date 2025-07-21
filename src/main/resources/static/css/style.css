@@ -2396,4 +2396,19 @@
   display: block;
 }
 
+/* nvar 카트 숫자 적용 시작*/
 
+.navbar-cart-badge {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    background: #6db75b;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 50%;
+    padding: 2px 6px;
+    line-height: 1;
+}
+
+/* nvar 카트 숫자 적용 끝*/

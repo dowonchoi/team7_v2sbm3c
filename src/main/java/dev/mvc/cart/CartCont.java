@@ -212,7 +212,21 @@ public class CartCont {
       return response;
   }
 
+  /**
+   * 로그인한 사용자의 장바구니 아이템 개수 반환 (AJAX)
+   */
+  @GetMapping("/count")
+  @ResponseBody
+  public int getCartCount(HttpSession session) {
+      // ✅ 로그인 확인
+      Integer memberno = (Integer) session.getAttribute("memberno");
+      if (memberno == null) {
+          return 0; // 비로그인 사용자는 0 반환
+      }
 
+      // ✅ 장바구니 개수 조회
+      return cartProc.count_by_member(memberno);
+  }
 
 
 

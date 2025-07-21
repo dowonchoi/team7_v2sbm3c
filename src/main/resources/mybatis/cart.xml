@@ -147,6 +147,11 @@
     SELECT COUNT(*) FROM cart WHERE memberno = #{memberno}
   </select>
 
+  <select id="count_by_member" resultType="int" parameterType="int">
+    SELECT COUNT(*) 
+    FROM cart
+    WHERE memberno = #{memberno}
+  </select>
 
 
 </mapper>

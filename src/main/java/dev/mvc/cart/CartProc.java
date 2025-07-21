@@ -13,7 +13,10 @@ public class CartProc implements CartProcInter {
 
   @Autowired
   private CartDAOInter cartDAO;
-
+  
+  @Autowired
+  private CartDAOInter cartDAOInter;  // ✅ 이 필드가 있어야 함
+  
   @Override
   public int create(CartVO cartVO) {
     // 1. 중복 여부 확인
@@ -121,6 +124,11 @@ public class CartProc implements CartProcInter {
   @Override
   public int countItems(int memberno) {
       return cartDAO.countItems(memberno);
+  }
+
+  @Override
+  public int count_by_member(int memberno) {
+      return this.cartDAOInter.count_by_member(memberno);
   }
 
 }

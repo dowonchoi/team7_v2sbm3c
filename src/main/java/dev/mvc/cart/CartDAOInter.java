@@ -86,5 +86,8 @@ public interface CartDAOInter {
   public int delete_selected_by_memberno(int memberno);
   
   public int countItems(int memberno);
+  
+  /** 특정 회원의 장바구니 상품 개수 */
+  public int count_by_member(int memberno);
 
 }
