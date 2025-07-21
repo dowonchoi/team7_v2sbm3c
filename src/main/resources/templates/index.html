@@ -1,8 +1,15 @@
 <!DOCTYPE html>
 <html layout:decorate="~{layout}">
-  <div layout:fragment="content">
-    <!-- ✅ 메인 배너 (전체화면 너비 적용) -->
-    <div id="mainCarousel" class="carousel slide" data-bs-ride="carousel" style="width: 100%;">
+<head>
+    <!-- index 전용 CSS -->
+    <link rel="stylesheet" href="/css/index.css">
+</head>
+<body>
+<div layout:fragment="content">
+
+  <!-- ✅ 메인 슬라이드 (Hero 영역) -->
+  <section class="index-hero">
+    <div id="mainCarousel" class="carousel slide" data-bs-ride="carousel">
       <div class="carousel-inner">
         <div class="carousel-item active">
           <img src="/images/banner1.png" class="d-block w-100" alt="배너1">
@@ -14,7 +21,6 @@
           <img src="/images/banner3.png" class="d-block w-100" alt="배너3">
         </div>
       </div>
-
       <!-- 슬라이드 버튼 -->
       <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel" data-bs-slide="prev">
         <span class="carousel-control-prev-icon"></span>
@@ -23,61 +29,53 @@
         <span class="carousel-control-next-icon"></span>
       </button>
     </div>
+  </section>
 
-    <!-- ✅ 오늘의 특가 / NEW / 베스트 배너 -->
-    <div class="container my-5">
-      <div class="row text-center">
-        <div class="col-md-4">
-          <img src="/images/special.jpg" class="img-fluid mb-2" alt="특가">
-          <h5>오늘의 특가</h5>
-        </div>
-        <div class="col-md-4">
-          <img src="/images/new.jpg" class="img-fluid mb-2" alt="신상품">
-          <h5>NEW</h5>
-        </div>
-        <div class="col-md-4">
-          <img src="/images/best.jpg" class="img-fluid mb-2" alt="베스트">
-          <h5>베스트</h5>
+  <!-- ✅ 특가 / NEW / 베스트 -->
+  <section class="index-section container">
+    <div class="index-banner-grid">
+      <div class="index-banner-box">
+        <img src="/images/special.jpg" alt="오늘의 특가">
+        <h5>오늘의 특가</h5>
+      </div>
+      <div class="index-banner-box">
+        <img src="/images/new.jpg" alt="NEW">
+        <h5>NEW</h5>
+      </div>
+      <div class="index-banner-box">
+        <img src="/images/best.jpg" alt="베스트">
+        <h5>베스트</h5>
+      </div>
+    </div>
+  </section>
+
+  <!-- ✅ 추천 상품 -->
+  <section class="index-products container">
+    <h4 class="index-section-title">추천 상품</h4>
+    <div class="index-product-grid">
+      <div class="index-product-card" th:each="product : ${productList}">
+        <img th:src="@{|/products/images/${product.image}|}" alt="상품 이미지">
+        <div class="index-product-info">
+          <p class="index-product-name" th:text="${product.name}">상품명</p>
+          <p class="index-product-price" th:text="|${product.price}원|">10,000원</p>
+          <a th:href="@{|/products/detail?productno=${product.productno}|}" class="index-btn-detail">상세보기</a>
         </div>
       </div>
     </div>
+  </section>
 
-    <!-- ✅ 상품 카드 리스트 -->
-    <div class="container mb-5">
-      <h4 class="mb-4">추천 상품</h4>
-      <div class="row">
-        <div class="col-md-3" th:each="product : ${productList}">
-          <div class="card h-100">
-            <img th:src="@{|/products/images/${product.image}|}" class="card-img-top" alt="상품 이미지">
-            <div class="card-body">
-              <h6 class="card-title" th:text="${product.name}">상품명</h6>
-              <p class="card-text text-danger fw-bold" th:text="|${product.price}원|">10,000원</p>
-              <a th:href="@{|/products/detail?productno=${product.productno}|}" class="btn btn-outline-primary btn-sm">상세보기</a>
-            </div>
-          </div>
-        </div>
-      </div>
+  <!-- ✅ AI 서비스 배너 -->
+  <section class="index-ai-banner container">
+    <div class="ai-banner-grid">
+      <a th:href="@{/openai/recipe}" class="ai-banner-link">
+        <img src="/images/consumer-banner.jpg" alt="소비자 전용 레시피 추천" class="ai-banner-img">
+      </a>
+      <a th:href="@{/openai/member_img}" class="ai-banner-link">
+        <img src="/images/supplier-banner.jpg" alt="공급자 전용 이미지 생성" class="ai-banner-img">
+      </a>
     </div>
-    <div class="container my-5">
-      <div class="row text-center">
+  </section>
 
-        <!-- ✅ 소비자 전용 이미지 배너 -->
-        <div class="col-md-6 mb-3">
-          <a th:href="@{/openai/recipe}" class="ai-banner-link">
-            <img src="/images/consumer-banner.jpg" alt="소비자 전용 레시피 추천" class="ai-banner-img">
-          </a>
-        </div>
-
-        <!-- ✅ 공급자 전용 이미지 배너 -->
-        <div class="col-md-6 mb-3">
-          <a th:href="@{/openai/member_img}" class="ai-banner-link">
-            <img src="/images/supplier-banner.jpg" alt="공급자 전용 이미지 생성" class="ai-banner-img">
-          </a>
-        </div>
-
-      </div>
-    </div>
-
-
-
+</div>
+</body>
 </html>

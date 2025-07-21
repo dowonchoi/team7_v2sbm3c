@@ -1,0 +1,123 @@
+/* ✅ index.css (index 페이지 전용) */
+
+/* 전체 공통 컨테이너 */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+.index-hero {
+  display: flex;
+  justify-content: center; /* 가운데 정렬 */
+}
+
+.index-hero .carousel {
+  max-width: 1200px; /* ✅ 여기서 제한 */
+  width: 100%;
+}
+/* ✅ 메인 슬라이드 */
+.index-hero img {
+  height: 400px;
+  object-fit: cover;
+}
+
+/* ✅ 특가 / NEW / 베스트 */
+.index-banner-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin: 50px 0;
+  text-align: center;
+}
+.index-banner-grid img {
+  width: 100%;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+}
+.index-banner-grid img:hover {
+  transform: scale(1.05);
+}
+.index-banner-box h5 {
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* ✅ 추천 상품 */
+.index-section-title {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+.index-product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.index-product-card {
+  border: 1px solid #eee;
+  border-radius: 10px;
+  overflow: hidden;
+  background: white;
+  transition: box-shadow 0.3s ease;
+}
+.index-product-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.index-product-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+.index-product-info {
+  padding: 10px;
+  text-align: center;
+}
+.index-product-name {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+.index-product-price {
+  font-size: 18px;
+  color: #e60023;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+.index-btn-detail {
+  display: inline-block;
+  padding: 6px 12px;
+  font-size: 14px;
+  color: #007bff;
+  border: 1px solid #007bff;
+  border-radius: 4px;
+  text-decoration: none;
+}
+.index-btn-detail:hover {
+  background: #007bff;
+  color: white;
+}
+
+/* ✅ AI 배너 */
+.ai-banner-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin: 50px 0;
+}
+.ai-banner-link {
+  display: block;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.ai-banner-link:hover {
+  transform: scale(1.03);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+}
+.ai-banner-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}

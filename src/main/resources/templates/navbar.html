@@ -7,10 +7,14 @@
       <a class="me-3 text-decoration-none text-secondary">판매자센터</a>
       <a th:href="@{/notice/list}" class="me-3 text-decoration-none text-secondary">공지사항</a>
       <!-- ✅ 관리자 전용 MMS 메뉴 -->
-      <th:block th:if="${session.grade == 'admin'}">
-        <a th:href="@{/mms/tool}" class="me-3 text-decoration-none text-danger fw-bold">MMS 문자 전송</a>
+      <th:block th:if="${session.gradeStr eq 'admin'}">
+          <a th:href="@{/mms/tool}" class="me-3 text-decoration-none text-danger fw-bold">MMS 문자 전송</a>
       </th:block>
+
+
+
     </div>
+    
     <div>
       <th:block th:if="${session.memberno == null}">
         <a th:href="@{/member/create}" class="me-3 text-decoration-none text-secondary">회원가입</a>

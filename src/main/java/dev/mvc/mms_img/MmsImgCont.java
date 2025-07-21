@@ -273,12 +273,11 @@ public class MmsImgCont {
  // ✅ MMS Tool 테스트 페이지
     @GetMapping("/tool")
     public String tool(HttpSession session) {
-        String grade = (String) session.getAttribute("grade");
+      String gradeStr = (String) session.getAttribute("gradeStr");
+      if (gradeStr == null || !"admin".equals(gradeStr)) {
+          return "redirect:/member/login_cookie_need?url=/mms/tool";
+      }
 
-        // ✅ 권한 확인 (관리자만)
-        if (grade == null || !"admin".equals(grade)) {
-            return "redirect:/member/login_cookie_need?url=/mms/tool";
-        }
 
         return "mms_img/mms_tool"; // ✅ templates/mms_img/mms_tool.html
     }
