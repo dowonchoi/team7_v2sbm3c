@@ -175,6 +175,46 @@ public class CartCont {
 
       return "redirect:/cart/list";
   }
+  
+  @PostMapping("/add_ajax")
+  @ResponseBody
+  public Map<String, Object> add_ajax(@RequestBody Map<String, Object> payload, HttpSession session) {
+      Map<String, Object> response = new HashMap<>();
+
+      Integer memberno = (Integer) session.getAttribute("memberno");
+      String grade = (String) session.getAttribute("grade");
+
+      if (memberno == null || "withdrawn".equals(grade) || "supplier".equals(grade)) {
+          response.put("success", false);
+          response.put("message", "로그인이 필요합니다.");
+          return response;
+      }
+
+      try {
+          int productsno = Integer.parseInt(payload.get("productsno").toString());
+          int cnt = Integer.parseInt(payload.get("cnt").toString());
+
+          CartVO cartVO = new CartVO();
+          cartVO.setMemberno(memberno);
+          cartVO.setProductsno(productsno);
+          cartVO.setCnt(cnt);
+          cartVO.setSelected("Y");
+
+          cartProc.create(cartVO);
+
+          response.put("success", true);
+          response.put("message", "장바구니에 추가되었습니다.");
+      } catch (Exception e) {
+          response.put("success", false);
+          response.put("message", "데이터 변환 오류 발생");
+      }
+
+      return response;
+  }
+
+
+
+
 
 
 }

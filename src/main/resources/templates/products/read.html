@@ -189,11 +189,15 @@
                 </div>
 
                 <div class="purchase_button_box">
-                  <button class="btn_cart"
-                    th:onclick="|location.href='/cart/add?productsno=${productsVO.productsno}&cnt=' + document.getElementById('qty').value|">
-                    장바구니
+                  <button class="btn_cart" type="button"
+                          th:onclick="|addToCartAjax(${productsVO.productsno})|">
+                      장바구니 담기
                   </button>
-                  <button class="btn_buy" onclick="location.href='/order/form?productsno=[[${productsVO.productsno}]]&qty=' + document.getElementById('qty').value">구매하기</button>
+                  <!-- 바로 구매하기 -->
+                  <button class="btn_buy" type="button"
+                          th:onclick="|buyNow(${productsVO.productsno})|">
+                      바로 구매하기
+                  </button>
                 </div>
               </div>
             </div>
@@ -611,6 +615,37 @@
                   adBox.classList.toggle("show");
                   btn.innerText = isOpen ? "상품정보 더보기 ▼" : "상품정보 접기 ▲";
                 }
+              </script>
+              <script>
+              function addToCartAjax(productsno) {
+                  const qty = document.getElementById('qty').value;
+              
+                  fetch('/cart/add_ajax', {
+                      method: 'POST',
+                      headers: {
+                          'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify({ productsno: productsno, cnt: qty })
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                      if (data.success) {
+                          alert('✅ ' + data.message);
+                      } else {
+                          alert('❌ ' + data.message);
+                      }
+                  })
+                  .catch(error => {
+                      alert('서버 오류가 발생했습니다.');
+                      console.error(error);
+                  });
+              }
+              
+              function buyNow(productsno) {
+                  const qty = document.getElementById('qty').value;
+                  location.href = `/cart/add?productsno=${productsno}&cnt=${qty}`;
+              }
+
               </script>
 
       </li>
