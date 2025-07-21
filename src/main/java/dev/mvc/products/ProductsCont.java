@@ -716,8 +716,8 @@ public class ProductsCont {
   
   @PostMapping(value = "/update_text")
   public String update_text_proc(HttpSession session, Model model, ProductsVO productsVO, RedirectAttributes ra,
-                                          @RequestParam(name="search_word", defaultValue = "") String search_word,
-                                          @RequestParam(name="now_page", defaultValue = "1") int now_page) {
+                                  @RequestParam(name="search_word", defaultValue = "") String search_word,
+                                  @RequestParam(name="now_page", defaultValue = "1") int now_page) {
 
     ra.addAttribute("word", search_word);
     ra.addAttribute("now_page", now_page);
@@ -730,15 +730,23 @@ public class ProductsCont {
     map.put("productsno", productsVO.getProductsno());
     map.put("passwd", productsVO.getPasswd());
 
+    // ✅ 비밀번호 불일치 시
     if (this.productsProc.password_check(map) != 1) {
       ra.addFlashAttribute("code", Tool.PASSWORD_FAIL);
       ra.addFlashAttribute("cnt", 0);
-      model.addAttribute("productsVO", productsVO);
-      return "redirect:/products/post2get";
+      ra.addAttribute("productsno", productsVO.getProductsno());
+      ra.addAttribute("cateno", productsVO.getCateno());
+      return "redirect:/products/post2get"; // ✅ 반드시 return 필요
     }
+
+    // ✅ 체크 안 된 경우 기본값 설정
+    if (productsVO.getIs_best() == null) productsVO.setIs_best("N");
+    if (productsVO.getIs_new() == null) productsVO.setIs_new("N");
+    if (productsVO.getIs_event() == null) productsVO.setIs_event("N");
 
     ProductsVO dbVO = this.productsProc.read(productsVO.getProductsno());
 
+    // ✅ 권한 체크
     if ((grade >= 1 && grade <= 4) || (grade >= 5 && grade <= 15 && dbVO.getMemberno() == sessionMemberno)) {
       int cnt = this.productsProc.update_text(productsVO);
       ra.addAttribute("productsno", productsVO.getProductsno());
@@ -746,8 +754,11 @@ public class ProductsCont {
       return "redirect:/products/read";
     }
 
-    return "redirect:/products/list_by_cateno_search_paging?cateno=" + productsVO.getCateno() + "&now_page=" + now_page + "&word=" + search_word;
+    // ✅ 권한 없음 → 목록으로 리다이렉트
+    return "redirect:/products/list_by_cateno_search_paging?cateno=" + productsVO.getCateno()
+             + "&now_page=" + now_page + "&word=" + search_word;
   }
+
 
   @GetMapping(value = "/update_file")
   public String update_file(HttpSession session, Model model, 

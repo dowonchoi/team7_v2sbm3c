@@ -68,7 +68,6 @@ public class InquiryCont {
       return "redirect:/inquiry/list_by_member";
   }
 
-
   @GetMapping("/list")
   public String list(HttpSession session, Model model) {
     Integer memberno = (Integer) session.getAttribute("memberno");
@@ -79,10 +78,11 @@ public class InquiryCont {
   
   @GetMapping("/list_all")
   public String list_all(HttpSession session, Model model) {
-      String grade = (String) session.getAttribute("grade");
+      Integer gradeObj = (Integer) session.getAttribute("grade");
+      int grade = (gradeObj != null) ? gradeObj : 99;
 
       // 관리자만 접근 가능
-      if (!"admin".equals(grade)) {
+      if (grade < 1 || grade > 4) {
           return "redirect:/error/permission";
       }
 
