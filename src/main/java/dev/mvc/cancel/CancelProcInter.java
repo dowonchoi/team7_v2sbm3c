@@ -21,4 +21,6 @@ public interface CancelProcInter {
   public List<CancelVO> recentByMember(int memberno); // 인터페이스
   
   public List<CancelVO> list_all();
+  
+  public List<CancelVO> list_by_supplier(int supplier_memberno);
 }

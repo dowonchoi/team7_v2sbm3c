@@ -87,5 +87,21 @@ public class CancelCont {
 
       return "redirect:/cancel/admin/list";
   }
+  
+  @GetMapping("/supplier/list")
+  public String list_by_supplier(HttpSession session, Model model) {
+    Integer grade = (Integer) session.getAttribute("grade");
+    Integer memberno = (Integer) session.getAttribute("memberno");
+
+    if (grade == null || memberno == null || grade < 5 || grade > 15) {
+      return "redirect:/member/login_cookie_need";
+    }
+
+    List<CancelVO> list = cancelProc.list_by_supplier(memberno);
+    model.addAttribute("list", list);
+
+    return "/cancel/list_by_supplier";
+  }
+
 
 }

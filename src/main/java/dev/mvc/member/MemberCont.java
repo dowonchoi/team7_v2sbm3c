@@ -298,6 +298,9 @@ public class MemberCont {
           List<CancelVO> cancelList = cancelProc.list_all(); // list_all 호출
           model.addAttribute("cancelList", cancelList);
       }
+      
+      List<CancelVO> supplierCancelList = cancelProc.list_by_supplier(memberno);
+      model.addAttribute("supplierCancelList", supplierCancelList);
 
       // 요약 정보
       model.addAttribute("orderCount", orderProc.countOrders(memberno));

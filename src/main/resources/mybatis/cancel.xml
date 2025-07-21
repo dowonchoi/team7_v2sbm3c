@@ -64,6 +64,17 @@
     ORDER BY created_at DESC
     FETCH FIRST 3 ROWS ONLY
   </select>
+  
+  <!-- 공급자용: 본인이 등록한 상품이 포함된 취소 신청 목록 -->
+  <select id="list_by_supplier" resultType="dev.mvc.cancel.CancelVO">
+    SELECT DISTINCT c.*, oi.pname
+    FROM cancel c
+    JOIN order_item oi ON c.orderno = oi.orderno
+    JOIN products p ON oi.productsno = p.productsno
+    WHERE p.memberno = #{supplierMemberno}
+    ORDER BY c.created_at DESC
+  </select>
+
 
 
 </mapper>

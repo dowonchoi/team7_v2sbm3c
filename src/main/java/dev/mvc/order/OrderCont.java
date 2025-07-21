@@ -228,13 +228,6 @@ public class OrderCont {
     return "order/list_all";  // templates/order/list_all.html
   }
 
-
-  
-  /**
-   * 공급자용 주문 목록 조회
-   * 공급자: 내가 등록한 상품을 소비자가 구매한 주문 목록
-   * grade: 5~15만 허용
-   */
   /**
    * 공급자용 주문 목록 조회
    * 공급자: 내가 등록한 상품이 포함된 주문들만 출력
@@ -242,10 +235,18 @@ public class OrderCont {
    */
   @GetMapping("/list_by_supplier")
   public String list_by_supplier(HttpSession session, Model model) {
-    String grade = (String) session.getAttribute("grade");
+    Integer gradeObj = (Integer) session.getAttribute("grade");
     Integer memberno = (Integer) session.getAttribute("memberno");
 
-    if (grade == null || !grade.equals("supplier")) {
+    // 비로그인 또는 등급 정보 없음
+    if (gradeObj == null || memberno == null) {
+      return "redirect:/member/login_cookie_need";
+    }
+
+    int grade = gradeObj;
+
+    // 공급자(5~15등급)만 접근 허용
+    if (grade < 5 || grade > 15) {
       return "redirect:/member/login_cookie_need";
     }
 
@@ -254,9 +255,5 @@ public class OrderCont {
 
     return "order/list_by_supplier";
   }
-
-
-
-
 
 }

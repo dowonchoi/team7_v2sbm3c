@@ -14,6 +14,8 @@ public class CancelVO {
   
   private int memberno;
   
+  private String pname;
+  
   private String mname;
   
   private String type;       // 취소 / 교환 / 반품

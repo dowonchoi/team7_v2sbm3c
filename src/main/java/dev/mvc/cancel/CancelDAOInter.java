@@ -21,4 +21,6 @@ public interface CancelDAOInter {
   public List<CancelVO> recentByMember(int memberno);
   
   public List<CancelVO> list_all();
+  
+  public List<CancelVO> list_by_supplier(int supplier_memberno);
 }

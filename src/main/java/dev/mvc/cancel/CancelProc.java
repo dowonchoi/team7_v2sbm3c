@@ -55,5 +55,10 @@ public class CancelProc implements CancelProcInter {
   public List<CancelVO> list_all() {
     return this.cancelDAO.list_all();
   }
+  
+  @Override
+  public List<CancelVO> list_by_supplier(int supplier_memberno) {
+    return cancelDAO.list_by_supplier(supplier_memberno);
+  }
 
 }
