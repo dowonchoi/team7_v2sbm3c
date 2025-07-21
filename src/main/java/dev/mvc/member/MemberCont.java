@@ -44,6 +44,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import dev.mvc.cancel.CancelProcInter;
+import dev.mvc.cancel.CancelVO;
 import dev.mvc.cart.CartProcInter;
 import dev.mvc.cate.CateProcInter;
 import dev.mvc.cate.CateVOMenu;
@@ -58,6 +60,8 @@ import dev.mvc.products.ProductsProc;
 import dev.mvc.products.ProductsProcInter;
 import dev.mvc.products.ProductsVO;
 import dev.mvc.qna.QnaProcInter;
+import dev.mvc.review.ReviewProc;
+import dev.mvc.review.ReviewProcInter;
 import dev.mvc.tool.Security;
 import dev.mvc.tool.Tool;
 import jakarta.servlet.http.Cookie;
@@ -103,6 +107,14 @@ public class MemberCont {
   @Autowired
   @Qualifier("dev.mvc.inquiry.InquiryProc")
   private InquiryProcInter inquiryProc;
+  
+  @Autowired
+  @Qualifier("dev.mvc.review.ReviewProc")
+  private ReviewProcInter reviewProc;
+  
+  @Autowired
+  @Qualifier("dev.mvc.cancel.CancelProc")
+  private CancelProcInter cancelProc;
   
   @Autowired  // 자동 주입 어노테이션 꼭 붙이기
   private MemberService memberService;
@@ -277,14 +289,22 @@ public class MemberCont {
       // 최근 본 상품
       List<ProductsVO> recentViewedProducts = productsProc.getRecentlyViewed(memberno);
       model.addAttribute("recentViewedProducts", recentViewedProducts);
+      
+      List<CancelVO> recentCancels = cancelProc.recentByMember(memberno);
+      model.addAttribute("recentCancels", recentCancels);
+      
+      // ✅ 관리자라면 전체 목록 조회용 cancelList도 주입
+      if (memberVO.getGrade() >= 1 && memberVO.getGrade() <= 4) {
+          List<CancelVO> cancelList = cancelProc.list_all(); // list_all 호출
+          model.addAttribute("cancelList", cancelList);
+      }
 
       // 요약 정보
       model.addAttribute("orderCount", orderProc.countOrders(memberno));
-//      model.addAttribute("cancelCount", orderProc.countCancelledOrders(memberno));
+      model.addAttribute("cancelCount", cancelProc.countByMember(memberno));
       model.addAttribute("cartCount", cartProc.countItems(memberno));
-//      model.addAttribute("couponCount", couponProc.countValidCoupons(memberno));
 //      model.addAttribute("pointAmount", memberProc.getPoint(memberno));
-//      model.addAttribute("reviewCount", reviewProc.countByMember(memberno));
+      model.addAttribute("reviewCount", reviewProc.countByMember(memberno));
       model.addAttribute("qnaCount", qnaProc.countByMember(memberno));
       model.addAttribute("inquiryCount", inquiryProc.countByMember(memberno));
 
@@ -1005,14 +1025,16 @@ public class MemberCont {
       session.setAttribute("memberno", memberVO.getMemberno());
       session.setAttribute("id", memberVO.getId());
       session.setAttribute("mname", memberVO.getMname());
-      session.setAttribute("grade", memberVO.getGrade());
+      // ✅ 숫자 등급은 그대로 저장
+      session.setAttribute("grade", memberVO.getGrade()); 
 
+      // ✅ 문자열 등급은 따로 저장
       if (memberVO.getGrade() >= 1 && memberVO.getGrade() <= 4) {
-        session.setAttribute("grade", "admin");
+        session.setAttribute("gradeStr", "admin");
       } else if (memberVO.getGrade() >= 5 && memberVO.getGrade() <= 15) {
-        session.setAttribute("grade", "supplier");
+        session.setAttribute("gradeStr", "supplier");
       } else {
-        session.setAttribute("grade", "user");
+        session.setAttribute("gradeStr", "user");
       }
 
       System.out.println("-> grade: " + session.getAttribute("grade"));

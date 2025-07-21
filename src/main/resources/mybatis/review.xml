@@ -209,6 +209,11 @@
       OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
   </select>
 
+  <!-- 리뷰 개수 조회 -->
+  <select id="countByMember" resultType="int">
+    SELECT COUNT(*) FROM review
+    WHERE memberno = #{memberno}
+  </select>
 
 
 

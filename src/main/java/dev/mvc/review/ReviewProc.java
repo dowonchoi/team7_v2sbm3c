@@ -96,7 +96,9 @@ public class ReviewProc implements ReviewProcInter {
       return reviewDAO.list_more(map);
   }
   
-
-  
+  @Override
+  public int countByMember(int memberno) {
+      return reviewDAO.countByMember(memberno);
+  }
 
 }

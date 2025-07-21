@@ -31,5 +31,7 @@ public interface ReviewProcInter {
       @Param("end") int end);
 
   List<ReviewMemberVO> list_more(int productsno, int offset, int limit);
+  
+  public int countByMember(int memberno);
 
 }

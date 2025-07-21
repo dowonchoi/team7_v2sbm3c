@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+  <style>
+    .admin-cancel-container {
+      padding: 30px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .admin-cancel-container h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .cancel-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .cancel-table thead {
+      background-color: #f8f9fa;
+    }
+
+    .cancel-table th, .cancel-table td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .cancel-table td select,
+    .cancel-table td button {
+      padding: 6px 10px;
+      font-size: 14px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .cancel-table td button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .cancel-table td button:hover {
+      background-color: #218838;
+    }
+
+    .status-label {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 13px;
+    }
+
+    .status-대기중 {
+      background-color: #e2e3e5;
+      color: #333;
+    }
+
+    .status-처리중 {
+      background-color: #bee5eb;
+      color: #0c5460;
+    }
+
+    .status-완료 {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .status-거절 {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+  </style>
+
+  <div class="admin-cancel-container">
+    <h2>전체 취소/교환/반품 신청 내역 <small style="font-size: 16px; color: gray;">(관리자 전용)</small></h2>
+
+    <table class="cancel-table">
+      <thead>
+        <tr>
+          <th>신청번호</th>
+          <th>회원번호</th>
+          <th>회원이름</th>
+          <th>주문번호</th>
+          <th>유형</th>
+          <th>사유</th>
+          <th>상태</th>
+          <th>신청일</th>
+          <th>관리</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="vo : ${list}">
+          <td th:text="${vo.cancel_id}"></td>
+          <td th:text="${vo.memberno}"></td>
+          <td th:text="${vo.mname}"></td> <!-- ✅ 추가 -->
+          <td th:text="${vo.orderno}"></td>
+          <td th:text="${vo.type}"></td>
+          <td th:text="${vo.reason}"></td>
+          <td>
+            <span th:class="'status-label status-' + ${vo.status}" th:text="${vo.status}">상태</span>
+          </td>
+          <td th:text="${#dates.format(vo.created_at, 'yyyy-MM-dd')}"></td>
+          <td>
+            <form th:action="@{/cancel/admin/update_status}" method="post">
+              <input type="hidden" name="cancel_id" th:value="${vo.cancel_id}" />
+              <select name="status">
+                <option>대기중</option>
+                <option>처리중</option>
+                <option>완료</option>
+                <option>거절</option>
+              </select>
+              <button type="submit">변경</button>
+            </form>
+          </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(list)}">
+          <td colspan="8">신청 내역이 없습니다.</td>
+        </tr>
+      </tbody>
+
+      <div style="margin-top: 20px; text-align: right;">
+        <a th:href="@{/member/mypage}" class="btn-mypage">마이페이지로 돌아가기</a>
+      </div>
+    </table>
+  </div>
+</div>
+</html>

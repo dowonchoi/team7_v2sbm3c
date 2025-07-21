@@ -9,13 +9,13 @@
     <p>주문 내역이 없습니다.</p>
   </div>
 
-  <!-- ✅ 주문 목록 전체 박스 -->
+  <!-- 주문 목록 전체 박스 -->
   <div class="order-list-wrapper">
 
-    <!-- ✅ 주문 카드 반복 -->
+    <!-- 주문 카드 반복 -->
     <div th:each="order : ${orderList}" class="order-list-card">
 
-      <!-- ✅ 주문 헤더 -->
+      <!-- 주문 헤더 -->
       <div class="order-list-header">
         <div>
           <strong th:text="${#dates.format(order.rdate, 'yyyy. M. d')} + ' 주문번호 : ' + ${order.orderno}"></strong>
@@ -25,11 +25,11 @@
         </div>
       </div>
 
-      <!-- ✅ 주문 항목 반복 -->
+      <!-- 주문 항목 반복 -->
       <div th:each="item : ${order.items}" 
            th:attr="onclick=|location.href='/products/read?productsno=${item.productsno}'|"
            class="order-list-body"
-           style="cursor: pointer;"> <!-- 클릭 가능 + 포인터 커서 -->
+           style="cursor: pointer;">
 
         <!-- 상품 이미지 -->
         <img th:src="@{/products/storage/{img}(img=${item.thumb1})}" alt="상품 이미지" class="order-list-thumb" />
@@ -44,11 +44,36 @@
 
           <!-- 버튼 영역 -->
           <div class="order-list-actions">
-            <!-- 버튼 클릭 시 부모 클릭 이벤트 막기 -->
-            <button onclick="event.stopPropagation()">배송조회</button>
-            <button onclick="event.stopPropagation()">교환/반품 신청</button>
-            <button onclick="event.stopPropagation()">리뷰 작성하기</button>
-            <button onclick="event.stopPropagation()">판매자 문의</button>
+
+            <!-- 🚫 배송조회: 비활성화된 버튼 -->
+            <a href="#"
+              onclick="event.preventDefault(); event.stopPropagation(); return false;"
+              class="btn btn-sm btn-outline-primary disabled"
+              style="pointer-events: none; opacity: 0.6;">
+              배송조회
+            </a>
+
+            <!-- 교환/반품 신청 -->
+            <a th:href="@{/cancel/create(orderno=${order.orderno})}" 
+               onclick="event.stopPropagation()" 
+               class="btn btn-sm btn-outline-secondary">
+              교환/반품 신청
+            </a>
+
+            <!-- 리뷰 작성 -->
+            <a th:href="@{/review/create(orderno=${order.orderno}, productsno=${item.productsno})}" 
+               onclick="event.stopPropagation()" 
+               class="btn btn-sm btn-outline-success">
+              리뷰 작성하기
+            </a>
+
+            <!-- 판매자 문의 -->
+            <a th:href="@{/qna/create_user(productsno=${item.productsno})}" 
+               onclick="event.stopPropagation()" 
+               class="btn btn-sm btn-outline-warning">
+              판매자 문의
+            </a>
+
           </div>
         </div>
 

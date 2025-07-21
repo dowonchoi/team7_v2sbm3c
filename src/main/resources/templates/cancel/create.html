@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content">
+  <style>
+    .cancel-form-container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 30px;
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .cancel-form-container h2 {
+      font-size: 22px;
+      margin-bottom: 25px;
+      text-align: center;
+      color: #333;
+    }
+
+    .cancel-form-container label {
+      font-weight: bold;
+      margin-bottom: 8px;
+      display: block;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .cancel-form-container select,
+    .cancel-form-container textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 20px;
+      box-sizing: border-box;
+    }
+
+    .cancel-form-container button[type="submit"] {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-bottom: 15px;
+    }
+
+    .cancel-form-container button[type="submit"]:hover {
+      background-color: #218838;
+    }
+
+    .cancel-form-container .cancel-btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: 12px;
+      background-color: #f1f1f1;
+      color: #333;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+
+    .cancel-form-container .cancel-btn:hover {
+      background-color: #e2e2e2;
+    }
+  </style>
+
+  <div class="cancel-form-container">
+    <h2>취소/교환/반품 신청</h2>
+
+    <form th:action="@{/cancel/create}" method="post">
+      <input type="hidden" name="orderno" th:value="${orderno}" />
+
+      <label for="type">신청 유형</label>
+      <select id="type" name="type" required>
+        <option value="취소">취소</option>
+        <option value="교환">교환</option>
+        <option value="반품">반품</option>
+      </select>
+
+      <label for="reason">신청 사유</label>
+      <textarea id="reason" name="reason" placeholder="사유를 입력해 주세요" required></textarea>
+
+      <button type="submit">신청하기</button>
+    </form>
+
+    <!-- ✅ '취소' 텍스트로 변경된 버튼 -->
+    <a th:href="@{/member/mypage}" class="cancel-btn">취소</a>
+  </div>
+</div>
+</html>

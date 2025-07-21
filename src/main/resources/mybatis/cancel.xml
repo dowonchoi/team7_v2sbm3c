@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dev.mvc.cancel.CancelDAOInter">
+
+  <!-- ✅ 1. 신청 등록 -->
+  <insert id="create" parameterType="dev.mvc.cancel.CancelVO">
+    INSERT INTO cancel (cancel_id, orderno, memberno, type, reason, status, is_read, created_at) 
+    VALUES (cancel_seq.NEXTVAL, #{orderno}, #{memberno}, #{type}, #{reason}, '대기중', 'N', SYSDATE )
+  </insert>
+
+  <!-- ✅ 2. 회원별 신청 개수 -->
+  <select id="countByMember" resultType="int">
+    SELECT COUNT(*) FROM cancel WHERE memberno = #{memberno}
+  </select>
+
+  <!-- ✅ 3. 회원별 신청 목록 -->
+  <select id="listByMember" resultType="dev.mvc.cancel.CancelVO">
+    SELECT *
+    FROM cancel
+    WHERE memberno = #{memberno}
+    ORDER BY created_at DESC
+  </select>
+
+  <!-- 전체 취소/교환/반품 신청 목록 (관리자용) -->
+  <select id="list_all" resultType="dev.mvc.cancel.CancelVO">
+    SELECT c.cancel_id, c.orderno, c.memberno, m.mname,
+           c.type, c.reason, c.status, c.is_read, c.created_at
+    FROM cancel c
+    JOIN member m ON c.memberno = m.memberno
+    ORDER BY c.cancel_id DESC
+  </select>
+  
+  <!-- ✅ 5. 단건 조회 -->
+  <select id="read" resultType="dev.mvc.cancel.CancelVO">
+    SELECT *
+    FROM cancel
+    WHERE cancel_id = #{cancel_id}
+  </select>
+
+  <!-- ✅ 6. 관리자 확인 처리 -->
+  <update id="markAsRead">
+    UPDATE cancel
+    SET is_read = 'Y'
+    WHERE cancel_id = #{cancel_id}
+  </update>
+
+  <!-- ✅ 7. 상태 변경 -->
+  <update id="updateStatus">
+    UPDATE cancel
+    SET status = #{status}
+    WHERE cancel_id = #{cancel_id}
+  </update>
+
+  <!-- ✅ 8. 미확인 신청 개수 (관리자 알림용) -->
+  <select id="countUnread" resultType="int">
+    SELECT COUNT(*) FROM cancel WHERE is_read = 'N'
+  </select>
+  
+  <select id="recentByMember" resultType="dev.mvc.cancel.CancelVO">
+    SELECT * FROM cancel
+    WHERE memberno = #{memberno}
+    ORDER BY created_at DESC
+    FETCH FIRST 3 ROWS ONLY
+  </select>
+
+
+</mapper>

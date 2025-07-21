@@ -44,7 +44,8 @@ import com.zaxxer.hikari.HikariDataSource;
                                         "dev.mvc.openai",// DAO interface 패키지 등록
                                         "dev.mvc.inquiry", // DAO interface 패키지 등록
                                         "dev.mvc.review",
-                                        "dev.mvc.mms_img"}) // DAO interface 패키지 등록
+                                        "dev.mvc.mms_img",
+                                        "dev.mvc.cancel"}) // DAO interface 패키지 등록
 public class DatabaseConfiguration {
     
     @Autowired

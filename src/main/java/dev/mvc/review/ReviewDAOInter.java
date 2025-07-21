@@ -46,5 +46,7 @@ public interface ReviewDAOInter {
       @Param("end") int end);
 
   List<ReviewMemberVO> list_more(Map<String, Object> map);
+  
+  public int countByMember(int memberno); // 리뷰 개수 조회public int countByMember(int memberno); // 리뷰 개수 조회
 
 }
