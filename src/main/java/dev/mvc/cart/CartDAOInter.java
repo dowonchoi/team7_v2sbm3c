@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ibatis.annotations.Mapper;
+
+@Mapper
 public interface CartDAOInter {
   
   /**
@@ -89,5 +92,11 @@ public interface CartDAOInter {
   
   /** 특정 회원의 장바구니 상품 개수 */
   public int count_by_member(int memberno);
+  
+  public int countByMemberProduct(Integer memberno, int productsno);
+
+  public int updateCnt(CartVO cartVO);
+
+  public int countByMember(Integer memberno);
 
 }

@@ -4,13 +4,16 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
+import dev.mvc.order_item.OrderItemVO;
+
 public interface OrderDAOInter {
   /**
    * 주문 생성
    * @param orderVO 주문 정보
    * @return 등록된 행 수 (1: 성공, 0: 실패)
    */
-  public int create(OrderVO orderVO);
+  /** 주문 생성 + 상세 저장 + 포인트 적립 */  
+  public int create(OrderVO orderVO); // ✅ 주문 테이블 저장
   
   //회원 번호로 주문 목록 조회
    public List<OrderVO> list_by_memberno(int memberno);
@@ -27,6 +30,7 @@ public interface OrderDAOInter {
    /** 공급자: 내 상품이 포함된 주문 목록 조회 */
    public List<OrderVO> list_by_supplier(int memberno);
 
+   /** 주문 수 카운트 */
    public int countOrders(int memberno);
    
    /**

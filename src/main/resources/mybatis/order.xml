@@ -4,7 +4,7 @@
 
 <mapper namespace="dev.mvc.order.OrderDAOInter">
 
-  <!-- 주문 생성 -->
+  <!-- 주문 생성
   <insert id="create" parameterType="dev.mvc.order.OrderVO">
     <selectKey keyProperty="orderno" resultType="int" order="BEFORE">
       SELECT orders_seq.NEXTVAL FROM dual
@@ -17,7 +17,24 @@
       #{orderno}, #{memberno}, #{rname}, #{rtel}, #{rzipcode}, 
       #{raddress1}, #{raddress2}, #{message}, #{payment}, #{total}, #{point}, SYSDATE, #{status}
     )
-  </insert>
+  </insert>-->
+  
+   <!-- 주문 생성 (주문번호 자동생성 + 반환) -->
+    <insert id="create" parameterType="dev.mvc.order.OrderVO">
+      <selectKey keyProperty="orderno" resultType="int" order="BEFORE">
+        SELECT orders_seq.NEXTVAL FROM dual
+      </selectKey>
+    
+      INSERT INTO orders (
+        orderno, memberno, deliveryno, rname, rtel, rzipcode, raddress1, raddress2,
+        message, payment, total, point, order_state, status, rdate
+      ) VALUES (
+        #{orderno}, #{memberno}, #{deliveryno}, #{rname}, #{rtel}, #{rzipcode}, #{raddress1}, #{raddress2},
+        #{message}, #{payment}, #{total}, #{point}, '결제완료', '배송준비중', sysdate
+      )
+    </insert>
+
+
 
   
   <!-- 회원별 주문 목록 -->
@@ -81,6 +98,8 @@
     WHERE o.memberno = #{memberno}
       AND oi.productsno = #{productsno}
   </select>
+  
+  
 
   
   

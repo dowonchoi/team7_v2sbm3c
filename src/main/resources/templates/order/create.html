@@ -64,6 +64,8 @@
       <ul class="cart-summary-list">
         <li><span>총 상품금액</span><span th:text="${#numbers.formatInteger(total, 3, 'COMMA')} + '원'">0원</span></li>
         <li><span>배송비</span><span>0원</span></li>
+        <li><span>예상 적립 포인트</span>
+             <span th:text="${totalPoint}">0</span></li>
         <li class="total"><span>결제금액</span><span th:text="${#numbers.formatInteger(total, 3, 'COMMA')} + '원'">0원</span></li>
       </ul>
       <button type="submit" class="btn-order">주문하기</button>

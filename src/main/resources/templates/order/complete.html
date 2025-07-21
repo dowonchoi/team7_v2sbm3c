@@ -17,6 +17,8 @@
     <p>주문번호: <span th:text="${order.orderno}">123</span></p>
     <p>수령인: <span th:text="${order.rname}">홍길동</span></p>
     <p>총 결제금액: <span th:text="${#numbers.formatInteger(order.total, 3, 'COMMA')} + '원'">0원</span></p>
+    <p>적립 포인트: <span th:text="${order.point} + 'P'">0P</span></p> <!-- ✅ 추가 -->
+
 
     <a th:href="@{/order/list_by_member}" class="btn btn-primary">주문내역 보기</a>
     <a th:href="@{/}" class="btn btn-secondary">메인으로 가기</a>

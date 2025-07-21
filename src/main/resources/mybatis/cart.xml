@@ -152,6 +152,11 @@
     FROM cart
     WHERE memberno = #{memberno}
   </select>
+  
+  <select id="countByMemberProduct" parameterType="map" resultType="int">
+      SELECT COUNT(*) FROM cart
+      WHERE memberno = #{memberno} AND productsno = #{productsno}
+  </select>
 
 
 </mapper>

@@ -57,101 +57,125 @@ public class OrderCont {
   /** 주문 입력 폼 */
   @GetMapping("/create")
   public String create_form(
-    @RequestParam(value = "orderno", required = false) Integer orderno,
-    HttpSession session,
-    Model model) {
+      @RequestParam(value = "orderno", required = false) Integer orderno,
+      HttpSession session,
+      Model model) {
 
-    Integer memberno = (Integer) session.getAttribute("memberno");
-    if (memberno == null) {
-      return "redirect:/member/login";
-    }
+      Integer memberno = (Integer) session.getAttribute("memberno");
+      if (memberno == null) {
+          return "redirect:/member/login";
+      }
 
-    // 선택된 장바구니만 불러오기
-    List<CartVO> cartList = cartProc.list_selected_by_memberno(memberno);
-    model.addAttribute("cartList", cartList);
+      // ✅ 선택된 장바구니만 불러오기
+      List<CartVO> cartList = cartProc.list_selected_by_memberno(memberno);
+      model.addAttribute("cartList", cartList);
 
-    // 결제 총액
-    int total = cartProc.total_selected_by_memberno(memberno);
-    model.addAttribute("total", total);
+      // ✅ 결제 총액
+      int total = cartProc.total_selected_by_memberno(memberno);
+      model.addAttribute("total", total);
 
-    // 주문 완료 후 돌아온 경우 메시지용
-    if (orderno != null) {
-      model.addAttribute("orderno", orderno);
-    }
+      // ✅ 총 포인트 계산 (기존 Thymeleaf 코드 대체)
+      int totalPoint = cartList.stream()
+              .filter(c -> "Y".equals(c.getSelected()))
+              .mapToInt(c -> c.getProductsVO().getPoint() * c.getCnt())
+              .sum();
+      model.addAttribute("totalPoint", totalPoint);
 
-    return "order/create";  // 주문/결제 폼
+      // ✅ 주문 완료 후 돌아온 경우 메시지용
+      if (orderno != null) {
+          model.addAttribute("orderno", orderno);
+      }
+
+      return "order/create";  // 주문/결제 폼
   }
 
 
 
-  /** 주문 처리 */
+
+  /** 주문 처리 (포인트 적립까지) */
   @PostMapping("/create")
   public String create_proc(OrderVO orderVO, HttpSession session) {
-    System.out.println("✅ 주문 처리 시작");
+      System.out.println("✅ [OrderCont] 주문 처리 시작");
 
-    Integer memberno = (Integer) session.getAttribute("memberno");
-    if (memberno == null) {
-      return "redirect:/member/login";
-    }
+      Integer memberno = (Integer) session.getAttribute("memberno");
+      if (memberno == null) {
+          return "redirect:/member/login";
+      }
 
-    // 선택된 장바구니 항목 가져오기
-    List<CartVO> cartList = cartProc.list_selected_by_memberno(memberno);
-    if (cartList.isEmpty()) {
-      System.out.println("❌ 선택된 장바구니 항목 없음");
-      return "redirect:/cart/list";
-    }
+      // ✅ 선택된 장바구니 항목 가져오기
+      List<CartVO> cartList = cartProc.list_selected_by_memberno(memberno);
+      if (cartList.isEmpty()) {
+          System.out.println("❌ 선택된 장바구니 항목 없음");
+          return "redirect:/cart/list";
+      }
 
-    // 📌 배송지 번호 검증 추가
-    int deliveryno = orderVO.getDeliveryno(); // hidden input에서 전달됨
-    DeliveryVO dvo = deliveryProc.read(deliveryno);
+      // ✅ 배송지 유효성 검증
+      int deliveryno = orderVO.getDeliveryno();
+      DeliveryVO dvo = deliveryProc.read(deliveryno);
+      if (dvo == null) {
+          System.out.println("❌ 잘못된 배송지 번호: " + deliveryno);
+          return "redirect:/order/create";
+      }
 
-    if (dvo == null) {  // <<== 여기 추가된 부분
-      System.out.println("❌ 유효하지 않은 배송지 번호: " + deliveryno);
-      return "redirect:/order/create"; // 또는 에러 메시지 전달
-    }
+      // ✅ 배송지 정보 세팅
+      orderVO.setRname(dvo.getRname());
+      orderVO.setRtel(dvo.getRtel());
+      orderVO.setRzipcode(dvo.getRzipcode());
+      orderVO.setRaddress1(dvo.getRaddress1());
+      orderVO.setRaddress2(dvo.getRaddress2());
+      orderVO.setMessage(dvo.getMessage());
 
-    // 배송지 정보 설정
-    orderVO.setRname(dvo.getRname());
-    orderVO.setRtel(dvo.getRtel());
-    orderVO.setRzipcode(dvo.getRzipcode());
-    orderVO.setRaddress1(dvo.getRaddress1());
-    orderVO.setRaddress2(dvo.getRaddress2());
-    orderVO.setMessage(dvo.getMessage());
+   // ✅ 포인트 합계 계산
+      int totalPoint = 0;
+      for (CartVO cart : cartList) {
+          ProductsVO products = productsProc.read(cart.getProductsno());
+          totalPoint += products.getPoint() * cart.getCnt();
+      }
+      orderVO.setPoint(totalPoint);
 
-    // 주문 기본 정보 설정 및 저장
-    orderVO.setMemberno(memberno);
-    orderVO.setStatus("결제완료");
-    orderProc.create(orderVO);
-    int orderno = orderVO.getOrderno();  // 방금 등록된 주문번호
+      // ✅ 주문자 정보 세팅
+      orderVO.setMemberno(memberno);
+      orderVO.setStatus("결제완료");
 
-    // 주문 상세 저장
-    for (CartVO cart : cartList) {
-      ProductsVO products = productsProc.read(cart.getProductsno());
+      // ✅ OrderItemVO 리스트 생성
+      List<OrderItemVO> orderItems = new java.util.ArrayList<>();
+      for (CartVO cart : cartList) {
+          ProductsVO products = productsProc.read(cart.getProductsno());
 
-      OrderItemVO item = new OrderItemVO();
-      item.setOrderno(orderno);
-      item.setProductsno(products.getProductsno());
-      item.setPname(products.getTitle());
-      item.setThumb1(products.getThumb1());
-      item.setPrice(products.getPrice());
-      item.setDc(products.getDc());
-      item.setSaleprice(products.getSaleprice());
-      item.setCnt(cart.getCnt());
-      item.setPoint(products.getPoint());
+          OrderItemVO item = new OrderItemVO();
+          item.setProductsno(products.getProductsno());
+          item.setPname(products.getTitle());
+          item.setThumb1(products.getThumb1());
+          item.setPrice(products.getPrice());
+          item.setDc(products.getDc());
+          item.setSaleprice(products.getSaleprice());
+          item.setCnt(cart.getCnt());
+          item.setPoint(products.getPoint());
 
-      item.setTotalprice(products.getSaleprice() * cart.getCnt());
-      item.setTotalpoint(products.getPoint() * cart.getCnt());
+          // 계산 필드
+          item.setTotalprice(products.getSaleprice() * cart.getCnt());
+          item.setTotalpoint(products.getPoint() * cart.getCnt());
 
-      orderItemProc.create(item);  // 주문 상세 insert
-    }
+          orderItems.add(item);
+      }
 
-    // 장바구니에서 선택된 항목 삭제
-    cartProc.delete_selected_by_memberno(memberno);
+      // ✅ 주문 + 상세 저장 + 포인트 적립 (트랜잭션)
+      int result = orderProc.create(orderVO, orderItems);
+      int orderno = orderVO.getOrderno();
 
-    // 다시 주문/결제 페이지로 이동 (orderno 전달하여 성공 메시지 출력용)
-    //return "redirect:/order/create?orderno=" + orderno;
-    return "redirect:/order/complete?orderno=" + orderno;
+      if (result > 0) {
+          // ✅ 장바구니 비우기
+          cartProc.delete_selected_by_memberno(memberno);
+          System.out.println("✅ 주문 생성 완료, 주문번호: " + orderno);
+      } else {
+          System.out.println("❌ 주문 생성 실패");
+          return "redirect:/order/create";
+      }
+
+      // ✅ 결제 완료 페이지로 이동
+      return "redirect:/order/complete?orderno=" + orderno;
   }
+
 
 
   
