@@ -71,3 +71,9 @@ WHERE NOT EXISTS (
 );
 
 commit;
+
+ALTER TABLE orders ADD deliveryno NUMBER(10);
+COMMENT ON COLUMN orders.deliveryno IS '배송지 번호 (FK)';
+ALTER TABLE orders
+ADD CONSTRAINT fk_orders_delivery FOREIGN KEY (deliveryno)
+REFERENCES delivery(deliveryno);

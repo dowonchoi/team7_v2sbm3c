@@ -989,59 +989,65 @@ public class ProductsCont {
   }
 
   /**
-   * 상품 추천/추천 해제 처리 (AJAX 방식)
-   * @param json_src {"productsno": 38}
-   * @return JSON 응답 (추천 여부, 총 추천 수)
+   * 상품 추천/추천 해제 처리 (AJAX)
+   * 요청 JSON: {"productsno": 64}
+   * 응답 JSON: {"isMember":1, "hartCnt":1, "recom":10}
    */
   @PostMapping(value = "/good")
   @ResponseBody
-  public String good(HttpSession session, Model model, @RequestBody String json_src){ 
-    System.out.println("-> json_src: " + json_src);
-    
-    JSONObject src = new JSONObject(json_src);
-    int productsno = Integer.parseInt(src.get("productsno").toString()); // 🔥 핵심 수정 포인트
-    System.out.println("-> productsno: " + productsno);
+  public String good(HttpSession session, @RequestBody String json_src) {
+      JSONObject responseJson = new JSONObject();
 
-    JSONObject json = new JSONObject();
-    
-    // 세션에 grade 문자열이 저장되어 있음 ("admin", "member", "guest")
-    String grade = (String) session.getAttribute("grade");
-    Integer memberno = (Integer) session.getAttribute("memberno");
+      try {
+          // ✅ 요청 JSON 파싱
+          JSONObject src = new JSONObject(json_src);
+          int productsno = src.optInt("productsno", 0);
+          System.out.println("-> [GOOD] 요청 productsno: " + productsno);
 
-    // 로그인 여부만 판단 (등급 관계없이 모든 회원 허용)
-    if (memberno != null && grade != null && 
-        (grade.equals("admin") || grade.equals("member") || grade.equals("guest") || grade.equals("supplier") || grade.equals("user"))) {
-      
-      ProductsgoodVO vo = this.productsgoodProc.readByProductsnoMemberno(productsno, memberno);
-      int hartCnt = 0;
-      int recom = 0;
+          // ✅ 세션 로그인 확인
+          Integer memberno = (Integer) session.getAttribute("memberno");
+          if (memberno == null) {
+              responseJson.put("isMember", 0); // 로그인 안 함
+              responseJson.put("message", "로그인 후 이용 가능합니다.");
+              return responseJson.toString();
+          }
 
-      if (vo == null) {
-        // 추천 등록
-        ProductsgoodVO newVO = new ProductsgoodVO();
-        newVO.setProductsno(productsno);
-        newVO.setMemberno(memberno);
-        this.productsgoodProc.create(newVO);
-        this.productsProc.increaseRecom(productsno);
-        hartCnt = 1;
-      } else {
-        // 추천 해제
-        this.productsgoodProc.deleteByProductsnoMemberno(productsno, memberno);
-        this.productsProc.decreaseRecom(productsno);
+          // ✅ 추천 여부 확인
+          ProductsgoodVO existingVO = this.productsgoodProc.readByProductsnoMemberno(productsno, memberno);
+          int hartCnt = 0;
+
+          if (existingVO == null) {
+              // ✅ 추천 등록
+              ProductsgoodVO newVO = new ProductsgoodVO();
+              newVO.setProductsno(productsno);
+              newVO.setMemberno(memberno);
+              this.productsgoodProc.create(newVO);
+              this.productsProc.increaseRecom(productsno);
+              hartCnt = 1; // 추천 ON
+          } else {
+              // ✅ 추천 해제
+              this.productsgoodProc.deleteByProductsnoMemberno(productsno, memberno);
+              this.productsProc.decreaseRecom(productsno);
+          }
+
+          // ✅ 최신 추천 수 조회
+          int recom = this.productsProc.read(productsno).getRecom();
+
+          // ✅ 응답 JSON
+          responseJson.put("isMember", 1);
+          responseJson.put("hartCnt", hartCnt);
+          responseJson.put("recom", recom);
+
+      } catch (Exception e) {
+          e.printStackTrace();
+          responseJson.put("isMember", 0);
+          responseJson.put("error", "서버 처리 중 오류 발생");
       }
 
-      recom = this.productsProc.read(productsno).getRecom();
-
-      json.put("isMember", 1);
-      json.put("hartCnt", hartCnt);
-      json.put("recom", recom);
-    } else {
-      // 로그인 안 한 경우
-      json.put("isMember", 0);
-    }
-
-    return json.toString();  // 🔥 필수 리턴
+      return responseJson.toString();
   }
+
+
   
   /*
    * 20250619 추가 
