@@ -88,13 +88,13 @@
   display: inline-block;
   padding: 6px 12px;
   font-size: 14px;
-  color: #007bff;
-  border: 1px solid #007bff;
+  color: #6db75b;
+  border: 1px solid #6db75b;
   border-radius: 4px;
   text-decoration: none;
 }
 .index-btn-detail:hover {
-  background: #007bff;
+  background: #6db75b;
   color: white;
 }
 
