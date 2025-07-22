@@ -38,11 +38,11 @@ public class CartCont {
                     Model model) {
 
     // 등급 체크
-    String gradeStr = (String) session.getAttribute("gradeStr"); // ✅ 올바른 변수 사용
+    Object gradeObj = session.getAttribute("grade");
+    String grade = (gradeObj != null) ? gradeObj.toString() : null;
     Integer memberno = (Integer) session.getAttribute("memberno");
 
-    if (gradeStr == null || memberno == null || 
-        "withdrawn".equals(gradeStr) || "supplier".equals(gradeStr)) {
+    if (grade == null || memberno == null || "withdrawn".equals(grade) || "supplier".equals(grade)) {
         return "redirect:/member/login_cookie_need?url=/products/read?productsno=" + productsno;
     }
 
@@ -61,12 +61,13 @@ public class CartCont {
   /** 장바구니 목록 */
   @GetMapping("/list")
   public String list(HttpSession session, Model model) {
-    String gradeStr = (String) session.getAttribute("gradeStr");
+    Object gradeObj = session.getAttribute("grade");
+    String grade = (gradeObj != null) ? gradeObj.toString() : null;
     Integer memberno = (Integer) session.getAttribute("memberno");
 
-    if (gradeStr == null || memberno == null || "withdrawn".equals(gradeStr) || "supplier".equals(gradeStr)) {
-      return "redirect:/member/login_cookie_need?url=/cart/list";
-  }
+    if (grade == null || memberno == null || "withdrawn".equals(grade) || "supplier".equals(grade)) {
+        return "redirect:/member/login_cookie_need?url=/cart/list";
+    }
 
 
     // 상단 메뉴
@@ -96,7 +97,8 @@ public class CartCont {
                            @RequestParam("cartno") int cartno,
                            @RequestParam("cnt") int cnt) {
 
-    String grade = (String) session.getAttribute("grade");
+    Object gradeObj = session.getAttribute("grade");
+    String grade = (gradeObj != null) ? gradeObj.toString() : null;
     Integer memberno = (Integer) session.getAttribute("memberno");
 
     if (grade == null || memberno == null || "withdrawn".equals(grade)) {
@@ -117,7 +119,8 @@ public class CartCont {
   public String delete(HttpSession session,
                        @RequestParam("cartno") int cartno) {
 
-    String grade = (String) session.getAttribute("grade");
+    Object gradeObj = session.getAttribute("grade");
+    String grade = (gradeObj != null) ? gradeObj.toString() : null;
     Integer memberno = (Integer) session.getAttribute("memberno");
 
     if (grade == null || memberno == null || "withdrawn".equals(grade)) {
@@ -132,8 +135,10 @@ public class CartCont {
   /** 전체 비우기 */
   @PostMapping("/delete_all")
   public String delete_all(HttpSession session) {
-    String grade = (String) session.getAttribute("grade");
+    Object gradeObj = session.getAttribute("grade");
+    String grade = (gradeObj != null) ? gradeObj.toString() : null;
     Integer memberno = (Integer) session.getAttribute("memberno");
+
 
     if (grade == null || memberno == null || "withdrawn".equals(grade)) {
       return "redirect:/member/login_cookie_need?url=/cart/list";
@@ -149,21 +154,23 @@ public class CartCont {
   public String update_selected(@RequestParam("cartno") int cartno,
                                 @RequestParam("selected") String selected,
                                 HttpSession session) {
-    String grade = (String) session.getAttribute("grade");
-    Integer memberno = (Integer) session.getAttribute("memberno");
+      Object gradeObj = session.getAttribute("grade");
+      String grade = (gradeObj != null) ? gradeObj.toString() : null;
+      Integer memberno = (Integer) session.getAttribute("memberno");
 
-    if (grade == null || memberno == null || "withdrawn".equals(grade)) {
-      return "unauthorized";
-    }
+      if (grade == null || memberno == null || "withdrawn".equals(grade)) {
+          return "unauthorized";
+      }
 
-    Map<String, Object> map = new HashMap<>();
-    map.put("cartno", cartno);
-    map.put("selected", selected);
+      Map<String, Object> map = new HashMap<>();
+      map.put("cartno", cartno);
+      map.put("selected", selected);
 
-    int updated = cartProc.update_selected(map);
+      int updated = cartProc.update_selected(map);
 
-    return (updated == 1) ? "success" : "fail";
+      return (updated == 1) ? "success" : "fail";
   }
+
   
   @PostMapping("/cart/delete_selected")
   public String deleteSelected(@RequestParam("cartnos") String cartnos, HttpSession session) {

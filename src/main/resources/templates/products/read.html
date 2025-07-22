@@ -248,23 +248,35 @@
           <h3>상품 설명</h3>
           <div th:utext="${productsVO.content}"></div>
         </div>
-        <!--  광고 이미지 접기/펼치기 영역 -->
-        <div style="margin-top: 40px;">
-          <div id="adImageBox" class="ad-image-box">
-            <img th:if="${productsVO.fileAdsaved != null && productsVO.fileAdsaved.length() > 0}"
-                th:src="@{|/products/storage/${productsVO.fileAdsaved}|}"
-                alt="광고 이미지"
-                style="max-width: 100%; border-radius: 10px;">
-          </div>
-
-          <div style="text-align: center; margin-top: 10px;">
-            <button id="toggleAdBtn" class="ad-toggle-btn" onclick="toggleAdImage()">
-              상품정보 더보기 ▼
+        <!-- ✅ 토글 박스 (유튜브 + 광고 + 지도) -->
+        <div style="margin-top: 20px; text-align: center;">
+            <div id="adInfoBox">
+                <!-- 유튜브 -->
+                <div th:if="${productsVO.youtube != null and productsVO.youtube.trim() != ''}" style="margin: 30px 0;">
+                    <div th:utext="${productsVO.youtube}"></div>
+                </div>
+        
+                <!-- 광고 이미지 -->
+                <div class="ad-image-box" style="margin-bottom: 20px;">
+                    <img th:if="${productsVO.fileAdsaved != null && productsVO.fileAdsaved.length() > 0}"
+                         th:src="@{|/products/storage/${productsVO.fileAdsaved}|}"
+                         alt="광고 이미지">
+                </div>
+        
+                <!-- 지도 -->
+                <div th:if="${productsVO.map != null and productsVO.map.trim() != ''}" class="map-container" style="margin: 30px 0;">
+                    <div th:utext="${productsVO.map}"></div>
+                </div>
+            </div>
+        
+            <!-- 토글 버튼 -->
+            <button id="toggleAdBtn" class="ad-toggle-btn" onclick="toggleAdInfo()">
+                상품정보 더보기 ▼
             </button>
-          </div>
-          <br>
-          <br>
+            <br>
+            <br>
         </div>
+
 
         <!--  상품 상세 정보 탭 UI 시작 -->
         <div class="product-tab-box">
@@ -621,16 +633,21 @@
                 };
               </script>
               <script>
-                function toggleAdImage() {
-                  const adBox = document.getElementById("adImageBox");
+              function toggleAdInfo() {
+                  const adBox = document.getElementById("adInfoBox");
                   const btn = document.getElementById("toggleAdBtn");
-
-                  const isOpen = adBox.classList.contains("show");
-
-                  adBox.classList.toggle("show");
-                  btn.innerText = isOpen ? "상품정보 더보기 ▼" : "상품정보 접기 ▲";
-                }
+              
+                  if (adBox.classList.contains("open")) {
+                      adBox.classList.remove("open");
+                      btn.innerText = "상품정보 더보기 ▼";
+                  } else {
+                      adBox.classList.add("open");
+                      btn.innerText = "상품정보 접기 ▲";
+                  }
+              }
               </script>
+
+
               <script>
               function addToCartAjax(productsno) {
                   const qty = document.getElementById('qty').value;

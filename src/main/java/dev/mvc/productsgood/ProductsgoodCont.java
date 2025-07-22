@@ -22,6 +22,7 @@ import dev.mvc.member.MemberProcInter;
 import dev.mvc.products.ProductsVO;
 import dev.mvc.productsgood.ProductsproductsgoodMemberVO;
 import jakarta.servlet.http.HttpSession;
+import org.json.JSONObject;
 
 @Controller
 @RequestMapping(value = "/productsgood")
@@ -60,19 +61,23 @@ public class ProductsgoodCont {
   @PostMapping(value="/create")
   @ResponseBody
   public String create(HttpSession session, @RequestBody ProductsgoodVO productsgoodVO) {
-    System.out.println("-> 수신 데이터:" + productsgoodVO.toString());
-    
-    // int memberno = 1; // test 
-    int memberno = (int)session.getAttribute("memberno"); // 보안성 향상
-    productsgoodVO.setMemberno(memberno);
-    
-    int cnt = this.productsgoodProc.create(productsgoodVO);
-    
-    JSONObject json = new JSONObject();
-    json.put("res", cnt);
-    
-    return json.toString();
+      JSONObject json = new JSONObject();
+
+      Integer memberno = (Integer) session.getAttribute("memberno");
+      if (memberno == null) {
+          json.put("status", "fail");
+          json.put("message", "로그인이 필요합니다.");
+          return json.toString();
+      }
+
+      productsgoodVO.setMemberno(memberno);
+      int cnt = this.productsgoodProc.create(productsgoodVO);
+
+      json.put("status", (cnt == 1) ? "success" : "fail");
+      return json.toString();
   }
+
+
   
 //  /**
 //   * 목록
@@ -92,63 +97,52 @@ public class ProductsgoodCont {
 //    return "productsgood/list_all"; // /templates/productsgood/list_all.html
 //  }
   
-  /**
-   * 목록(products, productsgood, member 테이블 join)
-   * 
-   * @param model
-   * @return
-   */
-  // http://localhost:9091/productsgood/list_all
+  /** 추천 목록 (관리자) */
   @GetMapping(value = "/list_all")
   public String list_all(Model model) {
-    ArrayList<ProductsproductsgoodMemberVO> list = this.productsgoodProc.list_all_join();
-    model.addAttribute("list", list);
+      ArrayList<ProductsproductsgoodMemberVO> list = this.productsgoodProc.list_all_join();
+      model.addAttribute("list", list);
 
-    ArrayList<CateVOMenu> menu = this.cateProc.menu();
-    model.addAttribute("menu", menu);
+      ArrayList<CateVOMenu> menu = this.cateProc.menu();
+      model.addAttribute("menu", menu);
 
-    return "productsgood/list_all_join"; // /templates/productsgood/list_all_join.html
+      return "productsgood/list_all_join";
   }
-  
-  /**
-   * 삭제 처리 http://localhost:9091/productsgood/delete?calendarno=1
-   * 
-   * @return
-   */
+
+  /** 추천 삭제 (관리자) */
   @PostMapping(value = "/delete")
-  public String delete_proc(HttpSession session, 
-      Model model, 
-      @RequestParam(name="productsgoodno", defaultValue = "0") int productsgoodno, 
-      RedirectAttributes ra) {    
-    
-    if (this.memberProc.isAdmin(session)) { // 관리자 로그인 확인
-      this.productsgoodProc.delete(productsgoodno);       // 삭제
-
-      return "redirect:/productsgood/list_all";
-
-    } else { // 정상적인 로그인이 아닌 경우 로그인 유도
-      ra.addAttribute("url", "/member/login_cookie_need"); // /templates/member/login_cookie_need.html
-      return "redirect:/productsgood/post2get"; // @GetMapping(value = "/msg")
-    }
-
+  public String delete_proc(HttpSession session, @RequestParam(name = "productsgoodno", defaultValue = "0") int productsgoodno, RedirectAttributes ra) {
+      if (this.memberProc.isAdmin(session)) {
+          this.productsgoodProc.delete(productsgoodno);
+          return "redirect:/productsgood/list_all";
+      } else {
+          ra.addAttribute("url", "/member/login_cookie_need");
+          return "redirect:/productsgood/post2get";
+      }
   }
-  
-  //소비자: 내가 추천한 상품들 조회
+
+  /** 소비자: 내가 추천한 상품 */
   @GetMapping("/user_liked_list")
   public String userLikedList(HttpSession session, Model model) {
-   int memberno = (int) session.getAttribute("memberno");
-   ArrayList<ProductsVO> list = this.productsgoodProc.list_user_liked_products(memberno);
-   model.addAttribute("list", list);
-   return "products/user_liked_list";
+      Integer memberno = (Integer) session.getAttribute("memberno");
+      if (memberno == null) {
+          return "redirect:/member/login_cookie_need";
+      }
+      ArrayList<ProductsVO> list = this.productsgoodProc.list_user_liked_products(memberno);
+      model.addAttribute("list", list);
+      return "products/user_liked_list";
   }
-  
-  //공급자: 내가 등록한 상품 중 추천 받은 것들
+
+  /** 공급자: 내가 등록한 상품 중 추천 받은 상품 */
   @GetMapping("/supplier_products_liked")
   public String supplierProductsLiked(HttpSession session, Model model) {
-   int memberno = (int) session.getAttribute("memberno");
-   ArrayList<ProductsVO> list = this.productsgoodProc.list_supplier_products_liked(memberno);
-   model.addAttribute("list", list);
-   return "products/supplier_liked_list";
+      Integer memberno = (Integer) session.getAttribute("memberno");
+      if (memberno == null) {
+          return "redirect:/member/login_cookie_need";
+      }
+      ArrayList<ProductsVO> list = this.productsgoodProc.list_supplier_products_liked(memberno);
+      model.addAttribute("list", list);
+      return "products/supplier_liked_list";
   }
 
   

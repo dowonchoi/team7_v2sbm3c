@@ -153,15 +153,15 @@
   </fieldset>
   <!--  하트 추천 영역 추가 -->
   <div style="margin-top: 20px;">
-    추천: <span id="recom_panel">[[${productsVO.recom}]]개</span>
+    추천: <span id="hart_panel"></span> <span id="recom_panel">[[${productsVO.recom}]]개</span>
   </div>
 
   <!--  JS: productsno 및 초기 하트 상태 변수 -->
   <script th:inline="javascript">
     const productsno = /*[[${productsVO.productsno}]]*/ 0;
-    const hartCnt = parseInt('[[${hartCnt}]]');  // 문자열 → 숫자
+    const hartCnt = parseInt('[[${hartCnt}]]');  // 1 or 0
     const recom = parseInt('[[${productsVO.recom}]]'); // 추천 수
-  </script>
+    </script>
 
   <script>
     //  하트 추천 토글 함수
@@ -195,7 +195,7 @@
       });
     }
 
-    //  초기 하트 상태 렌더링
+    // ✅ 초기 하트 상태 렌더링
     window.onload = function () {
       let tag = '';
       if (hartCnt === 1) {
@@ -208,7 +208,7 @@
               </a>`;
       }
       document.querySelector('#hart_panel').innerHTML = tag;
-      document.querySelector('#recom_panel').innerText = data.recom + '개';
+      document.querySelector('#recom_panel').innerText = recom + '개';
     };
   </script>
 

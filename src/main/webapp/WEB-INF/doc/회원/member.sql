@@ -135,4 +135,4 @@ SELECT passwd FROM member;
 
 COMMIT;
 
-
+ALTER TABLE member ADD point NUMBER DEFAULT 0;
