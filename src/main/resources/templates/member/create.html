@@ -244,6 +244,16 @@
     return true;
   }
 
+  function execDaumPostcode() {
+    new daum.Postcode({
+      oncomplete: function(data) {
+        document.getElementById('zipcode').value = data.zonecode;
+        document.getElementById('address1').value = data.roadAddress || data.jibunAddress;
+        document.getElementById('address2').focus();
+      }
+    }).open();
+  }
+
   // ✅ 약관 체크 검증
   function validateForm() {
     const required = document.querySelectorAll('.terms-item input.required');
