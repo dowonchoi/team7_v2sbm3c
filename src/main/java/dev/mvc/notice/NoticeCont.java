@@ -51,9 +51,9 @@ public class NoticeCont {
   // 공지사항 등록 폼
   @GetMapping("/create")
   public String createForm(HttpSession session) {
-      String grade = (String) session.getAttribute("grade");
-      if (grade == null || !grade.equals("admin")) {
-          return "redirect:/notice/list";
+      Integer grade = (Integer) session.getAttribute("grade"); // ✅ 타입 일치
+      if (grade == null || grade < 1 || grade > 4) {
+          return "redirect:/error/permission";
       }
       return "/notice/create";
   }

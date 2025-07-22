@@ -88,35 +88,35 @@ public class NotificationCont {
       return "redirect:/member/login";
     }
 
-    // 🔎 삭제 전 알림 조회
-    NotificationVO noti = notificationProc.read(notification_id); // ← 해당 알림 가져오기
+    NotificationVO notificationVO = notificationProc.read(notification_id);
 
-    // 🔐 본인 알림인지 확인 로직 추가 가능 (memberno 비교)
-
-    // 삭제 수행
+    // 알림 삭제
     notificationProc.delete(notification_id);
 
-    // 세션에서 등급 확인
-    String grade = (String) session.getAttribute("grade");
+    Integer grade = (Integer) session.getAttribute("grade");
 
-    // ✅ 알림 타입에 따라 분기
-    if ("qna".equals(noti.getType())) {
-      if ("admin".equals(grade)) {
-        return "redirect:/notice/list"; // 관리자: 전체 Q&A
-      } else if ("user".equals(grade)) {
-        return "redirect:/qna/list_user"; // 소비자: 소비자 Q&A
-      } else if ("supplier".equals(grade)) {
-        return "redirect:/qna/list_supplier"; // 공급자: 공급자 Q&A
-      } else {
-        return "redirect:/member/login"; // 예외 처리
+    if (grade == null) {
+      return "redirect:/member/login";
+    }
+
+    // 알림 유형에 따라 리다이렉트
+    if ("qna".equals(notificationVO.getType())) {
+      if (grade >= 1 && grade <= 4) {
+        return "redirect:/notice/list"; // 관리자
+      } else if (grade >= 16 && grade <= 39) {
+        return "redirect:/qna/list_user"; // 소비자
+      } else if (grade >= 5 && grade <= 15) {
+        return "redirect:/qna/list_supplier"; // 공급자
       }
     } else {
-      if ("admin".equals(grade)) {
-        return "redirect:/inquiry/list_all"; // 관리자: 전체 문의
+      if (grade >= 1 && grade <= 4) {
+        return "redirect:/inquiry/list_all"; // 관리자
       } else {
-        return "redirect:/inquiry/list_by_member"; // 소비자/공급자: 본인 문의
+        return "redirect:/inquiry/list_by_member"; // 소비자/공급자
       }
     }
+
+    return "redirect:/member/login";
   }
 
 }

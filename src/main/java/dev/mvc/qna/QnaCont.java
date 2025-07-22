@@ -30,9 +30,9 @@ public class QnaCont {
   //✅ 소비자용 글쓰기 폼
   @GetMapping("/create_user")
   public String createUserForm(HttpSession session) {
-     String grade = (String) session.getAttribute("grade");
-     if (grade == null || !"user".equals(grade)) {
-         return "redirect:/member/login";  // 비로그인/비소비자는 로그인 유도
+     Integer gradeObj = (Integer) session.getAttribute("grade");
+     if (gradeObj == null || gradeObj < 16 || gradeObj > 39) { // 소비자 등급: 16~39
+         return "redirect:/member/login";
      }
      return "/qna/create_user";
   }
@@ -40,21 +40,21 @@ public class QnaCont {
   //✅ 공급자용 글쓰기 폼
   @GetMapping("/create_supplier")
   public String createSupplierForm(HttpSession session) {
-     String grade = (String) session.getAttribute("grade");
-     if (grade == null || !"supplier".equals(grade)) {
-         return "redirect:/member/login";  // 비로그인/비공급자는 로그인 유도
+     Integer gradeObj = (Integer) session.getAttribute("grade");
+     if (gradeObj == null || gradeObj < 5 || gradeObj > 15) { // 공급자 등급: 5~15
+         return "redirect:/member/login";
      }
      return "/qna/create_supplier";
   }
-  
+    
   //✅ 글쓰기 처리 (POST)
   @PostMapping("/create")
   public String createProc(QnaVO qnaVO, HttpSession session) {
-     String grade = (String) session.getAttribute("grade");
+     Integer gradeObj = (Integer) session.getAttribute("grade");
      String id = (String) session.getAttribute("id");
      String name = (String) session.getAttribute("name");
   
-     if (grade == null || id == null) {
+     if (gradeObj == null || id == null) {
          return "redirect:/member/login";
      }
   
@@ -62,19 +62,20 @@ public class QnaCont {
      qnaVO.setWriter_name(name);
      qnaVO.setMemberno((int) session.getAttribute("memberno"));
   
-     if ("supplier".equals(grade)) {
+     // 공급자: 5~15, 소비자: 16~39
+     if (gradeObj >= 5 && gradeObj <= 15) {
          qnaVO.setUser_type("supplier");
-     } else if ("user".equals(grade)) {
+     } else if (gradeObj >= 16 && gradeObj <= 39) {
          qnaVO.setUser_type("user");
      } else {
-         return "redirect:/qna/list_user";  // 비정상 접근 차단
+         return "redirect:/qna/list_user"; // 비정상 접근 차단
      }
   
      this.qnaProc.create(qnaVO);
   
-     // ✅ 관리자에게 알림 전송 (관리자 memberno가 1번이라고 가정)
+     // ✅ 관리자에게 알림 전송 (예: memberno 1)
      NotificationVO notificationVO = new NotificationVO();
-     notificationVO.setMemberno(1);  // 관리자 번호
+     notificationVO.setMemberno(1); // 관리자 번호
      notificationVO.setType("qna");
   
      String title = qnaVO.getTitle();
@@ -82,11 +83,9 @@ public class QnaCont {
          title = title.substring(0, 20) + "...";
      }
   
-     // ✅ 작성자 유형 포함한 알림 메시지
      String writerType = qnaVO.getUser_type().equals("supplier") ? "공급자" : "소비자";
      notificationVO.setMessage(writerType + "의 Q&A [" + title + "]가 등록되었습니다.");
-  
-     notificationVO.setUrl("/notice/list");  // 관리자 확인 경로
+     notificationVO.setUrl("/notice/list");
      notificationVO.setIs_read("N");
   
      notificationProc.create(notificationVO);
