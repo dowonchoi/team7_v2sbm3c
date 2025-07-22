@@ -191,6 +191,8 @@ public interface ProductsDAOInter {
 //  public List<ProductsVO> listFreeShipping();
   
   public List<ProductsVO> listEvent();
+  
+  public List<ProductsVO> listRecommend();
 
 }
  

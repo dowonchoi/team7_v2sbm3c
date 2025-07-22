@@ -7,13 +7,13 @@
 <div class="title_line">📢 공지사항 상세</div>
 
 <aside class="aside_right">
-  <th:block th:if="${session.grade == 'admin'}">
+  <th:block th:if="${session.grade >= 1 and session.grade <= 4}">
     <a th:href="@{|/notice/update?notice_id=${noticeVO.notice_id}|}">수정</a> │
     <a th:href="@{|/notice/delete?notice_id=${noticeVO.notice_id}|}" 
        onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a> │
     <a th:href="@{/notice/list}">목록</a>
   </th:block>
-  <th:block th:unless="${session.grade == 'admin'}">
+  <th:block th:unless="${session.grade >= 1 and session.grade <= 4}">
     <a th:href="@{/notice/list}">목록</a>
   </th:block>
 </aside>

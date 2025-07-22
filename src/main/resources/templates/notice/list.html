@@ -77,7 +77,7 @@
                 <div class="faq-answer">
                   <span>A</span>
                   <span th:text="${faq.answer}"></span>
-                  <div th:if="${session.grade == 'admin'}">
+                  <div th:if="${session.grade >= 1 and session.grade <= 4}">
                     <a th:href="@{'/faq/update?faq_id=' + ${faq.faq_id}}" style="margin-left:10px; color:blue;">수정</a>
                     <a th:href="@{'/faq/delete?faq_id=' + ${faq.faq_id}}" style="margin-left:10px; color:red;"
                       onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a>

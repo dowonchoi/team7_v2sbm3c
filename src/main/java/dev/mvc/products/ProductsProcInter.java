@@ -198,6 +198,5 @@ public interface ProductsProcInter {
 
   public List<ProductsVO> listEvent();
 
-
-  
+  public List<ProductsVO> listRecommend();
 }

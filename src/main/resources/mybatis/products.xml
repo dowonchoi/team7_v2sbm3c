@@ -299,5 +299,12 @@
   <select id="listEvent" resultType="dev.mvc.products.ProductsVO">
     SELECT * FROM products WHERE is_event = 'Y' ORDER BY productsno DESC
   </select>
+  
+  <select id="listRecommend" resultType="dev.mvc.products.ProductsVO">
+    SELECT productsno, title, saleprice AS price_now, file1saved
+    FROM products
+    WHERE is_best = 'Y'
+    ORDER BY rdate DESC
+  </select>
 
 </mapper> 

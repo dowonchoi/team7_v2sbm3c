@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<div layout:fragment="content" class="container my-5">
+  <h3 class="mb-4 fw-bold" th:text="${title}">추천 상품</h3>
+
+  <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
+    <div class="col" th:each="product : ${list}">
+      <div class="card h-100 shadow-sm border-0 rounded-4">
+        <!-- 상품 이미지 -->
+        <img th:src="@{|/products/storage/${product.file1saved}|}" 
+             class="card-img-top rounded-top-4" alt="상품 이미지" 
+             style="object-fit: cover; height: 200px;">
+
+        <!-- 카드 본문 -->
+        <div class="card-body">
+          <!-- 상품명 -->
+          <h5 class="card-title text-truncate" th:text="${product.title}">상품명</h5>
+          
+          <!-- 가격 표시 -->
+          <p class="card-text mb-2">
+            <span class="text-danger fw-bold fs-5"
+                  th:if="${product.price_now != null}"
+                  th:text="|${#numbers.formatInteger(product.price_now, 3, 'COMMA')}원|">
+              9,900원
+            </span>
+            
+            <span class="text-secondary text-decoration-line-through ms-2 small"
+                  th:if="${product.price_before != null and product.price_before > product.price_now}"
+                  th:text="|${#numbers.formatInteger(product.price_before, 3, 'COMMA')}원|">
+              12,000원
+            </span>
+          </p>
+
+          <!-- 상세 보기 버튼 -->
+          <a th:href="@{|/products/read?productsno=${product.productsno}|}"
+             class="btn btn-outline-dark w-100 rounded-pill">
+            상세 보기
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</html>

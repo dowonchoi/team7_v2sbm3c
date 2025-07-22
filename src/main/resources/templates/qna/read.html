@@ -99,8 +99,10 @@
     <!-- 버튼 -->
     <div class="btn-box">
       <a th:href="@{/notice/list}">목록</a>
-      <a th:if="${grade != 'admin' and id == qnaVO.writer_id}" th:href="@{'/qna/update?qna_id=' + ${qnaVO.qna_id}}">수정</a>
-      <a th:if="${grade != 'admin' and id == qnaVO.writer_id}" th:href="@{'/qna/delete?qna_id=' + ${qnaVO.qna_id}}" onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a>
+
+      <!-- 소비자/공급자 본인일 경우만 수정/삭제 가능 -->
+      <a th:if="${grade > 4 and id == qnaVO.writer_id}" th:href="@{'/qna/update?qna_id=' + ${qnaVO.qna_id}}">수정</a>
+      <a th:if="${grade > 4 and id == qnaVO.writer_id}" th:href="@{'/qna/delete?qna_id=' + ${qnaVO.qna_id}}" onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a>
     </div>
 
     <!-- 답변 영역 -->
@@ -111,9 +113,23 @@
       <div class="reply-content" th:text="${qnaVO.reply}"></div>
     </div>
 
-    <!-- 관리자만 답변 등록/수정 -->
-    <div class="btn-box" th:if="${grade == 'admin'}">
-      <a th:href="@{'/qna/reply?qna_id=' + ${qnaVO.qna_id}}">답변 등록/수정</a>
+    <!-- ✅ 관리자 답변 등록/수정/삭제 버튼 분기 -->
+    <div class="btn-box" th:if="${grade >= 1 and grade <= 4}">
+      
+      <!-- 답변이 없는 경우 → 등록 버튼만 -->
+      <a th:if="${qnaVO.reply == null or qnaVO.reply.isEmpty()}"
+        th:href="@{'/qna/reply?qna_id=' + ${qnaVO.qna_id}}">
+        답변 등록
+      </a>
+
+      <!-- 답변이 있는 경우 → 수정/삭제 버튼 -->
+      <th:block th:if="${qnaVO.reply != null and !qnaVO.reply.isEmpty()}">
+        <a th:href="@{'/qna/reply?qna_id=' + ${qnaVO.qna_id}}">답변 수정</a>
+        <a th:href="@{'/qna/reply_delete?qna_id=' + ${qnaVO.qna_id}}"
+          onclick="return confirm('답변을 정말 삭제하시겠습니까?');">
+          답변 삭제
+        </a>
+      </th:block>
     </div>
 
   </div>

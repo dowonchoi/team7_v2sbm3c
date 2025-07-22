@@ -80,7 +80,7 @@
 </head>
 <body>
   <!-- ✅ 관리자만 보이게 설정 -->
-  <div class="faq-form" th:if="${session.grade == 'admin'}">
+  <div class="faq-form" th:if="${session.grade >= 1 and session.grade <= 4}">
     <h2>FAQ 등록</h2>
     <form th:action="@{/faq/create}" method="post">
       <select name="cate" required>
@@ -100,7 +100,7 @@
   </div>
 
   <!-- ✅ 비관리자에게는 접근 불가 메시지 -->
-  <div class="no-access" th:if="${session.grade != 'admin'}">
+  <div class="no-access" th:if="${session.grade < 1 or session.grade > 4}">
     <p>접근 권한이 없습니다.</p>
   </div>
 </body>

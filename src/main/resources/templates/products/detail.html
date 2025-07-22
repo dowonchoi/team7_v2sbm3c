@@ -1,9 +1,42 @@
 <!DOCTYPE html>
 <html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
-<div layout:fragment="content">
-  <h2 th:text="${productsVO.title}">상품명</h2>
-  <img th:src="@{/products/storage/{img}(img=${productsVO.thumb1})}" width="200">
-  <p th:text="${productsVO.content}">상품 설명</p>
-  <p><strong>가격:</strong> <span th:text="${productsVO.price_now}"></span>원</p>
+<div layout:fragment="content" class="container my-5">
+
+  <div class="row g-5">
+    <!-- 🔹 상품 이미지 영역 -->
+    <div class="col-md-5">
+      <img th:src="@{|/products/storage/${productsVO.file1saved}|}" 
+           class="img-fluid rounded-4 border" 
+           alt="상품 이미지">
+    </div>
+
+    <!-- 🔹 상품 정보 영역 -->
+    <div class="col-md-7">
+      <h2 class="fw-bold mb-3" th:text="${productsVO.title}">상품명</h2>
+
+      <p class="text-muted mb-2" th:if="${productsVO.content != null}" th:text="${productsVO.content}">상품 설명</p>
+
+      <div class="mb-3">
+        <span class="fs-3 fw-bold text-danger" th:text="|${productsVO.price_now}원|">9,900원</span>
+        <span class="fs-5 text-secondary text-decoration-line-through ms-2"
+              th:if="${productsVO.price_before > productsVO.price_now}"
+              th:text="|${productsVO.price_before}원|">12,000원</span>
+        <span class="badge bg-danger ms-2"
+              th:if="${productsVO.discount > 0}"
+              th:text="|${productsVO.discount}% 할인|">20% 할인</span>
+      </div>
+
+      <div class="mb-4">
+        <strong>재고:</strong> <span th:text="${productsVO.salecnt}">10</span> 개
+        <br>
+        <strong>등록일:</strong> <span th:text="${productsVO.rdate}">2025-07-22</span>
+      </div>
+
+      <a href="#" class="btn btn-lg btn-outline-success rounded-pill px-5">
+        장바구니 담기
+      </a>
+    </div>
+  </div>
+
 </div>
 </html>

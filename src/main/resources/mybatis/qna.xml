@@ -55,7 +55,7 @@
   <!-- ✅ 추가: 공식 답변(reply) 등록/수정 -->
   <update id="updateReply" parameterType="dev.mvc.qna.QnaVO">
     UPDATE qna
-    SET reply = #{reply}, reply_writer = #{reply_writer , jdbcType=VARCHAR}
+    SET reply = #{reply, jdbcType=VARCHAR}, reply_writer = #{reply_writer , jdbcType=VARCHAR}
     WHERE qna_id = #{qna_id}
   </update>
 

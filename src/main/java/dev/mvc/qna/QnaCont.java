@@ -196,10 +196,10 @@ public class QnaCont {
   //답변 등록/수정 폼 (관리자만 접근 가능)
   @GetMapping("/reply")
   public String replyForm(@RequestParam("qna_id") int qna_id, HttpSession session, Model model) {
-     String grade = (String) session.getAttribute("grade");
-     if (!"admin".equals(grade)) {
-         return "redirect:/qna/read?qna_id=" + qna_id;
-     }
+    Integer grade = (Integer) session.getAttribute("grade");
+    if (grade == null || grade < 1 || grade > 4) {
+        return "redirect:/"; // or "redirect:/error/permission"
+    } 
   
      QnaVO qnaVO = qnaProc.read(qna_id);
      model.addAttribute("qnaVO", qnaVO);
@@ -209,10 +209,10 @@ public class QnaCont {
   //답변 등록/수정 처리 (알림 포함)
   @PostMapping("/reply")
   public String replyProc(QnaVO qnaVO, HttpSession session) {
-      String grade = (String) session.getAttribute("grade");
-      if (!"admin".equals(grade)) {
-          return "redirect:/qna/read?qna_id=" + qnaVO.getQna_id();
-      }
+    Integer grade = (Integer) session.getAttribute("grade");
+    if (grade == null || grade < 1 || grade > 4) {
+        return "redirect:/"; // or "redirect:/error/permission"
+    } 
   
       // ✅ 답변 저장
       qnaProc.updateReply(qnaVO);
@@ -239,5 +239,25 @@ public class QnaCont {
 
       return "redirect:/qna/read?qna_id=" + qnaVO.getQna_id();
   }
+  
+  @GetMapping("/reply_delete")
+  public String replyDelete(@RequestParam("qna_id") int qna_id, HttpSession session) {
+      // ✅ 관리자 권한 체크
+      Integer grade = (Integer) session.getAttribute("grade");
+      if (grade == null || grade < 1 || grade > 4) {
+          return "redirect:/"; // or "redirect:/error/permission"
+      }
+
+      // ✅ 답변 내용 null로 초기화
+      QnaVO qnaVO = qnaProc.read(qna_id);
+      if (qnaVO != null) {
+          qnaVO.setReply(null);
+          qnaVO.setReply_writer(null);
+          qnaProc.updateReply(qnaVO);  // updateReply 메서드는 reply만 업데이트하도록 만들어야 함
+      }
+
+      return "redirect:/qna/read?qna_id=" + qna_id;
+  }
+
 
 }

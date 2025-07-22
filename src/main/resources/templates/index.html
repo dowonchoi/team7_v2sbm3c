@@ -51,14 +51,20 @@
 
   <!-- ✅ 추천 상품 -->
   <section class="index-products container">
-    <h4 class="index-section-title">추천 상품</h4>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="index-section-title">추천 상품</h4>
+      <a href="/products/recommend" class="btn btn-sm btn-outline-light">더보기</a>
+    </div>
+
     <div class="index-product-grid">
-      <div class="index-product-card" th:each="product : ${productList}">
-        <img th:src="@{|/products/images/${product.image}|}" alt="상품 이미지">
-        <div class="index-product-info">
-          <p class="index-product-name" th:text="${product.name}">상품명</p>
-          <p class="index-product-price" th:text="|${product.price}원|">10,000원</p>
-          <a th:href="@{|/products/detail?productno=${product.productno}|}" class="index-btn-detail">상세보기</a>
+      <div class="index-product-card" th:each="product, stat : ${productList}">
+        <div th:if="${stat.index < 4 and product.productsno != null}">
+          <img th:src="@{|/products/storage/${product.file1saved}|}" alt="상품 이미지">
+          <div class="index-product-info">
+            <p class="index-product-name" th:text="${product.title}">상품명</p>
+            <p class="index-product-price" th:text="|${product.price_now}원|">10,000원</p>
+            <a th:href="@{|/products/detail?productsno=${product.productsno}|}" class="index-btn-detail">상세보기</a>
+          </div>
         </div>
       </div>
     </div>

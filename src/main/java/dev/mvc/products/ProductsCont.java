@@ -1138,5 +1138,21 @@ public class ProductsCont {
     
     return "/products/list_event";
   }
+  
+  @GetMapping("/")
+  public String main(Model model) {
+    List<ProductsVO> productList = productsProc.listRecommend();
+    model.addAttribute("productList", productList);
+    return "/index";
+  }
+  
+  //추천 상품 전체 보기
+ @GetMapping("/recommend")
+ public String recommendList(Model model) {
+   List<ProductsVO> list = productsProc.listRecommend(); // 추천 상품 가져오기
+   model.addAttribute("list", list);
+   model.addAttribute("title", "추천 상품");
 
+   return "/products/list_recommend"; // ✅ 템플릿 위치: templates/products/list_recommend.html
+ }  
 }

@@ -332,6 +332,9 @@ public class ProductsProc implements ProductsProcInter {
     public List<ProductsVO> search(String word);
 }
 
-
+  @Override
+  public List<ProductsVO> listRecommend() {
+    return productsDAO.listRecommend();
+  }
 
 }

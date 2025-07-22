@@ -201,49 +201,95 @@
     </table>
   </div>
 
-  <!-- 추천 상품 (찜한 상품 기반) -->
+  <!-- 추천 상품 -->
   <div class="section-title">추천 상품
-    <button id="toggleGoodBtn" onclick="toggleGoodProducts()" style="float: right; font-size: 14px;">더보기 ▼</button>
+    <!-- 일반 회원용: 더보기 버튼 -->
+    <button id="toggleGoodBtn" 
+            th:if="${memberVO.grade > 4}" 
+            onclick="toggleGoodProducts()" 
+            style="float: right; font-size: 14px;">더보기 ▼</button>
   </div>
 
-  <div id="goodProductsAjax" class="recent-products" style="display: flex; flex-wrap: wrap; gap: 16px;"></div>
+  <!-- ✅ 일반 사용자용 추천 상품 목록 (3개 + 더보기) -->
+  <div id="goodProductsAjax" class="recent-products" 
+      th:if="${memberVO.grade > 4}" 
+      style="display: flex; flex-wrap: wrap; gap: 16px;"></div>
+
+  <!-- ✅ 관리자용 전체 추천 상품 목록 -->
+  <div th:if="${memberVO.grade >= 1 and memberVO.grade <= 4}">
+    <div class="recent-products" 
+        id="adminGoodProductsAjax" 
+        style="display: flex; flex-wrap: wrap; gap: 16px;"></div>
+  </div>
 
   <script>
     let isGoodExpanded = false;
 
     function renderGoodProducts(products) {
-      const container = document.getElementById('goodProductsAjax');
-      container.innerHTML = '';
+      const userContainer = document.getElementById('goodProductsAjax');
+      const adminContainer = document.getElementById('adminGoodProductsAjax');
 
-      if (products.length === 0) {
-        container.innerHTML = '<div>추천 상품이 없습니다.</div>';
-        return;
+      // 관리자 전용 렌더링 (전체 출력, 더보기 없음)
+      if (adminContainer && !userContainer) {
+        adminContainer.innerHTML = '';
+        if (products.length === 0) {
+          adminContainer.innerHTML = '<div>추천 상품이 없습니다.</div>';
+          return;
+        }
+
+        products.forEach((product) => {
+          const div = document.createElement('div');
+          div.classList.add('product-card');
+          div.style.width = '120px';
+          div.style.textAlign = 'center';
+
+          div.innerHTML = `
+            <a href="/products/read?productsno=${product.productsno}">
+              <div>
+                ${product.thumb1
+                  ? `<img src="/products/storage/${product.thumb1}" alt="${product.title}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;" />`
+                  : `<span>이미지 없음</span>`}
+              </div>
+            </a>
+            <div style="margin-top: 5px; font-size: 14px;">${product.title}</div>
+          `;
+          adminContainer.appendChild(div);
+        });
+
+        return; // 일반 사용자 렌더링은 하지 않음
       }
 
-      products.forEach((product, index) => {
-        const div = document.createElement('div');
-        div.classList.add('product-card');
-        if (index >= 3) div.classList.add('hidden-good-product');
-        div.style.width = '120px';
-        div.style.textAlign = 'center';
+      // 일반 사용자 전용 렌더링 (3개 + 더보기)
+      if (userContainer) {
+        userContainer.innerHTML = '';
 
-        div.innerHTML = `
-          <a href="/products/read?productsno=${product.productsno}">
-            <div>
-              ${product.thumb1
-                ? `<img src="/products/storage/${product.thumb1}" alt="${product.title}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;" />`
-                : `<span>이미지 없음</span>`
-              }
-            </div>
-          </a>
-          <div style="margin-top: 5px; font-size: 14px;">
-            ${product.title}
-          </div>
-        `;
-        container.appendChild(div);
-      });
+        if (products.length === 0) {
+          userContainer.innerHTML = '<div>추천 상품이 없습니다.</div>';
+          return;
+        }
 
-      document.querySelectorAll('.hidden-good-product').forEach(el => el.style.display = 'none');
+        products.forEach((product, index) => {
+          const div = document.createElement('div');
+          div.classList.add('product-card');
+          if (index >= 3) div.classList.add('hidden-good-product');
+          div.style.width = '120px';
+          div.style.textAlign = 'center';
+
+          div.innerHTML = `
+            <a href="/products/read?productsno=${product.productsno}">
+              <div>
+                ${product.thumb1
+                  ? `<img src="/products/storage/${product.thumb1}" alt="${product.title}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;" />`
+                  : `<span>이미지 없음</span>`}
+              </div>
+            </a>
+            <div style="margin-top: 5px; font-size: 14px;">${product.title}</div>
+          `;
+          userContainer.appendChild(div);
+        });
+
+        document.querySelectorAll('.hidden-good-product').forEach(el => el.style.display = 'none');
+      }
     }
 
     function toggleGoodProducts() {
@@ -260,6 +306,7 @@
         .then(data => renderGoodProducts(data));
     });
   </script>
+
 
   <div class="section-title">활동 요약</div>
   <div class="info-boxes">

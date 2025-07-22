@@ -45,13 +45,13 @@ public class NoticeCont {
   private QnaProcInter qnaProc;
   
   @Autowired
-  @Qualifier("dev.mvc.cate.CateProc") // @Component("dev.mvc.cate.CateProc")
+  @Qualifier("dev.mvc.cate.CateProc")
   private CateProcInter cateProc;
 
   // 공지사항 등록 폼
   @GetMapping("/create")
   public String createForm(HttpSession session) {
-      Integer grade = (Integer) session.getAttribute("grade"); // ✅ 타입 일치
+      Integer grade = (Integer) session.getAttribute("grade");
       if (grade == null || grade < 1 || grade > 4) {
           return "redirect:/error/permission";
       }
@@ -62,8 +62,8 @@ public class NoticeCont {
   @PostMapping("/create")
   public String create(HttpSession session, NoticeVO noticeVO,
                        @RequestParam("uploadImage") MultipartFile uploadImage) throws Exception {
-      String grade = (String) session.getAttribute("grade");
-      if (grade == null || !grade.equals("admin")) {
+      Integer grade = (Integer) session.getAttribute("grade");
+      if (grade == null || grade < 1 || grade > 4) {
           return "redirect:/";
       }
 
@@ -89,28 +89,11 @@ public class NoticeCont {
      model.addAttribute("qnaUserList", qnaProc.listByUserType("user"));
      model.addAttribute("qnaSupplierList", qnaProc.listByUserType("supplier"));
      
-  // ✅ 전체 카테고리 메뉴 추가
      List<CateVOMenu> menu = cateProc.menu();
      model.addAttribute("menu", menu);
      
-     return "/notice/list";  // COMMUNITY 탭형 메인 화면
+     return "/notice/list";
   }
-
-//  // COMMUNITY 메인 페이지
-//  @GetMapping("/community")
-//  public String community(Model model) {
-//      List<NoticeVO> noticeList = noticeProc.list();
-//      List<FaqVO> faqList = faqProc.list();
-//      List<QnaVO> qnaUserList = qnaProc.listByUserType("user");
-//      List<QnaVO> qnaSupplierList = qnaProc.listByUserType("supplier");
-//
-//      model.addAttribute("noticeList", noticeList);
-//      model.addAttribute("faqList", faqProc.list());
-//      model.addAttribute("qnaUserList", qnaUserList);
-//      model.addAttribute("qnaSupplierList", qnaSupplierList);
-//
-//      return "/community/list";
-//  }
 
   // 공지사항 상세 보기
   @GetMapping("/read")
@@ -124,8 +107,8 @@ public class NoticeCont {
   // 공지사항 수정 폼
   @GetMapping("/update")
   public String updateForm(@RequestParam("notice_id") int notice_id, Model model, HttpSession session) {
-      String grade = (String) session.getAttribute("grade");
-      if (grade == null || !grade.equals("admin")) {
+      Integer grade = (Integer) session.getAttribute("grade");
+      if (grade == null || grade < 1 || grade > 4) {
           return "redirect:/";
       }
       NoticeVO noticeVO = this.noticeProc.read(notice_id);
@@ -139,8 +122,8 @@ public class NoticeCont {
                        NoticeVO noticeVO,
                        @RequestParam("uploadImage") MultipartFile uploadImage,
                        @RequestParam("image") String image) throws Exception {
-      String grade = (String) session.getAttribute("grade");
-      if (grade == null || !grade.equals("admin")) {
+      Integer grade = (Integer) session.getAttribute("grade");
+      if (grade == null || grade < 1 || grade > 4) {
           return "redirect:/";
       }
 
@@ -170,8 +153,8 @@ public class NoticeCont {
   // 공지사항 삭제
   @GetMapping("/delete")
   public String delete(@RequestParam("notice_id") int notice_id, HttpSession session) {
-      String grade = (String) session.getAttribute("grade");
-      if (grade == null || !grade.equals("admin")) {
+      Integer grade = (Integer) session.getAttribute("grade");
+      if (grade == null || grade < 1 || grade > 4) {
           return "redirect:/";
       }
 

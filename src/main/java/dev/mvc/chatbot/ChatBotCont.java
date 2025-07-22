@@ -14,6 +14,12 @@ public class ChatBotCont {
 
     @PostMapping
     public String chatbotResponse(@RequestBody ChatRequest request, HttpSession session) {
+     // ✅ 로그인 여부 확인
+        String id = (String) session.getAttribute("id");
+        if (id == null) {
+            return "챗봇 기능은 로그인 후 이용 가능합니다. 먼저 로그인해주세요.";
+        }
+      
         String userMessage = request.getMessage();
         String state = (String) session.getAttribute("chatState");
 
