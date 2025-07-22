@@ -99,11 +99,11 @@ public class ProductsCont {
    * @return
    */
   @GetMapping(value = "/post2get")
-  public String post2get(Model model, @RequestParam(name="url", defaultValue = "") String url) {
-    ArrayList<CateVOMenu> menu = this.cateProc.menu();  // 카테고리 메뉴 가져오기
-    model.addAttribute("menu", menu);
+  public String post2get(Model model, @RequestParam(name="url", defaultValue = "/products/msg") String url) {
+      ArrayList<CateVOMenu> menu = this.cateProc.menu();
+      model.addAttribute("menu", menu);
 
-    return url; // forward 방식으로 지정된 페이지로 이동, /templates/products/msg.html
+      return url; // forward 방식으로 지정된 페이지로 이동
   }
   
   // 등록 폼, products 테이블은 FK로 cateno를 사용함.
@@ -736,6 +736,7 @@ public class ProductsCont {
       ra.addFlashAttribute("cnt", 0);
       ra.addAttribute("productsno", productsVO.getProductsno());
       ra.addAttribute("cateno", productsVO.getCateno());
+      ra.addAttribute("url", "/products/msg");
       return "redirect:/products/post2get"; // ✅ 반드시 return 필요
     }
 
