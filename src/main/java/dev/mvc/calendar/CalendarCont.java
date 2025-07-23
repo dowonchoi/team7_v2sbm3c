@@ -93,7 +93,8 @@ public class CalendarCont {
           model.addAttribute("isAdmin", false); // 소비자
       }
 
-      model.addAttribute("menu", cateProc.menu());
+      model.addAttribute("calendarVO", new CalendarVO());  // ✅ 추가
+      model.addAttribute("cateList", cateProc.menu());     // ✅ 이름도 cateList로 맞춰주는 걸 권장
       return "calendar/create";
   }
 

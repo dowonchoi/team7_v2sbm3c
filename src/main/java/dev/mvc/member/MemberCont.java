@@ -617,16 +617,16 @@ public class MemberCont {
 //  }
 
   /**
-  * 조회
-  * @param model
-  * @param memberno 회원 번호
-  * @return 회원 정보
-  */
+   * 조회
+   * @param model
+   * @param memberno 회원 번호
+   * @return 회원 정보
+   */
   @GetMapping("/read")
   public String read(HttpSession session, Model model,
                      @RequestParam(name = "memberno") int memberno) {
 
-      String grade = (String) session.getAttribute("grade");
+      Integer grade = (Integer) session.getAttribute("grade");
       String sessionMembernoStr = String.valueOf(session.getAttribute("memberno"));
       int sessionMemberno = (sessionMembernoStr != null && !sessionMembernoStr.equals("null")) 
                             ? Integer.parseInt(sessionMembernoStr) : -1;
@@ -636,8 +636,8 @@ public class MemberCont {
           return "redirect:/member/login_cookie_need";
       }
 
-      // 관리자는 모든 회원 조회 가능
-      if ("admin".equals(grade)) {
+      // 관리자는 모든 회원 조회 가능 (예: 등급 1~4)
+      if (grade >= 1 && grade <= 4) {
           MemberVO memberVO = this.memberProc.read(memberno);
           model.addAttribute("memberVO", memberVO);
           return "member/read";
@@ -654,7 +654,6 @@ public class MemberCont {
       return "redirect:/member/login_cookie_need";
   }
 
-  
 //  /**
 //   * 수정 처리
 //   * @param model
@@ -814,21 +813,21 @@ public class MemberCont {
   }
   
   //🔥 탈퇴 회원 목록 조회 (관리자 전용)
+  //MemberCont.java
   @GetMapping("/withdrawn_list")
-  public String withdrawnList(Model model, HttpSession session) {
-      String grade = (String) session.getAttribute("grade");
-      System.out.println("현재 세션 grade: " + grade);
-
-      if (grade == null || !grade.equals("admin")) {
-          return "redirect:/member/login_cookie_need?url=/member/withdrawn_list";
-      }
-
-      List<MemberVO> list = memberProc.selectWithdrawnMembers();
-      model.addAttribute("list", list);
-
-      return "member/withdrawn_list";
-  }
+  public String withdrawnList(HttpSession session, Model model) {
+     Integer grade = (Integer) session.getAttribute("grade");
   
+     if (grade == null || grade > 4) {
+         return "redirect:/member/login";
+     }
+  
+     List<MemberVO> withdrawnList = memberProc.selectWithdrawnMembers();
+     model.addAttribute("withdrawnList", withdrawnList);
+  
+     return "/member/withdrawn_list"; // ✅ 여기 경로가 실제 HTML 파일과 일치해야 함
+  }
+
   //복구 처리
   @PostMapping("/restore")
   public String restore(@RequestParam("memberno") int memberno,
