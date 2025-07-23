@@ -66,7 +66,15 @@ public class CateCont {
   /** 페이징 목록 주소, @GetMapping(value="/list_search") */
   private String list_url = "/cate/list_search";
   
+  private String getLoginGrade(HttpSession session) {
+    Object gradeObj = session.getAttribute("grade");
+    return (gradeObj != null) ? gradeObj.toString() : null;
+  }
 
+  private boolean isAdmin(HttpSession session) {
+    String grade = getLoginGrade(session);
+    return grade != null && "admin".equals(grade);
+  }
   /**
    * 등록폼
    * // http://localhost:9093/cate/create
@@ -74,7 +82,10 @@ public class CateCont {
    * @return
    */
   @GetMapping(value="/create")  
-  public String create(@ModelAttribute("cateVO") CateVO cateVO) {
+  public String create(@ModelAttribute("cateVO") CateVO cateVO, HttpSession session) {
+    if (!isAdmin(session)) {
+      return "redirect:/member/login_cookie_need?url=/cate/create";
+    }
     cateVO.setGrp("제철/신선식품/가공식품/즉석조리...");
     cateVO.setName("채소");
     
@@ -95,9 +106,12 @@ public class CateCont {
                               @Valid CateVO cateVO, 
                               BindingResult bindingResult,
                               @RequestParam(name="word", defaultValue = "") String word,
-                              RedirectAttributes ra) {
+                              RedirectAttributes ra, HttpSession session) {
     // System.out.println("-> create post");
     // 유효성 검사 실패 시 등록폼 다시 보여줌
+    if (!isAdmin(session)) {
+      return "redirect:/member/login_cookie_need?url=/cate/create";
+    }
     if (bindingResult.hasErrors() == true) {
       return "cate/create"; // /templates/cate/create.html 
     }
@@ -165,7 +179,9 @@ public class CateCont {
                                    @RequestParam(name="word", defaultValue = "") String word,
                                    @RequestParam(name="now_page", defaultValue="1") int now_page) {
     // 관리자만 접근 가능하도록 제한
-    if (this.memberProc.isAdmin(session)) {
+    if (!isAdmin(session)) {
+      return "redirect:/member/login_cookie_need?url=/cate/list_search";
+    }
       // 1. 등록 폼에서 사용할 기본값 준비
       CateVO cateVO = new CateVO(); // form 초기값 전달
       // cateVO.setGenre("분류");
@@ -215,13 +231,7 @@ public class CateCont {
       // --------------------------------------------------------------------------------------    
       
       return "cate/list_search";  // /templates/cate/list_search.html
-    } else {
-      // 비로그인 상태 혹은 관리자 권한이 없으면 로그인 페이지로 이동
-      return "redirect:/member/login_cookie_need?url=/cate/list_search"; // redirect
-    }
-    
-
-  }  
+    } 
   
   /**
    * 조회
@@ -299,7 +309,9 @@ public class CateCont {
                                @RequestParam(name="now_page", defaultValue="1") int now_page) {
     // System.out.println("-> read cateno: " + cateno);
 
-    if (this.memberProc.isAdmin(session)) {
+    if (!isAdmin(session)) {
+      return "redirect:/member/login_cookie_need?url=/cate/update/" + cateno;
+    }
       // 1. 수정 대상 카테고리 정보 불러오기
       CateVO cateVO = this.cateProc.read(cateno);
       model.addAttribute("cateVO", cateVO);
@@ -338,13 +350,7 @@ public class CateCont {
       
       // 8. 수정 페이지 이동       
       return "cate/update"; // /templates/cate/update.html
-    } else {
-      // 비관리자 접근 시 로그인 필요 페이지로 이동
-      return "redirect:/member/login_cookie_need"; // redirect
     }
-    
-
-  }
   
   /**
    * 수정 처리
@@ -361,9 +367,13 @@ public class CateCont {
                                BindingResult bindingResult,
                                @RequestParam(name="word", defaultValue = "") String word,
                                @RequestParam(name="now_page", defaultValue="1") int now_page,
-                               RedirectAttributes ra) {
+                               RedirectAttributes ra,
+                               HttpSession session) {
     // System.out.println("-> update_process");
     // 1. 유효성 검사 실패 시 다시 수정 폼으로 돌아감
+    if (!isAdmin(session)) {
+      return "redirect:/member/login_cookie_need?url=/cate/update/" + cateVO.getCateno();
+    }
     if (bindingResult.hasErrors() == true) {
       return "cate/update"; // /templates/cate/update.html 
     }
@@ -405,9 +415,13 @@ public class CateCont {
   public String delete(Model model, 
                               @PathVariable("cateno") Integer cateno,
                               @RequestParam(name="word", defaultValue = "") String word,
-                              @RequestParam(name="now_page", defaultValue="1") int now_page) {
+                              @RequestParam(name="now_page", defaultValue="1") int now_page,
+                              HttpSession session) {
     // System.out.println("-> read cateno: " + cateno);
     // 1. 삭제할 카테고리 정보 조회 (삭제 확인용)
+    if (!isAdmin(session)) {
+      return "redirect:/member/login_cookie_need?url=/cate/delete/" + cateno;
+    }
     CateVO cateVO = this.cateProc.read(cateno);
     model.addAttribute("cateVO", cateVO);
     
@@ -461,8 +475,12 @@ public class CateCont {
                                          @PathVariable("cateno") Integer cateno,
                                          @RequestParam(name="word", defaultValue = "") String word,
                                          RedirectAttributes ra,
-                                         @RequestParam(name="now_page", defaultValue="1") int now_page) {    
+                                         @RequestParam(name="now_page", defaultValue="1") int now_page,
+                                         HttpSession session) {    
     // 1. 삭제 전 정보를 미리 조회 (실패 시 메시지 등에 활용)
+    if (!isAdmin(session)) {
+      return "redirect:/member/login_cookie_need?url=/cate/delete/" + cateno;
+    }
     CateVO cateVO = this.cateProc.read(cateno); // 삭제 정보 출력용으로 사전에 읽음
     model.addAttribute("cateVO", cateVO);
     
@@ -513,8 +531,12 @@ public class CateCont {
                                          @PathVariable("cateno") Integer cateno,
                                          @RequestParam(name="word", defaultValue = "") String word,
                                          RedirectAttributes ra,
-                                         @RequestParam(name="now_page", defaultValue="1") int now_page) {    
+                                         @RequestParam(name="now_page", defaultValue="1") int now_page,
+                                         HttpSession session) {    
     // 1. 삭제 전 카테고리 정보 읽어오기 (뷰에 정보 전달용)
+    if (!isAdmin(session)) {
+      return "redirect:/member/login_cookie_need?url=/cate/delete/" + cateno;
+    }
     CateVO cateVO = this.cateProc.read(cateno); // 삭제 정보 출력용으로 사전에 읽음
     model.addAttribute("cateVO", cateVO);
     
@@ -574,8 +596,11 @@ public class CateCont {
   public String update_seqno_forward(Model model, @PathVariable("cateno") Integer cateno,
                                                   @RequestParam(name="word", defaultValue = "") String word,
                                                   @RequestParam(name="now_page", defaultValue = "1") int now_page,
-                                                  RedirectAttributes ra) {
-    
+                                                  RedirectAttributes ra,
+                                                  HttpSession session) {
+    if (!isAdmin(session)) {
+      return "redirect:/member/login_cookie_need?url=/cate/list_search";
+    }
     this.cateProc.update_seqno_forward(cateno); // 서비스 로직에서 seqno 감소
     
     ra.addAttribute("word", word);
@@ -593,8 +618,11 @@ public class CateCont {
   public String update_seqno_backward(Model model, @PathVariable("cateno") Integer cateno,
                                                     @RequestParam(name="word", defaultValue = "") String word,
                                                     @RequestParam(name="now_page", defaultValue = "1") int now_page,
-                                                    RedirectAttributes ra) {
-    
+                                                    RedirectAttributes ra,
+                                                    HttpSession session) {
+    if (!isAdmin(session)) {
+      return "redirect:/member/login_cookie_need?url=/cate/list_search";
+    }
     this.cateProc.update_seqno_backward(cateno); // 서비스 로직에서 seqno 증가
     
     ra.addAttribute("word", word);
@@ -613,8 +641,12 @@ public class CateCont {
   public String update_visible_y(Model model, @PathVariable("cateno") Integer cateno,
       @RequestParam(name="word", defaultValue = "") String word,
       @RequestParam(name="now_page", defaultValue="1") int now_page,
-      RedirectAttributes ra) {
+      RedirectAttributes ra,
+      HttpSession session) {
     
+    if (!isAdmin(session)) {
+      return "redirect:/member/login_cookie_need?url=/cate/list_search";
+    }
     // System.out.println("-> update_visible_y()");
     
     // 검색어, 페이지 유지
@@ -637,10 +669,13 @@ public class CateCont {
   public String update_visible_n(Model model, @PathVariable("cateno") Integer cateno,
                                             @RequestParam(name="word", defaultValue = "") String word,
                                             @RequestParam(name="now_page", defaultValue="1") int now_page,
-                                            RedirectAttributes ra) {
+                                            RedirectAttributes ra,
+                                            HttpSession session) {
     
     // System.out.println("-> update_visible_n()");
-    
+    if (!isAdmin(session)) {
+      return "redirect:/member/login_cookie_need?url=/cate/list_search";
+    }
     this.cateProc.update_visible_n(cateno); // visible 컬럼을 'N'으로 변경
     
     // 검색어, 페이지 유지
@@ -656,10 +691,13 @@ public class CateCont {
    */
   @GetMapping("/update_cnt")
   @ResponseBody
-  public String updateCnt() {
+  public String updateCnt(HttpSession session) {
+    if (!isAdmin(session)) {
+      return "권한 없음 (관리자만 가능)";
+    }
     cateProc.updateMidCnt();
     cateProc.updateMainCnt();
-    return "카테고리 cnt 동기화 완료"; //수정해야함
+    return "카테고리 cnt 동기화 완료";
   }
   
 }
