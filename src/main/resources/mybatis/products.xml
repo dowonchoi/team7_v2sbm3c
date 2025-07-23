@@ -303,8 +303,15 @@
   <select id="listRecommend" resultType="dev.mvc.products.ProductsVO">
     SELECT productsno, title, saleprice AS price_now, file1saved
     FROM products
-    WHERE is_best = 'Y'
-    ORDER BY rdate DESC
+    WHERE visible = 'Y' AND recom >= 1
+    ORDER BY recom DESC  <!-- ❤️ 추천수 컬럼 기준으로 정렬 -->
+  </select>
+  
+  <!-- products.xml -->
+  <select id="listVisible" resultType="dev.mvc.products.ProductsVO">
+    SELECT productsno, title, saleprice AS price_now, file1saved
+    FROM products
+    WHERE visible = 'Y'
   </select>
 
 </mapper> 

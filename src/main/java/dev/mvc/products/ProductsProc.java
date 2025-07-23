@@ -318,11 +318,6 @@ public class ProductsProc implements ProductsProcInter {
     return this.productsDAO.listSoonExpire();
   }
 
-//  @Override
-//  public List<ProductsVO> listFreeShipping() {
-//    return this.productsDAO.listFreeShipping();
-//  }
-
   @Override
   public List<ProductsVO> listEvent() {
     return this.productsDAO.listEvent();
@@ -335,6 +330,11 @@ public class ProductsProc implements ProductsProcInter {
   @Override
   public List<ProductsVO> listRecommend() {
     return productsDAO.listRecommend();
+  }
+  
+  @Override
+  public List<ProductsVO> listVisible() {
+      return this.productsDAO.listVisible();
   }
 
 }

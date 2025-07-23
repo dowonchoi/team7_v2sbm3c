@@ -22,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -1153,13 +1154,12 @@ public class ProductsCont {
     return "/index";
   }
   
-  //추천 상품 전체 보기
- @GetMapping("/recommend")
- public String recommendList(Model model) {
-   List<ProductsVO> list = productsProc.listRecommend(); // 추천 상품 가져오기
-   model.addAttribute("list", list);
-   model.addAttribute("title", "추천 상품");
-
-   return "/products/list_recommend"; // ✅ 템플릿 위치: templates/products/list_recommend.html
- }  
+  //✅ React에서 호출하는 추천 상품 JSON API
+ @CrossOrigin(origins = "http://localhost:3000") // React용 CORS 허용
+ @GetMapping("/json")
+ @ResponseBody
+ public List<ProductsVO> productsJson() {
+     return productsProc.listRecommend();  // 또는 원하는 메서드
+ }
+ 
 }

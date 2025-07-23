@@ -194,9 +194,9 @@ public interface ProductsProcInter {
 
   public List<ProductsVO> listSoonExpire();
 
-//  public List<ProductsVO> listFreeShipping();
-
   public List<ProductsVO> listEvent();
 
   public List<ProductsVO> listRecommend();
+  
+  public List<ProductsVO> listVisible();  // visible='Y' 상품 목록
 }

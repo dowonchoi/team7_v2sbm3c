@@ -55,6 +55,7 @@ ALTER TABLE products ADD is_best CHAR(1) DEFAULT 'N';
 ALTER TABLE products ADD is_new CHAR(1) DEFAULT 'N';
 ALTER TABLE products ADD is_event CHAR(1) DEFAULT 'N';
 ALTER TABLE products ADD expire_date DATE;
+ALTER TABLE products ADD recommend CHAR(1);
 
 COMMENT ON TABLE products is '상품';
 COMMENT ON COLUMN products.productsno is '상품 번호';
@@ -114,6 +115,14 @@ CREATE SEQUENCE products_seq
 SELECT productsno, title, price_before, saleprice, dc
 FROM products
 WHERE title LIKE '%토마토%';
+
+SELECT productsno, title, file1saved
+FROM products
+WHERE visible = 'Y';
+
+SELECT productsno, title, file1saved
+FROM products
+WHERE is_best = 'Y';
 
 -- 판매자 2번, 제철/채소
 INSERT INTO products (productsno, memberno, cateno, title, content, passwd, rdate, price, dc, saleprice, point, salecnt, visible)

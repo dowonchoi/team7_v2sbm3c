@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html layout:decorate="~{layout}">
 <head>
-    <!-- index 전용 CSS -->
-    <link rel="stylesheet" href="/css/index.css">
+  <!-- index 전용 CSS -->
+  <link rel="stylesheet" href="/css/index.css">
 </head>
 <body>
 <div layout:fragment="content">
@@ -49,7 +49,7 @@
     </div>
   </section>
 
-  <!-- ✅ 추천 상품 -->
+  <!-- ✅ 추천 상품
   <section class="index-products container">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h4 class="index-section-title">추천 상품</h4>
@@ -57,18 +57,40 @@
     </div>
 
     <div class="index-product-grid">
-      <div class="index-product-card" th:each="product, stat : ${productList}">
-        <div th:if="${stat.index < 4 and product.productsno != null}">
+      <th:block th:each="product, stat : ${productList}">
+        <div class="index-product-card" th:if="${stat.index < 4 and product.productsno != null}">
           <img th:src="@{|/products/storage/${product.file1saved}|}" alt="상품 이미지">
           <div class="index-product-info">
             <p class="index-product-name" th:text="${product.title}">상품명</p>
             <p class="index-product-price" th:text="|${product.price_now}원|">10,000원</p>
-            <a th:href="@{|/products/detail?productsno=${product.productsno}|}" class="index-btn-detail">상세보기</a>
+            <a th:href="@{|/products/read?productsno=${product.productsno}|}" class="index-btn-detail">상세보기</a>
           </div>
         </div>
-      </div>
+      </th:block>
     </div>
+  </section> -->
+
+  <!-- 추천 상품 (iframe 삽입) -->
+  <section class="index-products container" style="overflow: hidden;">
+    <iframe 
+      src="http://localhost:3000/recommend"
+      id="recommendIframe"
+      style="border: none; width: 100%; height: 600px; overflow: hidden;"
+      scrolling="no">
+    </iframe>
   </section>
+
+  <script>
+    window.addEventListener('message', function (e) {
+      if (e.data?.type === 'resize' && typeof e.data.height === 'number') {
+        const iframe = document.getElementById('recommendIframe');
+        if (iframe) {
+          iframe.style.height = `${e.data.height}px`;
+        }
+      }
+    });
+  </script>
+
 
   <!-- ✅ AI 서비스 배너 -->
   <section class="index-ai-banner container">

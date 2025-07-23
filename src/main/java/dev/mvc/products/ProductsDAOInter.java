@@ -194,6 +194,7 @@ public interface ProductsDAOInter {
   
   public List<ProductsVO> listRecommend();
 
+  public List<ProductsVO> listVisible();  // visible='Y' 상품 목록
 }
  
  
