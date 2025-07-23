@@ -4,7 +4,11 @@
   <!-- ✅ 상단 유틸 메뉴 -->
   <div class="top-util d-flex justify-content-between px-4 py-1 bg-white border-bottom small text-secondary" style="font-size: 13px;">
     <div>
+<<<<<<< HEAD
       <a href="http://localhost:3003/seller-guide" class="me-3 text-decoration-none text-secondary" target="_blank">판매자센터</a>
+=======
+      <a href="http://localhost:3000/seller-guide" class="me-3 text-decoration-none text-secondary" target="_blank">판매자센터</a>
+>>>>>>> b08a8f6a3f0fcb573949aeae4219bef14823f306
       <a th:href="@{/notice/list}" class="me-3 text-decoration-none text-secondary">공지사항</a>
       <!-- ✅ 관리자 전용 MMS 메뉴 -->
       <th:block th:if="${session.gradeStr eq 'admin'}">
