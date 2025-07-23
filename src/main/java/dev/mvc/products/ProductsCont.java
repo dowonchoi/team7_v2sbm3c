@@ -277,22 +277,21 @@ public class ProductsCont {
    */
   @GetMapping(value = "/list_all")
   public String list_all(HttpSession session, Model model) {
-    // 상단 메뉴 구성
-    ArrayList<CateVOMenu> menu = this.cateProc.menu();
-    model.addAttribute("menu", menu);
+      // 상단 메뉴 구성
+      ArrayList<CateVOMenu> menu = this.cateProc.menu();
+      model.addAttribute("menu", menu);
 
-    // 세션에서 권한 확인
-    String grade = (String) session.getAttribute("grade");
+      // 세션에서 권한 확인
+      Integer gradeObj = (Integer) session.getAttribute("grade");
+      int grade = (gradeObj != null) ? gradeObj : 99;
 
-    if ("admin".equals(grade)) {
-      ArrayList<ProductsVO> list = this.productsProc.list_all();
-      model.addAttribute("list", list);
-      return "products/list_all"; // 관리자 전용 목록 페이지
-
-    } else {
-      // 접근 불가 → 로그인 안내
-      return "redirect:/member/login_cookie_need?url=/products/list_all";
-    }
+      if (grade >= 1 && grade <= 4) { // 관리자 권한
+          ArrayList<ProductsVO> list = this.productsProc.list_all();
+          model.addAttribute("list", list);
+          return "products/list_all";
+      } else {
+          return "redirect:/member/login_cookie_need?url=/products/list_all";
+      }
   }
 
 
