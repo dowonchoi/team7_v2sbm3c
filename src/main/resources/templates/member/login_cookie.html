@@ -40,11 +40,17 @@
 
       document.getElementById('frm').submit();
     }
+
+    function fillAdminTestAccount() {
+      document.getElementById('id').value = "admin";
+      document.getElementById('passwd').value = "1234";  // 테스트 계정 패스워드
+    }
+
   </script>
 
   <!-- 상단 제목 -->
   <div class="title_line text-center" style="font-size: 32px; font-weight: bold; margin-bottom: 20px;">
-    떨이몰
+    SoOn 마켓
   </div>
 
   <!-- 탭 영역 -->
@@ -102,6 +108,10 @@
         <li class="list-inline-item">│</li>
         <li class="list-inline-item">
           <a href="/member/create" class="find_text" style="text-decoration: none;">회원가입</a>
+        </li>
+        <li class="list-inline-item">│</li>
+        <li class="list-inline-item">
+          <a href="#" onclick="fillAdminTestAccount()" class="find_text" style="text-decoration: none;">관리자용 테스트 계정</a>
         </li>
       </ul>
 

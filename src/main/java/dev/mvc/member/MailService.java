@@ -17,25 +17,39 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
+/**
+ * 이메일 관련 서비스를 처리하는 클래스
+ */
 @Service
 public class MailService {
 
+  //Spring에서 제공하는 메일 발송 객체 자동 주입
   @Autowired
   private final JavaMailSender mailSender;
 
+  //application.properties에 등록된 발신자 이메일 정보
   @Value("${spring.mail.username}")
   private String fromEmail;
 
+  //생성자 방식 주입
   public MailService(JavaMailSender mailSender) {
     this.mailSender = mailSender;
   }
 
-  /** 이메일 형식 체크 메서드 */
+  /**
+   * 이메일 형식 검증 메서드
+   */
   private boolean isValidEmail(String email) {
       return email != null && email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
   }
 
-  /** 일반 메일 전송 */
+  /**
+   * 일반 텍스트/HTML 메일 전송
+   * @param to 수신자 이메일
+   * @param subject 제목
+   * @param content 본문 (HTML 가능)
+   * @return 전송 성공 여부
+   */
   public boolean sendMail(String to, String subject, String content) {
       if (!isValidEmail(to)) {
           System.out.println("❌ 이메일 주소가 유효하지 않습니다: " + to);
@@ -59,6 +73,14 @@ public class MailService {
       }
     } 
 
+  /**
+   * 첨부파일 포함 메일 전송
+   * @param to 수신자
+   * @param subject 제목
+   * @param content 본문
+   * @param files 첨부파일 배열
+   * @param savePath 저장 경로 (임시)
+   */
   public void sendMailWithAttachment(String to, String subject, String content, MultipartFile[] files, String savePath) {
     try {
       MimeMessage message = mailSender.createMimeMessage();
@@ -82,7 +104,12 @@ public class MailService {
     }
   }
 
-  /** ✔️ 비밀번호 재설정 링크 메일 전송 */
+  /**
+   * 비밀번호 재설정 메일 전송 (템플릿 사용)
+   * @param toEmail 수신 이메일
+   * @param resetLink 재설정 링크
+   * @return 성공 여부
+   */
   public boolean sendResetPasswordMail(String toEmail, String resetLink) {
     if (!isValidEmail(toEmail)) {
         System.out.println("❌ 이메일 형식 오류: " + toEmail);
@@ -109,8 +136,14 @@ public class MailService {
         e.printStackTrace();
         return false;
     }
-}
+  }
   
+  /**
+   * 이메일 인증 코드 메일 전송
+   * @param email 수신자
+   * @param code 인증 코드
+   * @return 전송 성공 여부
+   */
   public boolean sendVerificationMail(String email, String code) {
     try {
       MimeMessage message = mailSender.createMimeMessage();
