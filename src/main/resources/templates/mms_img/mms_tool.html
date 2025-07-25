@@ -2,11 +2,12 @@
 <html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org" lang="ko">
 <div layout:fragment="content">
 
-    <!-- ✅ MMS 툴 전용 CSS -->
+    <!-- MMS 툴 전용 CSS -->
     <link rel="stylesheet" href="/css/mms_tool.css">
 
     <div class="mms-tool-container">
         <h2 class="mms-tool-title">MMS 이미지 원툴</h2>
+
 
         <!-- STEP 1 -->
         <div>
@@ -30,7 +31,7 @@
             <div class="mms-tool-options">
                 <label>폰트:
                     <input type="text" id="fontName" value="Malgun Gothic">
-                    <span class="mms-tool-font-guide">사용 가능: Malgun Gothic, Arial, Verdana, Nanum Gothic</span>
+                    <span class="mms-tool-font-guide">사용 가능: (기본 SansSerif) NanumGothic,(한글 지원) Arial과 Verdana는 영어 지원</span>
                 </label>
                 <label>크기(px):
                     <input type="number" id="fontSize" value="60">
@@ -59,7 +60,7 @@
         </div>
     </div>
 
-    <!-- ✅ 페이지 전용 JS -->
+    <!-- 페이지 전용 JS -->
     <script>
         let fileName = '';
         let finalFileName = '';
