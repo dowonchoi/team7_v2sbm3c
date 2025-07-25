@@ -22,186 +22,259 @@ import dev.mvc.member.MemberProcInter;
 import dev.mvc.tool.LLMKey;
 import jakarta.servlet.http.HttpSession;
 
+/**
+ * OpenAI 기반 기능 컨트롤러
+ * - FastAPI와 연동하여 AI 서비스(레시피 추천, 이미지 기반 기능) 제공
+ * - 역할:
+ *    1) 식재료 기반 레시피 추천 UI 및 API 연동
+ *    2) 사용자 이미지 기반 AI 기능
+ *    3) FastAPI 서버와 통신 (HTTP 요청)
+ */
 @Controller
 @RequestMapping("/openai")
 public class OpenAICont {
-  
+
+  /** 회원 이미지 처리 서비스 */
   @Autowired
   @Qualifier("dev.mvc.openai.MemberImgProc")
   private MemberImgProcInter memberImgProc;
 
-    @Autowired
-    @Qualifier("dev.mvc.openai.RecipeProc")
-    private RecipeProcInter recipeProc;
+  /** 레시피 처리 서비스 */
+  @Autowired
+  @Qualifier("dev.mvc.openai.RecipeProc")
+  private RecipeProcInter recipeProc;
+
+  /** 회원 관련 기능 서비스 */
+  @Autowired
+  @Qualifier("dev.mvc.member.MemberProc")
+  private MemberProcInter memberProc;
+
+  /** FastAPI 호출용 HTTP 클라이언트 */
+  private final RestTemplate restTemplate;
+
+  /** FastAPI URL: 레시피 추천 API */
+  private static final String FASTAPI_FOOD_URL = "http://localhost:8000/food";
+  /** FastAPI URL: 회원 이미지 분석 API */
+  private static final String FASTAPI_MEMBER_IMG_URL = "http://localhost:8000/member_img";
+
   
-    @Autowired
-    @Qualifier("dev.mvc.member.MemberProc")
-    private MemberProcInter memberProc;
+  /**
+   * RestTemplate 의존성 주입 (생성자 방식)
+   * @param restTemplate Spring에서 제공하는 HTTP 요청 객체
+   */
+  @Autowired
+  public OpenAICont(RestTemplate restTemplate) {
+    this.restTemplate = restTemplate;
+    System.out.println("-> OpenAICont initialized. RestTemplate hashCode: " + this.restTemplate.hashCode());
+  }
 
-    private final RestTemplate restTemplate;
+  /**
+   * [GET] 레시피 추천 페이지
+   * - 기능: 식재료 선택 UI 출력 + 사용자의 이전 레시피 내역 조회
+   * - URL 예시: http://localhost:9093/openai/recipe
+   *
+   * @param session  로그인 정보 확인용 세션
+   * @param model    뷰에 데이터 전달용 객체
+   * @return         openai/recipe.html (Thymeleaf 템플릿)
+   */
+  @GetMapping("/recipe")
+  public String recipePage(HttpSession session, Model model) {
+    // (1) 로그인 여부 확인
+    Integer memberno = (Integer) session.getAttribute("memberno");
+    if (memberno == null) {       // 로그인 안 된 경우 → 로그인 유도 페이지로 리디렉션
+      return "redirect:/member/login_cookie_need?url=/openai/recipe";
+    }
 
-    // FastAPI URL
-    private static final String FASTAPI_FOOD_URL = "http://localhost:8000/food";
+    // (2) 식재료 목록 전달 (FastAPI와 동일한 순서)
+    String[] foods = { "배추", "무", "대파", "양파", "오이", "사과", "배", "귤", "바나나", "딸기", "고등어", "갈치", "새우", "홍합", "오징어", "소고기",
+        "돼지고기", "닭가슴살", "닭날개", "닭다리", "우유", "달걀", "치즈", "버터", "두부" };
+    model.addAttribute("foods", foods);
 
-    private static final String FASTAPI_MEMBER_IMG_URL = "http://localhost:8000/member_img";
+    // (3) 사용자 레시피 내역 (DB에서 최근 기록 조회)
+    model.addAttribute("recipeList", recipeProc.list_by_member(memberno));
 
+    // (4) 템플릿 이동
+    return "openai/recipe"; // /templates/openai/recipe.html
+  }
+
+  /**
+   * [POST] AJAX 요청 → FastAPI 호출 → 레시피 추천 결과 반환
+   * - 프론트엔드에서 선택한 식재료 데이터를 FastAPI에 전달하여 추천 결과를 받아옴
+   * - DB에 추천 결과 로그 저장 (Recipe 테이블)
+   * 
+   * 요청 파라미터:
+   *   - food (String): 선택된 재료를 이진수 문자열로 전달 (예: "0,1,0,0,1,...")
+   * 응답:
+   *   - JSON: { "success": true, "response": "추천 결과" } 형태
+   */
+  @PostMapping("/recipe_ajax")
+  @ResponseBody
+  public Map<String, Object> recommendRecipe(@RequestParam("food") String foodBinary, HttpSession session) {
+    Map<String, Object> result = new HashMap<>();
+
+    // (1) 로그인 여부 확인
+    Integer memberno = (Integer) session.getAttribute("memberno"); // 로그인 사용자 PK
+    if (memberno == null) {
+      result.put("error", "로그인이 필요합니다.");
+      return result;
+    }
+
+    try {
+      // (2) FastAPI 요청 헤더 생성 (Content-Type: application/json)
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.APPLICATION_JSON); // JSON 데이터 전송 명시
+
+      // (3) 요청 바디 데이터 구성
+      Map<String, Object> body = new HashMap<>();
+      body.put("SpringBoot_FastAPI_KEY", new LLMKey().getSpringBoot_FastAPI_KEY());  // 인증 키
+      body.put("food", foodBinary); // 예: "0,1,0,0,1..." // 선택 재료 정보 (이진 문자열)
+
+      // 요청 엔티티 생성 (헤더 + 바디)
+      HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+      // (4) FastAPI 서버 호출 (POST)
+      String response = restTemplate.postForObject(FASTAPI_FOOD_URL, requestEntity, String.class);
+      System.out.println("[OpenAICont] FastAPI Response: " + response);
+
+      // (5) DB에 추천 결과 저장
+      RecipeVO vo = new RecipeVO();
+      vo.setMemberno(memberno);       // 요청한 사용자
+      vo.setFoodBinary(foodBinary);   // 선택된 재료
+      vo.setContent(response);        // FastAPI에서 받은 추천 결과
+      recipeProc.create(vo);          // DB insert
+
+      // (6) 응답 데이터 JSON 그대로 반환 (프론트에서 처리)
+      result.put("success", true);
+      result.put("response", response);
+
+    } catch (Exception e) {
+      // 예외 처리: FastAPI 서버 오류, 네트워크 장애 등
+      e.printStackTrace();
+      result.put("success", false);
+      result.put("error", "FastAPI 호출 중 오류 발생: " + e.getMessage());
+    }
+
+    return result; // JSON 응답
+  }
+
+  /**
+   * [GET] 회원 이미지 생성 페이지
+   * - 접근 권한: 관리자(admin) 또는 공급자(supplier)만 가능
+   * - 해당 회원이 생성한 이미지 리스트를 DB에서 조회하여 화면에 출력
+   * 
+   * 처리 흐름:
+   *   1) 세션에서 gradeStr(문자열 등급) 확인
+   *   2) 권한 없으면 로그인 안내 페이지로 리다이렉트
+   *   3) 로그인된 회원의 이미지 목록 조회 → Model에 저장
+   *   4) 뷰 페이지로 forward → openai/member_img.html 렌더링
+   */
+  @GetMapping("/member_img")
+  public String memberImgPage(HttpSession session, Model model) {
+    // (1) 사용자 권한 확인 (admin 또는 supplier만 허용)
+    String gradeStr = (String) session.getAttribute("gradeStr");
+    if (gradeStr == null || (!"admin".equals(gradeStr) && !"supplier".equals(gradeStr))) {
+      // 권한 없음 → 로그인 필요 안내 페이지로 리다이렉트
+      return "redirect:/member/login_cookie_need?url=/openai/member_img";
+    }
+
+    // (2) 로그인한 회원번호 확인
+    Integer memberno = (Integer) session.getAttribute("memberno");
+    if (memberno != null) {
+      // (3) 회원별 생성 이미지 목록 DB 조회
+      model.addAttribute("imgList", memberImgProc.list_by_member(memberno));
+    }
+    // (4) 뷰 렌더링
+    return "openai/member_img";
+  }
+
+  
+  /**
+   * [POST] 회원 이미지 생성 (AJAX)
+   * - 사용자가 입력한 프롬프트를 기반으로 FastAPI 서버를 호출해 AI 이미지 생성
+   * - 생성된 이미지 파일명을 DB에 저장
+   * - 관리자(admin) 또는 공급자(supplier)만 접근 가능
+   *
+   * 요청 파라미터:
+   *   - prompt: 이미지 생성에 사용할 텍스트 프롬프트
+   *
+   * 처리 흐름:
+   *   1) 세션에서 로그인 및 권한 확인 (admin, supplier만 허용)
+   *   2) FastAPI 호출 준비 (헤더 + JSON Body)
+   *   3) FastAPI로 요청 → AI 이미지 생성 후 응답(JSON)
+   *   4) 응답 JSON에서 생성된 파일 경로 추출 → 파일명만 파싱
+   *   5) DB(MemberImg 테이블)에 이미지 정보 저장 (회원번호, 프롬프트, 파일명)
+   *   6) 프론트에 성공 여부와 파일명 반환
+   *
+   * 응답 예시:
+   *   { "success": true, "filename": "ai_image_202507.jpg" }
+   */
+  @PostMapping("/member_img_ajax")
+  @ResponseBody
+  public Map<String, Object> createMemberImage(@RequestParam("prompt") String prompt, HttpSession session) {
+    // (0) 클라이언트로 반환할 결과 Map 초기화
+    Map<String, Object> result = new HashMap<>();
     
-    @Autowired
-    public OpenAICont(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-        System.out.println("-> OpenAICont initialized. RestTemplate hashCode: " + this.restTemplate.hashCode());
+    // (1) 세션에서 권한 확인 (grade, memberno)
+    String grade = (String) session.getAttribute("grade"); // 사용자 등급 (admin, supplier, user 등)
+    Integer memberno = (Integer) session.getAttribute("memberno"); // 로그인한 회원 PK
+
+    // 권한 체크: admin 또는 supplier가 아니면 거부
+    if (grade == null || (!"admin".equals(grade) && !"supplier".equals(grade))) {
+      result.put("success", false);
+      result.put("error", "권한이 없습니다.");
+      return result;
     }
 
-    /**
-     * ✅ 레시피 추천 페이지 (식재료 선택 UI 출력)
-     */
-    @GetMapping("/recipe")
-    public String recipePage(HttpSession session, Model model) {
-        Integer memberno = (Integer) session.getAttribute("memberno");
-        if (memberno == null) {
-            return "redirect:/member/login_cookie_need?url=/openai/recipe";
-        }
+    // 생성된 이미지 파일명 (try 블록 외부에서 선언 → 예외 처리에서도 접근 가능)
+    String fileName = ""; // try 바깥에서 선언
+    try {
+      // (2) FastAPI 호출을 위한 HTTP 헤더 설정
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.APPLICATION_JSON); // 요청 데이터 타입: JSON
 
-        // ✅ 식재료 목록 전달 (FastAPI와 동일한 순서)
-        String[] foods = {
-                "배추", "무", "대파", "양파", "오이",
-                "사과", "배", "귤", "바나나", "딸기",
-                "고등어", "갈치", "새우", "홍합", "오징어",
-                "소고기", "돼지고기", "닭가슴살", "닭날개", "닭다리",
-                "우유", "달걀", "치즈", "버터", "두부"
-        };
-        model.addAttribute("foods", foods);
-        
-        // 추가: 사용자 레시피 내역
-        model.addAttribute("recipeList", recipeProc.list_by_member(memberno));
+      // (3) 요청 바디 데이터 생성
+      Map<String, Object> body = new HashMap<>();
+      body.put("SpringBoot_FastAPI_KEY", new LLMKey().getSpringBoot_FastAPI_KEY());  // 인증 키 (보안)
+      body.put("prompt", prompt);
 
-        return "openai/recipe"; // /templates/openai/recipe.html
-    }
+      // (4) HttpEntity 생성 → 헤더 + 바디 합침
+      HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
-    /**
-     * ✅ AJAX 요청 → FastAPI 호출 → 레시피 추천 결과 반환
-     */
-    @PostMapping("/recipe_ajax")
-    @ResponseBody
-    public Map<String, Object> recommendRecipe(@RequestParam("food") String foodBinary, 
-                                                                   HttpSession session) {
-        Map<String, Object> result = new HashMap<>();
+      // (5) FastAPI 서버 호출 (POST 요청)
+      String response = restTemplate.postForObject(FASTAPI_MEMBER_IMG_URL, requestEntity, String.class);
+      System.out.println("[OpenAICont] FastAPI Response: " + response);
 
-        // ✅ 로그인 체크
-        Integer memberno = (Integer) session.getAttribute("memberno");
-        if (memberno == null) {
-            result.put("error", "로그인이 필요합니다.");
-            return result;
-        }
+      // (6) 응답 JSON 파싱 → 생성된 이미지 경로 추출
+      JSONObject json = new JSONObject(response);
+      String fullPath = json.getString("file_name"); // "C:/kd/deploy/team/member_img/storage/xxx.jpg"
 
-        try {
-            // ✅ FastAPI 요청 준비
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            Map<String, Object> body = new HashMap<>();
-            body.put("SpringBoot_FastAPI_KEY", new LLMKey().getSpringBoot_FastAPI_KEY());
-            body.put("food", foodBinary); // 예: "0,1,0,0,1..."
-
-            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-
-            // ✅ FastAPI 호출
-            String response = restTemplate.postForObject(FASTAPI_FOOD_URL, requestEntity, String.class);
-            System.out.println("[OpenAICont] FastAPI Response: " + response);
-            
-            // ✅ DB 저장
-            RecipeVO vo = new RecipeVO();
-            vo.setMemberno(memberno);
-            vo.setFoodBinary(foodBinary);
-            vo.setContent(response);
-            recipeProc.create(vo);
-
-            // ✅ JSON 그대로 반환 (프론트에서 처리)
-            result.put("success", true);
-            result.put("response", response);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            result.put("success", false);
-            result.put("error", "FastAPI 호출 중 오류 발생: " + e.getMessage());
-        }
-
-        return result;
-    }
-    
-    @GetMapping("/member_img")
-    public String memberImgPage(HttpSession session, Model model) {
-      // ✅ 문자열 등급으로 확인 (gradeStr 사용)
-      String gradeStr = (String) session.getAttribute("gradeStr");
-      if (gradeStr == null || (!"admin".equals(gradeStr) && !"supplier".equals(gradeStr))) {
-          return "redirect:/member/login_cookie_need?url=/openai/member_img";
+      // (7) 전체 경로에서 파일명만 추출 (슬래시 or 역슬래시 모두 처리)
+      fileName = fullPath.substring(fullPath.lastIndexOf("/") + 1);  // "/" 기준 잘라 파일명 추출
+      if (fileName.contains("\\")) {
+        fileName = fileName.substring(fileName.lastIndexOf("\\") + 1);
       }
+      System.out.println("-> Extracted fileName: " + fileName);
 
-        Integer memberno = (Integer) session.getAttribute("memberno");
-        if (memberno != null) {
-            model.addAttribute("imgList", memberImgProc.list_by_member(memberno));
-        }
+      // (8) DB 저장 (MemberImg 테이블)
+      MemberImgVO vo = new MemberImgVO();
+      vo.setMemberno(memberno);   // 요청한 사용자 번호
+      vo.setPrompt(prompt);       // 생성 요청 시 사용된 프롬프트
+      vo.setFilename(fileName);   // 저장된 파일명
+      memberImgProc.create(vo);   // DB insert
 
-        return "openai/member_img";
+      // (9) 응답 데이터 구성
+      result.put("success", true);
+      result.put("filename", fileName); // 클라이언트에서 이미지 출력 시 사용
+
+    } catch (Exception e) {
+      // 예외 발생 시 처리 (FastAPI 서버 오류, JSON 파싱 문제 등)
+      e.printStackTrace();
+      result.put("success", false);
+      result.put("error", "FastAPI 호출 중 오류 발생: " + e.getMessage());
     }
 
-    @PostMapping("/member_img_ajax")
-    @ResponseBody
-    public Map<String, Object> createMemberImage(@RequestParam("prompt") String prompt, HttpSession session) {
-        Map<String, Object> result = new HashMap<>();
-        String grade = (String) session.getAttribute("grade");
-        Integer memberno = (Integer) session.getAttribute("memberno");
-
-        if (grade == null || (!"admin".equals(grade) && !"supplier".equals(grade))) {
-            result.put("success", false);
-            result.put("error", "권한이 없습니다.");
-            return result;
-        }
-
-        String fileName = ""; // ✅ try 바깥에서 선언
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            Map<String, Object> body = new HashMap<>();
-            body.put("SpringBoot_FastAPI_KEY", new LLMKey().getSpringBoot_FastAPI_KEY());
-            body.put("prompt", prompt);
-
-            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-
-            // ✅ FastAPI 호출
-            String response = restTemplate.postForObject(FASTAPI_MEMBER_IMG_URL, requestEntity, String.class);
-            System.out.println("[OpenAICont] FastAPI Response: " + response);
-
-            // ✅ JSON 파싱
-            JSONObject json = new JSONObject(response);
-            String fullPath = json.getString("file_name"); // "C:/kd/deploy/team/member_img/storage/xxx.jpg"
-
-            // ✅ 파일명만 추출
-            fileName = fullPath.substring(fullPath.lastIndexOf("/") + 1);
-            if (fileName.contains("\\")) {
-                fileName = fileName.substring(fileName.lastIndexOf("\\") + 1);
-            }
-            System.out.println("-> Extracted fileName: " + fileName);
-
-            // ✅ DB 저장
-            MemberImgVO vo = new MemberImgVO();
-            vo.setMemberno(memberno);
-            vo.setPrompt(prompt);
-            vo.setFilename(fileName);
-            memberImgProc.create(vo);
-
-            result.put("success", true);
-            result.put("filename", fileName);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            result.put("success", false);
-            result.put("error", "FastAPI 호출 중 오류 발생: " + e.getMessage());
-        }
-
-        return result;
-    }
-
+    // (10) 결과 반환 (JSON)
+    return result;
+  }
 
 }

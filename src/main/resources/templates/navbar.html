@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
 <div th:fragment="navbarFragment">
-  <!-- ✅ 상단 유틸 메뉴 -->
+  <!--   상단 유틸 메뉴 -->
   <div class="top-util d-flex justify-content-between px-4 py-1 bg-white border-bottom small text-secondary" style="font-size: 13px;">
     <div>
       <a href="http://localhost:3001/seller-guide" class="me-3 text-decoration-none text-secondary" target="_blank">판매자센터</a>
       <a th:href="@{/notice/list}" class="me-3 text-decoration-none text-secondary">공지사항</a>
-      <!-- ✅ 관리자 전용 MMS 메뉴 -->
+      <!--   관리자 전용 MMS 메뉴 -->
       <th:block th:if="${session.grade != null and session.grade >= 1 and session.grade <= 4}">
         <a th:href="@{/mms/tool}" class="me-3 text-decoration-none text-danger fw-bold">MMS 문자 전송</a>
       </th:block>
@@ -25,7 +25,7 @@
     </div>
   </div>
 
-  <!-- ✅ 관리자 전용 메뉴 (상단 고정) -->
+  <!--   관리자 전용 메뉴 (상단 고정) -->
   <th:block th:if="${session.grade != null and session.grade >= 1 and session.grade <= 4}">
     <div class="bg-light border-bottom px-4 py-2 d-flex flex-wrap gap-3">
       <a th:href="@{/cate/list_search}" class="text-danger fw-bold text-decoration-none">카테고리 목록</a>
@@ -37,11 +37,11 @@
     </div>
   </th:block>
 
-  <!-- ✅ 메인 네비게이션 -->
+  <!--   메인 네비게이션 -->
   <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm sticky-top">
     <div class="container-fluid">
 
-      <!-- ✅ 로고 -->
+      <!--   로고 -->
       <a th:href="@{/}" class="navbar-brand d-flex align-items-center" style="height: 60px; margin-right: 12px;">
         <img th:src="@{/images/SoOn.png}" alt="SoOn 마켓" style="height: 100%; width: auto; object-fit: contain; display: block;">
       </a>
