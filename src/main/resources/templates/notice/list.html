@@ -19,22 +19,28 @@
 
   <div class="community-controls">
     <div class="left-group">
-      <select id="categoryFilter" class="category-select">
-        <option value="">카테고리 선택</option>
-        <option value="공지">공지</option>
-        <option value="이벤트">이벤트</option>
-        <option value="배송안내">배송안내</option>
-        <option value="상품정보">상품정보</option>
-        <!-- <option value="자유게시판">자유게시판</option> -->
-      </select>
+      <!-- ✅ 카테고리 선택만 따로 감싸서 제어 -->
+      <div id="categoryFilterWrapper">
+        <select id="categoryFilter" class="category-select">
+          <option value="">카테고리 선택</option>
+          <option value="공지">공지</option>
+          <option value="이벤트">이벤트</option>
+          <option value="배송안내">배송안내</option>
+          <option value="상품정보">상품정보</option>
+        </select>
+      </div>
 
+      <!-- ✅ 검색창은 항상 표시 -->
       <form class="search-box" onsubmit="searchKeyword(event)">
         <input type="text" id="searchInput" placeholder="Search">
         <button type="submit">🔍</button>
       </form>
     </div>
 
-    <div id="writeButtonArea"></div>
+    <!-- ✅ 글쓰기 버튼은 항상 표시되되 내용만 바뀜 -->
+    <div id="writeButtonArea">
+      <a href="/notice/create" class="btn-write">글쓰기</a>
+    </div>
   </div>
 
   <div class="community-section">
@@ -42,7 +48,6 @@
       <thead id="tableHeader">
         <tr>
           <th>No</th>
-          <th>카테고리</th>
           <th>제목</th>
           <th>작성시간</th>
           <th>조회수</th>
@@ -52,7 +57,6 @@
         <!-- NOTICE -->
         <tr th:each="notice, stat : ${noticeList}" class="noticeSection">
           <td th:text="${stat.count}"></td>
-          <td th:text="${notice.cate}"></td>
           <td><a th:href="@{'/notice/read?notice_id=' + ${notice.notice_id}}" th:text="${notice.title}"></a></td>
           <td th:text="${#dates.format(notice.reg_date, 'yyyy-MM-dd HH:mm')}"></td>
           <td th:text="${notice.view_count}"></td>
@@ -60,13 +64,15 @@
 
         <!-- FAQ -->
         <tr class="faqSection" style="display:none;">
-          <td colspan="5">
+          <td colspan="4">
             <div class="faq-category-buttons">
               <button onclick="filterFAQ('전체')">전체</button>
-              <button onclick="filterFAQ('배송문의')">배송문의</button>
+              <button onclick="filterFAQ('기타')">기타</button>
               <button onclick="filterFAQ('교환/반품')">교환/반품</button>
               <button onclick="filterFAQ('회원서비스')">회원서비스</button>
-              <button onclick="filterFAQ('기타')">기타</button>
+              <button onclick="filterFAQ('개인정보')">개인정보</button>
+              <button onclick="filterFAQ('주문/결제')">주문/결제</button>
+              <button onclick="filterFAQ('환불')">환불</button>
             </div>
             <div class="faq-list">
               <div th:each="faq : ${faqList}" class="faq-item" th:data-cate="${faq.cate}">
@@ -78,9 +84,8 @@
                   <span>A</span>
                   <span th:text="${faq.answer}"></span>
                   <div th:if="${session.grade >= 1 and session.grade <= 4}">
-                    <a th:href="@{'/faq/update?faq_id=' + ${faq.faq_id}}" style="margin-left:10px; color:blue;">수정</a>
-                    <a th:href="@{'/faq/delete?faq_id=' + ${faq.faq_id}}" style="margin-left:10px; color:red;"
-                      onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a>
+                    <a th:href="@{'/faq/update?faq_id=' + ${faq.faq_id}}" style="margin-left:10px; color:#6db75b;">수정</a>
+                    <a th:href="@{'/faq/delete?faq_id=' + ${faq.faq_id}}" style="margin-left:10px; color:red;" onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a>
                   </div>
                 </div>
               </div>
@@ -88,28 +93,21 @@
           </td>
         </tr>
 
-        <!-- 소비자 Q&A 목록 -->
+        <!-- 소비자 Q&A -->
         <tr th:each="qna, stat : ${qnaUserList}" class="qnaUserSection" style="display:none;">
           <td th:text="${stat.count}"></td>
-          <td th:text="${qna.cate}"></td>
-          <td>
-            <a th:href="@{'/qna/read?qna_id=' + ${qna.qna_id}}" th:text="${qna.title}"></a>
-          </td>
+          <td><a th:href="@{'/qna/read?qna_id=' + ${qna.qna_id}}" th:text="${qna.title}"></a></td>
           <td th:text="${#dates.format(qna.reg_date, 'yyyy-MM-dd HH:mm')}"></td>
           <td th:text="${qna.view_count}"></td>
         </tr>
 
-        <!-- 공급자 Q&A 목록 -->
+        <!-- 공급자 Q&A -->
         <tr th:each="qna, stat : ${qnaSupplierList}" class="qnaSupplierSection" style="display:none;">
           <td th:text="${stat.count}"></td>
-          <td th:text="${qna.cate}"></td>
-          <td>
-            <a th:href="@{'/qna/read?qna_id=' + ${qna.qna_id}}" th:text="${qna.title}"></a>
-          </td>
+          <td><a th:href="@{'/qna/read?qna_id=' + ${qna.qna_id}}" th:text="${qna.title}"></a></td>
           <td th:text="${#dates.format(qna.reg_date, 'yyyy-MM-dd HH:mm')}"></td>
           <td th:text="${qna.view_count}"></td>
         </tr>
-
       </tbody>
     </table>
   </div>
@@ -117,6 +115,7 @@
   <script>
     const tabs = document.querySelectorAll('.community-tabs a');
     const writeButtonArea = document.getElementById('writeButtonArea');
+    const categoryFilterWrapper = document.getElementById('categoryFilterWrapper');
     let currentTab = 'noticeSection';
 
     tabs.forEach(tab => {
@@ -130,21 +129,21 @@
         document.querySelectorAll('#listArea tr').forEach(tr => tr.style.display = 'none');
         document.querySelectorAll(`#listArea .${currentTab}`).forEach(tr => tr.style.display = '');
 
-        let buttonHTML = '';
-        if (currentTab === 'noticeSection') {
-          buttonHTML = `<a href="/notice/create" class="btn-write">글쓰기</a>`;
-        } else if (currentTab === 'faqSection') {
-          buttonHTML = `<a href="/faq/create" class="btn-write">글쓰기</a>`;
+        // ✅ 카테고리 select만 표시/숨김
+        categoryFilterWrapper.style.display = (currentTab === 'noticeSection') ? 'inline-block' : 'none';
+
+        // ✅ 글쓰기 버튼 링크만 변경
+        let writeLink = '/notice/create';
+        if (currentTab === 'faqSection') {
+          writeLink = '/faq/create';
         } else if (currentTab === 'qnaUserSection') {
-          buttonHTML = `<a href="/qna/create_user" class="btn-write">글쓰기</a>`;
+          writeLink = '/qna/create_user';
         } else if (currentTab === 'qnaSupplierSection') {
-          buttonHTML = `<a href="/qna/create_supplier" class="btn-write">글쓰기</a>`;
+          writeLink = '/qna/create_supplier';
         }
-        writeButtonArea.innerHTML = buttonHTML;
+        writeButtonArea.innerHTML = `<a href="${writeLink}" class="btn-write">글쓰기</a>`;
 
         document.getElementById('searchInput').value = '';
-
-        // ✅ 헤더 표시/숨김
         updateHeaderVisibility();
       });
     });
@@ -154,7 +153,7 @@
       const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
       const rows = document.querySelectorAll(`#listArea .${currentTab}`);
       rows.forEach(row => {
-        const title = row.querySelector('td:nth-child(3) a');
+        const title = row.querySelector('td:nth-child(2) a');
         if (title && title.innerText.toLowerCase().includes(keyword)) {
           row.style.display = '';
         } else {
@@ -163,8 +162,8 @@
       });
     }
 
-    tabs[0].click();  // 초기 탭 활성화
-    updateHeaderVisibility();  // 초기 헤더 표시/숨김
+    tabs[0].click(); // 초기 NOTICE 탭 선택
+    updateHeaderVisibility();
 
     function toggleAnswer(element) {
       const answer = element.nextElementSibling;
@@ -193,11 +192,7 @@
 
     function updateHeaderVisibility() {
       const tableHeader = document.getElementById('tableHeader');
-      if (currentTab === 'faqSection') {
-        tableHeader.style.display = 'none';
-      } else {
-        tableHeader.style.display = '';
-      }
+      tableHeader.style.display = (currentTab === 'faqSection') ? 'none' : '';
     }
   </script>
 </body>

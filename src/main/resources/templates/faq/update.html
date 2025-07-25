@@ -17,7 +17,7 @@
     .faq-form-container h2 {
       text-align: center;
       margin-bottom: 30px;
-      color: #007bff;
+      color: #6db75b;
       font-size: 26px;
     }
 
@@ -41,14 +41,14 @@
 
     .faq-form-container input[type="text"]:focus,
     .faq-form-container textarea:focus {
-      border-color: #007bff;
+      border-color: #6db75b;
       outline: none;
     }
 
     .faq-form-container button {
       width: 100%;
       padding: 12px;
-      background-color: #007bff;
+      background-color: #6db75b;
       color: #fff;
       border: none;
       border-radius: 8px;
@@ -58,7 +58,7 @@
     }
 
     .faq-form-container button:hover {
-      background-color: #0056b3;
+      background-color: #6db75b;
     }
 
     .faq-form-container select {
@@ -72,7 +72,7 @@
     }
 
     .faq-form-container select:focus {
-      border-color: #007bff;
+      border-color: #6db75b;
       outline: none;
     }
 
@@ -87,13 +87,15 @@
       <label>카테고리</label>
       <select name="cate" required>
         <option value="">카테고리 선택</option>
-        <option value="배송" th:selected="${faqVO.cate == '배송'}">배송</option>
+        <!-- <option value="배송 문의" th:selected="${faqVO.cate == '배송 문의'}">배송 문의</option> -->
         <option value="교환/반품" th:selected="${faqVO.cate == '교환/반품'}">교환/반품</option>
-        <option value="회원" th:selected="${faqVO.cate == '회원서비스'}">회원서비스</option>
+        <option value="회원서비스" th:selected="${faqVO.cate == '회원서비스'}">회원서비스</option>
+        <option value="개인정보" th:selected="${faqVO.cate == '개인정보'}">개인정보</option>
+        <option value="주문/결제" th:selected="${faqVO.cate == '주문/결제'}">주문/결제</option>
+        <option value="환불" th:selected="${faqVO.cate == '환불'}">환불</option>
         <option value="기타" th:selected="${faqVO.cate == '기타'}">기타</option>
       </select>
 
-      
       <label>질문</label>
       <input type="text" name="question" th:value="${faqVO.question}" required>
       

@@ -32,7 +32,7 @@
     }
 
     .faq-form select:focus, .faq-form input:focus, .faq-form textarea:focus {
-      border-color: #007bff;
+      border-color: #6db75b;
       outline: none;
       background-color: #fff;
     }
@@ -40,7 +40,7 @@
     .faq-form button {
       width: 100%;
       padding: 12px;
-      background-color: #007bff;
+      background-color: #6db75b;
       color: #fff;
       border: none;
       border-radius: 8px;
@@ -50,7 +50,7 @@
     }
 
     .faq-form button:hover {
-      background-color: #0056b3;
+      background-color: #6db75b;
     }
 
     .no-access {
@@ -82,15 +82,18 @@
   <!-- ✅ 관리자만 보이게 설정 -->
   <div class="faq-form" th:if="${session.grade >= 1 and session.grade <= 4}">
     <h2>FAQ 등록</h2>
-    <form th:action="@{/faq/create}" method="post">
-      <select name="cate" required>
+    <form th:action="@{/faq/create}" method="post" onsubmit="prependCategoryToQuestion()">
+      <select name="cate" id="cate" required>
         <option value="">카테고리 선택</option>
-        <option value="배송 문의">배송 문의</option>
+        <!-- <option value="배송 문의">배송 문의</option> -->
         <option value="교환/반품">교환/반품</option>
         <option value="회원서비스">회원서비스</option>
-        <!-- <option value="기타">기타</option> -->
+        <option value="개인정보">개인정보</option>
+        <option value="주문/결제">주문/결제</option>
+        <option value="환불">환불</option>
+        <option value="기타">기타</option>
       </select>
-      <input type="text" name="question" placeholder="질문" required>
+      <input type="text" name="question" id="question" placeholder="질문" required>
       <textarea name="answer" rows="5" placeholder="답변을 입력하세요" required></textarea>
       <div class="button-group">
         <button type="submit">등록</button>
@@ -103,6 +106,18 @@
   <div class="no-access" th:if="${session.grade < 1 or session.grade > 4}">
     <p>접근 권한이 없습니다.</p>
   </div>
+
+  <!-- ✅ 질문에 [카테고리] 자동 추가 JS -->
+  <script>
+    function prependCategoryToQuestion() {
+      const cate = document.getElementById("cate").value;
+      const questionInput = document.getElementById("question");
+
+      if (cate && !questionInput.value.startsWith("[")) {
+        questionInput.value = `[${cate}] ` + questionInput.value;
+      }
+    }
+  </script>
 </body>
 </div>
 </html>
