@@ -521,3 +521,5 @@ USING (
 ON (parent.grp = summary.grp_name AND parent.name = '--') -- 대분류 조건
 WHEN MATCHED THEN
   UPDATE SET parent.cnt = summary.total_cnt;
+  
+SELECT * FROM CATE;

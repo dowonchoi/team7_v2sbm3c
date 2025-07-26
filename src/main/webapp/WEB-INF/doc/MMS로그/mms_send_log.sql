@@ -7,6 +7,7 @@ CREATE TABLE mms_send_log (
     send_time     DATE DEFAULT SYSDATE,      -- 발송 시간
     CONSTRAINT fk_mms_send_log_img FOREIGN KEY (mimgno)
         REFERENCES mms_img(mimgno)
+        
 );
 
 CREATE SEQUENCE mms_send_log_seq START WITH 1 INCREMENT BY 1;
@@ -17,3 +18,8 @@ FROM mms_send_log
 ORDER BY mslogno DESC;
 
 commit;
+
+ALTER TABLE mms_send_log
+ADD CONSTRAINT fk_mms_send_log_member
+FOREIGN KEY (memberno)
+REFERENCES member(memberno);

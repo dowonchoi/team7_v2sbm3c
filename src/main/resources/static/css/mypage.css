@@ -65,19 +65,32 @@
   transition: all 0.2s ease;
 }
 .btn-primary {
-  background-color: #007bff;
-  color: white;
+  background-color: #6db75b;
+  color: white !important;
+  border: 2px solid #4caf50;
 }
 .btn-danger {
   background-color: #dc3545;
-  color: white;
+  color: white !important;
 }
 .btn-primary:hover {
-  background-color: #0069d9;
+  background-color: rgb(18, 125, 2);
+  border-color: #0d7a01;
 }
 .btn-danger:hover {
   background-color: #c82333;
 }
+
+.btn-secondary {
+  background-color: #6c757d;  /* 기본 회색 */
+  color: white !important;
+  border: 2px solid #6c757d;  /* 동일 색상 */
+}
+.btn-secondary:hover {
+  background-color: #5a6268;  /* hover 진회색 */
+  border-color: #545b62;
+}
+
 .section-title {
   font-size: 20px;
   font-weight: 600;
