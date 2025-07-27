@@ -195,6 +195,14 @@ public interface ProductsDAOInter {
   public List<ProductsVO> listRecommend();
 
   public List<ProductsVO> listVisible();  // visible='Y' 상품 목록
+  
+  /**
+   * 카테고리별 상품 리스트 (출력 개수 제한)
+   * @param cateno 카테고리 번호
+   * @param limit 출력 개수
+   * @return 상품 리스트
+   */
+  public List<ProductsVO> list_by_cateno_limit(@Param("cateno") int cateno, @Param("limit") int limit);
 }
  
  

@@ -1,13 +1,12 @@
 <!DOCTYPE html>
-<html layout:decorate="~{layout}">
+<html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <!-- index 전용 CSS -->
   <link rel="stylesheet" href="/css/index.css">
 </head>
 <body>
 <div layout:fragment="content">
 
-  <!-- ✅ 메인 슬라이드 (Hero 영역) -->
+  <!-- ✅ 메인 슬라이드 -->
   <section class="index-hero">
     <div id="mainCarousel" class="carousel slide" data-bs-ride="carousel">
       <div class="carousel-inner">
@@ -21,7 +20,6 @@
           <img src="/images/banner3.png" class="d-block w-100" alt="배너3">
         </div>
       </div>
-      <!-- 슬라이드 버튼 -->
       <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel" data-bs-slide="prev">
         <span class="carousel-control-prev-icon"></span>
       </button>
@@ -36,40 +34,16 @@
     <div class="index-banner-grid">
       <div class="index-banner-box">
         <img src="/images/special.jpg" alt="오늘의 특가">
-        <h5>오늘의 특가</h5>
       </div>
       <div class="index-banner-box">
         <img src="/images/new.jpg" alt="NEW">
-        <h5>NEW</h5>
       </div>
       <div class="index-banner-box">
         <img src="/images/best.jpg" alt="베스트">
-        <h5>베스트</h5>
       </div>
     </div>
   </section>
-
-  <!-- ✅ 추천 상품
-  <section class="index-products container">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h4 class="index-section-title">추천 상품</h4>
-      <a href="/products/recommend" class="btn btn-sm btn-outline-light">더보기</a>
-    </div>
-
-    <div class="index-product-grid">
-      <th:block th:each="product, stat : ${productList}">
-        <div class="index-product-card" th:if="${stat.index < 4 and product.productsno != null}">
-          <img th:src="@{|/products/storage/${product.file1saved}|}" alt="상품 이미지">
-          <div class="index-product-info">
-            <p class="index-product-name" th:text="${product.title}">상품명</p>
-            <p class="index-product-price" th:text="|${product.price_now}원|">10,000원</p>
-            <a th:href="@{|/products/read?productsno=${product.productsno}|}" class="index-btn-detail">상세보기</a>
-          </div>
-        </div>
-      </th:block>
-    </div>
-  </section> -->
-
+  
   <!-- 추천 상품 (iframe 삽입) -->
   <section class="index-products container" style="overflow: hidden;">
     <iframe 
@@ -80,19 +54,56 @@
     </iframe>
   </section>
 
-  <script>
-    window.addEventListener('message', function (e) {
-      if (e.data?.type === 'resize' && typeof e.data.height === 'number') {
-        const iframe = document.getElementById('recommendIframe');
-        if (iframe) {
-          iframe.style.height = `${e.data.height}px`;
-        }
-      }
-    });
-  </script>
+  <!-- ✅ 추천 기획전 -->
+  <section class="index-recommend container">
+    <h4 class="index-section-title">SoOn이 자랑하는 식품 카테고리들!</h4>
+    <div class="recommend-grid">
+      <a th:href="@{/products/list_by_cateno_grid(cateno=2)}">
+        <img src="/images/event1.png" alt="채소">
+      </a>
+      <a th:href="@{/products/list_by_cateno_grid(cateno=3)}">
+        <img src="/images/event2.png" alt="과일">
+      </a>
+      <a th:href="@{/products/list_by_cateno_grid(cateno=4)}">
+        <img src="/images/event3.png" alt="해산물">
+      </a>
+      <a th:href="@{/products/list_by_cateno_grid(cateno=12)}">
+        <img src="/images/event4.png" alt="소스">
+      </a>
+      <a th:href="@{/products/list_by_cateno_grid(cateno=13)}">
+        <img src="/images/event5.png" alt="제과제빵">
+      </a>
+      <a th:href="@{/products/list_by_cateno_grid(cateno=27)}">
+        <img src="/images/event6.png" alt="즉석조리">
+      </a>
+    </div>
+  </section>
 
+  <!-- ✅ 카테고리별 상품 섹션 1 -->
+  <!-- ✅ 채소 -->
+  <section class="index-category container">
+    <h4 class="index-section-title">신선 채소</h4>
+    <div class="category-flex">
+      <!-- 광고 -->
+      <div class="category-ad">
+        <img src="/images/ad-vegetable.jpg" alt="채소 광고">
+      </div>
+      <!-- 상품 리스트 -->
+      <div class="product-grid">
+        <div th:each="product : ${vegetableList}" class="product-card">
+          <a th:href="@{/products/read(productsno=${product.productsno})}">
+            <img th:src="@{|/products/storage/${product.file1saved}|}" alt="상품 이미지">
+            <div class="product-info">
+              <p class="product-name" th:text="${product.title}">상품명</p>
+              <p class="product-price" th:text="|${#numbers.formatInteger(product.saleprice, 3, 'COMMA')}원|"></p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  <!-- ✅ AI 서비스 배너 -->
+  <!-- ✅ 기존 AI 배너 유지 -->
   <section class="index-ai-banner container">
     <div class="ai-banner-grid">
       <a th:href="@{/openai/recipe}" class="ai-banner-link">
@@ -101,6 +112,58 @@
       <a th:href="@{/openai/member_img}" class="ai-banner-link">
         <img src="/images/supplier-banner.jpg" alt="공급자 전용 이미지 생성" class="ai-banner-img">
       </a>
+    </div>
+  </section>
+
+  <!-- ✅ 카테고리별 상품 섹션 2 -->
+  <!-- ✅ 과일 -->
+  <section class="index-category container">
+    <h4 class="index-section-title">싱싱 과일</h4>
+    <div class="category-flex">
+      <div class="category-ad">
+        <img src="/images/ad-fruit.jpg" alt="과일 광고">
+      </div>
+      <div class="product-grid">
+        <div th:each="product : ${fruitList}" class="product-card">
+          <a th:href="@{/products/read(productsno=${product.productsno})}">
+            <img th:src="@{|/products/storage/${product.file1saved}|}" alt="상품 이미지">
+            <div class="product-info">
+              <p class="product-name" th:text="${product.title}">상품명</p>
+              <p class="product-price" th:text="|${#numbers.formatInteger(product.saleprice, 3, 'COMMA')}원|"></p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ✅ 광고 배너 -->
+  <div class="index-ad-banner">
+    <a th:href="@{/products/read(productsno=76)}">
+      <img src="/images/ad-banner2.png" alt="광고 배너">
+    </a>
+  </div>
+
+
+  <!-- ✅ 카테고리별 상품 섹션 3 -->
+  <!-- ✅ 해산물 -->
+  <section class="index-category container">
+    <h4 class="index-section-title">신선 해산물</h4>
+    <div class="category-flex">
+      <div class="category-ad">
+        <img src="/images/ad-meat.jpg" alt="해산물 광고">
+      </div>
+      <div class="product-grid">
+        <div th:each="product : ${meatList}" class="product-card">
+          <a th:href="@{/products/read(productsno=${product.productsno})}">
+            <img th:src="@{|/products/storage/${product.file1saved}|}" alt="상품 이미지">
+            <div class="product-info">
+              <p class="product-name" th:text="${product.title}">상품명</p>
+              <p class="product-price" th:text="|${#numbers.formatInteger(product.saleprice, 3, 'COMMA')}원|"></p>
+            </div>
+          </a>
+        </div>
+      </div>
     </div>
   </section>
 

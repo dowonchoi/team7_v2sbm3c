@@ -548,29 +548,43 @@
   /* ---------------------------------------------------------------------- */
   /* 페이징 박스 구현                                                        */
   /* ---------------------------------------------------------------------- */
-  #paging {text-align: center; margin-top: 5px; font-size: 1em;}
-  #paging a:link {text-decoration:none; color:black; font-size: 1em;}
+  #paging {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 14px;
+  }
+  #paging a {
+    text-decoration: none;
+    display: inline-block;
+  }
   #paging a:hover{text-decoration:none; background-color: #FFFFFF; color:black; font-size: 1em;}
   #paging a:visited {text-decoration:none;color:black; font-size: 1em;}
-  .span_box_1{ /* 현재 페이지가 아닌 경우 */
-    text-align: center;   
-    font-size: 1em;
-    border: 1px;
-    border-style: solid;
-    border-color: #cccccc;
-    padding:1px 6px 1px 6px; /*위, 오른쪽, 아래, 왼쪽*/
-    margin:1px 2px 1px 2px; /*위, 오른쪽, 아래, 왼쪽*/
+  /* 기본 페이지 */
+  .span_box_1 {
+    display: inline-block;
+    padding: 6px 12px;
+    margin: 0 4px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #fff;
+    color: #333;
+    font-size: 14px;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
-  .span_box_2{ /* 현재 페이지인 경우 */
-    text-align: center;   
-    background-color: #668db4;
-    color: #FFFFFF;
-    font-size: 1em;
-    border: 1px;
-    border-style: solid;
-    border-color: #cccccc;
-    padding:1px 6px 1px 6px; /*위, 오른쪽, 아래, 왼쪽*/
-    margin:1px 2px 1px 2px; /*위, 오른쪽, 아래, 왼쪽*/
+  .span_box_1:hover {
+    background-color: #f7f7f7; /* 은은한 hover */
+  }
+  /* 현재 페이지 */
+  .span_box_2 {
+    display: inline-block;
+    padding: 6px 12px;
+    margin: 0 4px;
+    border: 1px solid #6db75b;
+    border-radius: 6px;
+    background-color: #6db75b; /* 은은한 초록 */
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
   }
 
   /* 상품 상세: 좌우 2단 레이아웃 */
@@ -838,7 +852,7 @@
   
   /* 광고 이미지 박스 기본 숨김 */
   .ad-image-box {
-    max-height: 600px; /* 기본으로 일부만 보이게 */
+    max-height: 10000px; /* 기본으로 일부만 보이게 */
     overflow: hidden;
     position: relative;
     transition: max-height 0.5s ease;

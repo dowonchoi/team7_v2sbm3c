@@ -1,3 +1,29 @@
+<th:block layout:fragment="head">
+  <style>
+    /* ✅ 저장/취소 버튼 강제 override */
+    .content_body_bottom .btn.btn-secondary.btn-sm {
+      background-color: #6db75b !important; /* ✅ 초록색 */
+      color: #fff !important;
+      border: none !important;
+      padding: 6px 14px !important;
+      font-size: 14px !important;
+      border-radius: 6px !important;
+    }
+
+    .content_body_bottom .btn.btn-secondary.btn-sm:hover {
+      background-color: #4a9a3b !important;
+      transform: scale(1.05) !important;
+    }
+
+    /* ✅ 버튼 가운데 정렬 */
+    .content_body_bottom {
+      display: flex !important;
+      justify-content: center !important;
+      gap: 10px !important;
+    }
+  </style>
+</th:block>
+
 <div th:fragment="list_search_fragment"> <!-- <div th:replace=... -->
   <div style="text-align: right; clear: both;">
   <form name="frm_search" method="get" action="/cate/list_search">

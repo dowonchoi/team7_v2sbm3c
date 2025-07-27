@@ -313,5 +313,15 @@
     FROM products
     WHERE visible = 'Y'
   </select>
+  
+  <!-- 카테고리별 상품 리스트 (개수 제한) -->
+  <select id="list_by_cateno_limit" resultType="dev.mvc.products.ProductsVO">
+      SELECT productsno, title, saleprice, file1saved
+      FROM products
+      WHERE cateno = #{cateno}
+      ORDER BY rdate DESC
+      FETCH FIRST #{limit} ROWS ONLY
+  </select>
+
 
 </mapper> 

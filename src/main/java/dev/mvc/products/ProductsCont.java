@@ -161,7 +161,7 @@ public class ProductsCont {
 
         // ② 이미지 파일이면 썸네일 생성
         if (Tool.isImage(file1saved)) {
-          thumb1 = Tool.preview(upDir, file1saved, 100, 150);
+          thumb1 = Tool.preview(upDir, file1saved, 300, 300);
         }
       } else {
         // ③ 업로드 안 한 경우 → 기본 이미지 설정
@@ -779,6 +779,7 @@ public class ProductsCont {
    *   - /templates/products/update_text.html (forward)
    *   - 또는 redirect:/member/login_cookie_need (권한 없음)
    */
+  @GetMapping(value = "/update_text")
   public String update_text(HttpSession session, Model model, RedirectAttributes ra,
       @RequestParam(name = "productsno", defaultValue = "0") int productsno,
       @RequestParam(name = "word", defaultValue = "") String word,
@@ -1186,15 +1187,18 @@ public class ProductsCont {
       @RequestParam(name = "word", defaultValue = "") String word,
       @RequestParam(name = "now_page", defaultValue = "1") int now_page) {
 
-    // (1) 권한 체크
-    String grade = (String) session.getAttribute("grade");
+ // (1) 세션에서 권한 확인
+    Integer gradeObj = (Integer) session.getAttribute("grade");
+    int grade = (gradeObj != null) ? gradeObj : 99; // 기본값: 비회원
     Integer sessionMemberno = (Integer) session.getAttribute("memberno");
 
-    ProductsVO productsVO_read = this.productsProc.read(productsno); // 삭제 대상 조회
+    // (2) 삭제 대상 상품 정보
+    ProductsVO productsVO_read = this.productsProc.read(productsno);
     int ownerMemberno = productsVO_read.getMemberno();
 
-    boolean authorized = "admin".equals(grade)
-        || ("supplier".equals(grade) && sessionMemberno != null && sessionMemberno == ownerMemberno);
+    // (3) 권한 체크 (관리자 1~4 OR 공급자 본인 글)
+    boolean authorized = (grade >= 1 && grade <= 4)
+        || ((grade >= 5 && grade <= 15) && sessionMemberno != null && sessionMemberno == ownerMemberno);
 
     if (!authorized) { // 권한 없음 → 경유 페이지로 이동
       ra.addAttribute("url", "/member/login_cookie_need");

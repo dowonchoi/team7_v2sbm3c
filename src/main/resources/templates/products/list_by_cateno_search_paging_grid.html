@@ -1,5 +1,25 @@
 <!DOCTYPE html>
 <html layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">
+<th:block layout:fragment="head">
+  <style>
+    /* ✅ 모든 secondary 버튼 공통 스타일 (검색/등록/저장/취소) */
+    .btn.btn-secondary {
+      background-color: #6db75b !important;
+      color: #fff !important;
+      border: none !important;
+      padding: 6px 14px !important;
+      font-size: 14px !important;
+      border-radius: 6px !important;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .btn.btn-secondary:hover {
+      background-color: #4a9a3b !important;
+      transform: scale(1.05) !important;
+    }
+  </style>
+</th:block>
+
 <div layout:fragment="content">
 
   <div class="title_line">

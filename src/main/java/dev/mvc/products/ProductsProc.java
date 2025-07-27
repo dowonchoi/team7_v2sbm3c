@@ -336,5 +336,10 @@ public class ProductsProc implements ProductsProcInter {
   public List<ProductsVO> listVisible() {
       return this.productsDAO.listVisible();
   }
+  
+  @Override
+  public List<ProductsVO> list_by_cateno_limit(int cateno, int limit) {
+      return productsDAO.list_by_cateno_limit(cateno, limit);
+  }
 
 }

@@ -24,7 +24,8 @@
     </thead>
     <tbody>
       <tr th:each="cateVO, status:${list}">
-        <td class="td_bs" th:text="${no - status.index}"></td>
+       <td class="td_bs" th:text="${(no != null ? no : list.size()) - status.index}"></td>
+        <!-- <td class="td_bs" th:text="${no - status.index}"></td>-->
         <td class="td_bs">
           <a th:href="@{|/cate/read/${cateVO.cateno}?word=${word}&now_page=${now_page}|}" style="display:block;" th:text="${cateVO.grp}"></a>
         </td>
@@ -53,7 +54,7 @@
   </table>
   
   <!-- 페이지 버튼 목록 출력 시작 -->
-  <div class="Bottom_menu" th:utext="${paging}"></div> 
+  <div class="Bottom_menu" th:if="${paging != null}"  th:utext="${paging}"></div> 
   <!-- 페이지 버튼 목록 출력 종료 -->
 </div>
 

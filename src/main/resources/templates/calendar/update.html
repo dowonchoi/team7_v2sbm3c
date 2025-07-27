@@ -1,5 +1,38 @@
 <!DOCTYPE html>
 <html layout:decorate="~{layout}">
+<th:block layout:fragment="head">
+  <style>
+    /* ✅ 저장 버튼: 연한 녹색 */
+    .content_body_bottom .btn-save {
+      background-color: #6db75b !important;
+      color: #fff !important;
+      border: none !important;
+      padding: 8px 16px !important;
+      font-size: 14px !important;
+      border-radius: 6px !important;
+      transition: all 0.2s ease-in-out;
+    }
+    .content_body_bottom .btn-save:hover {
+      background-color: #20b564 !important;
+      transform: scale(1.05) !important;
+    }
+
+    /* ✅ 취소 버튼: 연한 회색 */
+    .content_body_bottom .btn-cancel {
+      background-color: #e0e0e0 !important;
+      color: #333 !important;
+      border: none !important;
+      padding: 8px 16px !important;
+      font-size: 14px !important;
+      border-radius: 6px !important;
+      transition: all 0.2s ease-in-out;
+    }
+    .content_body_bottom .btn-cancel:hover {
+      background-color: #cfcfcf !important;
+      transform: scale(1.05) !important;
+    }
+  </style>
+</th:block>
 <div layout:fragment="content">
 
   <div class="title_line">📅 일정 수정</div>
@@ -108,10 +141,14 @@
 
     <!-- 버튼 -->
     <div class="content_body_bottom" style="margin-top: 20px;">
-      <button type="submit" class="btn btn-secondary btn-sm">저장</button>
-      <button type="button" class="btn btn-secondary btn-sm"
+      <!-- 저장 버튼 -->
+      <button type="submit" class="btn btn-save">저장</button>
+      
+      <!-- 취소 버튼 -->
+      <button type="button" class="btn btn-cancel"
               th:attr="onclick=|location.href='/calendar/list_all'|">취소(목록)</button>
     </div>
+
 
   </form>
 

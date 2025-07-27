@@ -1,6 +1,47 @@
 <!DOCTYPE html>
 
 <html layout:decorate="~{layout}"> <!-- layout.html 상속-->
+<th:block layout:fragment="head">
+  <style>
+    /* ✅ 버튼 스타일 */
+    .btn.btn-secondary.btn-sm {
+      background-color: #6db75b !important;
+      color: #fff !important;
+      border: none !important;
+      padding: 6px 14px !important;
+      font-size: 14px !important;
+      border-radius: 6px !important;
+    }
+
+    .btn.btn-secondary.btn-sm:hover {
+      background-color: #4a9a3b !important;
+      transform: scale(1.05) !important;
+    }
+
+    /* 폼 전체 Flex 레이아웃 */
+    .cate-form {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap; /* 줄바꿈 허용 */
+      align-items: center; /* 버튼 세로 중앙 */
+      justify-content: center;
+      width: 100%;
+    }
+
+    /* 각 필드 너비 고정 */
+    .cate-form .grp { width: 22%; }
+    .cate-form .name { width: 15%; }
+    .cate-form .seqno { width: 10%; }
+    .cate-form .visible { width: 10%; }
+
+    /* 버튼 영역 */
+    .form-button-box {
+      display: flex;
+      gap: 8px;
+    }
+  </style>
+</th:block>
+
 <div layout:fragment="content">
   <div class="title_line">카테고리</div>
   <aside class="aside_right">
@@ -29,7 +70,8 @@
           <option value="N">N</option>
         </select>
       </div>
-      <div style="margin-right: 2px; width: 13%; float: left; margin-top: 3px; margin-left: 5px;">
+      
+      <div class="d-flex gap-2" style="margin-left: 5px;">
         <button type="submit" class="btn btn-secondary btn-sm">등록</button>
         <button type="reset" class="btn btn-secondary btn-sm">취소</button>
       </div>

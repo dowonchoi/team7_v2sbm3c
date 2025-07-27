@@ -1,6 +1,32 @@
 <!DOCTYPE html>
 
 <html layout:decorate="~{layout}"> <!-- layout.html 상속-->
+<th:block layout:fragment="head">
+  <style>
+    /* ✅ 저장/취소 버튼 강제 override */
+    .content_body_bottom .btn.btn-secondary.btn-sm {
+      background-color: #6db75b !important; /* ✅ 초록색 */
+      color: #fff !important;
+      border: none !important;
+      padding: 6px 14px !important;
+      font-size: 14px !important;
+      border-radius: 6px !important;
+    }
+
+    .content_body_bottom .btn.btn-secondary.btn-sm:hover {
+      background-color: #4a9a3b !important;
+      transform: scale(1.05) !important;
+    }
+
+    /* ✅ 버튼 가운데 정렬 */
+    .content_body_bottom {
+      display: flex !important;
+      justify-content: center !important;
+      gap: 10px !important;
+    }
+  </style>
+</th:block>
+
 <div layout:fragment="content">
   
   <div class="title_line">카테고리 등록</div>
@@ -47,7 +73,7 @@
       </div>
       <div class="content_body_bottom">
         <button type="submit" class="btn btn-secondary btn-sm">등록</button>
-        <button type="button" onclick="location.href='/cate/list_all'" class="btn btn-secondary btn-sm">목록</button>
+        <button type="button" onclick="location.href='/cate/list_search'" class="btn btn-secondary btn-sm">목록</button>
       </div>
       
     </form>

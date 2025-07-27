@@ -1,56 +1,87 @@
 <!DOCTYPE html>
+<html layout:decorate="~{layout}">
+<th:block layout:fragment="head">
+  <style>
+    /* ✅ 버튼 스타일 (모든 .btn.btn-secondary 적용) */
+    .btn.btn-secondary {
+      background-color: #6db75b !important;
+      color: #fff !important;
+      border: none !important;
+      padding: 6px 14px !important;
+      font-size: 14px !important;
+      border-radius: 6px !important;
+      transition: all 0.2s ease-in-out;
+    }
 
-<html layout:decorate="~{layout}"> <!-- layout.html 상속-->
+    .btn.btn-secondary:hover {
+      background-color: #4a9a3b !important;
+      transform: scale(1.05) !important;
+    }
+
+    /* 폼 전체 Flex 레이아웃 */
+    .cate-form {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap; /* 줄바꿈 허용 */
+      align-items: center; /* 버튼 세로 중앙 */
+      justify-content: center;
+      width: 100%;
+    }
+
+    /* 각 필드 너비 고정 */
+    .cate-form .grp { width: 22%; }
+    .cate-form .name { width: 15%; }
+    .cate-form .seqno { width: 10%; }
+    .cate-form .visible { width: 10%; }
+
+    /* 버튼 영역 */
+    .form-button-box {
+      display: flex;
+      gap: 8px;
+    }
+  </style>
+</th:block>
+
+
 <div layout:fragment="content">
-  
   <div class="title_line">
     카테고리 <span th:if="${word != null and word != ''}" th:text="|${word} ${list_search_count} 건|"></span>
-  </div>  
+  </div>
   <aside class="aside_right">
     <a href="javascript: location.reload();">새로 고침</a>
   </aside>
 
-  <!--/* /cate/list_search_com.html의 list_search_fragment를 include */-->
   <div th:replace="~{cate/list_search_com::list_search_fragment}"></div>
-
   <div class="menu_line"></div>
-  
-  <div class="flex_div_center" style="width: 90%; margin: 0px auto;">  
-    <form name="frm" method="post" action="/cate/create" th:object="${cateVO}">
-      <input type="hidden" name="word" th:value="${word}"> <!--/* 값 유지 */-->
-      
-      <div style="margin-right: 2px; width: 22%; float: left;">
-        <input type="text" name="grp" value="" autofocus="autofocus"
-               class="form-control" style="width: 100%;" th:field="*{grp}" placeholder="카테고리 그룹">
+
+  <!-- Flex 레이아웃 적용 -->
+  <div class="flex_div_center" style="width: 90%; margin: 0 auto;">
+    <form name="frm" method="post" action="/cate/create" th:object="${cateVO}" class="cate-form">
+      <input type="hidden" name="word" th:value="${word}">
+
+      <div class="grp">
+        <input type="text" th:field="*{grp}" class="form-control" placeholder="카테고리 그룹">
       </div>
-      <div style="margin-right: 2px; width: 32%; float: left;">
-        <input type="text" name="name" value="" autofocus="autofocus"
-               class="form-control" style="width: 100%;" th:field="*{name}" placeholder="카테고리">
+      <div class="name">
+        <input type="text" th:field="*{name}" class="form-control" placeholder="카테고리">
       </div>
-      <div style="margin-right: 2px; width: 13%; float: left;">
-        <input type="number" name="seqno" value="" min="1" max="1000000" step="1"
-               class="form-control" style="width: 100%;" th:field="*{seqno}" placeholder="출력 순서">
+      <div class="seqno">
+        <input type="number" th:field="*{seqno}" class="form-control" placeholder="출력 순서" min="1" max="1000000" step="1">
       </div>
-      <div style="margin-right: 2px; width: 15%; float: left;">
+      <div class="visible">
         <select id="visible" name="visible" class="form-control">
-          <option value="출력 모드" selected="selected">출력 모드</option>
-          <option value="Y" selected>Y</option>
+          <option value="출력 모드" selected>출력 모드</option>
+          <option value="Y">Y</option>
           <option value="N">N</option>
         </select>
       </div>
-      <div style="margin-right: 2px; width: 13%; float: left; margin-top: 3px; margin-left: 5px;">
+      <div class="form-button-box">
         <button type="submit" class="btn btn-secondary btn-sm">등록</button>
         <button type="reset" class="btn btn-secondary btn-sm">취소</button>
       </div>
-      
     </form>
-  </div>  
-
-  <!--/* 
-  전체 레코드, 검색 레코드
-  list_all_com.html의 list_all_fragment를 include */-->
+  </div>
+  <br>
   <div th:replace="~{cate/list_all_com::list_all_fragment}"></div>
-  
 </div>
 </html>
-
