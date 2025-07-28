@@ -49,10 +49,14 @@
   font-weight: bold;
   margin-bottom: 20px;
 }
+.index-products {
+  margin-bottom: 80px; /* ✅ iframe 높이 확보를 위해 여백 추가 */
+}
 .index-product-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); /* ✅ 반응형 */
   gap: 20px;
+  padding-bottom: 60px; /* ✅ 하단 여유 확보 */
 }
 .index-product-card {
   border: 1px solid #eee;
@@ -60,14 +64,16 @@
   overflow: hidden;
   background: white;
   transition: box-shadow 0.3s ease;
+  min-height: 320px; /* ✅ 일정 높이 확보 */
 }
 .index-product-card:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 .index-product-card img {
   width: 100%;
-  height: 200px;
+  height: 200px !important;  /* <- 강제 적용 */
   object-fit: cover;
+  background-color: #f9f9f9;
 }
 .index-product-info {
   padding: 10px;

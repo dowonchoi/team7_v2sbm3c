@@ -54,6 +54,15 @@
     </iframe>
   </section>
 
+  <script>
+    window.addEventListener("message", function(event) {
+      if (event.data.type === "resize") {
+        const iframe = document.getElementById("recommendIframe");
+        iframe.style.height = event.data.height + "px";
+      }
+    });
+  </script>
+
   <!-- ✅ 추천 기획전 -->
   <section class="index-recommend container">
     <h4 class="index-section-title">SoOn이 자랑하는 식품 카테고리들!</h4>
@@ -166,6 +175,7 @@
       </div>
     </div>
   </section>
+  
 
 </div>
 </body>
