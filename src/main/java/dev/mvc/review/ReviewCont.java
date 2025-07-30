@@ -190,31 +190,31 @@ public class ReviewCont {
    */
   @PostMapping("/update_proc")
   public String update_proc(HttpSession session, Model model, ReviewVO reviewVO) {
-
-    // (1) 로그인 및 권한 확인
+    // 1. 세션에서 로그인 정보 확인
     Integer sessionMemberno = (Integer) session.getAttribute("memberno");
-    String grade = (String) session.getAttribute("grade");
+    Integer grade = (Integer) session.getAttribute("grade");
 
     if (sessionMemberno == null || grade == null) {
       return "redirect:/member/login_cookie_need";
     }
 
-    // (2) 기존 리뷰 정보 조회
-    ReviewVO dbVO = this.reviewProc.read(reviewVO.getReviewno()); // DB에서 원본 리뷰 데이터 가져오기
+    // 2. 기존 리뷰 정보 조회 (리뷰 번호 기준)
+    ReviewVO dbVO = this.reviewProc.read(reviewVO.getReviewno());
 
-    // (3) 권한 확인: 본인 또는 관리자(admin)만 수정 가능
-    if (sessionMemberno.equals(dbVO.getMemberno()) || grade.equals("admin")) {
-      // (4) 본문(content) 수정 → AI 감정 분석 & 요약 재실행
-      reviewLLMService.process(reviewVO); // FastAPI 호출 → 감정 분석 + 요약 갱신
-      // (5) DB 업데이트 실행
-      reviewProc.update(reviewVO); // 본문 수정 반영
-      // (6) 상품 상세 페이지로 리다이렉트
+    // 3. 권한 확인: 작성자 본인 or 관리자 등급(1~4)일 경우만 수정 허용
+    if (sessionMemberno.equals(dbVO.getMemberno()) || (grade >= 1 && grade <= 4)) {
+      // 4. LLM 감정 분석 및 요약 실행 → 결과를 reviewVO에 반영
+      reviewLLMService.process(reviewVO);
+      // 5. 리뷰 본문 DB 업데이트 실행
+      reviewProc.update(reviewVO);
+      // 6. 수정 완료 후 → 해당 상품 상세 페이지로 이동
       return "redirect:/products/read?productsno=" + dbVO.getProductsno();
     }
 
-    // (7) 권한 없음 → 로그인 필요 페이지로 이동
+    // 7. 권한 없음 → 로그인 안내 페이지로 이동
     return "redirect:/member/login_cookie_need";
   }
+
 
   /**
    * [GET] 리뷰 삭제
@@ -235,7 +235,7 @@ public class ReviewCont {
 
     // (1) 로그인 여부 확인
     Integer sessionMemberno = (Integer) session.getAttribute("memberno");
-    String grade = (String) session.getAttribute("grade");
+    Integer grade = (Integer) session.getAttribute("grade");
 
     if (sessionMemberno == null || grade == null) {
       return "redirect:/member/login_cookie_need";
@@ -276,36 +276,29 @@ public class ReviewCont {
    */
   @PostMapping("/delete_proc")
   public String delete_proc(HttpSession session, @RequestParam("reviewno") int reviewno) {
-
-    // (1) 로그인 정보 확인
+    // 1. 세션에서 로그인 정보 확인
     Integer sessionMemberno = (Integer) session.getAttribute("memberno");
-    String grade = (String) session.getAttribute("grade");
+    Integer grade = (Integer) session.getAttribute("grade");
 
-    // 로그인 정보가 없는 경우 → 로그인 필요 안내 페이지로 이동
     if (sessionMemberno == null || grade == null) {
       return "redirect:/member/login_cookie_need";
     }
 
-    // (2) DB에서 삭제 대상 리뷰 정보 조회
-    // - reviewProc.read(reviewno): reviewno 기반으로 리뷰 상세 데이터 가져오기
+    // 2. 삭제 대상 리뷰 조회 (DB에서 reviewno 기준으로 가져옴)
     ReviewVO dbVO = this.reviewProc.read(reviewno);
 
-    // (3) 권한 확인
-    // - 조건: (로그인한 사용자 == 리뷰 작성자) OR (관리자)
-    if (sessionMemberno.equals(dbVO.getMemberno()) || grade.equals("admin")) {
-
-      // (4) 권한 통과 → 리뷰 삭제 실행
-      // - reviewProc.delete(reviewno): 실제 DB에서 삭제 처리
-      int result = this.reviewProc.delete(reviewno);
-
-      // (5) 삭제 완료 후 → 리뷰가 속한 상품 상세 페이지로 리다이렉트
-      // - 상품 상세 페이지: /products/read?productsno=xxx
+    // 3. 권한 확인: 작성자 본인 또는 관리자(grade 1~4)만 삭제 가능
+    if (sessionMemberno.equals(dbVO.getMemberno()) || (grade >= 1 && grade <= 4)) {
+      // 4. 삭제 처리
+      this.reviewProc.delete(reviewno);
+      // 5. 삭제 후 해당 상품 상세 페이지로 리디렉션
       return "redirect:/products/read?productsno=" + dbVO.getProductsno();
     }
 
-    // (6) 권한이 없는 경우 → 로그인 안내 페이지로 이동 (보안 처리)
+    // 6. 권한 없음 → 로그인 안내 페이지로 이동
     return "redirect:/member/login_cookie_need";
   }
+
 
   /**
    * [GET] 리뷰 이미지 수정 폼 출력
