@@ -104,6 +104,11 @@ public class OrderCont {
     if (orderno != null) {
       model.addAttribute("orderno", orderno);  // 주문번호 전달 → 주문완료 메시지 표시 가능
     }
+    
+    // (6) 현재 로그인한 memberno를 View로 전달
+    model.addAttribute("deliveryVO", new DeliveryVO());
+    model.addAttribute("sessionMemberno", memberno); // ✅ 사용자 번호 View 전달
+
     return "order/create"; // 주문/결제 폼
   }
 

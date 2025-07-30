@@ -71,13 +71,24 @@ public class DeliveryCont {
     int cnt = deliveryProc.create(deliveryVO);
     return cnt == 1 ? "success" : "fail";
   }
-  
-  // 배송지 선택 기능
+    
+  //배송지 선택 기능
   @GetMapping("/read/{deliveryno}")
   @ResponseBody
-  public DeliveryVO read(@PathVariable("deliveryno") int deliveryno) {
-    return this.deliveryProc.read(deliveryno);
+  public Object read(@PathVariable("deliveryno") int deliveryno, HttpSession session) {
+   Integer memberno = (Integer) session.getAttribute("memberno");
+   if (memberno == null) return "not_logged_in";
+  
+   DeliveryVO vo = this.deliveryProc.read(deliveryno);
+  
+   // 본인의 배송지가 아닌 경우 차단
+   if (vo == null || vo.getMemberno() != memberno) {
+     return "unauthorized";
+   }
+  
+   return vo;
   }
+
   
   /**
    * 배송지 수정 요청 처리
