@@ -211,70 +211,62 @@ public class OpenAICont {
   @PostMapping("/member_img_ajax")
   @ResponseBody
   public Map<String, Object> createMemberImage(@RequestParam("prompt") String prompt, HttpSession session) {
-    // (0) 클라이언트로 반환할 결과 Map 초기화
     Map<String, Object> result = new HashMap<>();
-    
-    // (1) 세션에서 권한 확인 (grade, memberno)
-    String grade = (String) session.getAttribute("grade"); // 사용자 등급 (admin, supplier, user 등)
-    Integer memberno = (Integer) session.getAttribute("memberno"); // 로그인한 회원 PK
 
-    // 권한 체크: admin 또는 supplier가 아니면 거부
-    if (grade == null || (!"admin".equals(grade) && !"supplier".equals(grade))) {
+    // (1) 세션에서 로그인 및 권한 확인
+    Integer grade = (Integer) session.getAttribute("grade"); // 숫자 등급 (예: 1=admin, 5=supplier, 16=user)
+    Integer memberno = (Integer) session.getAttribute("memberno");
+
+    // 관리자(1~4) 또는 공급자(5~15)만 허용
+    if (grade == null || memberno == null || grade > 15) {
       result.put("success", false);
       result.put("error", "권한이 없습니다.");
       return result;
     }
 
-    // 생성된 이미지 파일명 (try 블록 외부에서 선언 → 예외 처리에서도 접근 가능)
-    String fileName = ""; // try 바깥에서 선언
+    String fileName = "";
     try {
-      // (2) FastAPI 호출을 위한 HTTP 헤더 설정
+      // (2) FastAPI 호출을 위한 요청 설정
       HttpHeaders headers = new HttpHeaders();
-      headers.setContentType(MediaType.APPLICATION_JSON); // 요청 데이터 타입: JSON
+      headers.setContentType(MediaType.APPLICATION_JSON);
 
-      // (3) 요청 바디 데이터 생성
       Map<String, Object> body = new HashMap<>();
-      body.put("SpringBoot_FastAPI_KEY", new LLMKey().getSpringBoot_FastAPI_KEY());  // 인증 키 (보안)
+      body.put("SpringBoot_FastAPI_KEY", new LLMKey().getSpringBoot_FastAPI_KEY());
       body.put("prompt", prompt);
 
-      // (4) HttpEntity 생성 → 헤더 + 바디 합침
       HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-
-      // (5) FastAPI 서버 호출 (POST 요청)
       String response = restTemplate.postForObject(FASTAPI_MEMBER_IMG_URL, requestEntity, String.class);
       System.out.println("[OpenAICont] FastAPI Response: " + response);
 
-      // (6) 응답 JSON 파싱 → 생성된 이미지 경로 추출
+      // (3) 파일명 파싱
       JSONObject json = new JSONObject(response);
-      String fullPath = json.getString("file_name"); // "C:/kd/deploy/team/member_img/storage/xxx.jpg"
-
-      // (7) 전체 경로에서 파일명만 추출 (슬래시 or 역슬래시 모두 처리)
-      fileName = fullPath.substring(fullPath.lastIndexOf("/") + 1);  // "/" 기준 잘라 파일명 추출
+      String fullPath = json.getString("file_name");
+      fileName = fullPath.substring(fullPath.lastIndexOf("/") + 1);
       if (fileName.contains("\\")) {
         fileName = fileName.substring(fileName.lastIndexOf("\\") + 1);
       }
+
       System.out.println("-> Extracted fileName: " + fileName);
 
-      // (8) DB 저장 (MemberImg 테이블)
+      // (4) DB 저장
       MemberImgVO vo = new MemberImgVO();
-      vo.setMemberno(memberno);   // 요청한 사용자 번호
-      vo.setPrompt(prompt);       // 생성 요청 시 사용된 프롬프트
-      vo.setFilename(fileName);   // 저장된 파일명
-      memberImgProc.create(vo);   // DB insert
+      vo.setMemberno(memberno);
+      vo.setPrompt(prompt);
+      vo.setFilename(fileName);
+      memberImgProc.create(vo);
 
-      // (9) 응답 데이터 구성
+      // (5) 응답
       result.put("success", true);
-      result.put("filename", fileName); // 클라이언트에서 이미지 출력 시 사용
+      result.put("filename", fileName);
 
     } catch (Exception e) {
-      // 예외 발생 시 처리 (FastAPI 서버 오류, JSON 파싱 문제 등)
       e.printStackTrace();
       result.put("success", false);
       result.put("error", "FastAPI 호출 중 오류 발생: " + e.getMessage());
     }
 
-    // (10) 결과 반환 (JSON)
     return result;
   }
+
 
 }
