@@ -52,7 +52,7 @@ public class InquiryCont {
       Integer memberno = (Integer) session.getAttribute("memberno");
       String id = (String) session.getAttribute("id");
       String name = (String) session.getAttribute("mname");
-      String grade = (String) session.getAttribute("grade");
+      Integer grade = (Integer) session.getAttribute("grade");
 
       // 문의 작성자 정보 세팅
       inquiryVO.setMemberno(memberno);
@@ -60,9 +60,9 @@ public class InquiryCont {
       inquiryVO.setWriter_name(name);
 
       // 등급에 따라 user_type 구분
-      if ("user".equals(grade)) {
+      if (grade != null && grade >= 16 && grade <= 39) {
           inquiryVO.setUser_type("user");
-      } else if ("supplier".equals(grade)) {
+      } else if (grade != null && grade >= 5 && grade <= 15) {
           inquiryVO.setUser_type("supplier");
       } else {
           inquiryVO.setUser_type("unknown");
@@ -207,16 +207,15 @@ public class InquiryCont {
   public String delete(@RequestParam("inquiry_id") int inquiry_id, HttpSession session) {
       InquiryVO inquiryVO = inquiryProc.read(inquiry_id);
       Integer memberno = (Integer) session.getAttribute("memberno");
-      String grade = (String) session.getAttribute("grade");
+      Integer grade = (Integer) session.getAttribute("grade");
 
-      if (!memberno.equals(inquiryVO.getMemberno()) && !"admin".equals(grade)) {
+      if (!memberno.equals(inquiryVO.getMemberno()) && (grade == null || grade < 1 || grade > 4)) {
           return "redirect:/error/permission";
       }
 
       inquiryProc.delete(inquiry_id);
 
-      // 관리자와 작성자 분기 처리
-      if ("admin".equals(grade)) {
+      if (grade != null && grade >= 1 && grade <= 4) {
           return "redirect:/inquiry/list_all";
       } else {
           return "redirect:/inquiry/list_by_member";
@@ -260,10 +259,10 @@ public class InquiryCont {
   public String reply(@RequestParam("inquiry_id") int inquiry_id,
                       @RequestParam("answer") String answer,
                       HttpSession session) {
-      String grade = (String) session.getAttribute("grade");
-
+      Integer grade = (Integer) session.getAttribute("grade"); // ✅ 수정됨
+  
       // 관리자 권한 체크
-      if (!"admin".equals(grade)) {
+      if (grade == null || grade < 1 || grade > 4) {
           return "redirect:/error/permission";
       }
 
@@ -299,13 +298,14 @@ public class InquiryCont {
    */
   @PostMapping("/delete_reply")
   public String deleteReply(@RequestParam("inquiry_id") int inquiry_id, HttpSession session) {
-      String grade = (String) session.getAttribute("grade");
+      Integer grade = (Integer) session.getAttribute("grade"); // ✅ 수정됨
 
-      if (!"admin".equals(grade)) {
+      if (grade == null || grade < 1 || grade > 4) {
           return "redirect:/error/permission";
       }
 
       inquiryProc.deleteAnswer(inquiry_id);
       return "redirect:/inquiry/read?inquiry_id=" + inquiry_id;
   }
+
 }
