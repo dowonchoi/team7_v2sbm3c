@@ -24,13 +24,15 @@ public class Products {
     String path = "";
 
     if (osName.contains("win")) { // Windows
-      path = "C:\\kd\\deploy\\team\\products\\storage\\";
+      path = "C:\\kd\\ws_java\\team7_v2sbm3c\\src\\main\\resources\\static\\storage\\products\\";
+      //path = "C:\\kd\\deploy\\team\\products\\storage\\";
       // System.out.println("Windows: " + path);
     } else if (osName.contains("mac")) { // MacOS
       path = "/Users/yourusername/deploy/team/products/storage/";
       // System.out.println("MacOS: " + path);
     } else { // Linux
-      path = "/home/ubuntu/deploy/team/products/storage/";
+      path = "/home/ubuntu/ws_java/team7_v2sbm3c/src/main/resources/static/storage/products/";
+      //path = "/home/ubuntu/deploy/team/products/storage/";
       // System.out.println("Linux: " + path);
     }
 
