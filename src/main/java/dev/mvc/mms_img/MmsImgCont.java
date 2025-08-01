@@ -373,14 +373,37 @@ public class MmsImgCont {
 
   //   MMS Tool 테스트 페이지
   @GetMapping("/tool")
-  public String tool(HttpSession session) {
+  public String tool(HttpSession session,  Model model) {
     // 예외 발생 시 실패 응답
     String gradeStr = (String) session.getAttribute("gradeStr");
     if (gradeStr == null || !"admin".equals(gradeStr)) {
       return "redirect:/member/login_cookie_need?url=/mms/tool";
     }
+    // 전체 이미지 목록
+    List<MmsImgVO> imgList = mmsImgProc.list();
+    model.addAttribute("imgList", imgList);
+
+    // 이미지별 발송 로그를 Map으로 저장
+    Map<Integer, List<MmsSendLogVO>> logMap = new HashMap<>();
+    for (MmsImgVO vo : imgList) {
+      List<MmsSendLogVO> logs = mmsSendLogProc.listByImgno(vo.getMimgno());
+      logMap.put(vo.getMimgno(), logs);
+    }
+    model.addAttribute("logMap", logMap);
 
     return "mms_img/mms_tool"; //   templates/mms_img/mms_tool.html
   }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+

@@ -12,6 +12,11 @@ public class Products {
   public static int PAGE_PER_BLOCK = 10;
 
   public static String getUploadDir() {
+    String ci = System.getenv("CI");
+    if ("true".equals(ci)) {
+      return "build/uploads/";  // GitHub Actions용 상대경로 (쓰기 가능)
+    }
+    
     String osName = System.getProperty("os.name").toLowerCase();
     String path = "";
 
