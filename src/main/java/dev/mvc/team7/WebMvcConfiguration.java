@@ -22,7 +22,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer{
         
 //       // 제품 이미지용
       registry.addResourceHandler("/products/storage/**")
-              .addResourceLocations("file:///C:/kd/deploy/team/products/storage/");
+              .addResourceLocations("file:///C:/kd/ws_java/team7_v2sbm3c/src/main/resources/static/storage/products/");
 
         // 🔥 회원(member) 사업자 파일용
         registry.addResourceHandler("/member/storage/**")
