@@ -18,6 +18,7 @@ public class Products {
     }
 
     //20250801 배포 test
+    // 아직 안나옴
 
     String osName = System.getProperty("os.name").toLowerCase();
     String path = "";
