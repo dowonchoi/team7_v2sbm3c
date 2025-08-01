@@ -1396,7 +1396,7 @@ public class ProductsCont {
     model.addAttribute("productsVO", productsVO);
     
     // (3) 상세 화면으로 이동
-    return "/products/detail"; // templates/products/detail.html
+    return "products/detail"; // templates/products/detail.html
   }
 
   /**
@@ -1428,7 +1428,7 @@ public class ProductsCont {
     model.addAttribute("menu", menu);
     
     // (4) 검색 결과 화면으로 이동
-    return "/products/list_by_keyword"; // 검색 결과 페이지
+    return "products/list_by_keyword"; // 검색 결과 페이지
   }
 
   /**
@@ -1459,7 +1459,7 @@ public class ProductsCont {
     model.addAttribute("menu", menu);
     
     // (4) 베스트 상품 화면으로 이동
-    return "/products/list_best";
+    return "products/list_best";
   }
 
   /**
@@ -1489,7 +1489,7 @@ public class ProductsCont {
     model.addAttribute("menu", menu);
 
     // (4) 신규 상품 목록 화면으로 이동
-    return "/products/list_new";
+    return "products/list_new";
   }
 
   /**
@@ -1519,7 +1519,7 @@ public class ProductsCont {
     model.addAttribute("menu", menu);
     
     // (4) 임박 특가 화면으로 이동
-    return "/products/list_soon_expire";
+    return "products/list_soon_expire";
   }
 
   /**
@@ -1549,7 +1549,7 @@ public class ProductsCont {
     model.addAttribute("menu", menu);
 
     // (4) 기획전 상품 목록 화면으로 이동
-    return "/products/list_event";
+    return "products/list_event";
   }
 
   /**
@@ -1572,7 +1572,7 @@ public class ProductsCont {
     // (2) View에 추천 상품 리스트 전달
     model.addAttribute("productList", productList);
     // (3) 메인 페이지(index.html)로 이동
-    return "/index";
+    return "index";
   }
 
   /**
