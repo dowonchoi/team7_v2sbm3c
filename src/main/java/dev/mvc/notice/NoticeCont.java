@@ -63,7 +63,7 @@ public class NoticeCont {
       if (grade == null || grade < 1 || grade > 4) {
           return "redirect:/error/permission"; // 권한 없음
       }
-      return "/notice/create"; // templates/notice/create.html
+      return "notice/create"; // templates/notice/create.html
   }
 
   /**
@@ -120,7 +120,7 @@ public class NoticeCont {
      List<CateVOMenu> menu = cateProc.menu(); // 상단 메뉴용 카테고리
      model.addAttribute("menu", menu);
 
-     return "/notice/list";
+     return "notice/list";
   }
 
   // ======================== 상세 보기 ========================
@@ -138,7 +138,7 @@ public class NoticeCont {
       this.noticeProc.increaseViewCount(notice_id);      // 조회수 증가
       NoticeVO noticeVO = this.noticeProc.read(notice_id); // 공지사항 조회
       model.addAttribute("noticeVO", noticeVO);
-      return "/notice/read";
+      return "notice/read";
   }
 
   // ======================== 수정 ========================
@@ -156,7 +156,7 @@ public class NoticeCont {
       }
       NoticeVO noticeVO = this.noticeProc.read(notice_id);
       model.addAttribute("noticeVO", noticeVO);
-      return "/notice/update";
+      return "notice/update";
   }
 
   /**

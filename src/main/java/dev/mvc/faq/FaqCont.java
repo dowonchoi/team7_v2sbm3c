@@ -37,7 +37,7 @@ public class FaqCont {
         return "redirect:/";  // 접근 권한 없음 → 홈으로 이동
     }
     
-    return "/faq/create";
+    return "faq/create";
   }
 
   /**
@@ -85,7 +85,7 @@ public class FaqCont {
     FaqVO faqVO = faqProc.read(faq_id);
     model.addAttribute("faqVO", faqVO);
     
-    return "/faq/update";
+    return "faq/update";
   }
 
   /**

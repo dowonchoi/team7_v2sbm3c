@@ -35,7 +35,7 @@ public class InquiryCont {
    */
   @GetMapping("/create")
   public String createForm() {
-    return "/inquiry/create";
+    return "inquiry/create";
   }
 
   /**
@@ -103,7 +103,7 @@ public class InquiryCont {
     Integer memberno = (Integer) session.getAttribute("memberno");
     List<InquiryVO> list = inquiryProc.listByMember(memberno);
     model.addAttribute("list", list);
-    return "/inquiry/list";
+    return "inquiry/list";
   }
   
   /**
@@ -125,7 +125,7 @@ public class InquiryCont {
 
       List<InquiryVO> list = inquiryProc.list_all();
       model.addAttribute("list", list);
-      return "/inquiry/list_all";
+      return "inquiry/list_all";
   }
   
   // ========================= 문의 상세 보기 =========================
@@ -140,7 +140,7 @@ public class InquiryCont {
   public String read(@RequestParam("inquiry_id") int inquiry_id, Model model) {
       InquiryVO inquiryVO = inquiryProc.read(inquiry_id); // read 메서드에서 조회수 증가
       model.addAttribute("inquiryVO", inquiryVO);
-      return "/inquiry/read";
+      return "inquiry/read";
   }
   
   // ========================= 문의 수정 =========================
@@ -164,7 +164,7 @@ public class InquiryCont {
       }
 
       model.addAttribute("inquiryVO", inquiryVO);
-      return "/inquiry/update";
+      return "inquiry/update";
   }
   
   /**
@@ -241,7 +241,7 @@ public class InquiryCont {
       List<InquiryVO> list = inquiryProc.listByMember(memberno);
       model.addAttribute("list", list);
 
-      return "/inquiry/list_by_member";
+      return "inquiry/list_by_member";
   }
   
   // ========================= 관리자 답변 =========================
