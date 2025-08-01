@@ -16,7 +16,9 @@ public class Products {
     if ("true".equals(ci)) {
       return "build/uploads/";  // GitHub Actions용 상대경로 (쓰기 가능)
     }
-    
+
+    //20250801 배포 test
+
     String osName = System.getProperty("os.name").toLowerCase();
     String path = "";
 
