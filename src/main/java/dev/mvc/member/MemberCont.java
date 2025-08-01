@@ -386,7 +386,7 @@ public class MemberCont {
      model.addAttribute("qnaCount", qnaProc.countByMember(memberno));            // QnA 작성 수
      model.addAttribute("inquiryCount", inquiryProc.countByMember(memberno));    // 1:1 문의 수
   
-     return "/member/mypage"; // 뷰 페이지 반환
+     return "member/mypage"; // 뷰 페이지 반환
   }
   
   //====================== 회원 목록 조회 (관리자 전용) ======================
@@ -516,7 +516,7 @@ public class MemberCont {
    // 조회된 정보를 모델에 담아 뷰로 전달
    model.addAttribute("memberVO", memberVO);
   
-   return "/member/update"; // templates/member/update.html
+   return "member/update"; // templates/member/update.html
   }
   
   /**
@@ -553,7 +553,7 @@ public class MemberCont {
    */
   @GetMapping("/find_id")
   public String findIdForm() {
-      return "/member/find_id";  // 아이디 찾기 입력 폼
+      return "member/find_id";  // 아이디 찾기 입력 폼
   }
   
   /**
@@ -575,7 +575,7 @@ public class MemberCont {
           model.addAttribute("notFound", true); // 아이디를 찾지 못했음을 표시
       }
   
-      return "/member/find_id_result";  // 아이디 찾기 결과 페이지
+      return "member/find_id_result";  // 아이디 찾기 결과 페이지
   } 
   
   /**
@@ -1041,7 +1041,7 @@ public class MemberCont {
      List<MemberVO> withdrawnList = memberProc.selectWithdrawnMembers();
      model.addAttribute("withdrawnList", withdrawnList);
   
-     return "/member/withdrawn_list"; // 탈퇴 회원 목록 페이지
+     return "member/withdrawn_list"; // 탈퇴 회원 목록 페이지
   }
   
   /**
