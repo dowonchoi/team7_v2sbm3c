@@ -51,7 +51,7 @@ public class NotificationCont {
     List<NotificationVO> list = notificationProc.selectNotificationsByMemberId(memberno);
     // 회원별 알림 목록 조회
     model.addAttribute("list", list);
-    return "/notification/list"; 
+    return "notification/list"; 
     // templates/notification/list.html
   }
 

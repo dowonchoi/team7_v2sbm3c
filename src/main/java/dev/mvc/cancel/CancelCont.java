@@ -31,7 +31,7 @@ public class CancelCont {
     }
 
     model.addAttribute("orderno", orderno); // 선택한 주문번호를 폼에 전달
-    return "/cancel/create"; // 취소/교환/반품 신청 화면
+    return "cancel/create"; // 취소/교환/반품 신청 화면
   }
 
   /** 
@@ -66,7 +66,7 @@ public class CancelCont {
 
     List<CancelVO> list = cancelProc.listByMember(memberno); // 해당 회원의 신청 목록 조회
     model.addAttribute("list", list); // View에 데이터 전달
-    return "/cancel/list"; // 소비자용 신청 목록 페이지
+    return "cancel/list"; // 소비자용 신청 목록 페이지
   }
 
   /** 
@@ -83,7 +83,7 @@ public class CancelCont {
 
     List<CancelVO> list = cancelProc.list_all(); // 모든 신청 내역 조회
     model.addAttribute("list", list);
-    return "/cancel/admin_list"; // 관리자용 목록 페이지
+    return "cancel/admin_list"; // 관리자용 목록 페이지
   }
 
   /** 
@@ -126,7 +126,7 @@ public class CancelCont {
     List<CancelVO> list = cancelProc.list_by_supplier(memberno); // 해당 공급자의 신청 내역
     model.addAttribute("list", list);
 
-    return "/cancel/list_by_supplier"; // 공급자 전용 목록 페이지
+    return "cancel/list_by_supplier"; // 공급자 전용 목록 페이지
   }
 
 }

@@ -51,7 +51,7 @@ public class LoginCont {
         List<LoginVO> list = loginProc.mylist(id); // 해당 id의 로그인 이력 조회
         model.addAttribute("list", list);
 
-        return "/login/mylist"; // login/mylist.html 렌더링
+        return "login/mylist"; // login/mylist.html 렌더링
     }
 
     // ======================= 로그인 이력 삭제 =======================
@@ -115,7 +115,7 @@ public class LoginCont {
             return "redirect:/"; // 메인 페이지로 이동
         } else {
             // 로그인 실패
-            return "/member/login_fail";
+            return "member/login_fail";
         }
     }
 
