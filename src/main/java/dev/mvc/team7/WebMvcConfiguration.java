@@ -24,7 +24,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer{
       // Windows: C:/kd/deploy/team/products/storage/
       // Ubuntu:  /home/ubuntu/team/products/storage/
       registry.addResourceHandler("/products/storage/**")
-              .addResourceLocations("file:///" + Products.getUploadDir());
+                .addResourceLocations("file:///home/ubuntu/team/products/storage/");
       
         // 🔥 회원(member) 사업자 파일용
         registry.addResourceHandler("/member/storage/**")
