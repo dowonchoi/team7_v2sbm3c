@@ -36,7 +36,7 @@ public class CalendarVO {
   private int memberno;
   
   /** 카테고리 번호 (✅ 추가) */
-  private int cateno;
+  private Integer cateno;
 
   /** 출력할 날짜 */
   private LocalDate labeldate;
