@@ -28,14 +28,14 @@ public class WebMvcConfiguration implements WebMvcConfigurer{
       
         // 🔥 회원(member) 사업자 파일용
         registry.addResourceHandler("/member/storage/**")
-                .addResourceLocations("file:///C:/kd/deploy/resort/member/storage/");
+                .addResourceLocations("file:///C:/kd/deploy/team/member/storage/");
         
         // 이미지 URL 매핑
         registry.addResourceHandler("/calendar/storage/**")
-                .addResourceLocations("file:///C:/kd/deploy/resort/calendar/storage/");
+                .addResourceLocations("file:///C:/kd/deploy/team/calendar/storage/");
         
         registry.addResourceHandler("/uploads/notice/**")
-                .addResourceLocations("file:///C:/kd/deploy/resort/notice/storage/");
+                .addResourceLocations("file:///C:/kd/deploy/team/notice/storage/");
         
         // 리뷰용 이미지
         registry.addResourceHandler("/review/storage/**")
