@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import dev.mvc.products.ProductsProcInter;
 import dev.mvc.products.ProductsVO;
@@ -58,4 +59,9 @@ public class HomeCont {
     return "index"; // /templates/index.html  
   }
   
+  @GetMapping("/")
+    @ResponseBody
+    public String home() {
+      return "<h2>React용 Spring Boot JPA Backend server 작동중...</h2>";
+    }
 }
