@@ -24,13 +24,16 @@ public class Products {
     String path = "";
 
     if (osName.contains("win")) { // Windows
-      path = "C:\\kd\\ws_java\\team7_v2sbm3c\\src\\main\\resources\\static\\storage\\products\\";
+      path = System.getProperty("user.dir") + "\\src\\main\\resources\\static\\storage\\products\\";
+      //path = "C:\\kd\\ws_java\\team7_v2sbm3c\\src\\main\\resources\\static\\storage\\products\\";
       //path = "C:\\kd\\deploy\\team\\products\\storage\\";
       // System.out.println("Windows: " + path);
     } else if (osName.contains("mac")) { // MacOS
       path = "/Users/yourusername/deploy/team/products/storage/";
       // System.out.println("MacOS: " + path);
     } else { // Linux
+      // ✅ 리눅스 배포 서버 (Ubuntu 포함)
+      path = System.getProperty("user.dir") + "/src/main/resources/static/storage/products/";
       path = "/home/ubuntu/ws_java/team7_v2sbm3c/src/main/resources/static/storage/products/";
       //path = "/home/ubuntu/deploy/team/products/storage/";
       // System.out.println("Linux: " + path);
