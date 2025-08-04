@@ -21,11 +21,14 @@ public class WebMvcConfiguration implements WebMvcConfigurer{
 //        registry.addResourceHandler("/products/storage/**").addResourceLocations("file:///" +  Products.getUploadDir());
         
 //       // 제품 이미지용
-      // Windows: C:/kd/deploy/team/products/storage/
-      // Ubuntu:  /home/ubuntu/team/products/storage/
-      registry.addResourceHandler("/products/storage/**")
-              .addResourceLocations("file:///home/ubuntu/team/products/storage/");
-      
+      // 아래 두 줄은 0804 오후 5시 20분 변경 전
+//      registry.addResourceHandler("/products/storage/**")
+//              .addResourceLocations("file:///home/ubuntu/team/products/storage/");
+//      
+        String productsUploadDir = Products.getUploadDir();
+        registry.addResourceHandler("/products/storage/**")
+                .addResourceLocations("file:///" + productsUploadDir);
+        
         // 🔥 회원(member) 사업자 파일용
         registry.addResourceHandler("/member/storage/**")
                 .addResourceLocations("file:///C:/kd/deploy/team/member/storage/");
