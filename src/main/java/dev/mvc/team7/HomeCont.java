@@ -59,9 +59,5 @@ public class HomeCont {
     return "index"; // /templates/index.html  
   }
   
-  @GetMapping("/")
-    @ResponseBody
-    public String home() {
-      return "<h2>React용 Spring Boot JPA Backend server 작동중...</h2>";
-    }
+
 }
