@@ -113,30 +113,25 @@ public class CalendarCont {
   */
   @GetMapping("/create")
   public String create(Model model, HttpSession session) {
-      try {
-          Object gradeObj = session.getAttribute("grade");
-          Integer grade = convertGrade(gradeObj);
+      Object memberno = session.getAttribute("memberno");
+      Object gradeObj = session.getAttribute("grade");
 
-          System.out.println("✅ grade 값: " + gradeObj + " → 변환: " + grade);
-          boolean isAdmin = grade != null && grade <= 15;
+      System.out.println("🟢 등록 폼 접근: memberno=" + memberno + ", grade=" + gradeObj);
 
-          model.addAttribute("isAdmin", isAdmin);
-          model.addAttribute("calendarVO", new CalendarVO());
+      Integer grade = convertGrade(gradeObj);
+      boolean isAdmin = grade != null && grade <= 15;
 
-          List<CateVOMenu> cateList = new ArrayList<>();
-          if (isAdmin) {
-              cateList = cateProc.menu();  // cateProc 주입 확인
-              System.out.println("✅ cateList 개수: " + cateList.size());
-          }
-          model.addAttribute("cateList", cateList);
+      model.addAttribute("isAdmin", isAdmin);
+      model.addAttribute("calendarVO", new CalendarVO());
 
-          return "calendar/create";
-
-      } catch (Exception e) {
-          e.printStackTrace();  // 콘솔 에러 확인
-          model.addAttribute("errorMsg", "폼 로딩 중 오류 발생: " + e.getMessage());
-          return "error";  // error.html로 연결
+      List<CateVOMenu> cateList = new ArrayList<>();
+      if (isAdmin) {
+          cateList = cateProc.menu();
+          System.out.println("✅ cateList 개수: " + cateList.size());
       }
+      model.addAttribute("cateList", cateList);
+
+      return "calendar/create";
   }
   
   //===================== 일정 등록 처리 =====================
@@ -176,9 +171,9 @@ public class CalendarCont {
           return "redirect:/calendar/list_calendar";
 
       } catch (Exception e) {
-          e.printStackTrace();
-          return "error";  // error.html 페이지 필요
-      }
+        e.printStackTrace();
+        return "redirect:/calendar/list_calendar";  // 안전하게 목록으로 이동
+    }
   }
 
   // ===================== 일정 상세 보기 =====================
