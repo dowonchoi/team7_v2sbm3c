@@ -1441,7 +1441,7 @@ public class MemberCont {
   @ResponseBody
   public ResponseEntity<Resource> viewFile(@PathVariable("filename") String filename) {
       try {
-          String filePath = "C:/kd/deploy/resort/member/storage/" + filename;
+          String filePath = "C:/kd/deploy/team/member/storage/" + filename;
           Path path = Paths.get(filePath);
   
           if (!Files.exists(path)) {
@@ -1473,7 +1473,7 @@ public class MemberCont {
           @RequestParam("filename") String filename,
           @RequestParam(value = "orgname", required = false) String orgname) {
       try {
-          String filePath = "C:\\kd\\deploy\\resort\\member\\storage\\" + filename;
+          String filePath = "C:\\kd\\deploy\\team\\member\\storage\\" + filename;
           Path path = Paths.get(filePath);
   
           if (!Files.exists(path)) {
