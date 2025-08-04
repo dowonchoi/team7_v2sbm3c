@@ -1595,7 +1595,10 @@ public class ProductsCont {
    *     ...
    *   ]
    */  
-  @CrossOrigin(origins = "http://localhost:3000") // React용 CORS 허용
+  @CrossOrigin(origins = {
+      "http://localhost:3000",               // 개발용
+      "http://121.78.128.177:3000"           // 서버 배포용
+    })
   @GetMapping("/json")
   @ResponseBody
   public List<ProductsVO> productsJson() {

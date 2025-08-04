@@ -2,6 +2,7 @@ package dev.mvc.calendar;
 
 import java.io.File;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -103,45 +104,81 @@ public class CalendarCont {
       return array.toString(); // JSON 문자열 반환
   }
 
-  // ===================== 일정 등록 폼 =====================
+  //===================== 일정 등록 폼 =====================
   /**
-   * 일정 등록 폼
-   * - 로그인 여부 및 등급 확인
-   * - 관리자/공급자 여부를 isAdmin으로 전달
-   */
+  * 일정 등록 폼
+  * - 로그인 여부 및 등급 확인
+  * - 관리자/공급자 여부를 isAdmin으로 전달
+  * - 카테고리 목록 로딩 실패 방지
+  */
   @GetMapping("/create")
   public String create(Model model, HttpSession session) {
-      Integer grade = convertGrade(session.getAttribute("grade"));
-      model.addAttribute("isAdmin", grade != null && grade <= 15); // 관리자 또는 공급자
-      model.addAttribute("calendarVO", new CalendarVO());          // 빈 VO 전달
-      model.addAttribute("cateList", cateProc.menu());             // 카테고리 리스트
-      return "calendar/create";
-  }
+      try {
+          Object gradeObj = session.getAttribute("grade");
+          Integer grade = convertGrade(gradeObj);
 
-  // ===================== 일정 등록 처리 =====================
-  /**
-   * 일정 등록 처리
-   * - 로그인한 사용자의 memberno를 VO에 설정
-   * - 소비자는 cateno 강제 0으로 설정
-   * - 첨부 파일 업로드 후 DB에 저장
-   */
-  @PostMapping("/create")
-  public String createProc(HttpSession session, CalendarVO vo) throws Exception {
-      Integer memberno = (Integer) session.getAttribute("memberno");
-      Integer grade = convertGrade(session.getAttribute("grade"));
-      if (memberno == null) return "redirect:/member/login"; // 비로그인 시 로그인 페이지로
+          System.out.println("✅ grade 값: " + gradeObj + " → 변환: " + grade);
+          boolean isAdmin = grade != null && grade <= 15;
 
-      vo.setMemberno(memberno);
-      vo.setVisible("Y"); // 일정 기본 공개
+          model.addAttribute("isAdmin", isAdmin);
+          model.addAttribute("calendarVO", new CalendarVO());
 
-      // 소비자(16 이상)는 카테고리 변경 불가
-      if (grade >= 16) {
-          vo.setCateno(0);
+          List<CateVOMenu> cateList = new ArrayList<>();
+          if (isAdmin) {
+              cateList = cateProc.menu();  // cateProc 주입 확인
+              System.out.println("✅ cateList 개수: " + cateList.size());
+          }
+          model.addAttribute("cateList", cateList);
+
+          return "calendar/create";
+
+      } catch (Exception e) {
+          e.printStackTrace();  // 콘솔 에러 확인
+          model.addAttribute("errorMsg", "폼 로딩 중 오류 발생: " + e.getMessage());
+          return "error";  // error.html로 연결
       }
+  }
+  
+  //===================== 일정 등록 처리 =====================
+  /**
+  * 일정 등록 처리
+  * - 로그인한 사용자의 memberno를 VO에 설정
+  * - 소비자는 cateno 강제 0으로 설정
+  * - 첨부 파일 업로드 후 DB에 저장
+  */
+  @PostMapping("/create")
+  public String createProc(HttpSession session, CalendarVO vo) {
+      try {
+          Integer memberno = (Integer) session.getAttribute("memberno");
+          Integer grade = convertGrade(session.getAttribute("grade"));
 
-      uploadFile(vo);       // 첨부 파일 처리
-      calendarProc.create(vo); // DB에 일정 저장
-      return "redirect:/calendar/list_calendar";
+          System.out.println("✅ 일정 등록 요청: memberno=" + memberno + ", grade=" + grade);
+
+          if (memberno == null) {
+              System.out.println("⚠️ 비로그인 상태. 로그인 페이지로 이동");
+              return "redirect:/member/login";
+          }
+
+          vo.setMemberno(memberno);
+          vo.setVisible("Y");
+
+          if (grade != null && grade >= 16) {
+              vo.setCateno(0);
+              System.out.println("🔒 소비자 → cateno 0으로 강제 설정");
+          }
+
+          uploadFile(vo);  // 파일 업로드
+          System.out.println("✅ 파일 업로드 완료");
+
+          calendarProc.create(vo);  // DB 저장
+          System.out.println("✅ 일정 DB 저장 완료");
+
+          return "redirect:/calendar/list_calendar";
+
+      } catch (Exception e) {
+          e.printStackTrace();
+          return "error";  // error.html 페이지 필요
+      }
   }
 
   // ===================== 일정 상세 보기 =====================
