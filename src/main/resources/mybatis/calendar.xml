@@ -9,7 +9,7 @@
       calendarno, labeldate, startdate, enddate, label, title, content, cnt, regdate,
       memberno, file1saved, file1origin, file1size, cateno, visible
     ) VALUES (
-      calendar_seq.nextval, #{labeldate}, #{startdate}, #{enddate}, #{label}, #{title}, #{content}, 0, sysdate,
+      calendar_seq.nextval, #{labeldate, jdbcType=DATE}, #{startdate, jdbcType=DATE}, #{enddate, jdbcType=DATE}, #{label}, #{title}, #{content}, 0, sysdate,
       #{memberno}, #{file1saved, jdbcType=VARCHAR}, #{file1origin, jdbcType=VARCHAR}, #{file1size, jdbcType=BIGINT}, #{cateno}, #{visible}
     )
   </insert>

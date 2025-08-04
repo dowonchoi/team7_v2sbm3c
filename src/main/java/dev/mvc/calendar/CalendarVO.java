@@ -1,5 +1,6 @@
 package dev.mvc.calendar;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -38,13 +39,13 @@ public class CalendarVO {
   private int cateno;
 
   /** 출력할 날짜 */
-  private String  labeldate;
+  private LocalDate labeldate;
 
   /** 시작 날짜 */
-  private String  startdate;
+  private LocalDate startdate;
 
   /** 종료 날짜 */
-  private String  enddate;
+  private LocalDate enddate;
 
   /** 출력 레이블 */
   private String label;

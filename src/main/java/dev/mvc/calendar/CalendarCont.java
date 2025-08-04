@@ -162,17 +162,19 @@ public class CalendarCont {
               System.out.println("🔒 소비자 → cateno 0으로 강제 설정");
           }
 
+          System.out.println("📁 파일 업로드 시작");
           uploadFile(vo);  // 파일 업로드
-          System.out.println("✅ 파일 업로드 완료");
+          System.out.println("📁 파일 업로드 완료");
 
+          System.out.println("💾 DB 저장 시작");
           calendarProc.create(vo);  // DB 저장
-          System.out.println("✅ 일정 DB 저장 완료");
+          System.out.println("💾 DB 저장 완료");
 
           return "redirect:/calendar/list_calendar";
 
       } catch (Exception e) {
         e.printStackTrace();
-        return "redirect:/calendar/list_calendar";  // 안전하게 목록으로 이동
+        return "calendar/create";  // 실패 시 다시 등록 폼
     }
   }
 
@@ -309,24 +311,40 @@ public class CalendarCont {
    * CalendarVO에 파일 관련 메타데이터를 설정한다.
    */
   private void uploadFile(CalendarVO vo) {
-      try {
-          MultipartFile mf = vo.getFile1MF();
-          if (mf != null && !mf.isEmpty()) {
-              File dir = new File(uploadDir);
-              if (!dir.exists()) dir.mkdirs();
+    try {
+        MultipartFile mf = vo.getFile1MF();
+        if (mf != null && !mf.isEmpty()) {
+            System.out.println("📁 업로드 시도 파일명: " + mf.getOriginalFilename());
 
-              String origin = mf.getOriginalFilename();                 // 원본 파일명
-              String saved = UUID.randomUUID().toString() + "_" + origin; // 중복 방지 저장명
-              mf.transferTo(new File(uploadDir + saved));
+            File dir = new File(uploadDir);
+            if (!dir.exists()) {
+                System.out.println("📁 디렉토리 없음, 생성 시도: " + uploadDir);
+                boolean result = dir.mkdirs();
+                System.out.println("📁 디렉토리 생성 성공 여부: " + result);
+            } else {
+                System.out.println("📁 디렉토리 존재: " + uploadDir);
+            }
 
-              vo.setFile1origin(origin);
-              vo.setFile1saved(saved);
-              vo.setFile1size(mf.getSize());
-          }
-      } catch (Exception e) {
-          e.printStackTrace();
-      }
-  }
+            String origin = mf.getOriginalFilename();
+            String saved = UUID.randomUUID().toString() + "_" + origin;
+            File dest = new File(uploadDir + saved);
+            System.out.println("📄 저장 경로: " + dest.getAbsolutePath());
+
+            mf.transferTo(dest);  // 예외 발생 가능 지점
+            System.out.println("✅ 파일 저장 성공");
+
+            vo.setFile1origin(origin);
+            vo.setFile1saved(saved);
+            vo.setFile1size(mf.getSize());
+        } else {
+            System.out.println("📂 업로드할 파일 없음 또는 비어 있음");
+        }
+    } catch (Exception e) {
+        System.out.println("❌ 파일 업로드 실패: " + e.getMessage());
+        e.printStackTrace();
+    }
+}
+
 
   // ===================== 파일 삭제 메서드 =====================
   /**
