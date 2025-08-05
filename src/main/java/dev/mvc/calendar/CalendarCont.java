@@ -43,7 +43,7 @@ public class CalendarCont {
 
   // ===================== 파일 저장 경로 =====================
   /** 캘린더 첨부 파일이 저장될 디렉토리 경로 */
-  private final String uploadDir = "C:/kd/deploy/team/calendar/storage/";
+  private final String uploadDir = CalendarPath.getUploadDir();  // 통일된 경로 사용
 
   // ===================== 일정 전체 목록 (관리자 전용) =====================
   /**
