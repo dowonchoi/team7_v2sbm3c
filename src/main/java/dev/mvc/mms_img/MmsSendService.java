@@ -87,11 +87,15 @@ public class MmsSendService {
         Response response = client.newCall(request).execute();
         String responseBody = Objects.requireNonNull(response.body()).string();
         System.out.println("Gabia Response: " + responseBody);
+        System.out.println("============ Gabia 응답 RAW ============");
+        System.out.println(responseBody);
         
         // 7. 응답 파싱
         // Gabia API 응답 예시: {"code":"200","message":"success","data":{...}}
         HashMap<String, Object> result = new Gson().fromJson(responseBody, HashMap.class);
-        
+        System.out.println("============ 파싱된 code ================");
+        System.out.println("code = " + result.get("code"));
+
         // 8. 성공 여부 확인
         // 응답 코드(code)가 "200"이면 성공
         return "200".equals(result.get("code"));
