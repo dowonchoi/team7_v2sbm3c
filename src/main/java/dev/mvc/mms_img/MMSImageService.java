@@ -101,7 +101,8 @@ public class MMSImageService {
 
         /** (7) JPEG 저장: 압축 품질(0.7f)로 최적화 저장 */
         String outputFileName = "final_" + System.currentTimeMillis() + ".jpg";
-        String outputPath = "C:/kd/deploy/mms/storage/" + outputFileName;
+        //String outputPath = "C:/kd/deploy/mms/storage/" + outputFileName;
+        String outputPath = MMSImage.getUploadDir() + outputFileName;
 
         try (FileOutputStream fos = new FileOutputStream(outputPath);
              ImageOutputStream ios = ImageIO.createImageOutputStream(fos)) {

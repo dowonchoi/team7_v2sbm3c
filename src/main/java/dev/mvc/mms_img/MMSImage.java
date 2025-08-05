@@ -38,7 +38,8 @@ public class MMSImage {
    */
   public static void main(String[] args) throws IOException {
     // (1) 원본 이미지 경로
-    File input = new File("C:\\kd\\deploy\\mms\\storage\\20250720121106_657.jpg");
+    File input = new File(getUploadDir() + "20250720121106_657.jpg");
+    //File input = new File("C:\\kd\\deploy\\mms\\storage\\20250720121106_657.jpg");
     // BufferedImage로 이미지 로드
     BufferedImage originalImage = ImageIO.read(input);
 
@@ -60,7 +61,8 @@ public class MMSImage {
     g2d.dispose();  // 리소스 해제
 
     // (4) 저장할 압축 파일 경로 지정
-    File compressedFile = new File("C:\\kd\\deploy\\mms\\storage\\mms_output.jpg");
+    File compressedFile = new File(getUploadDir() + "mms_output.jpg"); // ★
+    //File compressedFile = new File("C:\\kd\\deploy\\mms\\storage\\mms_output.jpg");
 
     // (5) JPEG 압축 처리
     // - 품질 설정 범위: 0.1f ~ 1.0f (1.0 = 최고 품질)

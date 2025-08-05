@@ -163,7 +163,8 @@ public class MmsToolCont {
             }
 
             // 2. 원본 이미지 경로 생성
-            String inputPath = "C:/kd/deploy/mms/storage/" + fileName;
+            //String inputPath = "C:/kd/deploy/mms/storage/" + fileName;
+            String inputPath = MMSImage.getUploadDir() + fileName;
 
             // 3. MMSImageService 호출
             // - 이미지에 텍스트 합성 후 새로운 파일명 반환
@@ -213,7 +214,8 @@ public class MmsToolCont {
         Map<String, Object> result = new HashMap<>();
         try {
             // 1. 최종 이미지 파일 경로 생성
-            String imagePath = "C:/kd/deploy/mms/storage/" + finalFileName;
+            //String imagePath = "C:/kd/deploy/mms/storage/" + finalFileName;
+            String imagePath = MMSImage.getUploadDir() + finalFileName;
 
             // 2. 파일 존재 여부 확인
             File file = new File(imagePath);

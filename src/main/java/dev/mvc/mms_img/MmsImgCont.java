@@ -64,7 +64,8 @@ public class MmsImgCont {
   private RestTemplate restTemplate; //   FastAPI 호출용
 
   /** FastAPI MMS 이미지 생성 API 엔드포인트 */
-  private static final String FASTAPI_MMS_IMG_URL = "http://localhost:8000/mms_img";
+  //private static final String FASTAPI_MMS_IMG_URL = "http://localhost:8000/mms_img";
+  private static final String FASTAPI_MMS_IMG_URL = "http://121.78.128.177:8000/mms_img";
 
   /**
    * STEP 1: OpenAI 이미지 생성 화면 요청
@@ -341,7 +342,9 @@ public class MmsImgCont {
       }
 
       // 3. 실제 서버 저장 경로 생성
-      String imagePath = "C:/kd/deploy/mms/storage/" + finalFile;
+      //String imagePath = "C:/kd/deploy/mms/storage/" + finalFile;
+      String imagePath = MMSImage.getUploadDir() + finalFile;
+
 
       // 4. Gabia MMS API 호출
       // - 이미지와 메시지를 Gabia API를 통해 발송
@@ -465,6 +468,19 @@ public Map<String, Object> api_insert(@RequestBody MmsImgVO mmsImgVO, HttpSessio
  return response;
 }
 
+@PostMapping("/create_api")
+public Map<String, Object> create_api(@RequestBody MmsImgVO mmsImgVO) {
+  Map<String, Object> response = new HashMap<>();
+  try {
+    int cnt = mmsImgProc.create(mmsImgVO);
+    response.put("status", "success");
+    response.put("cnt", cnt);
+  } catch (Exception e) {
+    response.put("status", "fail");
+    response.put("msg", e.getMessage());
+  }
+  return response;
+}
 
 }
 
