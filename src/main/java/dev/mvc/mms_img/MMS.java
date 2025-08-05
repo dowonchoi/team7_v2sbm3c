@@ -54,7 +54,9 @@ public class MMS {
         OkHttpClient client = new OkHttpClient();
 
         //   4. 이미지 파일 경로 확인
-        File imageFile = new File("C:\\kd\\deploy\\mms\\storage\\mms_output.jpg");
+        //File imageFile = new File("C:\\kd\\deploy\\mms\\storage\\mms_output.jpg");
+        File imageFile = new File("/home/ubuntu/deploy/mms/storage/mms_output.jpg");
+
         // 파일 존재 여부 확인
         if (!imageFile.exists()) {
             System.out.println("❌ 이미지 파일이 존재하지 않습니다: " + imageFile.getAbsolutePath());
