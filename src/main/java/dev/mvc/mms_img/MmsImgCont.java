@@ -423,6 +423,48 @@ try {
 return map;
 }
 
+//MmsImgCont.java
+
+@PostMapping("/mms_img/api_insert")
+@ResponseBody
+public Map<String, Object> api_insert(@RequestBody MmsImgVO mmsImgVO, HttpSession session) {
+ Map<String, Object> response = new HashMap<>();
+
+ try {
+     // 1. 세션 또는 기본 관리자 번호 설정
+     Integer memberno = (Integer) session.getAttribute("memberno");
+     if (memberno == null) {
+         memberno = 1;  // 시스템 기본 관리자
+     }
+
+     mmsImgVO.setMemberno(memberno);
+
+     // 2. 상태 기본값 지정
+     if (mmsImgVO.getStatus() == null || mmsImgVO.getStatus().isEmpty()) {
+         mmsImgVO.setStatus("created");
+     }
+
+     // 3. DB 등록
+     int cnt = this.mmsImgProc.create(mmsImgVO);
+
+     if (cnt == 1) {
+         response.put("code", "success");
+         response.put("msg", "DB 자동 등록 완료");
+         response.put("mimgno", mmsImgVO.getMimgno());
+     } else {
+         response.put("code", "fail");
+         response.put("msg", "DB 등록 실패");
+     }
+
+ } catch (Exception e) {
+     response.put("code", "error");
+     response.put("msg", e.getMessage());
+ }
+
+ return response;
+}
+
+
 }
 
 
