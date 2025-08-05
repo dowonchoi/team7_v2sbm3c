@@ -86,4 +86,18 @@ public class MMSImage {
     System.out
         .println("  압축 완료: " + compressedFile.getAbsolutePath() + " (크기: " + compressedFile.length() / 1024 + " KB)");
   }
+  
+  /** OS에 따라 업로드 경로 리턴 */
+  public static String getUploadDir() {
+      String os = System.getProperty("os.name").toLowerCase();
+      String path;
+
+      if (os.contains("win")) {
+          path = "C:/kd/deploy/mms/storage/";
+      } else {
+          path = "/home/ubuntu/deploy/mms/storage/";
+      }
+
+      return path;
+  }
 }
