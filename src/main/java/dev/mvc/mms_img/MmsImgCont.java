@@ -394,6 +394,35 @@ public class MmsImgCont {
     return "mms_img/mms_tool"; //   templates/mms_img/mms_tool.html
   }
 
+
+//자동 등록을 위한 API - FastAPI에서 JSON 전송
+@PostMapping("/create_auto")
+@ResponseBody
+public Map<String, Object> create_auto(@RequestBody MmsImgVO mmsImgVO) {
+Map<String, Object> map = new HashMap<>();
+
+// 확인용 로그
+System.out.println("📥 자동 등록 요청 수신: " + mmsImgVO.toString());
+
+try {
+ int cnt = this.mmsImgProc.create(mmsImgVO);  // DB 등록 시도
+
+ if (cnt == 1) {
+   map.put("code", "success");
+   map.put("msg", "등록 성공");
+ } else {
+   map.put("code", "fail");
+   map.put("msg", "등록 실패");
+ }
+} catch (Exception e) {
+ map.put("code", "error");
+ map.put("msg", e.getMessage());
+ e.printStackTrace();
+}
+
+return map;
+}
+
 }
 
 
