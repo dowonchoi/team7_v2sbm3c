@@ -221,7 +221,7 @@ public class CalendarCont {
          model.addAttribute("calendarVO", vo);
          return "calendar/update";
      }
-     return "redirect:/calendar/list_calendar";
+     return "redirect:/calendar/list_all";
   }
 
   // ===================== 일정 수정 처리 =====================
