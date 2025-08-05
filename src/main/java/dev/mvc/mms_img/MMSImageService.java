@@ -61,7 +61,15 @@ public class MMSImageService {
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
         /** (3) 폰트 설정: TTF → OS → SansSerif fallback */
-        Font font = loadFont(fontName, fontSize);
+        //Font font = loadFont(fontName, fontSize);
+        Font font = loadFont("NanumGothic", 60);
+        
+        // 테스트: 폰트에 영문/한글이 포함돼 있는지
+        System.out.println("[TEST] canDisplay('A'): " + font.canDisplay('A'));
+        System.out.println("[TEST] canDisplay('가'): " + font.canDisplay('가'));
+        System.out.println("[TEST] canDisplay('1'): " + font.canDisplay('1'));
+        System.out.println("[TEST] canDisplay('?'): " + font.canDisplay('?'));
+        
         g2d.setFont(font);
 
         /** (4) 색상 설정: 텍스트 본문과 그림자 색상 */
