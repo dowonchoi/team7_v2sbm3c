@@ -260,7 +260,8 @@ public class MmsImgCont {
 
       // 3. DB에서 원본 이미지 정보 조회
       MmsImgVO vo = mmsImgProc.read(mimgno);
-      String inputPath = "C:/kd/deploy/mms/storage/" + vo.getOriginal_filename();
+      //String inputPath = "C:/kd/deploy/mms/storage/" + vo.getOriginal_filename();
+      String inputPath = MMSImage.getUploadDir() + vo.getOriginal_filename();
       System.out.println("[DEBUG] 입력 경로: " + inputPath);
 
       // 4. 이미지에 텍스트 합성 처리
