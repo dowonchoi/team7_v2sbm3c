@@ -305,47 +305,41 @@ public class CalendarCont {
       return "redirect:/calendar/list_all";
   }
 
-  // ===================== 파일 업로드 메서드 =====================
-  /**
-   * 업로드된 MultipartFile을 서버 디렉토리에 저장하고
-   * CalendarVO에 파일 관련 메타데이터를 설정한다.
-   */
   private void uploadFile(CalendarVO vo) {
     try {
         MultipartFile mf = vo.getFile1MF();
         if (mf != null && !mf.isEmpty()) {
+            String uploadDir = CalendarPath.getUploadDir();
             System.out.println("📁 업로드 시도 파일명: " + mf.getOriginalFilename());
 
             File dir = new File(uploadDir);
             if (!dir.exists()) {
-                System.out.println("📁 디렉토리 없음, 생성 시도: " + uploadDir);
-                boolean result = dir.mkdirs();
-                System.out.println("📁 디렉토리 생성 성공 여부: " + result);
-            } else {
-                System.out.println("📁 디렉토리 존재: " + uploadDir);
+                dir.mkdirs();
             }
 
-            String origin = mf.getOriginalFilename();
-            String saved = UUID.randomUUID().toString() + "_" + origin;
-            File dest = new File(uploadDir + saved);
-            System.out.println("📄 저장 경로: " + dest.getAbsolutePath());
+            String origin = mf.getOriginalFilename(); // 사용자 보기용
+            String ext = origin.substring(origin.lastIndexOf(".")); // 확장자 추출
+            String saved = UUID.randomUUID().toString() + ext;      // 안전 저장명
 
-            mf.transferTo(dest);  // 예외 발생 가능 지점
-            System.out.println("✅ 파일 저장 성공");
+            File dest = new File(uploadDir + saved);
+            mf.transferTo(dest);
 
             vo.setFile1origin(origin);
             vo.setFile1saved(saved);
             vo.setFile1size(mf.getSize());
+
+            System.out.println("✅ 저장 성공: " + saved);
+
         } else {
-            System.out.println("📂 업로드할 파일 없음 또는 비어 있음");
+            System.out.println("📂 업로드할 파일 없음");
         }
     } catch (Exception e) {
         System.out.println("❌ 파일 업로드 실패: " + e.getMessage());
         e.printStackTrace();
     }
-}
+  }
 
-
+  
   // ===================== 파일 삭제 메서드 =====================
   /**
    * 서버에 저장된 파일을 삭제한다.
@@ -353,10 +347,11 @@ public class CalendarCont {
    * @param filename 삭제할 파일명
    */
   private void deleteFile(String filename) {
-      if (filename != null && !filename.isEmpty()) {
-          File file = new File(uploadDir + filename);
-          if (file.exists()) file.delete();
-      }
+    if (filename != null && !filename.isEmpty()) {
+        String uploadDir = CalendarPath.getUploadDir();
+        File file = new File(uploadDir + filename);
+        if (file.exists()) file.delete();
+    }
   }
 
   // ===================== 등급 숫자를 명칭으로 변환 =====================

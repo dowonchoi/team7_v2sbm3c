@@ -128,10 +128,18 @@ public class MemberCont {
   @Autowired  // 비밀번호 암호화 및 복호화를 위한 유틸
   private Security security;
   
+  private final String serverUrl; // ✅ 클래스 변수로 선언
+  
   //===============================================================
   // 생성자: 컨트롤러가 생성될 때 콘솔 로그를 출력 (디버깅용)
   //===============================================================
   public MemberCont() {
+    String os = System.getProperty("os.name").toLowerCase();
+    if (os.contains("win")) {
+      this.serverUrl = "http://localhost:9093";  // 개발용
+    } else {
+      this.serverUrl = "http://121.78.128.177:9093";  // 배포용
+    }
     System.out.println("-> MemberCont created.");  
   }
   
@@ -218,7 +226,7 @@ public class MemberCont {
 
           // 파일 업로드 로직
           if (businessFile != null && !businessFile.isEmpty()) {
-              String uploadDir = "C:/kd/deploy/resort/member/storage/";
+            String uploadDir = MemberPath.getUploadDir();
               File dir = new File(uploadDir);
               if (!dir.exists()) dir.mkdirs(); // 디렉토리가 없으면 생성
 
@@ -609,7 +617,7 @@ public class MemberCont {
       }
   
       // 3. 비밀번호 재설정 링크 생성 및 메일 전송
-      String resetLink = "http://localhost:9093/member/reset_passwd_form?id=" + id;
+      String resetLink = serverUrl + "/member/reset?code=123456&email=" + id;
       String subject = "[떨이몰] 비밀번호 재설정 링크입니다.";
       String content = "<p>안녕하세요.</p>"
                      + "<p>비밀번호 재설정을 원하신다면 아래 링크를 클릭해주세요.</p>"
@@ -703,7 +711,7 @@ public class MemberCont {
   @ResponseBody
   public String sendResetEmail(@RequestParam String email) {
       try {
-          String resetLink = "http://localhost:9093/member/reset?code=123456&email=" + email;
+          String resetLink = serverUrl + "/member/reset?code=123456&email=" + email;
           mailService.sendResetPasswordMail(email, resetLink);
           return "메일 발송 완료";
       } catch (Exception e) {
@@ -1441,23 +1449,23 @@ public class MemberCont {
   @ResponseBody
   public ResponseEntity<Resource> viewFile(@PathVariable("filename") String filename) {
       try {
-          String filePath = "C:/kd/deploy/team/member/storage/" + filename;
+          String filePath = MemberPath.getUploadDir() + filename;
           Path path = Paths.get(filePath);
-  
+
           if (!Files.exists(path)) {
               return ResponseEntity.notFound().build();
           }
-  
+
           Resource resource = new UrlResource(path.toUri());
           String contentType = Files.probeContentType(path);
           if (contentType == null) {
               contentType = "application/octet-stream";
           }
-  
+
           return ResponseEntity.ok()
                   .contentType(MediaType.parseMediaType(contentType))
                   .body(resource);
-  
+
       } catch (Exception e) {
           e.printStackTrace();
           return ResponseEntity.internalServerError().build();
@@ -1473,23 +1481,23 @@ public class MemberCont {
           @RequestParam("filename") String filename,
           @RequestParam(value = "orgname", required = false) String orgname) {
       try {
-          String filePath = "C:\\kd\\deploy\\team\\member\\storage\\" + filename;
+          String filePath = MemberPath.getUploadDir() + filename;
           Path path = Paths.get(filePath);
-  
+
           if (!Files.exists(path)) {
               return ResponseEntity.notFound().build();
           }
-  
+
           Resource resource = new UrlResource(path.toUri());
           String downloadName = (orgname != null && !orgname.isEmpty()) ? orgname : filename;
           String encodedFileName = URLEncoder.encode(downloadName, "UTF-8").replace("+", "%20");
-  
+
           return ResponseEntity.ok()
                   .contentType(MediaType.APPLICATION_OCTET_STREAM)
                   .header(HttpHeaders.CONTENT_DISPOSITION,
                           "attachment; filename=\"" + encodedFileName + "\"")
                   .body(resource);
-  
+
       } catch (Exception e) {
           e.printStackTrace();
           return ResponseEntity.internalServerError().build();

@@ -5,6 +5,9 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import dev.mvc.products.Products;
+import dev.mvc.member.MemberPath;
+import dev.mvc.calendar.CalendarPath;
+import dev.mvc.notice.NoticePath;
 import dev.mvc.tool.Tool;
 
 @Configuration
@@ -30,15 +33,27 @@ public class WebMvcConfiguration implements WebMvcConfigurer{
                 .addResourceLocations("file:///" + productsUploadDir);
         
         // 🔥 회원(member) 사업자 파일용
+//        registry.addResourceHandler("/member/storage/**")
+//                .addResourceLocations("file:///C:/kd/deploy/team/member/storage/");
+        
+        String memberUploadDir = MemberPath.getUploadDir(); // Member 클래스에 경로 메서드 추가
         registry.addResourceHandler("/member/storage/**")
-                .addResourceLocations("file:///C:/kd/deploy/team/member/storage/");
+                .addResourceLocations("file:///" + memberUploadDir);
         
         // 이미지 URL 매핑
-        registry.addResourceHandler("/calendar/storage/**")
-                .addResourceLocations("file:///C:/kd/deploy/team/calendar/storage/");
+//        registry.addResourceHandler("/calendar/storage/**")
+//                .addResourceLocations("file:///C:/kd/deploy/team/calendar/storage/");
         
+        String calendarUploadDir = CalendarPath.getUploadDir(); // Calendar 클래스에 경로 메서드 추가
+        registry.addResourceHandler("/calendar/storage/**")
+                .addResourceLocations("file:///" + calendarUploadDir);
+        
+//        registry.addResourceHandler("/uploads/notice/**")
+//                .addResourceLocations("file:///C:/kd/deploy/team/notice/storage/");
+        
+        String noticeUploadDir = NoticePath.getUploadDir();
         registry.addResourceHandler("/uploads/notice/**")
-                .addResourceLocations("file:///C:/kd/deploy/team/notice/storage/");
+                .addResourceLocations("file:///" + noticeUploadDir);
         
         // 리뷰용 이미지
         registry.addResourceHandler("/review/storage/**")

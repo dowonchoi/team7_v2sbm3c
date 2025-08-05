@@ -22,6 +22,8 @@ import dev.mvc.faq.FaqProcInter;
 import dev.mvc.qna.QnaProcInter;
 import jakarta.servlet.http.HttpSession;
 
+import dev.mvc.notice.NoticePath;
+
 @RequestMapping("/notice")
 @Controller
 public class NoticeCont {
@@ -90,7 +92,7 @@ public class NoticeCont {
 
       // 이미지 업로드 처리
       if (!uploadImage.isEmpty()) {
-          String uploadDir = "C:/kd/deploy/team/notice/storage/";
+        String uploadDir = NoticePath.getUploadDir();
           String filename = System.currentTimeMillis() + "_" + uploadImage.getOriginalFilename(); // 파일명 중복 방지
           uploadImage.transferTo(new File(uploadDir + filename));
           noticeVO.setImage(filename); // VO에 이미지 파일명 저장
@@ -175,7 +177,7 @@ public class NoticeCont {
       }
 
       NoticeVO oldNotice = this.noticeProc.read(noticeVO.getNotice_id());
-      String uploadDir = "C:/kd/deploy/team/notice/storage/";
+      String uploadDir = NoticePath.getUploadDir();
 
       // 새 이미지 업로드
       if (!uploadImage.isEmpty()) {
@@ -214,7 +216,7 @@ public class NoticeCont {
       }
 
       NoticeVO noticeVO = this.noticeProc.read(notice_id);
-      String uploadDir = "C:/kd/deploy/team/notice/storage/";
+      String uploadDir = NoticePath.getUploadDir();
 
       // 서버 내 이미지 삭제
       if (noticeVO.getImage() != null) {
@@ -242,7 +244,7 @@ public class NoticeCont {
   @ResponseBody
   public ResponseEntity<Resource> serveImage(@PathVariable("filename") String filename) {
       try {
-          Path file = Paths.get("C:/kd/deploy/team/notice/storage/").resolve(filename);
+          Path file = Paths.get(NoticePath.getUploadDir()).resolve(filename);
           Resource resource = new UrlResource(file.toUri());
 
           if (!resource.exists() || !resource.isReadable()) {
@@ -256,4 +258,5 @@ public class NoticeCont {
           return ResponseEntity.notFound().build();
       }
   }
+
 }
