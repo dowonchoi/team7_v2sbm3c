@@ -38,6 +38,9 @@ public class OpenAICont {
   @Autowired
   @Qualifier("dev.mvc.openai.MemberImgProc")
   private MemberImgProcInter memberImgProc;
+  
+  private final String openai_ip="http://121.78.128.177:8000";
+  //private final String openai_ip="http:/localhost:8000";
 
   /** 레시피 처리 서비스 */
   @Autowired
@@ -53,9 +56,9 @@ public class OpenAICont {
   private final RestTemplate restTemplate;
 
   /** FastAPI URL: 레시피 추천 API */
-  private static final String FASTAPI_FOOD_URL = "http://localhost:8000/food";
+  private static final String FASTAPI_FOOD_URL = "http://121.78.128.177:8000/food";
   /** FastAPI URL: 회원 이미지 분석 API */
-  private static final String FASTAPI_MEMBER_IMG_URL = "http://localhost:8000/member_img";
+  private static final String FASTAPI_MEMBER_IMG_URL = "http://121.78.128.177:8000/member_img";
 
   
   /**
