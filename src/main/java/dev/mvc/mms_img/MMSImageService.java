@@ -48,6 +48,8 @@ public class MMSImageService {
     public String addTextToImage(String inputPath, String messageText,
                                  String fontName, int fontSize,
                                  String textColor, String shadowColor) throws IOException {
+      
+       System.out.println("[DEBUG] 입력 이미지 경로: " + inputPath);
 
         /** (1) 이미지 로드: 기존 이미지 파일을 BufferedImage로 읽기 */
         BufferedImage originalImage = ImageIO.read(new File(inputPath));
